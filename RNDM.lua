@@ -252,12 +252,153 @@ all you are doing is just making the comedian go harder on you.
 -- NEED TO FIX THE TERM EXEC COMMAND. -> SETTINGS
 --
 
-me and devito did my podcast and we had a driver who used to work at world trade center. and somebody must have become
-arrested for shoplifting. all the goods in there would have been wasted which is a bit insane actually and so that is why
-they would never ever see it I believe? can you circle back around a little. I don't want to get somebody fired because
-that really sucks. listen lady I gotta pick up my son now really fast. come on come on quick now. this kid's got ideas.
+  require('vgit').project_unstage_all()
+  require"vgit".buffer_stage()
+  vim.cmd("Neogit commit")
+
+this is funny
 
 
+r
+
+
+asdf
+
+
+you can use the `=` expressio register to capture output from external
+commands or expressions which allow you to insert whatever
+you want into a buffer which is quite cool.
+
+
+STARTUP_ERRS.md
+
+
+i need to fix the startup errs below so that vim can start working again in the browser so that you don't need to use it at all.
+
+
+```vim
+[doom] [WARN  08:02:04] [string "..."]:0: doom-treesitter:  clang has poor compatibility compiling treesitter parsers.  We recommend using gcc, see issue #246 for details.  (https://github.com/NTBBloodbath/doom-nvim/issues/246)
+```
+
+insert contents of file: `imap  <c-f><c-f> <c-r>=readfile("")<left><left>`. How can I use cmp for the expression register.
+
+
+
+LOOK AT THIS EXAMPLE OF USING VARIABLES WITH EXPRESSION REGISTER AND MACROS.
+https://stackoverflow.com/questions/7027741/what-is-the-purpose-of-the-expression-register
+
+
+People show of their favorite vim binds.
+https://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim?rq=1
+
+lhhhllllhlhhhhhhbBljwkjbkwwjlhkjlwEwlhwWSacsiffzzztkwkkjzzSaskkkjjjsiffztjwjwwwbjwwjwjjjBBjjjjjwwjwjhwwjbjwjwwjbww
+vpSno{jjkkko€ýS(cmp.u.k.fallback_expr:)-- print root root to
+nodezm v
+
+k
+							*format-bullet-list*
+This mapping will format any bullet list.  It requires that there is an empty
+line above and below each list entry.  The expression commands are used to
+be able to give comments to the parts of the mapping. >
+
+	:let m =     ":map _f  :set ai<CR>"   " need 'autoindent' set
+	:let m ..= "{O<Esc>"		      " add empty line above item
+	:let m ..= "}{)^W"		      " move to text after bullet
+	:let m ..= "i     <CR>     <Esc>"     " add space for indent
+	:let m ..= "gq}"		      " format text after the bullet
+	:let m ..= "{dd"		      " remove the empty line
+	:let m ..= "5lDJ"		      " put text after bullet
+	:execute m			      |" define the mapping
+
+r
+
+
+Opening help in the current window				*help-curwin*
+
+By default, help is displayed in a split window.  If you prefer it opens in
+the current window, try this custom `:HelpCurwin` command:
+>
+	command -bar -nargs=? -complete=help HelpCurwin execute s:HelpCurwin(<q-args>)
+	let s:did_open_help = v:false
+
+	function s:HelpCurwin(subject) abort
+	  let mods = 'silent noautocmd keepalt'
+	  if !s:did_open_help
+	    execute mods .. ' help'
+	    execute mods .. ' helpclose'
+	    let s:did_open_help = v:true
+	  endif
+	  if !empty(getcompletion(a:subject, 'help'))
+	    execute mods .. ' edit ' .. &helpfile
+	    set buftype=help
+	  endif
+	  return 'help ' .. a:subject
+	endfunction
+<
+
+
+help new win
+help same win
+
+:: add new bind UI ::
+
+list existing bind bases in a module (base, and existing leaders)
+select the one after which you want to insert a new bind.
+
+
+$#
+
+/Users/hjalmarjakobsson/code/repos/github.com/molleweide/doom-nvim/settings.lua
+
+/Users/hjalmarjakobsson/code/repos/github.com/molleweide/doom-nvim/settings.lua
+
+RNDM.lua
+
+r
+
+e
+
+\v\ccommit
+
+  require('vgit').project_unstage_all()
+  require"vgit".buffer_stage()
+  vim.cmd("Neogit commit")
+this is funny
+arst
+o
+
+>>> with lightspeed > on jump run `zt` and test if it is nice to hav this feature.
+
+
+test 0-9 registers and see if I can learn how to use the feature where it
+collects objects
+
+4. Named registers "a to "z or "A to "Z			*quote_alpha* *quotea*
+Vim fills these registers only when you say so.  Specify them as lowercase
+letters to replace their previous contents or as uppercase letters to append
+to their previous contents.  When the '>' flag is present in 'cpoptions' then
+a line break is inserted before the appended text.
+
+
+how do I use the read only registers?
+
+how do I use the expression register?
+
+
+aaa
+
+  require('vgit').project_unstage_all()
+  require"vgit".buffer_stage()
+  vim.cmd("Neogit commit")
+
+#   new file:   bugs/mapper-unique.md
+
+
+
+bbb
+bbb
+
+bbb
 
 - clean
 
