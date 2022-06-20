@@ -1,0 +1,7 @@
+-- -- https://github.com/search?q=jira+vim
+-- -- https://github.com/deepredsky/vim-jira
+-- -- https://github.com/paulkass/jira-vim
+-- -- https://github.com/shumphrey/jira.vim
+-- -- https://github.com/mnpk/vim-jira-complete
+-- -- https://github.com/n0v1c3/vira
+-- https://github.com/vipul-sharma20/nvim-jira -- <----
