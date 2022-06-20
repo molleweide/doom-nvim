@@ -1,5 +1,5 @@
-local mt =  require("doom.modules.features.dui.make_title")
-local mr =  require("doom.modules.features.dui.make_results")
+local make_title =  require("doom.modules.features.dui.make_title")
+local make_results =  require("doom.modules.features.dui.make_results")
 
 local doom_ui = {}
 
@@ -36,10 +36,6 @@ local function picker_get_state(prompt_bufnr)
   return fuzzy, line
 end
 
-local function i(x)
-  print(vim.inspect(x))
-end
-
 -- TODO: make this dynamic / add display configs to each parts result maker.
 function doom_displayer(entry)
   local entry_display = require("telescope.pickers.entry_display")
@@ -65,8 +61,7 @@ function doom_displayer(entry)
 	}
 end
 
--- return entry_makers
-
+-- can I redo this passing an `opts` table as arg and start follow the opts pattern
 local function doom_picker(type, components)
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
@@ -75,14 +70,12 @@ local function doom_picker(type, components)
   local state = require("telescope.actions.state")
   local actions = require("telescope.actions")
   local previewers = require("telescope.previewers")
-
-
-  local title = mt.get_title()
-  local results = mr.get_results_for_query()
+  local title = make_title.get_title()
+  local results = make_results.get_results_for_query()
+  local opts = require("telescope.themes").get_ivy()
   -- i(results)
   -- print("picker -> query:", vim.inspect(doom_ui_state.query))
   -- print("picker -> title:", title)
-  local opts = require("telescope.themes").get_ivy()
   require("telescope.pickers").new(opts, {
     prompt_title = title,
     finder = require("telescope.finders").new_table({
@@ -158,40 +151,10 @@ doom_ui.cmds = {
       doom_ui_state.next()
 	  end,
 	},
-	--
-	-- {
-	--   "DoomPickerModuleFull",
-	--   function()
-	--     reset()
-	--     pickers.doom_module_full_picker()
-	--   end,
-	-- },
-	--
-	-- {
-	--   "DoomPickerModules",
-	--   function()
-	--     reset()
-	--     pickers.doom_picker_all_modules()
-	--   end,
-	-- },
-
-	-- { "DoomPickerModuleSettings", 		function() reset() pickers.doom_module_settings_picker() end, },
-	-- { "DoomPickerModulePackages", 		function() reset() pickers.doom_module_packages_picker() end, },
-	-- { "DoomPickerModuleCmds", 	      function() reset() pickers.doom_module_cmds_picker() end, },
-	-- { "DoomPickerModuleAutocmds", 		function() reset() pickers.doom_module_autocmds_picker() end, },
-	-- { "DoomPickerModuleBindsTable", 	function() reset() pickers.doom_binds_table_picker() end, },
-	-- { "DoomPickerModuleBindsBranch", 	function() reset() pickers.doom_binds_branch_picker() end, },
-	-- { "DoomPickerModuleBindsLeaf", 		function() reset() pickers.doom_binds_leaf_picker() end, },
-
-	-- todo: all modules + settings, so that you can really access everything
-	--    from one fuzzy finder
 }
 
 doom_ui.binds = {
   -- { "[n", ":DoomPickerMain<cr>", name = "doom main menu command"},
-  -- { "[s", ":DoomPickerSettings<cr>", name = "picker doom settings"},
-  -- { "[m", ":DoomPickerModules<cr>", name = "picker doom modules"},
-  -- { "[b", ":DoomPickerModuleBinds<cr>", name = "picker doom binds"},
   {
     "<leader>",
     name = "+prefix",
@@ -203,15 +166,6 @@ doom_ui.binds = {
         name = "+test",
         {
           { "l", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false }, },
-          -- { "s", [[ :DoomPickerSettings<cr> ]], name = "settings", options = { silent = false }, }, -- lol
-          -- { "n", [[ :DoomPickerModuleFull<cr> ]], name = "m_full", options = { silent = false }, },
-          -- { "S", [[ :DoomPickerModuleSettings<cr> ]], name = "m settings", options = { silent = false }, },
-          -- { "p", [[ :DoomPickerModulePackages<cr> ]], name = "m pgks", options = { silent = false }, },
-          -- { "c", [[ :DoomPickerModuleCmds<cr> ]], name = "m cmds", options = { silent = false }, },
-          -- { "a", [[ :DoomPickerModuleAutocmds<cr> ]], name = "m autocmds", options = { silent = false }, },
-          -- { "f", [[ :DoomPickerModuleBindsTable<cr> ]], name = "m binds table", options = { silent = false }, },
-          -- { "b", [[ :DoomPickerModuleBindsBranch<cr> ]], name = "m binds branch", options = { silent = false }, },
-          -- { "w", [[ :DoomPickerModuleBindsLeaf<cr> ]], name = "m binds leaf", options = { silent = false }, },
         },
       },
     },
