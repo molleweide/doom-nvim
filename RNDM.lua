@@ -336,6 +336,10 @@ the current window, try this custom `:HelpCurwin` command:
 	endfunction
 <
 
+14
+
+and they don't thing that is a problem so it is a bit wierd if you would do that shit you know.
+
 
 help new win
 help same win
@@ -438,6 +442,19 @@ bbb
 --
 --
 --
+--
+--
+
+
+-- invisio + lysa
+
+-- merge settings branch into latest next.
 
 
 -- MODULE STRUCTURE > dynamically collect module category dirs instead of having them hard coded.
+--
+--
+--
+
+
+--
