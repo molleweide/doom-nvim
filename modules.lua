@@ -47,14 +47,14 @@ return {
     -- "mouse",           -- ???
     -- "gestures",        -- Mouse gestures
     -- "tabs",            -- ???
-    -- "scroll",
+    "scroll",
     "registers",
     -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
     "marks",
-    -- "undo",
-    -- "folds",
-    -- "increment",       --  tools for incrementing stuff
-    -- "clipboard",
+    "undo",
+    "folds",
+    "increment",       --  tools for incrementing stuff
+    "clipboard",
     -- "regex",           -- Regex tools
     -- "help",            -- Support for help with binds and stuff
     -- "printer",
@@ -74,8 +74,8 @@ return {
     "tabline",            -- Tab bar buffer switcher
     "dashboard",          -- A pretty dashboard upon opening
     "trouble",         -- A pretty diagnostic viewer
-    "statusline2",         -- A pretty status line at the bottom of the buffer
-    "minimap",         -- Shows current position in document
+    "statusline",         -- A pretty status line at the bottom of the buffer
+    -- "minimap",         -- Shows current position in document
     "terminal",        -- Integrated terminal in neovim
     "symbols",         -- Navigate between code symbols using telescope
     "ranger",          -- File explorer in neovim (TODO: Test)
@@ -263,14 +263,13 @@ return {
     "lua",
     "python",
     "bash",
-    -- "fish",
 
     -- Web
     "javascript",
     "typescript",
     "css",
     "vue",
-    "tailwindcss",
+    -- "tailwindcss",
     "glsl",
 
     -- Compiled
@@ -291,6 +290,7 @@ return {
     -- "solidity",          -- ethereum lang
   },
   themes = {
+
     -- "apprentice",
     -- "aquarium",
     -- "ariake",
@@ -359,10 +359,13 @@ return {
     -- "zenbones",
     -- "zephyr",
     -- "zephyrium",
+
   }
 }
 
 -- vim: sw=2 sts=2 ts=2 fdm=indent expandtab
+
+
 
 
 

@@ -11,10 +11,7 @@ windows.packages = {
   },
 }
 
-windows.binds = {}
-
-if require("doom.utils").is_module_enabled("whichkey") then
-  table.insert(windows.binds, {
+windows.binds = {
     "<leader>",
     name = "+prefix",
     {
@@ -29,7 +26,6 @@ if require("doom.utils").is_module_enabled("whichkey") then
         },
       },
     },
-  })
-end
+  }
 
 return windows

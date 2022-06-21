@@ -1,7 +1,4 @@
-local binds = {}
-
-if require("doom.utils").is_module_enabled("whichkey") then
-  table.insert(binds, {
+local binds = {
     "<leader>",
     name = "+prefix",
     {
@@ -13,8 +10,7 @@ if require("doom.utils").is_module_enabled("whichkey") then
         },
       },
     },
-  })
-end
+  }
 
 -- -- leader
 -- if require("doom.utils").is_module_enabled("whichkey") then

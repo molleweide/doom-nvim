@@ -54,10 +54,7 @@ wm.packages = {}
 
 
 
-wm.binds = {}
-
-if require("doom.utils").is_module_enabled("whichkey") then
-  table.insert(wm.binds, {
+wm.binds =  {
     "<leader>",
     name = "+prefix",
     {
@@ -75,7 +72,6 @@ if require("doom.utils").is_module_enabled("whichkey") then
         },
       },
     },
-  })
-end
+  }
 
 return wm

@@ -11,10 +11,7 @@ editing.packages = {
 	-- https://github.com/mizlan/iswap.nvim
 }
 
-editing.binds = {}
-
-if require("doom.utils").is_module_enabled("whichkey") then
-  table.insert(editing.binds, {
+editing.binds = {
     "<leader>",
     name = "+prefix",
     {
@@ -27,7 +24,6 @@ if require("doom.utils").is_module_enabled("whichkey") then
         },
       },
     },
-  })
-end
+  }
 
 return editing
