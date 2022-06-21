@@ -8,7 +8,6 @@ tailwindcss.settings = {
 tailwindcss.autocmds = {
   {
     "BufWinEnter",
-    "*.css,*.scss,*.vue,*.html,*.svelte,*.tsx,*.jsx",
     utils.make_run_once_function(function()
       local langs_utils = require('doom.modules.langs.utils')
 

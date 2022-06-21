@@ -263,6 +263,7 @@ return {
     "lua",
     "python",
     "bash",
+    -- "fish",
 
     -- Web
     "javascript",

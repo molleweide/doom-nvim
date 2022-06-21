@@ -57,7 +57,7 @@ dashboard.settings = {
 dashboard.packages = {
   ["dashboard-nvim"] = {
     "glepnir/dashboard-nvim",
-    commit = "ba98ab86487b8eda3b0934b5423759944b5f7ebd",
+    commit = "883c7953d3e0a45ed0dd0fa05f9d029efdbf3c8a",
     cmd = "Dashboard",
     opt = true,
   },
@@ -128,7 +128,9 @@ dashboard.autocmds = {
       -- 2. Bytes count from the start of the buffer to the end (it should be non-existent, -1)
       -- 3. Existence of the buffer
       if vim.fn.argc() == 0 and vim.fn.line2byte("$") == -1 and vim.fn.bufexists(0) == 0 then
-        vim.cmd("Dashboard")
+        if packer_plugins["dashboard"] then
+          vim.cmd("Dashboard")
+        end
       end
     end,
     once = true,
