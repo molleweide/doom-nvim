@@ -33,7 +33,7 @@ required.packages = {
   -- core.modules.lua so that packer doesn't try and clean it up.
   ["impatient.nvim"] = {
     "lewis6991/impatient.nvim",
-    disabled = not doom.impatient_enabled,
+    disabled = not doom.settings.impatient_enabled,
   },
 }
 

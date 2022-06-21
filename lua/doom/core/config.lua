@@ -132,7 +132,7 @@ config.load = function()
     vim.opt.undofile = false
     vim.opt.undodir = nil
   end
-  vim.g.mapleader = doom.leader_key
+  vim.g.mapleader = doom.settings.leader_key
 end
 
 

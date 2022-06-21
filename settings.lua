@@ -2,6 +2,15 @@
 -- important overrides here if they like. We use treesitter to make sure
 -- that this file is in sync with the core.
 return {
+  -- Leader key for keybinds
+  -- @default = ' '
+  leader_key = ' ',
+
+  -- Enables impatent.nvim caching to speed up start time.
+  -- Can cause more issues so disabled by default
+  -- @default false
+  impatient_enabled = false,
+
   -- Pins plugins to a commit sha to prevent breaking changes
   -- @default = true
   freeze_dependencies = true,
