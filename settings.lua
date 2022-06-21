@@ -9,7 +9,7 @@ return {
   -- Enables impatent.nvim caching to speed up start time.
   -- Can cause more issues so disabled by default
   -- @default false
-  impatient_enabled = false,
+  impatient_enabled = true,
 
   -- Pins plugins to a commit sha to prevent breaking changes
   -- @default = true
