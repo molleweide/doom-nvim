@@ -1,4 +1,11 @@
 --[[
+
+
+1. remove core settings table.
+2. merge latest next again.
+
+
+
 https://github.com/masukomi/scheme-format
 
 - kontakta Kid, Nicky, Marcus, andra musik maenniskor. franska killen vikarie
@@ -292,7 +299,7 @@ People show of their favorite vim binds.
 https://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim?rq=1
 
 lhhhllllhlhhhhhhbBljwkjbkwwjlhkjlwEwlhwWSacsiffzzztkwkkjzzSaskkkjjjsiffztjwjwwwbjwwjwjjjBBjjjjjwwjwjhwwjbjwjwwjbww
-vpSno{jjkkko€ýS(cmp.u.k.fallback_expr:)-- print root root to
+vpSno{jjkkkoÂ€Ã½S(cmp.u.k.fallback_expr:)-- print root root to
 nodezm v
 
 k
