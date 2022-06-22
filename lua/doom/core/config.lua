@@ -66,7 +66,52 @@ config.load = function()
  -- Combine enabled modules (`modules.lua`) with core modules.
   local enabled_modules = require("doom.core.modules").enabled_modules
 
-  -- todo: remove the backwards compat in doom global
+  local dm = {}
+  local head
+  local function attach_module_doom(tp,res)
+    head = dm
+    local last = #tp
+    for i, p in ipairs(tp) do
+      if i ~= last then
+        if head[p] == nil then
+          head[p] = {}
+        end
+        head = head[p]
+      else
+        head[p] = res
+      end
+    end
+  end
+
+  -- Require each path in the modules tree
+  local function require_modules(t_path)
+    local path_concat = table.concat(t_path, ".")
+    local search_paths = {
+      ("user.modules.%s"):format(path_concat),
+      ("doom.modules.%s"):format(path_concat)
+    }
+    local ok, result
+    for _, path in ipairs(search_paths) do
+      ok, result = xpcall(require, debug.traceback, path)
+      if ok then
+        break;
+      end
+    end
+    if ok then
+      attach_module_doom(t_path, result)
+    else
+      local log = require("doom.utils.logging")
+      log.error(
+        string.format(
+          "There was an error loading module '%s'. Traceback:\n%s",
+          path_concat,
+          result
+        )
+      )
+    end
+  end
+
+  -- Recursively crawl modules tree
   local function recurse_modules(modules_tree, stack)
     local stack = stack or {}
     for k, v in pairs(modules_tree) do
@@ -74,40 +119,20 @@ config.load = function()
         table.insert(stack, k)
         recurse_modules(v, stack)
       else
-        local path_concat = table.concat(stack, ".") .. "." .. v
-        -- TODO: loop create paths
-        local search_paths = {
-          ("user.modules.%s"):format(mod_sub_path),
-          ("doom.modules.%s"):format(mod_sub_path)
-        }
-        local ok, result
-        for _, path in ipairs(search_paths) do
-          ok, result = xpcall(require, debug.traceback, path)
-          if ok then
-            break;
-          end
+        local pc = { v }
+        if #stack > 0 then
+          pc = vim.deepcopy(stack)
+          table.insert(pc, v)
         end
-        if ok then
-          -- TODO: loop attach path to doom table
-          doom[section_name][module_name] = result
-        else
-          local log = require("doom.utils.logging")
-          -- TODO: loop create message string
-          log.error(
-            string.format(
-              "There was an error loading module '%s.%s'. Traceback:\n%s",
-              section_name,
-              module_name,
-              result
-            )
-          )
-        end
+        require_modules(pc)
       end
     end
     table.remove(stack, #stack)
     return
   end
+
   recurse_modules(enabled_modules)
+
 
   -- Iterate over each module and save it to the doom global object
   for section_name, section_modules in pairs(enabled_modules) do
