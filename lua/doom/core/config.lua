@@ -5,7 +5,7 @@
 --  running the user's `config.lua` file.
 
 local utils = require("doom.utils")
-local system = require("doom.core.system")
+local tree = require("doom.utils.tree")
 local config = {}
 local filename = "config.lua"
 
@@ -66,56 +66,8 @@ config.load = function()
  -- Combine enabled modules (`modules.lua`) with core modules.
   local enabled_modules = require("doom.core.modules").enabled_modules
 
-  --- Attach each module to the global `doom.modules` table
-  ---@param tp    table of a modules path components
-  ---@param res   the required results that should be attached to
-  local head -- is it a bad pattern to keep head like this?
-  local function attach_modules(tp,res)
-    head = doom.modules
-    local last = #tp
-    for i, p in ipairs(tp) do
-      if i ~= last then
-        if head[p] == nil then
-          head[p] = {}
-        end
-        head = head[p]
-      else
-        head[p] = res
-      end
-    end
-  end
-
-  --- Require each enabled module.
-  ---@param t_path is a table of path components for each respective module
-  local function require_modules(t_path)
-    local path_concat = table.concat(t_path, ".")
-    local search_paths = {
-      ("user.modules.%s"):format(path_concat),
-      ("doom.modules.%s"):format(path_concat)
-    }
-    local ok, result
-    for _, path in ipairs(search_paths) do
-      ok, result = xpcall(require, debug.traceback, path)
-      if ok then
-        break;
-      end
-    end
-    if ok then
-      attach_modules(t_path, result)
-    else
-      local log = require("doom.utils.logging")
-      log.error(
-        string.format(
-          "There was an error loading module '%s'. Traceback:\n%s",
-          path_concat,
-          result
-        )
-      )
-    end
-  end
-
-  local tree = require("doom.utils.tree")
-  local acc = tree.traverse_table {
+  -- Crawl the modules table and require all modules
+  tree.traverse_table {
     tree = enabled_modules,
     type = "modules",
     leaf = function(stack, k, v)
@@ -124,7 +76,30 @@ config.load = function()
         pc = vim.deepcopy(stack)
         table.insert(pc, v)
       end
-      require_modules(pc)
+      local path_concat = table.concat(pc, ".")
+      local search_paths = {
+        ("user.modules.%s"):format(path_concat),
+        ("doom.modules.%s"):format(path_concat)
+      }
+      local ok, result
+      for _, path in ipairs(search_paths) do
+        ok, result = xpcall(require, debug.traceback, path)
+        if ok then
+          break;
+        end
+      end
+      if ok then
+        tree.attach_table_path(doom.modules, pc, result)
+      else
+        local log = require("doom.utils.logging")
+        log.error(
+          string.format(
+            "There was an error loading module '%s'. Traceback:\n%s",
+            path_concat,
+            result
+          )
+        )
+      end
       return pc
     end,
   }

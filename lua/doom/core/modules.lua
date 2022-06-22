@@ -114,7 +114,66 @@ modules.load_modules = function()
   local use = require("packer").use
   -- Handle the Modules
   -- TODO: pass `doom.modules` to recursive function
-    for section_name, _ in pairs(doom.modules) do
+
+  -- default > traverse `doom.modules` if nothing specified
+  require("doom.utils.tree").traverse_table {
+    tree = doom.modules,
+    type = "modules",
+    stop_at = "modules",
+    leaf = function(stack, k, v)
+
+      print("CORE/MODULES:", vim.inspect(stack), k, v)
+
+
+      -- print(vim.inspect(k))
+
+      -- local pc = { v }
+      -- if #stack > 0 then
+      --   pc = vim.deepcopy(stack)
+      --   table.insert(pc, v)
+      -- end
+      -- require_modules(pc)
+      -- return pc
+
+      -- -- Import dependencies with packer from module.packages
+      -- -- print(module_name, module)
+      -- if module.packages then
+      --   for dependency_name, packer_spec in pairs(module.packages) do
+      --     -- Set packer_spec to configure function
+      --     if module.configs and module.configs[dependency_name] then
+      --       packer_spec.config = module.configs[dependency_name]
+      --     end
+      --
+      --     -- Set/unset frozen packer dependencies
+      --     packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
+      --
+      --     -- Initialise packer
+      --     use(packer_spec)
+      --   end
+      -- end
+      --
+      -- -- Setup package autogroups
+      -- if module.autocmds then
+      --   local autocmds = type(module.autocmds) == "function" and module.autocmds()
+      --     or module.autocmds
+      --   utils.make_augroup(module_name, autocmds)
+      -- end
+      --
+      -- if module.cmds then
+      --   for _, cmd_spec in ipairs(module.cmds) do
+      --     utils.make_cmd(cmd_spec[1], cmd_spec[2])
+      --   end
+      -- end
+      --
+      -- if module.binds then
+      --   keymaps_service.applyKeymaps(
+      --     type(module.binds) == "function" and module.binds() or module.binds
+      --   )
+      -- end
+    end,
+  }
+
+  for section_name, _ in pairs(doom.modules) do
     for module_name, module in pairs(doom[section_name]) do
       -- Import dependencies with packer from module.packages
       -- print(module_name, module)
