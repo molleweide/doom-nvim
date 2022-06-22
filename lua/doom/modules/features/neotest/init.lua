@@ -1,1 +1,6 @@
 -- https://github.com/nvim-neotest/neotest
+-- https://github.com/nvim-neotest/neotest-vim-test
+-- https://github.com/olimorris/neotest-rspec
+-- https://github.com/nvim-neotest/neotest-go
+-- https://github.com/nvim-neotest/neotest-plenary
+-- https://github.com/nvim-neotest/neotest-python

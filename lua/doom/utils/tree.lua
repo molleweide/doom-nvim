@@ -4,7 +4,7 @@ local M = {}
 ---@param branch_opts
 ---@param a
 ---@param b
-local function we_can_recurse(branch_opts, a, b)
+local function we_can_recurse(node_type, a, b)
 
   -- use rec_opts to determine what allows for recursing downwards, and what should be treaded as leaves
   --
@@ -13,25 +13,27 @@ local function we_can_recurse(branch_opts, a, b)
   --   3. anonymous sub tables
   --   4. binds table
 
+  if node_type == "modules"  then
+    if type(b) == "table" then
+      return true
+    else
+      return false
+    end
+  end
 
-  -- if branch_opts == "kbranch_string_leaves" then
-  --   -- if type(b) == "table"
-  -- end
-  -- if branch_opts == "doom_binds" then
+  -- if node_type == "binds" then
   --   -- for _, t in ipairs(nest_tree) do
   --   --   if type(t.rhs) == "table" then
   -- end
 
-  if branch_opts == "mixed" then
+  if node_type == "settings" then
     if type(a) == "number" then
       return false
     end
-
     if type(b) ~= "table" then
       -- print(":: number:", b)
       return false
     end
-
     local cnt = 0
     for k, v in pairs(b) do
       cnt = cnt + 1
@@ -40,11 +42,9 @@ local function we_can_recurse(branch_opts, a, b)
         return false
       end
     end
-
     if cnt == 0 then
       return false
     end
-
     return true
   end
 
@@ -55,7 +55,7 @@ end
 ---@param stack
 ---@param v
 ---@return
-local function get_branch_path(stack, v)
+local function flatten_stack(stack, v)
   local pc = { v }
   if #stack > 0 then
     pc = vim.deepcopy(stack)
@@ -66,117 +66,39 @@ end
 
 
 --- This is the main interface to tree
----@param tree
----@param branch_opts
----@param leaf_cb
----@param get_flattened
-local function traverse_table(tree, branch_opts, branch_cb, leaf_cb, get_flattened)
+---
+---@param opts
+---   tree (required)
+---    type (default: )
+---    leaf
+---@return accumulator
+M.traverse_table = function(opts)
 
-  local function recurse(tree, stack, flattened)
-    local flattened = flattened or {}
+  local function recurse(tree, stack, accumulator)
+
+    local accumulator = accumulator or {}
     local stack = stack or {}
 
     for k, v in pairs(tree) do
 
-      if we_can_recurse(branch_opts, k, v) then
+      if we_can_recurse(opts.type, k, v) then
         table.insert(stack, k)
-        -- table.insert(flattened, entry)
-        -- branch_cb(pc) -- ??
-        recurse(v, stack, flattened)
+        recurse(v, stack, accumulator)
 
       else
-        local pc = get_branch_path(stack, v)
-        leaf_cb(pc)
-        -- table.insert(flattened, entry)
+        -- local pc = flatten_stack(stack, v)
+        local acc = opts.leaf(stack, k, v)
+        table.insert(accumulator, acc)
+
       end
     end
 
     table.remove(stack, #stack)
-    return flattened
+    return accumulator
   end
 
-  return recurse(tree)
+  return recurse(opts.tree)
 
 end
 
-
-
-
-
-
-
-
---
--- BINDS
---
-
--- list tree flattener. binds contain both anonymous list and potential trees.
----
----@param nest_tree / doom binds tree
----@param flattened / accumulator list of all entries
----@param bstack / keep track of recursive depth and the index chain to get back to the tree
----@return list of flattened bind entries
-M.binds_flattened = function(nest_tree, flattened, bstack)
-  local flattened = flattened or {}
-  local sep = " | "
-  local bstack = bstack or {}
-
-  if acc == nil then
-
-    for _, t in ipairs(nest_tree) do
-      if type(t.rhs) == "table" then
-
-        -- --
-        -- -- TODO: insert an entry for each new branch here ??
-        -- --
-        --
-        --
-        --  optional flag to make a uniqe entry for each branch_step
-        --
-        --
-        -- -- so that you can do `add_mapping_to_same_branch()` ???
-        -- local entry = {
-        --   type = "module_bind_branch",
-        --   name = k,
-        --   value = v,
-        --   list_display_props = {
-        --     "BIND", "", ""
-        --   }
-        -- }
-        -- entry = table_merge(entry, t)
-
-        table.insert(flattened, entry)
-
-        table.insert(bstack, t.lhs)
-        flattened = M.binds_flattened(t.rhs, flattened, bstack)
-      else
-
-        -- i(t)
-
-        -- so that you can do `add_mapping_to_same_branch()` ???
-        local entry = {
-          type = "module_bind_leaf",
-          data = t,
-          list_display_props = {
-            { "BIND" }, { t.lhs }, {t.name}, {t.rhs} -- {t[1], t[2], tostring(t.options)
-          },
-          ordinal = t.name..tostring(lhs),
-          mappings = {
-            ["<CR>"] = function(fuzzy,line, cb)
-              i(fuzzy)
-              -- doom_ui_state.query = {
-              --   type = "settings",
-              -- }
-              -- doom_ui_state.next()
-  		      end
-          }
-        }
-
-        table.insert(flattened, entry)
-      end
-    end
-  end
-  table.remove(bstack, #bstack)
-  return flattened
-end
-
+return M
