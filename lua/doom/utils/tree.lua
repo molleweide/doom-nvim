@@ -1,122 +1,182 @@
--- put generalized functions for managing recursive trees
--- in doom here.
---
---
--- see if I can refactor `dui/make_results` and `core/config` to here.
---
---
---
---
---
---
---
---  - be_recursive        bool (treat like a regular array??)
---  - cb_leaf             fn
---  - return_flattened    bool
---  - branch_signifiers   string
---  - ignore_empty?
---  - ??
---
---
---
---
---
--- todo: copy paste all recursive functions I have to here!
+local M = {}
+
+--- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
+---@param branch_opts
+---@param a
+---@param b
+local function we_can_recurse(branch_opts, a, b)
+
+  -- use rec_opts to determine what allows for recursing downwards, and what should be treaded as leaves
+  --
+  --   1. settings/mixed table
+  --   2. key nodes w/table children containing string leaves
+  --   3. anonymous sub tables
+  --   4. binds table
 
 
---
--- CHECK IF WE SHOULD RECURSE DOWN?
---
+  -- if branch_opts == "kbranch_string_leaves" then
+  --   -- if type(b) == "table"
+  -- end
+  -- if branch_opts == "doom_binds" then
+  --   -- for _, t in ipairs(nest_tree) do
+  --   --   if type(t.rhs) == "table" then
+  -- end
 
---
--- CHECK IF WE SHOULD RECURSE DOWN?
+  if branch_opts == "mixed" then
+    if type(a) == "number" then
+      return false
+    end
 
-M.we_can_recurse = function(a, b)
+    if type(b) ~= "table" then
+      -- print(":: number:", b)
+      return false
+    end
 
-  if type(a) == "number" then
-     return false
-   end
+    local cnt = 0
+    for k, v in pairs(b) do
+      cnt = cnt + 1
+      if type(k) == "number" then
+        -- print("IS_SUB; sub table has number",  a)
+        return false
+      end
+    end
 
-   if type(b) ~= "table" then
-     -- print(":: number:", b)
-     return false
-   end
+    if cnt == 0 then
+      return false
+    end
 
-   local cnt = 0
-   for k, v in pairs(b) do
-     cnt = cnt + 1
-     if type(k) == "number" then
-       -- print("IS_SUB; sub table has number",  a)
-       return false
-     end
-   end
-   if cnt == 0 then
-     return false
-   end
+    return true
+  end
 
-   return true
 end
 
 
-
---
--- GENERALIZED DOOM TREE RECURSOR
---
-
----@param tree
+--- returns the full path to leaf as an array
 ---@param stack
-local function traverse_tree(tree, stack)
+---@param v
+---@return
+local function get_branch_path(stack, v)
+  local pc = { v }
+  if #stack > 0 then
+    pc = vim.deepcopy(stack)
+    table.insert(pc, v)
+  end
+  return pc
+end
+
+
+--- This is the main interface to tree
+---@param tree
+---@param branch_opts
+---@param leaf_cb
+---@param get_flattened
+local function traverse_table(tree, branch_opts, branch_cb, leaf_cb, get_flattened)
+
+  local function recurse(tree, stack, flattened)
+    local flattened = flattened or {}
+    local stack = stack or {}
+
+    for k, v in pairs(tree) do
+
+      if we_can_recurse(branch_opts, k, v) then
+        table.insert(stack, k)
+        -- table.insert(flattened, entry)
+        -- branch_cb(pc) -- ??
+        recurse(v, stack, flattened)
+
+      else
+        local pc = get_branch_path(stack, v)
+        leaf_cb(pc)
+        -- table.insert(flattened, entry)
+      end
+    end
+
+    table.remove(stack, #stack)
+    return flattened
+  end
+
+  return recurse(tree)
+
+end
+
+
+
+
+
+
+
+
+--
+-- BINDS
+--
+
+-- list tree flattener. binds contain both anonymous list and potential trees.
+---
+---@param nest_tree / doom binds tree
+---@param flattened / accumulator list of all entries
+---@param bstack / keep track of recursive depth and the index chain to get back to the tree
+---@return list of flattened bind entries
+M.binds_flattened = function(nest_tree, flattened, bstack)
   local flattened = flattened or {}
-  local stack = stack or {}
+  local sep = " | "
+  local bstack = bstack or {}
 
-   for k, v in pairs(tree) do
+  if acc == nil then
 
-     -- BRANCH
-     if type(v) == "table" then
-       table.insert(stack, k)
-       -- table.insert(flattened, entry)
-       traverse_tree(v, stack)
+    for _, t in ipairs(nest_tree) do
+      if type(t.rhs) == "table" then
 
-     -- LEAF
-     else
-       local pc = { v }
-       if #stack > 0 then
-         pc = vim.deepcopy(stack)
-         table.insert(pc, v)
-       end
-       require_modules(pc)
+        -- --
+        -- -- TODO: insert an entry for each new branch here ??
+        -- --
+        --
+        --
+        --  optional flag to make a uniqe entry for each branch_step
+        --
+        --
+        -- -- so that you can do `add_mapping_to_same_branch()` ???
+        -- local entry = {
+        --   type = "module_bind_branch",
+        --   name = k,
+        --   value = v,
+        --   list_display_props = {
+        --     "BIND", "", ""
+        --   }
+        -- }
+        -- entry = table_merge(entry, t)
 
-       -- table.insert(flattened, entry)
-     end
-   end
+        table.insert(flattened, entry)
 
-   table.remove(stack, #stack)
-   return
+        table.insert(bstack, t.lhs)
+        flattened = M.binds_flattened(t.rhs, flattened, bstack)
+      else
+
+        -- i(t)
+
+        -- so that you can do `add_mapping_to_same_branch()` ???
+        local entry = {
+          type = "module_bind_leaf",
+          data = t,
+          list_display_props = {
+            { "BIND" }, { t.lhs }, {t.name}, {t.rhs} -- {t[1], t[2], tostring(t.options)
+          },
+          ordinal = t.name..tostring(lhs),
+          mappings = {
+            ["<CR>"] = function(fuzzy,line, cb)
+              i(fuzzy)
+              -- doom_ui_state.query = {
+              --   type = "settings",
+              -- }
+              -- doom_ui_state.next()
+  		      end
+          }
+        }
+
+        table.insert(flattened, entry)
+      end
+    end
+  end
+  table.remove(bstack, #bstack)
+  return flattened
 end
 
-
---
--- CORE CONFIG RECURSE
---
-
---- Recursively crawl the modules tree and require each leaf module.
----@param modules_tree  enabled modules table
----@param stack         stack to keep track of each module path
-local function recurse_modules(modules_tree, stack)
- local stack = stack or {}
- for k, v in pairs(modules_tree) do
-   if type(v) == "table" then
-     table.insert(stack, k)
-     recurse_modules(v, stack)
-   else
-     local pc = { v }
-     if #stack > 0 then
-       pc = vim.deepcopy(stack)
-       table.insert(pc, v)
-     end
-     require_modules(pc)
-   end
- end
- table.remove(stack, #stack)
- return
-end
