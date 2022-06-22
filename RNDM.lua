@@ -5,7 +5,6 @@
 2. merge latest next again.
 
 
-
 https://github.com/masukomi/scheme-format
 
 - kontakta Kid, Nicky, Marcus, andra musik maenniskor. franska killen vikarie
@@ -25,7 +24,6 @@ wha possibilities are there.
 - cronjo
 - solve bug
 - ask dannymat if he uses neogit.
-
 
 --------
 

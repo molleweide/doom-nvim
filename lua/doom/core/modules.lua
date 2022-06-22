@@ -113,6 +113,7 @@ local keymaps_service = require("doom.services.keymaps")
 modules.load_modules = function()
   local use = require("packer").use
   -- Handle the Modules
+  -- TODO: pass `doom.modules` to recursive function
     for section_name, _ in pairs(doom.modules) do
     for module_name, module in pairs(doom[section_name]) do
       -- Import dependencies with packer from module.packages

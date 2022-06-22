@@ -114,6 +114,12 @@ config.load = function()
     end
   end
 
+  -- TODO: i believe that the below function should go into a util
+  -- so that you can pass a leaf callback which would make it easier
+  -- to do this in multiple places.
+  --
+  -- account / discard module components
+
   --- Recursively crawl the modules tree and require each leaf module.
   ---@param modules_tree  enabled modules table
   ---@param stack         stack to keep track of each module path
