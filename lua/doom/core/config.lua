@@ -69,10 +69,9 @@ config.load = function()
   --- Attach each module to the global `doom.modules` table
   ---@param tp    table of a modules path components
   ---@param res   the required results that should be attached to
-  local dm = {}
-  local head
-  local function attach_module_doom(tp,res)
-    head = dm
+  local head -- is it a bad pattern to keep head like this?
+  local function attach_modules(tp,res)
+    head = doom.modules
     local last = #tp
     for i, p in ipairs(tp) do
       if i ~= last then
@@ -102,7 +101,7 @@ config.load = function()
       end
     end
     if ok then
-      attach_module_doom(t_path, result)
+      attach_modules(t_path, result)
     else
       local log = require("doom.utils.logging")
       log.error(
@@ -138,40 +137,6 @@ config.load = function()
   end
 
   recurse_modules(enabled_modules)
-
-
-  -- Iterate over each module and save it to the doom global object
-  for section_name, section_modules in pairs(enabled_modules) do
-    for _, module_name in pairs(section_modules) do
-
-      -- If the section is `user` resolves from `lua/user/modules`
-      local search_paths = {
-        ("user.modules.%s.%s"):format(section_name, module_name),
-        ("doom.modules.%s.%s"):format(section_name, module_name)
-      }
-
-      local ok, result
-      for _, path in ipairs(search_paths) do
-        ok, result = xpcall(require, debug.traceback, path)
-        if ok then
-          break;
-        end
-      end
-      if ok then
-        doom[section_name][module_name] = result
-      else
-        local log = require("doom.utils.logging")
-        log.error(
-          string.format(
-            "There was an error loading module '%s.%s'. Traceback:\n%s",
-            section_name,
-            module_name,
-            result
-          )
-        )
-      end
-    end
-  end
 
   -- Execute user's `config.lua` so they can modify the doom global object.
   local ok, err = xpcall(dofile, debug.traceback, config.source)
