@@ -31,25 +31,29 @@ local function we_can_recurse(opts, a, b, stack)
   --   3. anonymous sub tables
   --   4. binds table
 
+
+
   if opts.type == "modules"  then
     -- print(a, b)
     if type(b) == "table"  then
 
       if opts.stop_at == "modules" then
         -- print(ind(stack), a, b)
+        local is_mod = false
         for k, v in pairs(b) do
           if vim.tbl_contains(MODULE_PARTS, k) then
             -- print(":", k, type(k), v, type(v))
-            return 1
-          else
-            return 0
+            is_mod = true
           end
+        end
+        if is_mod then
+          return 1
+        else
+          return 0
         end
       else
         return 0
       end
-
-
     else
       return 1
     end
@@ -122,7 +126,17 @@ end
 ---@return accumulator
 M.traverse_table = function(opts)
 
+  local opts = opts or {}
+
+
+
+
+
+
+
   local function recurse(tree, stack, accumulator)
+
+    -- todo: create nice functions for logging each level
 
     local accumulator = accumulator or {}
     local stack = stack or {}
