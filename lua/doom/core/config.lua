@@ -114,35 +114,20 @@ config.load = function()
     end
   end
 
-  -- TODO: i believe that the below function should go into a util
-  -- so that you can pass a leaf callback which would make it easier
-  -- to do this in multiple places.
-  --
-  -- account / discard module components
-
-  --- Recursively crawl the modules tree and require each leaf module.
-  ---@param modules_tree  enabled modules table
-  ---@param stack         stack to keep track of each module path
-  local function recurse_modules(modules_tree, stack)
-    local stack = stack or {}
-    for k, v in pairs(modules_tree) do
-      if type(v) == "table" then
-        table.insert(stack, k)
-        recurse_modules(v, stack)
-      else
-        local pc = { v }
-        if #stack > 0 then
-          pc = vim.deepcopy(stack)
-          table.insert(pc, v)
-        end
-        require_modules(pc)
+  local tree = require("doom.utils.tree")
+  local acc = tree.traverse_table {
+    tree = enabled_modules,
+    type = "modules",
+    leaf = function(stack, k, v)
+      local pc = { v }
+      if #stack > 0 then
+        pc = vim.deepcopy(stack)
+        table.insert(pc, v)
       end
-    end
-    table.remove(stack, #stack)
-    return
-  end
-
-  recurse_modules(enabled_modules)
+      require_modules(pc)
+      return pc
+    end,
+  }
 
   -- Execute user's `config.lua` so they can modify the doom global object.
   local ok, err = xpcall(dofile, debug.traceback, config.source)
