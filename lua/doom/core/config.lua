@@ -66,6 +66,9 @@ config.load = function()
  -- Combine enabled modules (`modules.lua`) with core modules.
   local enabled_modules = require("doom.core.modules").enabled_modules
 
+  --- Attach each module to the global `doom.modules` table
+  ---@param tp    table of a modules path components
+  ---@param res   the required results that should be attached to
   local dm = {}
   local head
   local function attach_module_doom(tp,res)
@@ -83,7 +86,8 @@ config.load = function()
     end
   end
 
-  -- Require each path in the modules tree
+  --- Require each enabled module.
+  ---@param t_path is a table of path components for each respective module
   local function require_modules(t_path)
     local path_concat = table.concat(t_path, ".")
     local search_paths = {
@@ -111,7 +115,9 @@ config.load = function()
     end
   end
 
-  -- Recursively crawl modules tree
+  --- Recursively crawl the modules tree and require each leaf module.
+  ---@param modules_tree  enabled modules table
+  ---@param stack         stack to keep track of each module path
   local function recurse_modules(modules_tree, stack)
     local stack = stack or {}
     for k, v in pairs(modules_tree) do
