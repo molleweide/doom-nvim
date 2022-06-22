@@ -38,28 +38,24 @@ local function is_edge(opts, a, b, stack)
       edge = true
     end
 
-    -- TODO: needs to be inverted... above is already inverted (flip true/false)
   elseif opts.type == "settings" then
-
     if type(a) == "number" then
-      return false
+      edge = true
     end
     if type(b) ~= "table" then
-      -- print(":: number:", b)
-      return false
+      edge = true
     end
     local cnt = 0
     for k, v in pairs(b) do
       cnt = cnt + 1
       if type(k) == "number" then
         -- print("IS_SUB; sub table has number",  a)
-        return false
+        edge = true
       end
     end
     if cnt == 0 then
-      return false
+      edge = true
     end
-    return true
   end
 
   -- if opts.type == "binds" then
