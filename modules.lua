@@ -179,7 +179,7 @@ return {
     -- ::: MOLLEWEIDE ::: --
     ------------------------------------------------------------------
 
-    "binds",
+    "binds_personal",
     "colors",
     "docs",
     "editing",
