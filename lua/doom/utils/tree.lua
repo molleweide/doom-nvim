@@ -23,48 +23,24 @@ local function ind(stack)
 ---@param a
 ---@param b
 local function is_edge(opts, a, b, stack)
-
-  -- use rec_opts to determine what allows for recursing downwards, and what should be treaded as leaves
-  --
-  --   1. settings/mixed table
-  --   2. key nodes w/table children containing string leaves
-  --   3. anonymous sub tables
-  --   4. binds table
-
-
+  local edge = false
 
   if opts.type == "modules"  then
-    -- print(a, b)
     if type(b) == "table"  then
-
       if opts.stop_at == "modules" then
-        -- print(ind(stack), a, b)
-        local is_mod = false
         for k, v in pairs(b) do
           if vim.tbl_contains(MODULE_PARTS, k) then
-            -- print(":", k, type(k), v, type(v))
-            is_mod = true
+            edge = true
           end
         end
-        if is_mod then
-          return false
-        else
-          return true
-        end
-      else
-        return true
       end
     else
-      return false
+      edge = true
     end
-  end
 
-  -- if opts.type == "binds" then
-  --   -- for _, t in ipairs(nest_tree) do
-  --   --   if type(t.rhs) == "table" then
-  -- end
+    -- TODO: needs to be inverted... above is already inverted (flip true/false)
+  elseif opts.type == "settings" then
 
-  if opts.type == "settings" then
     if type(a) == "number" then
       return false
     end
@@ -85,6 +61,13 @@ local function is_edge(opts, a, b, stack)
     end
     return true
   end
+
+  -- if opts.type == "binds" then
+  --   -- for _, t in ipairs(nest_tree) do
+  --   --   if type(t.rhs) == "table" then
+  -- end
+
+  return edge
 
 end
 
@@ -151,7 +134,7 @@ M.traverse_table = function(opts, logtree)
         log_tree(opts, stack, k, v)
       end
 
-      if is_edge(opts, k, v, stack) then
+      if not is_edge(opts, k, v, stack) then
 
           -- local ret
           -- if opts.branch then
