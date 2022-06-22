@@ -22,7 +22,7 @@ local function ind(stack)
 ---@param branch_opts
 ---@param a
 ---@param b
-local function we_can_recurse(opts, a, b, stack)
+local function is_edge(opts, a, b, stack)
 
   -- use rec_opts to determine what allows for recursing downwards, and what should be treaded as leaves
   --
@@ -47,15 +47,15 @@ local function we_can_recurse(opts, a, b, stack)
           end
         end
         if is_mod then
-          return 1
+          return false
         else
-          return 0
+          return true
         end
       else
-        return 0
+        return true
       end
     else
-      return 1
+      return false
     end
   end
 
@@ -116,6 +116,18 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
+local function log_tree(opts, stack, k, v)
+
+  -- if #stack == 0 then
+  --   print(ind() .. ">" , k, v, "------------------------------------------------------------------")
+  -- end
+
+  -- if opts.stop_at == "modules" then
+    print(ind() .. ">" , k, v)
+  -- end
+
+end
+
 
 --- This is the main interface to tree
 ---
@@ -124,45 +136,40 @@ end
 ---    type (default: )
 ---    leaf
 ---@return accumulator
-M.traverse_table = function(opts)
-
+M.traverse_table = function(opts, logtree)
   local opts = opts or {}
 
-
-
-
-
-
-
   local function recurse(tree, stack, accumulator)
-
-    -- todo: create nice functions for logging each level
 
     local accumulator = accumulator or {}
     local stack = stack or {}
 
     for k, v in pairs(tree) do
 
-      -- if #stack == 0 then
-      --   print(ind() .. ">" , k, v, "------------------------------------------------------------------")
-      -- end
+      if logtree then
+        print("LOG TREE")
+        log_tree(opts, stack, k, v)
+      end
 
-      -- if opts.stop_at == "modules" then
-      --   print(ind() .. ">" , k, v)
-      -- end
+      if is_edge(opts, k, v, stack) then
 
-      local wc = we_can_recurse(opts, k, v, stack)
-
-      if wc == 0 then
-        -- branch
+          -- local ret
+          -- if opts.branch then
+          --   ret = opts.branch(stack, k, v)
+          -- end
 
         table.insert(stack, k)
         recurse(v, stack, accumulator)
 
-      elseif wc == 1 then
+      else
           -- print(k,v)
-          local acc = opts.leaf(stack, k, v)
-          table.insert(accumulator, acc)
+
+          local ret
+          if opts.leaf then
+            ret = opts.leaf(stack, k, v)
+          end
+
+          table.insert(accumulator, ret)
 
       end
     end
