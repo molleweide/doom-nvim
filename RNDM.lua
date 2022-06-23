@@ -1,5 +1,10 @@
 --[[
 
+-> TODAY:
+    1. setup mollewei.de on `heroku`
+    2. clean up -> pitch-machine.com
+
+split -> https://www.youtube.com/watch?v=bJl4VSoESpo
 
 1. remove core settings table.
 2. merge latest next again.
