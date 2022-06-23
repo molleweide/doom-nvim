@@ -1,8 +1,10 @@
 --[[
 
 
-1. remove core settings table.
-2. merge latest next again.
+allright so this is pretty fucking cool but it still requires something
+that is a little bit more secure than somehting else except for the
+things that we have gotten out in the reason street which is quite fucking insane.
+i don't ufkcing understand how they can do this shit.
 
 
 https://github.com/masukomi/scheme-format

@@ -10,12 +10,12 @@ local MODULE_PARTS = {
 }
 
 local function ind(stack)
-    local a = ""
-    for _ in ipairs(stack) do
-      a = a .. "-"
-    end
-    return a .. ">"
+  local a = ""
+  for _ in ipairs(stack) do
+    a = a .. "-"
   end
+  return a .. ">"
+end
 
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES

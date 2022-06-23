@@ -208,6 +208,7 @@ M.get_modules_extended = function()
     local glob = config_path .. "/lua/"..cat.."/modules/*/*/"
     return vim.split(vim.fn.glob(glob), "\n")
   end
+
   local function get_all_module_paths()
     local glob_doom_modules = glob_modules("doom")
     local glob_user_modules = glob_modules("user")
