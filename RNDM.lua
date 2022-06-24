@@ -1,5 +1,10 @@
 --[[
 
+-> TODAY:
+    1. setup mollewei.de on `heroku`
+    2. clean up -> pitch-machine.com
+
+split -> https://www.youtube.com/watch?v=bJl4VSoESpo
 
 allright so this is pretty fucking cool but it still requires something
 that is a little bit more secure than somehting else except for the
