@@ -36,7 +36,7 @@ local function check_rhs(r, leaf_ids)
   local num_keys = 0
   local r_fun = false
   local is_table = false
-  local is_mod = false
+  local leaf_id_match = false
   local has_numeric_key = false
 
   -- if sub table collect all relevant data about sub key/val pairs
@@ -54,7 +54,7 @@ local function check_rhs(r, leaf_ids)
       --
       -- if not leaf_ids use MODULE_PARTS
       if vim.tbl_contains(MODULE_PARTS, k) then
-        is_mod = true
+        leaf_id_match = true
       end
 
       if type(k) == "number" then
@@ -64,7 +64,7 @@ local function check_rhs(r, leaf_ids)
     end
   end
 
-  return is_table, num_keys, has_numeric_key, is_mod, r_fun
+  return is_table, num_keys, has_numeric_key, leaf_id_match, r_fun
 end
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
@@ -84,7 +84,7 @@ local function is_edge(opts, a, b, stack, leaf_ids)
   local edge = false
 
   local lhs_is_str, lhs_is_num = check_lhs(a)
-  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, cur_node_is_doom_module, rhs_is_fun = check_rhs(b, leaf_ids)
+  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, leaf_id_match, rhs_is_fun = check_rhs(b, leaf_ids)
 
   if opts.type == "modules"  then
 
@@ -93,7 +93,7 @@ local function is_edge(opts, a, b, stack, leaf_ids)
     --   edge = true
     -- end
 
-    if rhs_is_tbl and cur_node_is_doom_module then
+    if rhs_is_tbl and leaf_id_match then
       edge = true
     end
 
