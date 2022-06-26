@@ -23,10 +23,12 @@ end
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
 --
+--  rename: a,b -> ( lhs, rhs )
 --
 --  - Default: treat tables w/numeric keys as leaf nodes
 --
---
+-- - merge the (b) table checks into one helper function
+-- that returns all relevant state information
 --
 --
 ---@param branch_opts
@@ -35,13 +37,40 @@ end
 local function is_edge(opts, a, b, stack)
   local edge = false
 
+  -- check state of child
+  local function check_rhs(node)
+    local num_keys = 0
+    local is_table = false
+    local is_mod = false
+    local has_numeric_key = false
+
+    -- if sub table collect all relevant data about sub key/val pairs
+    if type(node) == "table"  then
+      is_table = true
+      for k, v in pairs(node) do
+        num_keys = num_keys + 1
+        if vim.tbl_contains(MODULE_PARTS, k) then
+          is_mod = true
+        end
+        if type(k) == "number" then
+          -- print("IS_SUB; sub table has number",  a)
+          has_numeric_keys = true
+        end
+      end
+    end
+
+    return is_table, num_keys, has_numeric_key, is_mod
+  end
+
   if opts.type == "modules"  then
     if type(b) == "table"  then
 
-      -- if child table contains any of the `special` doom module keywords, treate as leaf and return
+      -- sub table AND contains any of the `special` doom module keywords, treate as leaf and return
       if opts.stop_at == "modules" then
+        -- REFACTOR: table_is_module(t)
         for k, v in pairs(b) do
           if vim.tbl_contains(MODULE_PARTS, k) then
+            sub_table_is_module = true
             edge = true
           end
         end
@@ -53,17 +82,23 @@ local function is_edge(opts, a, b, stack)
 
   elseif opts.type == "settings" then
 
-    -- Key is a number - Value could be a table, which would mean that the whole sub table is treated as a leaf node
+    -- Key IS a number
+    -- Value could be a table, which would mean that the whole sub table is treated as a leaf node
+    -- REFACTOR: is_number()
     if type(a) == "number" then
       edge = true
     end
 
+    -- Value is NOT table
+    -- REFACTOR: is_table()
     if type(b) ~= "table" then
       edge = true
     end
 
+    -- Value is table
     -- Loop val and check if sub table is empty, or other pre-defined states
     local cnt = 0
+    -- REFACTOR: has_numeric_keys(t)
     for k, v in pairs(b) do
       cnt = cnt + 1
 
