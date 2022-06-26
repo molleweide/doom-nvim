@@ -23,9 +23,6 @@ end
 
 local function check_lhs(l)
   local l = {}
-  -- local l_num = false
-  -- local l_fun = false
-  -- local l_str = false
   if type(l) == "number" then
     l["is_num"] = true
   else
@@ -36,7 +33,6 @@ end
 
 local function check_rhs(r, leaf_ids)
   local r = {}
-
   if type(r) == "function" then
     r["is_fun"] = true
   elseif type(r) == "table"  then
@@ -84,6 +80,10 @@ local function is_edge(opts, a, b, stack, leaf_ids)
   local edge = false
   local lhs = check_lhs(a)
   local rhs = check_rhs(b, leaf_ids)
+
+
+  -- TODO: pass table of edge definitions so that this can be completely
+  -- dynamic
 
   if opts.type == "modules"  then
     if rhs.is_tbl and leaf.id_match or rhs.is_str then
