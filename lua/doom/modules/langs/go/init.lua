@@ -4,6 +4,10 @@ go.settings = {
   language_server_name = 'gopls',
 }
 
+-- go.packages = {
+--   -- https://github.com/olexsmir/gopher.nvim
+-- }
+
 go.autocmds = {
   {
     "BufWinEnter",

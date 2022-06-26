@@ -1,0 +1,3 @@
+-- https://github.com/cappyzawa/trim.nvim
+-- https://github.com/jdhao/whitespace.nvim
+-- https://github.com/DanielCardeal/trimmy.nvim

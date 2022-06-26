@@ -343,6 +343,7 @@ return {
     -- "rasmus",
     -- "rdark",
     -- "roshivim",
+    -- "starry",
     "solarized",
     "sonokai",
     -- "space",

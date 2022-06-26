@@ -2,14 +2,23 @@
 
 -> TODAY:
     1. setup mollewei.de on `heroku`
+      copy pitch machine base.
+      clean up
+      push basic live.
     2. clean up -> pitch-machine.com
+
+    epidemic-sounds/ sonos / spotify /
+
+
+
+
+todo: neorg -> indentation = 8 (extreme indentations for legebility.)
+
 
 split -> https://www.youtube.com/watch?v=bJl4VSoESpo
 
 1. remove core settings table.
 2. merge latest next again.
-
-
 
 https://github.com/masukomi/scheme-format
 
@@ -30,7 +39,6 @@ wha possibilities are there.
 - cronjo
 - solve bug
 - ask dannymat if he uses neogit.
-
 
 --------
 
