@@ -32,7 +32,7 @@ local function check_lhs(l)
   return l_str, l_num
 end
 
-local function check_rhs(r)
+local function check_rhs(r, leaf_ids)
   local num_keys = 0
   local r_fun = false
   local is_table = false
@@ -48,6 +48,11 @@ local function check_rhs(r)
     for k, v in pairs(r) do
       num_keys = num_keys + 1
 
+      -- replace this with `leaf_ids`
+      -- defaults to always check for `doom.spec.module_parts`
+      -- todo: `core/spec.lua`
+      --
+      -- if not leaf_ids use MODULE_PARTS
       if vim.tbl_contains(MODULE_PARTS, k) then
         is_mod = true
       end
@@ -75,11 +80,11 @@ end
 ---@param branch_opts
 ---@param a
 ---@param b
-local function is_edge(opts, a, b, stack)
+local function is_edge(opts, a, b, stack, leaf_ids)
   local edge = false
 
   local lhs_is_str, lhs_is_num = check_lhs(a)
-  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, cur_node_is_doom_module, rhs_is_fun = check_rhs(b)
+  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, cur_node_is_doom_module, rhs_is_fun = check_rhs(b, leaf_ids)
 
   if opts.type == "modules"  then
 
@@ -205,8 +210,11 @@ end
 ---   tree (required)
 ---    type (default: )
 ---    leaf
+---@param logtree,
+---@param leaf_ids table array of identifiers that indicate that a rhs table is
+---       a leaf and not a new sub table to recurse into.
 ---@return accumulator
-M.traverse_table = function(opts, logtree)
+M.traverse_table = function(opts, logtree, leaf_ids)
   local opts = opts or {}
 
   local function recurse(tree, stack, accumulator)
@@ -221,7 +229,7 @@ M.traverse_table = function(opts, logtree)
         log_tree(opts, stack, k, v)
       end
 
-      if not is_edge(opts, k, v, stack) then
+      if not is_edge(opts, k, v, stack, leaf_ids) then
 
           -- local ret
           -- if opts.branch then
