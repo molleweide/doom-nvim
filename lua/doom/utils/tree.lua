@@ -20,6 +20,47 @@ local function ind(stack)
   return a .. ">"
 end
 
+local function check_lhs(l)
+  local l_num = false
+  local l_fun = false
+  local l_str = false
+  if type(l) == "number" then
+    l_num = true
+  else
+    l_str = true
+  end
+  return l_str, l_num
+end
+
+local function check_rhs(r)
+  local num_keys = 0
+  local r_fun = false
+  local is_table = false
+  local is_mod = false
+  local has_numeric_key = false
+
+  -- if sub table collect all relevant data about sub key/val pairs
+  if type(r) == "function" then
+    r_fun = true
+  elseif type(r) == "table"  then
+    is_table = true
+
+    for k, v in pairs(r) do
+      num_keys = num_keys + 1
+
+      if vim.tbl_contains(MODULE_PARTS, k) then
+        is_mod = true
+      end
+
+      if type(k) == "number" then
+        has_numeric_keys = true
+      end
+
+    end
+  end
+
+  return is_table, num_keys, has_numeric_key, is_mod, r_fun
+end
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
 --
@@ -37,52 +78,20 @@ end
 local function is_edge(opts, a, b, stack)
   local edge = false
 
-  local function check_lhs(l)
-    local l_num = false
-    local l_fun = false
-    local l_str = false
-    if type(l) == "number" then
-      l_num = true
-
-    else
-      l_str = true
-    end
-    return l_str, l_num
-  end
-
-  -- check state of child
-  local function check_rhs(r)
-    local num_keys = 0
-    local r_fun = false
-    local is_table = false
-    local is_mod = false
-    local has_numeric_key = false
-
-    -- if sub table collect all relevant data about sub key/val pairs
-    if type(r) == "function" then
-      r_fun = true
-    elseif type(r) == "table"  then
-      is_table = true
-      for k, v in pairs(r) do
-        num_keys = num_keys + 1
-        if vim.tbl_contains(MODULE_PARTS, k) then
-          is_mod = true
-        end
-        if type(k) == "number" then
-          has_numeric_keys = true
-        end
-      end
-    end
-
-    return is_table, num_keys, has_numeric_key, is_mod, r_fun
-  end
-
   local lhs_is_str, lhs_is_num = check_lhs(a)
-
   local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, cur_node_is_doom_module, rhs_is_fun = check_rhs(b)
 
-
   if opts.type == "modules"  then
+
+    -- TODO: use this snippet instead
+    -- if lhs_is_num or (not rhs_is_num) or rhs_has_numeric or rhs_key_cnt == 0 then
+    --   edge = true
+    -- end
+
+    if rhs_is_tbl and cur_node_is_doom_module then
+      edge = true
+    end
+
     if type(b) == "table"  then
 
       -- sub table AND contains any of the `special` doom module keywords, treate as leaf and return
@@ -90,7 +99,6 @@ local function is_edge(opts, a, b, stack)
         -- REFACTOR: table_is_module(t)
         for k, v in pairs(b) do
           if vim.tbl_contains(MODULE_PARTS, k) then
-            sub_table_is_module = true
             edge = true
           end
         end
@@ -101,6 +109,11 @@ local function is_edge(opts, a, b, stack)
     end
 
   elseif opts.type == "settings" then
+
+    -- TODO: use this snippet instead
+    -- if lhs_is_num or (not rhs_is_num) or rhs_has_numeric or rhs_key_cnt == 0 then
+    --   edge = true
+    -- end
 
     -- Key IS a number
     -- Value could be a table, which would mean that the whole sub table is treated as a leaf node
