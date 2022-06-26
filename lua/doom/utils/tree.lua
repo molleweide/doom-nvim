@@ -21,29 +21,25 @@ local function ind(stack)
 end
 
 local function check_lhs(l)
-  local l_num = false
-  local l_fun = false
-  local l_str = false
+  local l = {}
+  -- local l_num = false
+  -- local l_fun = false
+  -- local l_str = false
   if type(l) == "number" then
-    l_num = true
+    l["is_num"] = true
   else
-    l_str = true
+    l["is_str"] = true
   end
-  return l_str, l_num
+  return l
 end
 
 local function check_rhs(r, leaf_ids)
-  local num_keys = 0
-  local r_fun = false
-  local is_table = false
-  local leaf_id_match = false
-  local has_numeric_key = false
+  local r = {}
 
-  -- if sub table collect all relevant data about sub key/val pairs
   if type(r) == "function" then
-    r_fun = true
+    r["is_fun"] = true
   elseif type(r) == "table"  then
-    is_table = true
+    r["is_tbl"] = true
 
     for k, v in pairs(r) do
       num_keys = num_keys + 1
@@ -54,17 +50,20 @@ local function check_rhs(r, leaf_ids)
       --
       -- if not leaf_ids use MODULE_PARTS
       if vim.tbl_contains(MODULE_PARTS, k) then
-        leaf_id_match = true
+        r["id_match"] = true
       end
 
       if type(k) == "number" then
-        has_numeric_keys = true
+        r["numeric_keys"] = true
       end
 
     end
+    r["num_keys"] = num_keys
+  elseif type(r) == "string" then
+    r["is_str"] = true
   end
 
-  return is_table, num_keys, has_numeric_key, leaf_id_match, r_fun
+  return r
 end
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
@@ -82,76 +81,19 @@ end
 ---@param b
 local function is_edge(opts, a, b, stack, leaf_ids)
   local edge = false
-
-  local lhs_is_str, lhs_is_num = check_lhs(a)
-  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, leaf_id_match, rhs_is_fun = check_rhs(b, leaf_ids)
+  local lhs = check_lhs(a)
+  local rhs = check_rhs(b, leaf_ids)
 
   if opts.type == "modules"  then
-
-    -- TODO: use this snippet instead
-    -- if lhs_is_num or (not rhs_is_num) or rhs_has_numeric or rhs_key_cnt == 0 then
-    --   edge = true
-    -- end
-
-    if rhs_is_tbl and leaf_id_match then
-      edge = true
-    end
-
-    if type(b) == "table"  then
-
-      -- sub table AND contains any of the `special` doom module keywords, treate as leaf and return
-      if opts.stop_at == "modules" then
-        -- REFACTOR: table_is_module(t)
-        for k, v in pairs(b) do
-          if vim.tbl_contains(MODULE_PARTS, k) then
-            edge = true
-          end
-        end
-      end
-
-    else
+    if rhs.is_tbl and leaf.id_match or rhs.is_str then
       edge = true
     end
 
   elseif opts.type == "settings" then
-
-    -- TODO: use this snippet instead
-    -- if lhs_is_num or (not rhs_is_num) or rhs_has_numeric or rhs_key_cnt == 0 then
-    --   edge = true
-    -- end
-
-    -- Key IS a number
-    -- Value could be a table, which would mean that the whole sub table is treated as a leaf node
-    -- REFACTOR: is_number()
-    if type(a) == "number" then
+    if lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0 then
       edge = true
     end
 
-    -- Value is NOT table
-    -- REFACTOR: is_table()
-    if type(b) ~= "table" then
-      edge = true
-    end
-
-    -- Value is table
-    -- Loop val and check if sub table is empty, or other pre-defined states
-    local cnt = 0
-    -- REFACTOR: has_numeric_keys(t)
-    for k, v in pairs(b) do
-      cnt = cnt + 1
-
-      -- If a sub table contains a numeric key -> treat the whole table as a leaf, eg. in the case of
-      -- options/settings tables, if a table contains a numeric/anonymous key then default would be
-      -- to treate the whole table as a single `settings` entry (eg. nvim-cmp abbreviations: Snp, Buf, etc.)
-      -- This has to be explored further so that docs can be written more clearly. I am not sure yet.
-      if type(k) == "number" then
-        -- print("IS_SUB; sub table has number",  a)
-        edge = true
-      end
-    end
-    if cnt == 0 then
-      edge = true
-    end
   end
 
   -- if opts.type == "binds" then
@@ -160,7 +102,6 @@ local function is_edge(opts, a, b, stack, leaf_ids)
   -- end
 
   return edge
-
 end
 
 
