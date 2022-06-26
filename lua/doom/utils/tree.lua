@@ -9,16 +9,26 @@ local MODULE_PARTS = {
     "autocmds",
 }
 
+--- Helper for logging the tree,
+---@param stack
+---@return -- * * ... * >
 local function ind(stack)
   local a = ""
   for _ in ipairs(stack) do
-    a = a .. "-"
+    a = a .. "* "
   end
   return a .. ">"
 end
 
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
+--
+--
+--  - Default: treat tables w/numeric keys as leaf nodes
+--
+--
+--
+--
 ---@param branch_opts
 ---@param a
 ---@param b
@@ -27,6 +37,8 @@ local function is_edge(opts, a, b, stack)
 
   if opts.type == "modules"  then
     if type(b) == "table"  then
+
+      -- if child table contains any of the `special` doom module keywords, treate as leaf and return
       if opts.stop_at == "modules" then
         for k, v in pairs(b) do
           if vim.tbl_contains(MODULE_PARTS, k) then
@@ -34,20 +46,31 @@ local function is_edge(opts, a, b, stack)
           end
         end
       end
+
     else
       edge = true
     end
 
   elseif opts.type == "settings" then
+
+    -- Key is a number - Value could be a table, which would mean that the whole sub table is treated as a leaf node
     if type(a) == "number" then
       edge = true
     end
+
     if type(b) ~= "table" then
       edge = true
     end
+
+    -- Loop val and check if sub table is empty, or other pre-defined states
     local cnt = 0
     for k, v in pairs(b) do
       cnt = cnt + 1
+
+      -- If a sub table contains a numeric key -> treat the whole table as a leaf, eg. in the case of
+      -- options/settings tables, if a table contains a numeric/anonymous key then default would be
+      -- to treate the whole table as a single `settings` entry (eg. nvim-cmp abbreviations: Snp, Buf, etc.)
+      -- This has to be explored further so that docs can be written more clearly. I am not sure yet.
       if type(k) == "number" then
         -- print("IS_SUB; sub table has number",  a)
         edge = true
