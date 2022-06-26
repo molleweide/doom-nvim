@@ -37,30 +37,50 @@ end
 local function is_edge(opts, a, b, stack)
   local edge = false
 
+  local function check_lhs(l)
+    local l_num = false
+    local l_fun = false
+    local l_str = false
+    if type(l) == "number" then
+      l_num = true
+
+    else
+      l_str = true
+    end
+    return l_str, l_num
+  end
+
   -- check state of child
-  local function check_rhs(node)
+  local function check_rhs(r)
     local num_keys = 0
+    local r_fun = false
     local is_table = false
     local is_mod = false
     local has_numeric_key = false
 
     -- if sub table collect all relevant data about sub key/val pairs
-    if type(node) == "table"  then
+    if type(r) == "function" then
+      r_fun = true
+    elseif type(r) == "table"  then
       is_table = true
-      for k, v in pairs(node) do
+      for k, v in pairs(r) do
         num_keys = num_keys + 1
         if vim.tbl_contains(MODULE_PARTS, k) then
           is_mod = true
         end
         if type(k) == "number" then
-          -- print("IS_SUB; sub table has number",  a)
           has_numeric_keys = true
         end
       end
     end
 
-    return is_table, num_keys, has_numeric_key, is_mod
+    return is_table, num_keys, has_numeric_key, is_mod, r_fun
   end
+
+  local lhs_is_str, lhs_is_num = check_lhs(a)
+
+  local rhs_is_tbl, rhs_key_cnt, rhs_has_numeric, cur_node_is_doom_module, rhs_is_fun = check_rhs(b)
+
 
   if opts.type == "modules"  then
     if type(b) == "table"  then
