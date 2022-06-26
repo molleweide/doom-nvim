@@ -1,5 +1,6 @@
 local M = {}
 
+-- todo: move to "core/spec.lua"
 local MODULE_PARTS = {
     "settings",
     "packages",
