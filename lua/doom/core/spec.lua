@@ -1,4 +1,5 @@
 return {
+  -- move all of these into `core/modules`
   module_origins = {
       "user",
       "doom",
