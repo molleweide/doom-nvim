@@ -1,5 +1,6 @@
 local M = {}
 
+local LOG_SEP = "*---"
 local LOG = true
 local LOG_TYPE = "modules"
 
@@ -19,7 +20,7 @@ local MODULE_PARTS = {
 local function ind(stack)
   local a = ""
   for i=0, #stack do
-    a = a .. "* "
+    a = a .. LOG_SEP
   end
 
   return a .. ">"
@@ -199,7 +200,7 @@ M.traverse_table = function(opts, logtree, leaf_ids)
       -- end
 
       if not is_leaf(opts, k, v, stack, leaf_ids) then
-        logger("branch", opts, stack, k, v)
+        logger("B", opts, stack, k, v)
 
           -- local ret
           -- if opts.branch then
@@ -212,7 +213,7 @@ M.traverse_table = function(opts, logtree, leaf_ids)
         recurse(v, stack, accumulator)
 
       else
-        logger("leaf ", opts, stack, k, v)
+        logger("L", opts, stack, k, v)
 
           local ret
           if opts.leaf then
