@@ -56,9 +56,11 @@ local function check_rhs(r, leaf_ids)
 
       -- replace this with `leaf_ids`
       -- defaults to always check for `doom.spec.module_parts`
-      -- todo: `core/spec.lua`
+      -- TODO: `core/spec.lua`
       --
       -- if not leaf_ids use MODULE_PARTS
+      --
+      -- TODO: pass as argument
       if vim.tbl_contains(MODULE_PARTS, k) then
         ret["id_match"] = true
       end
@@ -97,9 +99,8 @@ local function branch_or_leaf(opts, a, b, stack, leaf_ids)
   local lhs = check_lhs(a)
   local rhs = check_rhs(b, leaf_ids)
 
-  -- TODO: pass table of edge definitions so that this can be completely
-  -- dynamic
-
+  -- TODO: pass variable filters as func param
+  -- each of the following cases should be refactore into an argument for the function
   if opts.type == "load_config"  then
     if rhs.is_str then
       leaf = true
@@ -109,7 +110,6 @@ local function branch_or_leaf(opts, a, b, stack, leaf_ids)
     if rhs.is_tbl and rhs.id_match then
       leaf = true
     end
-
 
   elseif opts.type == "settings" then
     if lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0 then
