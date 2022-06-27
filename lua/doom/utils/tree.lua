@@ -15,6 +15,9 @@ local MODULE_PARTS = {
     "autocmds",
 }
 
+-- Helper for creating indentation based on the stack length
+--
+-- @param recursive stack
 local function ind(stack)
   local a = ""
   for i=0, #stack do
@@ -23,6 +26,9 @@ local function ind(stack)
   return a .. ">"
 end
 
+-- Helper tool for debuggin the traversal
+--
+--
 local function logger(pre, opts, stack, k, v)
   if LOG and opts.type == LOG_TYPE then
     -- print("#################################")
@@ -30,7 +36,10 @@ local function logger(pre, opts, stack, k, v)
   end
 end
 
-local function check_lhs(l)
+-- Collect data from LEFT hand side of a table node
+--
+-- @return table of relevant data for building recursive pattern specs
+local function check_lhs(l, opts)
   local ret = {}
   if type(l) == "number" then
     ret["is_num"] = true
@@ -40,7 +49,10 @@ local function check_lhs(l)
   return ret
 end
 
-local function check_rhs(r, leaf_ids)
+-- Collect data from RIGHT hand side of a table node
+--
+-- @return table of relevant data for building recursive pattern specs
+local function check_rhs(r, opts)
   local ret = {}
 
   if type(r) == "function" then
@@ -58,7 +70,7 @@ local function check_rhs(r, leaf_ids)
       -- defaults to always check for `doom.spec.module_parts`
       -- TODO: `core/spec.lua`
       --
-      -- if not leaf_ids use MODULE_PARTS
+      -- if not opts.leaf_ids use MODULE_PARTS
       --
       -- TODO: pass as argument
       if vim.tbl_contains(MODULE_PARTS, k) then
@@ -81,23 +93,19 @@ local function check_rhs(r, leaf_ids)
   return ret
 end
 
---- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
+-- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
 --
---  rename: a,b -> ( lhs, rhs )
+-- 1. The aim of this util is to be very general
+-- 2. Allow for quickly specifying recursive table patterns.
+-- 3. You do this by writing how leaf nodes should be identified.
+-- 4. Two methods for doing so:
+--    a. hard code: add a new if-statement and check for a specific opts.type and write your leaf pattern.
+--    b. pass variable: pass an opts.leaf_pattern prop that specifies your leaf pattern.
 --
---  - Default: treat tables w/numeric keys as leaf nodes
---
--- - merge the (b) table checks into one helper function
--- that returns all relevant state information
---
---
----@param branch_opts
----@param a
----@param b
-local function branch_or_leaf(opts, a, b, stack, leaf_ids)
+local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   local leaf = false
-  local lhs = check_lhs(a)
-  local rhs = check_rhs(b, leaf_ids)
+  local lhs = check_lhs(node_lhs, opts)
+  local rhs = check_rhs(node_rhs, opts)
 
   -- TODO: pass variable filters as func param
   -- each of the following cases should be refactore into an argument for the function
@@ -118,6 +126,7 @@ local function branch_or_leaf(opts, a, b, stack, leaf_ids)
 
   end
 
+  -- TODO: binds
   -- if opts.type == "binds" then
   --   -- for _, t in ipairs(nest_tree) do
   --   --   if type(t.rhs) == "table" then
@@ -131,10 +140,9 @@ local function branch_or_leaf(opts, a, b, stack, leaf_ids)
 end
 
 
---- returns the full path to leaf as an array
----@param stack
----@param v
----@return
+--- Concatenates the stack with the leaf node.
+---
+---@returns the full path to leaf as an array
 local function flatten_stack(stack, v)
   local pc = { v }
   if #stack > 0 then
@@ -144,6 +152,13 @@ local function flatten_stack(stack, v)
   return pc
 end
 
+-- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
+-- could be a head if you want to append all modules upon loading doom.
+--
+---@param table | pointer to which you want to append
+---@param table | path to append
+---@param data | leaf node data that will be appended at the tip of path
+---@return todo..
 M.attach_table_path = function(head, tp, data)
   local last = #tp
   for i, p in ipairs(tp) do
@@ -158,36 +173,69 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
---- This is the main interface to tree
+--- THIS IS THE MAIN INTERFACE TO TREE
+---
+--- 1. opts table
+--- 2.
+---
+--- TODO: smart defaults. look at telescope.nvim
 ---
 ---@param opts
 ---   tree (required)
----    type (default: )
----    fn_leaf_cb
----    fn_branch_cb
+---     tree you wish to traverse.
+---
+---   type
+---     specify which leaf pattern to use.
+---     Alternatives: ( "modules" | any module_part )
+---
+---   enable_logging: bool
+---
 ---   fn_log_cb
----@param logtree,
----@param leaf_ids table array of identifiers that indicate that a rhs table is
----       a leaf and not a new sub table to recurse into.
----@return accumulator
-M.traverse_table = function(opts, logtree, leaf_ids)
+---     pass a custom log function
+---
+---   fn_leaf_cb
+---     how to process each leaf node
+---     return appens to accumulator
+--
+---   fn_branch_cb
+---     how to process each branch node
+---       return appens to accumulator
+--
+---   leaf_ids
+--      table array containing predefined properties that you know identifies a leaf.
+--      Eg. doom module parts. See `core/spec.module_parts`
+--
+---@return accumulator. Whatever you return in branch/leaf callbacks will be appended
+--        to the accumulator
+M.traverse_table = function(opts)
   local opts = opts or {}
 
   -- TODO: manage default values in the same manner as telescope.nvim source.
 
+  -- Implements the recursive skeleton for traversing tables.
+  --
+  -- 1. Takes a table.
+  -- 2. keeps track of the stack.
+  -- 3. Gives you an accumulator that can be used in order to flatten or accumulate some
+  --    specific data that you want to collect when traversing.
+  --
+  --    Use the `opts.branch` and `opts.leaf` callbacks to process each node however you like.
+  --    You can see how this is used in `core/modules`
+  --
   local function recurse(tree, stack, accumulator)
 
     local accumulator = accumulator or {}
     local stack = stack or {}
 
-
     for k, v in pairs(tree) do
 
-      local ret = branch_or_leaf(opts, k, v, stack, leaf_ids)
+      local ret = branch_or_leaf(opts, k, v, stack)
 
       logger(ret.is_leaf, opts, stack, k, v)
 
       if not ret.is_leaf then
+
+        -- PROCESS BRANCH --
 
         if opts.branch then
           ret = opts.branch(stack, k, v)
@@ -198,6 +246,8 @@ M.traverse_table = function(opts, logtree, leaf_ids)
         recurse(v, stack, accumulator)
 
       else
+
+        -- PROCESS LEAF --
 
           if opts.leaf then
             ret = opts.leaf(stack, k, v)
