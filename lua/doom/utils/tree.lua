@@ -86,10 +86,18 @@ local function check_rhs(r, opts)
 
     end
     ret["num_keys"] = num_keys
+    if num_keys == 0 then
+      ret["tbl_empty"] = true
+    end
 
   elseif type(r) == "string" then
-    -- print("string", vim.inspect(r))
     ret["is_str"] = true
+    if r == "" then
+      ret["str_empty"] = true
+    end
+
+  elseif type(r) == "number" then
+    ret["is_num"] = true
 
   end
 
@@ -125,7 +133,7 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   end
 
   if opts.type == "settings"
-    and (lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0) then
+    and (lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.tbl_empty) then
       leaf = true
   end
 
