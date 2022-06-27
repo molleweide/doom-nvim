@@ -76,7 +76,7 @@ end
 ---@param branch_opts
 ---@param a
 ---@param b
-local function is_edge(opts, a, b, stack, leaf_ids)
+local function is_branch_or_leaf(opts, a, b, stack, leaf_ids)
   local edge = false
   local lhs = check_lhs(a)
   local rhs = check_rhs(b, leaf_ids)
@@ -133,7 +133,8 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
-local function log_tree(opts, stack, k, v)
+local function logger(opts, stack, k, v)
+  print("LOG TREE")
 
   -- if #stack == 0 then
   --   print(ind() .. ">" , k, v, "------------------------------------------------------------------")
@@ -151,13 +152,17 @@ end
 ---@param opts
 ---   tree (required)
 ---    type (default: )
----    leaf
+---    fn_leaf_cb
+---    fn_branch_cb
+---   fn_log_cb
 ---@param logtree,
 ---@param leaf_ids table array of identifiers that indicate that a rhs table is
 ---       a leaf and not a new sub table to recurse into.
 ---@return accumulator
 M.traverse_table = function(opts, logtree, leaf_ids)
   local opts = opts or {}
+
+  -- TODO: manage default values in the same manner as telescope.nvim source.
 
   local function recurse(tree, stack, accumulator)
 
@@ -166,12 +171,12 @@ M.traverse_table = function(opts, logtree, leaf_ids)
 
     for k, v in pairs(tree) do
 
+      -- a opts.log == function -> pass it to log_cb
       if logtree then
-        print("LOG TREE")
-        log_tree(opts, stack, k, v)
+        logger(opts.log, stack, k, v)
       end
 
-      if not is_edge(opts, k, v, stack, leaf_ids) then
+      if not is_branch_or_leaf(opts, k, v, stack, leaf_ids) then
 
           -- local ret
           -- if opts.branch then
