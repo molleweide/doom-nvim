@@ -1,10 +1,11 @@
 local M = {}
 
+-- TODO: use table `log.use = true` instead
 local LOG_SEP = "*---"
 local LOG = true
 local LOG_TYPE = "modules"
 
--- todo: move to "core/spec.lua"
+-- TODO: move to "core/spec.lua"
 local MODULE_PARTS = {
     "settings",
     "packages",
