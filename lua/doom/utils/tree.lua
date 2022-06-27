@@ -14,32 +14,20 @@ local MODULE_PARTS = {
     "autocmds",
 }
 
---- Helper for logging the tree,
----@param stack
----@return -- * * ... * >
 local function ind(stack)
   local a = ""
   for i=0, #stack do
     a = a .. LOG_SEP
   end
-
   return a .. ">"
 end
 
 local function logger(pre, opts, stack, k, v)
-  -- print("LOG TREE")
-  -- if #stack == 0 then
-
   if LOG and opts.type == LOG_TYPE then
     -- print("#################################")
     print(opts.type, "|[", pre, "]", ind(stack), k, v)
   end
-  -- if opts.stop_at == "modules" then
-    -- print(ind() .. ">" , k, v)
-  -- end
 end
-
-
 
 local function check_lhs(l)
   local ret = {}
@@ -103,12 +91,10 @@ end
 ---@param branch_opts
 ---@param a
 ---@param b
-local function is_leaf(opts, a, b, stack, leaf_ids)
+local function branch_or_leaf(opts, a, b, stack, leaf_ids)
   local leaf = false
-
   local lhs = check_lhs(a)
   local rhs = check_rhs(b, leaf_ids)
-
 
   -- TODO: pass table of edge definitions so that this can be completely
   -- dynamic
@@ -136,8 +122,11 @@ local function is_leaf(opts, a, b, stack, leaf_ids)
   --   --   if type(t.rhs) == "table" then
   -- end
 
-
-  return leaf
+  return {
+    is_leaf = leaf,
+    lhs = lhs,
+    rhs = rhs,
+  }
 end
 
 
@@ -191,36 +180,28 @@ M.traverse_table = function(opts, logtree, leaf_ids)
     local stack = stack or {}
 
 
-    -- print("tree:", tree)
-
     for k, v in pairs(tree) do
 
-      -- a opts.log == function -> pass it to log_cb
-      -- if logtree then
-      -- end
+      local ret = branch_or_leaf(opts, k, v, stack, leaf_ids)
 
-      if not is_leaf(opts, k, v, stack, leaf_ids) then
-        logger("B", opts, stack, k, v)
+      logger(ret.is_leaf, opts, stack, k, v)
 
-          -- local ret
-          -- if opts.branch then
-          --   ret = opts.branch(stack, k, v)
-          -- end
+      if not ret.is_leaf then
 
-        -- print("ttttt", type(v))
+        if opts.branch then
+          ret = opts.branch(stack, k, v)
+          -- table.insert(accumulator, ret)
+        end
 
         table.insert(stack, k)
         recurse(v, stack, accumulator)
 
       else
-        logger("L", opts, stack, k, v)
 
-          local ret
           if opts.leaf then
             ret = opts.leaf(stack, k, v)
+            table.insert(accumulator, ret)
           end
-
-          table.insert(accumulator, ret)
 
       end
     end
