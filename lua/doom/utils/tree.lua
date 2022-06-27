@@ -26,6 +26,9 @@ local function ind(stack)
   return a .. ">"
 end
 
+-- THE FOLLOWING FUNCTIONS ANALYZE EACH NODE AND RETURN TABLES WITH INFORMATION
+-- MAKING IT EASY FOR USER TO DEFINE EDGE CASES.
+
 -- Helper tool for debuggin the traversal
 --
 --
@@ -95,6 +98,10 @@ end
 
 -- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
 --
+-- Currently this function contains a set of hardcoded definitions so that this function can be
+-- used for everything (load config, modules, service/keymap, dui, etc.), but the idea is to make this a bit tighter
+-- so that you can specify with minimal effort the recursive definition for each case easilly.
+--
 -- 1. The aim of this util is to be very general
 -- 2. Allow for quickly specifying recursive table patterns.
 -- 3. You do this by writing how leaf nodes should be identified.
@@ -107,23 +114,19 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   local lhs = check_lhs(node_lhs, opts)
   local rhs = check_rhs(node_rhs, opts)
 
-  -- TODO: pass variable filters as func param
-  -- each of the following cases should be refactore into an argument for the function
-  if opts.type == "load_config"  then
-    if rhs.is_str then
-      leaf = true
-    end
+  -- TODO: pass variable filters as func param each of the following cases should be refactore into an argument for the function
 
-  elseif opts.type == "modules"  then
-    if rhs.is_tbl and rhs.id_match then
-      leaf = true
-    end
+  if opts.type == "load_config" and rhs.is_str then
+    leaf = true
+  end
 
-  elseif opts.type == "settings" then
-    if lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0 then
-      leaf = true
-    end
+  if opts.type == "modules" and rhs.is_tbl and rhs.id_match then
+    leaf = true
+  end
 
+  if opts.type == "settings"
+    and (lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0) then
+      leaf = true
   end
 
   -- TODO: binds
@@ -138,7 +141,6 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
     rhs = rhs,
   }
 end
-
 
 --- Concatenates the stack with the leaf node.
 ---
