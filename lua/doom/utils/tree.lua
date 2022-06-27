@@ -38,6 +38,7 @@ local function check_rhs(r, leaf_ids)
   elseif type(r) == "table"  then
     r["is_tbl"] = true
 
+    local num_keys = 0
     for k, v in pairs(r) do
       num_keys = num_keys + 1
 
@@ -86,7 +87,7 @@ local function is_branch_or_leaf(opts, a, b, stack, leaf_ids)
   -- dynamic
 
   if opts.type == "modules"  then
-    if rhs.is_tbl and leaf.id_match or rhs.is_str then
+    if rhs.is_tbl and rhs.id_match or rhs.is_str then
       edge = true
     end
 
