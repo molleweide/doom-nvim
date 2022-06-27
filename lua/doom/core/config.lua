@@ -69,8 +69,9 @@ config.load = function()
   -- Crawl the modules table and require all modules
   tree.traverse_table {
     tree = enabled_modules,
-    type = "modules",
+    type = "load_config",
     leaf = function(stack, k, v)
+      -- print(vim.inspect(stack), k, v)
       local pc = { v }
       if #stack > 0 then
         pc = vim.deepcopy(stack)

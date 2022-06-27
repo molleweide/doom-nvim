@@ -1,5 +1,8 @@
 local M = {}
 
+local LOG = true
+local LOG_TYPE = "modules"
+
 -- todo: move to "core/spec.lua"
 local MODULE_PARTS = {
     "settings",
@@ -15,30 +18,49 @@ local MODULE_PARTS = {
 ---@return -- * * ... * >
 local function ind(stack)
   local a = ""
-  for _ in ipairs(stack) do
+  for i=0, #stack do
     a = a .. "* "
   end
+
   return a .. ">"
 end
 
-local function check_lhs(l)
-  local l = {}
-  if type(l) == "number" then
-    l["is_num"] = true
-  else
-    l["is_str"] = true
+local function logger(pre, opts, stack, k, v)
+  -- print("LOG TREE")
+  -- if #stack == 0 then
+
+  if LOG and opts.type == LOG_TYPE then
+    -- print("#################################")
+    print(opts.type, "|[", pre, "]", ind(stack), k, v)
   end
-  return l
+  -- if opts.stop_at == "modules" then
+    -- print(ind() .. ">" , k, v)
+  -- end
+end
+
+
+
+local function check_lhs(l)
+  local ret = {}
+  if type(l) == "number" then
+    ret["is_num"] = true
+  else
+    ret["is_str"] = true
+  end
+  return ret
 end
 
 local function check_rhs(r, leaf_ids)
-  local r = {}
+  local ret = {}
+
   if type(r) == "function" then
-    r["is_fun"] = true
-  elseif type(r) == "table"  then
-    r["is_tbl"] = true
+    ret["is_fun"] = true
+
+  elseif type(r) == "table" then
+    ret["is_tbl"] = true
 
     local num_keys = 0
+
     for k, v in pairs(r) do
       num_keys = num_keys + 1
 
@@ -48,20 +70,23 @@ local function check_rhs(r, leaf_ids)
       --
       -- if not leaf_ids use MODULE_PARTS
       if vim.tbl_contains(MODULE_PARTS, k) then
-        r["id_match"] = true
+        ret["id_match"] = true
       end
 
       if type(k) == "number" then
-        r["numeric_keys"] = true
+        ret["numeric_keys"] = true
       end
 
     end
-    r["num_keys"] = num_keys
+    ret["num_keys"] = num_keys
+
   elseif type(r) == "string" then
-    r["is_str"] = true
+    -- print("string", vim.inspect(r))
+    ret["is_str"] = true
+
   end
 
-  return r
+  return ret
 end
 
 --- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
@@ -77,8 +102,9 @@ end
 ---@param branch_opts
 ---@param a
 ---@param b
-local function is_branch_or_leaf(opts, a, b, stack, leaf_ids)
-  local edge = false
+local function is_leaf(opts, a, b, stack, leaf_ids)
+  local leaf = false
+
   local lhs = check_lhs(a)
   local rhs = check_rhs(b, leaf_ids)
 
@@ -86,14 +112,20 @@ local function is_branch_or_leaf(opts, a, b, stack, leaf_ids)
   -- TODO: pass table of edge definitions so that this can be completely
   -- dynamic
 
-  if opts.type == "modules"  then
-    if rhs.is_tbl and rhs.id_match or rhs.is_str then
-      edge = true
+  if opts.type == "load_config"  then
+    if rhs.is_str then
+      leaf = true
     end
+
+  elseif opts.type == "modules"  then
+    if rhs.is_tbl and rhs.id_match then
+      leaf = true
+    end
+
 
   elseif opts.type == "settings" then
     if lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.num_keys == 0 then
-      edge = true
+      leaf = true
     end
 
   end
@@ -103,7 +135,8 @@ local function is_branch_or_leaf(opts, a, b, stack, leaf_ids)
   --   --   if type(t.rhs) == "table" then
   -- end
 
-  return edge
+
+  return leaf
 end
 
 
@@ -134,20 +167,6 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
-local function logger(opts, stack, k, v)
-  print("LOG TREE")
-
-  -- if #stack == 0 then
-  --   print(ind() .. ">" , k, v, "------------------------------------------------------------------")
-  -- end
-
-  -- if opts.stop_at == "modules" then
-    print(ind() .. ">" , k, v)
-  -- end
-
-end
-
-
 --- This is the main interface to tree
 ---
 ---@param opts
@@ -170,25 +189,30 @@ M.traverse_table = function(opts, logtree, leaf_ids)
     local accumulator = accumulator or {}
     local stack = stack or {}
 
+
+    -- print("tree:", tree)
+
     for k, v in pairs(tree) do
 
       -- a opts.log == function -> pass it to log_cb
-      if logtree then
-        logger(opts.log, stack, k, v)
-      end
+      -- if logtree then
+      -- end
 
-      if not is_branch_or_leaf(opts, k, v, stack, leaf_ids) then
+      if not is_leaf(opts, k, v, stack, leaf_ids) then
+        logger("branch", opts, stack, k, v)
 
           -- local ret
           -- if opts.branch then
           --   ret = opts.branch(stack, k, v)
           -- end
 
+        -- print("ttttt", type(v))
+
         table.insert(stack, k)
         recurse(v, stack, accumulator)
 
       else
-          -- print(k,v)
+        logger("leaf ", opts, stack, k, v)
 
           local ret
           if opts.leaf then

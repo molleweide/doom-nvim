@@ -115,12 +115,17 @@ modules.load_modules = function()
   -- Handle the Modules
   -- TODO: pass `doom.modules` to recursive function
 
+  -- print(vim.inspect(doom.modules) )
+
   -- default > traverse `doom.modules` if nothing specified
   require("doom.utils.tree").traverse_table {
     tree = doom.modules,
     type = "modules",
     stop_at = "modules",
     leaf = function(_, module_name, module)
+
+      -- print(module_name, module)
+
       -- Import dependencies with packer from module.packages
       -- print(module_name, module)
       if module.packages then
