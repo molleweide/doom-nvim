@@ -1,2 +1,3 @@
 -- https://github.com/ta-tikoma/php.easy.vim
 -- https://github.com/crivotz/nv-ide
+-- https://github.com/gbprod/phpactor.nvim

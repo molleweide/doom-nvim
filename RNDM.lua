@@ -9,11 +9,10 @@
 
     epidemic-sounds/ sonos / spotify /
 
-owners apartments seems like a much better idea. i want to know that I own my apartmen. which is just
-so fucking insane. socialist form of ownership which is fucking insane and so they own the apartment but they
-own the facility and so if they don't do that then what would happen and so that is actually quite fucking insane.
-and then that is hidden in other kinds of numbers and so that is actually something that is quite fucking insane and
-ownership real estate for a high trust society are not high trust societies.
+this is going to become one of the coolest systems ever you know.
+
+logseq vs obsidian | https://github.com/logseq/logseq
+
 
 todo: neorg -> indentation = 8 (extreme indentations for legebility.)
 
