@@ -1,5 +1,14 @@
 --[[
 
+1. Skriva Lysa job-letter.
+2. Heroku MFA
+3. Bullshit personal website. copy pitch machin!!!
+  -> https://codepen.io/terf/pen/bGRavY
+4. clean up pitch machine. only necessary parts.
+5. sent in application.
+
+use gtd learn how to process tasks
+
 -> TODAY:
     1. setup mollewei.de on `heroku`
       copy pitch machine base.
@@ -9,7 +18,17 @@
 
     epidemic-sounds/ sonos / spotify /
 
-this is going to become one of the coolest systems ever you know.
+https://www.youtube.com/results?search_query=paas+comparison
+
+- linode / digital ocean
+
+I need to get a proton email. which is a clean and secure thing that is NOT google
+
+Email turn of -> verisure/facebook/more.???
+
+okay so this is a bit annoying and so that really pisses me off a lot which is a fucking bitch and so that really makes me angry you know.
+fuck this fucking shit you know mother fucking bitch ass cuck sucker.
+
 
 logseq vs obsidian | https://github.com/logseq/logseq
 

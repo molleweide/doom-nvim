@@ -1,12 +1,14 @@
-local paths = {}
+local root = {}
 
-paths.packages = {
+-- TODO: add command switch previous repo.
+
+root.packages = {
   ["vim-rooter"] = { "airblade/vim-rooter" },
   -- { 'oberblastmeister/nvim-rooter' },
   -- https://github.com/tzachar/cmp-fuzzy-path
 }
 
--- paths.binds = {}
+-- root.binds = {}
 
 -- if require("doom.utils").is_module_enabled("whichkey") then
 --   table.insert(windows.binds, {
@@ -63,4 +65,4 @@ paths.packages = {
 --   })
 -- end
 
-return paths
+return root

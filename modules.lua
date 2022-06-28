@@ -64,6 +64,7 @@ return {
     -- "readline",        -- ???
     -- "filetype",        -- ???
     -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
+    "root",               -- Auto switch root on-enter new git repo + useful commands
 
     ------------------------------------------------------------------
     -- ::: UI COMPONENTS ::: --
@@ -184,7 +185,6 @@ return {
     "docs",
     "editing",
     "formatting",
-    "paths",
     "tweak",
     "windows",
     "wm",
