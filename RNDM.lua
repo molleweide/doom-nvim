@@ -1,22 +1,14 @@
 --[[
 
-1. Skriva Lysa job-letter.
-2. Heroku MFA
-3. Bullshit personal website. copy pitch machin!!!
-  -> https://codepen.io/terf/pen/bGRavY
-4. clean up pitch machine. only necessary parts.
-5. sent in application.
+Conventional_Commits -> https://kapeli.com/cheat_sheets/Conventional_Commits.docset/Contents/Resources/Documents/index
 
-use gtd learn how to process tasks
+so this with react will become very nice and pitch machine will have something that is quite fucking cool and
+therefore it is something that is quite fun to do SEO on which is an amazing thing that is quite fucking retarded.
 
--> TODAY:
-    1. setup mollewei.de on `heroku`
-      copy pitch machine base.
-      clean up
-      push basic live.
-    2. clean up -> pitch-machine.com
+epidemic-sounds/ sonos / spotify /
 
-    epidemic-sounds/ sonos / spotify /
+allright so now I am goig to the gym to carry out session number four which is quite fucking insane and good and something that
+I really want to get done with which is pretty much insane dude and so that is actually the thing that is the best for all.
 
 https://www.youtube.com/results?search_query=paas+comparison
 
