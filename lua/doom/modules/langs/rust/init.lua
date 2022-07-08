@@ -4,6 +4,7 @@ rust.settings = {
 }
 
 -- lua.packages = {
+-- https://github.com/Saecki/crates.nvim
 --   ["rust-tools.nvim"] = {
 --     "simrat39/rust-tools.nvim",
 --     ft = "rust",

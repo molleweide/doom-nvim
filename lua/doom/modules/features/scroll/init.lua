@@ -7,6 +7,7 @@ scroll.packages = {
   -- Xuyuanp/scrollbar.nvim -- Scrollbar for Neovim.
   -- dstein64/nvim-scrollview -- A Neovim plugin that displays interactive scrollbars.
   -- petertriho/nvim-scrollbar -- Extensib
+  -- https://github.com/kensyo/nvim-scrlbkun
 }
 
 return scroll

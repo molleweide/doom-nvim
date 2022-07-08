@@ -1,14 +1,8 @@
 --[[
 
-Conventional_Commits -> https://kapeli.com/cheat_sheets/Conventional_Commits.docset/Contents/Resources/Documents/index
-
-so this with react will become very nice and pitch machine will have something that is quite fucking cool and
-therefore it is something that is quite fun to do SEO on which is an amazing thing that is quite fucking retarded.
+this is super annoying and it makes it so that you can enter any module and extend it with binds from telescope.
 
 epidemic-sounds/ sonos / spotify /
-
-allright so now I am goig to the gym to carry out session number four which is quite fucking insane and good and something that
-I really want to get done with which is pretty much insane dude and so that is actually the thing that is the best for all.
 
 https://www.youtube.com/results?search_query=paas+comparison
 
@@ -478,16 +472,13 @@ bbb
 --
 --
 
-
 -- invisio + lysa
 
 -- merge settings branch into latest next.
-
 
 -- MODULE STRUCTURE > dynamically collect module category dirs instead of having them hard coded.
 --
 --
 --
-
 
 --

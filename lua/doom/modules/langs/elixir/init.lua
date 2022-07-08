@@ -1,0 +1,5 @@
+-- plugin host -> https://github.com/dm1try/nvim
+-- https://github.com/kbrw/elixir.nvim
+-- https://github.com/xg01/tmux-nvim-integration-for-elixir
+-- https://github.com/andyl/nvim-elixir/tree/master/ftdetect
+-- https://github.com/slashmili/alchemist.vim
