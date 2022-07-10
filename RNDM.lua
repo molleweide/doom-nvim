@@ -1,6 +1,7 @@
 --[[
 
-this is super annoying and it makes it so that you can enter any module and extend it with binds from telescope.
+aginst all currencies and remove the mortgage demands and get some more space for doing with the rents and so that
+is the most insane thing that we can do you know and so that would actually be super beneficial.
 
 epidemic-sounds/ sonos / spotify /
 

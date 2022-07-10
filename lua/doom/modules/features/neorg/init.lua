@@ -41,6 +41,7 @@ neorg.settings = {
       },
     },
     ["core.integrations.telescope"] = {},
+    ["core.integrations.nvim-cmp"] = {},
     ["core.presenter"] = {
       config = {
         zen_mode = "truezen",
