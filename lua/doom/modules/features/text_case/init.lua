@@ -1,0 +1,1 @@
+-- https://github.com/johmsalas/text-case.nvim

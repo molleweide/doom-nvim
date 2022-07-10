@@ -1,7 +1,8 @@
 --[[
 
-aginst all currencies and remove the mortgage demands and get some more space for doing with the rents and so that
-is the most insane thing that we can do you know and so that would actually be super beneficial.
+it is around a year which is quite fucking insane and so that is a bit crazy and so the stock is starting to run out
+so it is going to become much more expensive which is a bit insane you know and so hopefully this would allow us to do that
+you know.
 
 epidemic-sounds/ sonos / spotify /
 

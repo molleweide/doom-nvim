@@ -5,6 +5,8 @@ local typescript = {}
 typescript.settings = {
 }
 
+-- https://github.com/jose-elias-alvarez/typescript.nvim
+
 typescript.autocmds = {
   {
     "BufWinEnter",

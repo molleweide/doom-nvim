@@ -1,0 +1,1 @@
+-- https://github.com/gbprod/stay-in-place.nvim
