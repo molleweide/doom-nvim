@@ -1,8 +1,11 @@
 --[[
 
-it is around a year which is quite fucking insane and so that is a bit crazy and so the stock is starting to run out
-so it is going to become much more expensive which is a bit insane you know and so hopefully this would allow us to do that
-you know.
+https://github.com/soywod/himalaya
+
+you have left politics and you are now outside of the fucking system that keeps you from slapping him into the fucki face like a retarded
+little dog that really dosen't make anything into the righteous strong motherfucking bitch as cucksucker and so that is the
+thing that we would never want to do you know. but on the otherhand we could also run that into the fucking shit hole that they are
+using.
 
 epidemic-sounds/ sonos / spotify /
 
