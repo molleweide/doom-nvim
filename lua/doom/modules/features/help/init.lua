@@ -9,6 +9,8 @@ local help = {}
 
 help.packages = {}
 
+-- TODO: if builtin command -> proceed to finding the command in `:Man bash` so that I actualy can find the command
+
 help.binds = {}
 
 -- if require("doom.utils").is_module_enabled("whichkey") then
