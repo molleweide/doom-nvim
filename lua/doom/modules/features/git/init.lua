@@ -70,7 +70,7 @@ git.settings = {
   -- doom.modules.git.settings.vgit
   vgit = {
     hls = {
-      GitBackgroundPrimary = 'NormalFloat',
+      GitBackgroundPrimary = "NormalFloat",
       GitBackgroundSecondary = {
         gui = nil,
         fg = nil,
@@ -78,43 +78,43 @@ git.settings = {
         sp = nil,
         override = false,
       },
-      GitBorder = 'LineNr',
-      GitLineNr = 'LineNr',
-      GitComment = 'Comment',
+      GitBorder = "LineNr",
+      GitLineNr = "LineNr",
+      GitComment = "Comment",
       GitSignsAdd = {
         gui = nil,
-        fg = '#d7ffaf',
+        fg = "#d7ffaf",
         bg = nil,
         sp = nil,
         override = false,
       },
       GitSignsChange = {
         gui = nil,
-        fg = '#7AA6DA',
+        fg = "#7AA6DA",
         bg = nil,
         sp = nil,
         override = false,
       },
       GitSignsDelete = {
         gui = nil,
-        fg = '#e95678',
+        fg = "#e95678",
         bg = nil,
         sp = nil,
         override = false,
       },
-      GitSignsAddLn = 'DiffAdd',
-      GitSignsDeleteLn = 'DiffDelete',
+      GitSignsAddLn = "DiffAdd",
+      GitSignsDeleteLn = "DiffDelete",
       GitWordAdd = {
         gui = nil,
         fg = nil,
-        bg = '#5d7a22',
+        bg = "#5d7a22",
         sp = nil,
         override = false,
       },
       GitWordDelete = {
         gui = nil,
         fg = nil,
-        bg = '#960f3d',
+        bg = "#960f3d",
         sp = nil,
         override = false,
       },
@@ -122,20 +122,19 @@ git.settings = {
     live_blame = {
       enabled = true,
       format = function(blame, git_config)
-        local config_author = git_config['user.name']
+        local config_author = git_config["user.name"]
         local author = blame.author
         if config_author == author then
-          author = 'You'
+          author = "You"
         end
-        local time = os.difftime(os.time(), blame.author_time)
-          / (60 * 60 * 24 * 30 * 12)
+        local time = os.difftime(os.time(), blame.author_time) / (60 * 60 * 24 * 30 * 12)
         local time_divisions = {
-          { 1, 'years' },
-          { 12, 'months' },
-          { 30, 'days' },
-          { 24, 'hours' },
-          { 60, 'minutes' },
-          { 60, 'seconds' },
+          { 1, "years" },
+          { 12, "months" },
+          { 30, "days" },
+          { 24, "hours" },
+          { 60, "minutes" },
+          { 60, "seconds" },
         }
         local counter = 1
         local time_division = time_divisions[counter]
@@ -150,19 +149,19 @@ git.settings = {
         end
         local commit_message = blame.commit_message
         if not blame.committed then
-          author = 'You'
-          commit_message = 'Uncommitted changes'
-          return string.format(' %s • %s', author, commit_message)
+          author = "You"
+          commit_message = "Uncommitted changes"
+          return string.format(" %s • %s", author, commit_message)
         end
         local max_commit_message_length = 255
         if #commit_message > max_commit_message_length then
-          commit_message = commit_message:sub(1, max_commit_message_length) .. '...'
+          commit_message = commit_message:sub(1, max_commit_message_length) .. "..."
         end
         return string.format(
-          ' %s, %s • %s',
+          " %s, %s • %s",
           author,
           string.format(
-            '%s %s ago',
+            "%s %s ago",
             time >= 0 and math.floor(time + 0.5) or math.ceil(time - 0.5),
             time_postfix
           ),
@@ -174,63 +173,63 @@ git.settings = {
       enabled = true,
     },
     scene = {
-      diff_preference = 'unified',
+      diff_preference = "unified",
     },
     signs = {
       priority = 10,
       definitions = {
         GitSignsAddLn = {
-          linehl = 'GitSignsAddLn',
+          linehl = "GitSignsAddLn",
           texthl = nil,
           numhl = nil,
           icon = nil,
-          text = '',
+          text = "",
         },
         GitSignsDeleteLn = {
-          linehl = 'GitSignsDeleteLn',
+          linehl = "GitSignsDeleteLn",
           texthl = nil,
           numhl = nil,
           icon = nil,
-          text = '',
+          text = "",
         },
         GitSignsAdd = {
-          texthl = 'GitSignsAdd',
+          texthl = "GitSignsAdd",
           numhl = nil,
           icon = nil,
           linehl = nil,
-          text = '┃',
+          text = "┃",
         },
         GitSignsDelete = {
-          texthl = 'GitSignsDelete',
+          texthl = "GitSignsDelete",
           numhl = nil,
           icon = nil,
           linehl = nil,
-          text = '┃',
+          text = "┃",
         },
         GitSignsChange = {
-          texthl = 'GitSignsChange',
+          texthl = "GitSignsChange",
           numhl = nil,
           icon = nil,
           linehl = nil,
-          text = '┃',
+          text = "┃",
         },
       },
       usage = {
         scene = {
-          add = 'GitSignsAddLn',
-          remove = 'GitSignsDeleteLn',
+          add = "GitSignsAddLn",
+          remove = "GitSignsDeleteLn",
         },
         main = {
-          add = 'GitSignsAdd',
-          remove = 'GitSignsDelete',
-          change = 'GitSignsChange',
+          add = "GitSignsAdd",
+          remove = "GitSignsDelete",
+          change = "GitSignsChange",
         },
       },
     },
     symbols = {
-      void = '⣿',
+      void = "⣿",
     },
-  }
+  },
 }
 
 git.packages = {
@@ -239,7 +238,7 @@ git.packages = {
     commit = "3791dfa1ee356a3250e0b74f63bad90e27455f60",
   },
   ["vgit.nvim"] = { "tanvirtin/vgit.nvim" },
-  ["git-blame.nvim"] = { 'f-person/git-blame.nvim' },
+  ["git-blame.nvim"] = { "f-person/git-blame.nvim" },
   -- ["gitlinker.nvim"] = { 'ruifm/gitlinker.nvim' },
   -- ["github-notifications.nvim"] = { 'rlch/github-notifications.nvim' },
   -- ["igs.nvim"] = { 'rmagatti/igs.nvim' },
@@ -248,7 +247,7 @@ git.packages = {
   -- ["gitignore-grabber.nvim"] = { 'antonk52/gitignore-grabber.nvim' },
   -- ["cmp-git"] = { 'petertriho/cmp-git' }, -- wip / unstable..
   -- https://github.com/ThePrimeagen/git-worktree.nvim
-    -- https://github.com/nickgerace/gfold
+  -- https://github.com/nickgerace/gfold
 }
 
 git.configs = {}
@@ -261,17 +260,16 @@ git.configs["vgit.nvim"] = function()
   require("vgit").setup()
 end
 
-
 local function commit_hunk_under_cursor()
-  require('vgit').project_unstage_all()
-  require"gitsigns".stage_hunk()
+  require("vgit").project_unstage_all()
+  require("gitsigns").stage_hunk()
   vim.cmd("Neogit commit")
   -- run norm c
 end
 
 local function commit_current_buffer_only()
-  require('vgit').project_unstage_all()
-  require"vgit".buffer_stage()
+  require("vgit").project_unstage_all()
+  require("vgit").buffer_stage()
   vim.cmd("Neogit commit")
 end
 
@@ -291,74 +289,88 @@ git.binds = {
           -- COMMITS
           -----------------------------------------------------------------------------
           {
-            "c", name = "+commits",
+            "c",
+            name = "+commits",
             {
               { "t", "<cmd>Telescope git_commits<CR>", name = "Tele commits" },
-              { "h", function()
-                require('vgit').project_unstage_all()
-                require"gitsigns".stage_hunk()
-                vim.cmd("Neogit commit")
-                vim.cmd("norm c")
-              end, name = "commit single hunk"}, -- resets all other
-              { "b", function()
-                require('vgit').project_unstage_all()
-                require"vgit".buffer_stage()
-                vim.cmd("Neogit commit")
-              end, name = "commit current buf"}, -- resets all other
-            }
+              { "h", commit_hunk_under_cursor, name = "commit single hunk" }, -- resets all other
+              {
+                "b",
+                function()
+                  require("vgit").project_unstage_all()
+                  require("vgit").buffer_stage()
+                  vim.cmd("Neogit commit")
+                end,
+                name = "commit current buf",
+              }, -- resets all other
+            },
           },
 
           -- STAGING | HUNKS
-          { "e", name = "+staging/hunks", {
-            { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
-            { "S", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
-            { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
-            { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
-            { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
-            { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
-            { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
-            { "r", ":lua require('vgit').buffer_hunk_reset()<cr>", name = "reset hunk" },
-            { "p", ":lua require('vgit').buffer_hunk_preview()<cr>", name = "preview hunk" },
-            { "u", ":lua require('vgit').buffer_reset()<cr>", name = "buf reset" },
+          {
+            "e",
+            name = "+staging/hunks",
             {
-              "P",
-              name = "+project",
+              { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
+              { "S", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
+              { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
+              { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
+              { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
+              { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
+              { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
+              { "r", ":lua require('vgit').buffer_hunk_reset()<cr>", name = "reset hunk" },
+              { "p", ":lua require('vgit').buffer_hunk_preview()<cr>", name = "preview hunk" },
+              { "u", ":lua require('vgit').buffer_reset()<cr>", name = "buf reset" },
               {
-                { "s", ":lua require('vgit').project_stage_all()<cr>", name = "stage all" },
-                { "X", ":lua require('vgit').project_reset_all()<cr>", name = "discard all!staged" },
-                { "u", ":lua require('vgit').project_unstage_all()<cr>", name = "unstage all" },
+                "P",
+                name = "+project",
+                {
+                  { "s", ":lua require('vgit').project_stage_all()<cr>", name = "stage all" },
+                  {
+                    "X",
+                    ":lua require('vgit').project_reset_all()<cr>",
+                    name = "discard all!staged",
+                  },
+                  { "u", ":lua require('vgit').project_unstage_all()<cr>", name = "unstage all" },
+                },
               },
             },
-          }},
+          },
           -----------------------------------------------------------------------------
           -- DIFF
           -----------------------------------------------------------------------------
-          { "q", name = "+diff", {
-            { "f", ":lua require('vgit').buffer_diff_preview()<cr>", name = "diff preview" },
-            { "h", ":lua require('vgit').buffer_history_preview()<cr>", name = "hist preview" },
+          {
+            "q",
+            name = "+diff",
             {
-              "l",
-              ":lua require('vgit').project_hunks_preview()<cr>",
-              name = "proj hunks preview",
+              { "f", ":lua require('vgit').buffer_diff_preview()<cr>", name = "diff preview" },
+              { "h", ":lua require('vgit').buffer_history_preview()<cr>", name = "hist preview" },
+              {
+                "l",
+                ":lua require('vgit').project_hunks_preview()<cr>",
+                name = "proj hunks preview",
+              },
+              {
+                "d",
+                ":lua require('vgit').project_diff_preview()<cr>",
+                name = "proj diff preview",
+              },
+              {
+                "x",
+                ":lua require('vgit').toggle_diff_preference()<cr>",
+                name = "toggle diff pref",
+              },
             },
-            {
-              "d",
-              ":lua require('vgit').project_diff_preview()<cr>",
-              name = "proj diff preview",
-            },
-            {
-              "x",
-              ":lua require('vgit').toggle_diff_preference()<cr>",
-              name = "toggle diff pref",
-            },
-          }},
+          },
           -- { "f", name = "+stash", {
           --
           -- }},
           -----------------------------------------------------------------------------
           -- INFO | STATUS
           -----------------------------------------------------------------------------
-          { "i", name = "+info/status",
+          {
+            "i",
+            name = "+info/status",
             {
               { "s", "<cmd>Telescope git_status<CR>", name = "Tele status" },
               { "b", '<cmd>lua require"gitsigns".blame_line()<CR>', name = "blame line" },
@@ -370,12 +382,14 @@ git.binds = {
               },
               { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
               { "b", '<cmd>lua require"gitsigns".blame_line()<CR>', name = "blame line" },
-            }
+            },
           },
           {
-            "b", name = "+branches", {
+            "b",
+            name = "+branches",
+            {
               { "b", "<cmd>Telescope git_branches<CR>", name = "Tele Branches" },
-            }
+            },
           },
           -----------------------------------------------------------------------------
           -- PULL
