@@ -120,7 +120,7 @@ return {
 
   -- Default colorscheme
   -- @default = doom-one
-  colorscheme = "doom-one",
+  colorscheme = "moonfly",
 
   -- TODO: this one is used but hasn't been defined yet.
   -- complete_transparency = ??,
