@@ -38,12 +38,12 @@ dap.settings = {
 dap.packages = {
   ["nvim-dap"] = {
     "mfussenegger/nvim-dap",
-    commit = "014ebd53612cfd42ac8c131e6cec7c194572f21d",
+    commit = "a13d6cb9ea8f7bbf8dd9c5de9ca2cbee64d2e258",
     module = "dap",
   },
   ["nvim-dap-ui"] = {
     "rcarriga/nvim-dap-ui",
-    commit = "d76d6594374fb54abf2d94d6a320f3fd6e9bb2f7",
+    commit = "b7b71444128f5aa90e4aee8dbfa36b14afddfb7a",
     after = { "nvim-dap" },
   },
 }
@@ -65,105 +65,105 @@ dap.configs["nvim-dap-ui"] = function()
 end
 
 dap.binds = {
-    "<leader>",
-    name = "+prefix",
+  "<leader>",
+  name = "+prefix",
+  {
     {
+      "d",
+      name = "+debug",
       {
-        "d",
-        name = "+debug",
         {
+          "c",
+          function()
+            require("dap").continue()
+          end,
+          name = "Continue/Start",
+        },
+        {
+          "d",
+          function()
+            require("dap").disconnect()
+          end,
+          name = "Disconnect",
+        },
+        {
+          "e",
+          function()
+            require("dapui").eval()
+          end,
+          name = "Evaluate",
+        },
+        {
+          mode = "v",
           {
-            "c",
-            function()
-              require("dap").continue()
-            end,
-            name = "Continue/Start",
-          },
-          {
-            "d",
-            function()
-              require("dap").disconnect()
-            end,
-            name = "Disconnect",
-          },
-          {
-            "e",
-            function()
-              require("dapui").eval()
-            end,
-            name = "Evaluate",
-          },
-          {
-            mode = "v",
             {
-              {
-                "e",
-                function()
-                  require("dapui").eval()
-                end,
-                name = "Evaluate",
-              },
-            },
-          },
-          {
-            "b",
-            name = "+breakpoint",
-            {
-              {
-                "b",
-                function()
-                  require("dap").toggle_breakpoint()
-                end,
-                name = "Toggle breakpoint",
-              },
-              {
-                "c",
-                function()
-                  vim.fn.inputsave()
-                  local condition = vim.fn.input("Condition: ")
-                  vim.fn.inputrestore()
-                  require("dap").toggle_breakpoint(condition)
-                end,
-                name = "Toggle",
-              },
-              {
-                "h",
-                function()
-                  vim.fn.inputsave()
-                  local number = vim.fn.input("Hit number: ")
-                  vim.fn.inputrestore()
-                  require("dap").toggle_breakpoint(nil, number)
-                end,
-                name = "Hit number",
-              },
-              {
-                "l",
-                function()
-                  vim.fn.inputsave()
-                  local msg = vim.fn.input("Message: ")
-                  vim.fn.inputrestore()
-                  require("dap").toggle_breakpoint(nil, nil, msg)
-                end,
-                name = "Log",
-              },
+              "e",
+              function()
+                require("dapui").eval()
+              end,
+              name = "Evaluate",
             },
           },
         },
-      },
-      {
-        "o",
-        name = "+open",
         {
+          "b",
+          name = "+breakpoint",
           {
-            "d",
-            function()
-              require("dapui").toggle()
-            end,
-            name = "Debugger",
+            {
+              "b",
+              function()
+                require("dap").toggle_breakpoint()
+              end,
+              name = "Toggle breakpoint",
+            },
+            {
+              "c",
+              function()
+                vim.fn.inputsave()
+                local condition = vim.fn.input("Condition: ")
+                vim.fn.inputrestore()
+                require("dap").toggle_breakpoint(condition)
+              end,
+              name = "Toggle",
+            },
+            {
+              "h",
+              function()
+                vim.fn.inputsave()
+                local number = vim.fn.input("Hit number: ")
+                vim.fn.inputrestore()
+                require("dap").toggle_breakpoint(nil, number)
+              end,
+              name = "Hit number",
+            },
+            {
+              "l",
+              function()
+                vim.fn.inputsave()
+                local msg = vim.fn.input("Message: ")
+                vim.fn.inputrestore()
+                require("dap").toggle_breakpoint(nil, nil, msg)
+              end,
+              name = "Log",
+            },
           },
         },
       },
     },
-  }
+    {
+      "o",
+      name = "+open",
+      {
+        {
+          "d",
+          function()
+            require("dapui").toggle()
+          end,
+          name = "Debugger",
+        },
+      },
+    },
+  },
+}
 
 return dap

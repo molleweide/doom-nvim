@@ -1,6 +1,6 @@
 local projects = {}
 
-projects.settings ={
+projects.settings = {
   -- Manual mode doesn't automatically change your root directory, so you have
   -- the option to manually do so using `:ProjectRoot` command.
   manual_mode = false,
@@ -38,7 +38,7 @@ projects.settings ={
 projects.packages = {
   ["project.nvim"] = {
     "ahmedkhalf/project.nvim",
-    commit = "541115e762764bc44d7d3bf501b6e367842d3d4f",
+    commit = "e449497c0bceb6e50947b840ec3658bf1108bf0b",
     requires = { "nvim-treesitter/nvim-treesitter" },
   },
   -- https://github.com/shaeinst/penvim
@@ -48,11 +48,11 @@ projects.configs = {}
 projects.configs["project.nvim"] = function()
   require("project_nvim").setup(doom.features.projects.settings)
 
-  table.insert(doom.features.telescope.settings.extensions, 'projects')
+  table.insert(doom.features.telescope.settings.extensions, "projects")
 end
 
 projects.binds = {
-  { '<leader>fp', '<cmd>Telescope projects<CR>', name = 'Switch project' }
+  { "<leader>fp", "<cmd>Telescope projects<CR>", name = "Switch project" },
 }
 
 return projects

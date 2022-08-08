@@ -49,7 +49,7 @@ if [[ ! -d "$SCRIPT_DIR"/doom-nvim-contrib ]]; then
   if git show-ref --quiet refs/heads/"$BRANCH_NAME"; then
     git worktree add ./doom-nvim-contrib "$BRANCH_NAME"
   else
-    git worktree add ./doom-nvim-contrib origin/develop -b "$BRANCH_NAME" 
+    git worktree add ./doom-nvim-contrib origin/develop -b "$BRANCH_NAME"
   fi
 fi
 
@@ -58,15 +58,17 @@ cd ./doom-nvim-contrib || exit
 
 echo "1. Setting up branch"
 # If branch exists just check it out
-if git show-ref --quiet refs/heads/"$BRANCH_NAME"; then
+if ! git symbolic-ref -q HEAD; then
+  echo "In detached HEAD state, not moving branch"
+elif git show-ref --quiet refs/heads/"$BRANCH_NAME"; then
   if [[ ! $( git rev-parse --abbrev-ref HEAD ) == "$BRANCH_NAME" ]]; then
     echo " - Checking out branch $BRANCH_NAME..."
     git checkout "$BRANCH_NAME"
   fi
-else 
-  # Pull latest version of develop
-  echo " - Creating new branch off develop..."
-  git checkout -b "$BRANCH_NAME" develop
+else
+  # Pull latest version of main
+  echo " - Creating new branch off main..."
+  git checkout -b "$BRANCH_NAME" main
   git fetch --quiet
   # If changes between local and origin, get latest changes
   if [[ ! $( git rev-list develop...origin/develop --count ) -eq 0 ]]; then
@@ -98,6 +100,7 @@ fi
 
 # Create docker container if haven't already
 echo " - Success! Running docker container doom-nvim-contrib-container..."
+mkdir -p "${SCRIPT_DIR}/local-share-nvim" "${SCRIPT_DIR}/workspace"
 echo ""
 docker run \
   -it \
@@ -108,6 +111,6 @@ docker run \
   -v "$SCRIPT_DIR"/workspace:/home/doom/workspace \
   --name doom-nvim-contrib-container \
   --user doom \
-  doom-nvim-contrib 
+  doom-nvim-contrib
 
 

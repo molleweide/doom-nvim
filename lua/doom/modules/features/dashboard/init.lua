@@ -6,31 +6,31 @@ dashboard.settings = {
       icon = "  ",
       desc = "Recently Opened Files          ",
       shortcut = "SPC f r",
-      action = "Telescope oldfiles"
+      action = "Telescope oldfiles",
     },
     {
       icon = "  ",
       desc = "Jump to Bookmark               ",
       shortcut = "SPC s m",
-      action = "Telescope marks"
+      action = "Telescope marks",
     },
     {
       icon = "  ",
       desc = "Open Configuration             ",
       shortcut = "SPC D c",
-      action = "e " .. require("doom.core.config").source
+      action = "e " .. require("doom.core.config").source,
     },
     {
       icon = "  ",
       desc = "Open Modules                   ",
       shortcut = "SPC D m",
-      action = "e " .. require("doom.core.modules").source
+      action = "e " .. require("doom.core.modules").source,
     },
     {
       icon = "  ",
       desc = "Open Documentation             ",
       shortcut = "SPC D d",
-      action = "lua require('doom.core.functions').open_docs()"
+      action = "lua require('doom.core.functions').open_docs()",
     },
   },
   header = {
@@ -67,7 +67,7 @@ dashboard.settings = {
 dashboard.packages = {
   ["dashboard-nvim"] = {
     "glepnir/dashboard-nvim",
-    commit = "883c7953d3e0a45ed0dd0fa05f9d029efdbf3c8a",
+    commit = "94585fab23f17a9450b85cc04d71f98251579e37",
     cmd = "Dashboard",
     opt = true,
   },
@@ -90,7 +90,7 @@ dashboard.configs["dashboard-nvim"] = function()
       icon = "  ",
       desc = "Load Last Session              ",
       shortcut = "SPC s r",
-      action = "lua require('persistence').load({ last = true })"
+      action = "lua require('persistence').load({ last = true })",
     }
   end
 

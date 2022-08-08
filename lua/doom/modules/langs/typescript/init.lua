@@ -1,9 +1,8 @@
-local utils = require('doom.utils');
+local utils = require("doom.utils")
 
 local typescript = {}
 
-typescript.settings = {
-}
+typescript.settings = {}
 
 -- https://github.com/jose-elias-alvarez/typescript.nvim
 
@@ -12,8 +11,8 @@ typescript.autocmds = {
     "BufWinEnter",
     "*.js,*.jsx,*.ts,*.tsx",
     utils.make_run_once_function(function()
-      local langs_utils = require('doom.modules.langs.utils')
-      langs_utils.use_lsp('tsserver')
+      local langs_utils = require("doom.modules.langs.utils")
+      langs_utils.use_lsp("tsserver")
 
       vim.defer_fn(function()
         local ts_install = require("nvim-treesitter.install")

@@ -1,3 +1,6 @@
+-- Store state that persists between reloads here.
+_G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
+
 local reloader = {}
 
 --- Only show error reloading message once per session
@@ -127,9 +130,12 @@ reloader._reload_doom = function()
   local needs_install = vim.deep_equal(modules, old_modules)
     and vim.deep_equal(packages, old_packages)
   if needs_install then
-    log.warn(
-      "reloader: If you made changes to the config of a plugin, run `:PackerCompile` to execute these changes."
-    )
+    if not _G._doom_reloader._has_shown_packer_compile_message then
+      log.warn(
+        "reloader: You will have to run `:PackerCompile` before changes to plugin configs take effect."
+      )
+      _G._doom_reloader._has_shown_packer_compile_message = true
+    end
   else
     log.warn("reloader: Run `:PackerSync` to install and configure new plugins.")
   end
@@ -176,10 +182,7 @@ reloader.autocmds = function()
 
   -- RELOAD DOOM ON SAVE
   if reloader.settings.reload_on_save then
-    table.insert(
-      autocmds,
-      { "BufWritePost", "*/doom/**/*.lua,*/user/**/*.lua", reloader.reload }
-    )
+    table.insert(autocmds, { "BufWritePost", "*/doom/**/*.lua,*/user/**/*.lua", reloader.reload })
     table.insert(autocmds, {
       "BufWritePost",
       "*/modules.lua,*/config.lua,*/settings.lua",
@@ -196,4 +199,3 @@ reloader.autocmds = function()
 end
 
 return reloader
-

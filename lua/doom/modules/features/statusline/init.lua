@@ -133,7 +133,7 @@ end
 statusline.packages = {
   ["heirline.nvim"] = {
     "rebelot/heirline.nvim",
-    commit = "efbf99c48d03f456b19680a46f0e21acd6df5188",
+    commit = "805a158b2b44b015f7966b03cd9def489984be8f",
   },
 }
 
@@ -251,11 +251,8 @@ statusline.configs["heirline.nvim"] = function()
     init = function(self)
       local filename = self.filename
       local extension = vim.fn.fnamemodify(filename, ":e")
-      self.icon, self.icon_color = require("nvim-web-devicons").get_icon_color(
-        filename,
-        extension,
-        { default = true }
-      )
+      self.icon, self.icon_color =
+        require("nvim-web-devicons").get_icon_color(filename, extension, { default = true })
     end,
     provider = function(self)
       return self.icon and (self.icon .. " ")
@@ -429,7 +426,7 @@ statusline.configs["heirline.nvim"] = function()
   require("heirline").setup(heirline_config)
 end
 
-statusline.try_refresh = function ()
+statusline.try_refresh = function()
   xpcall(doom.modules.features.statusline.configs["heirline.nvim"], debug.traceback)
 end
 

@@ -42,7 +42,7 @@ treesitter.settings = {
 treesitter.packages = {
   ["nvim-treesitter"] = {
     "nvim-treesitter/nvim-treesitter",
-    commit = "9e8df1b3ca576eeaca4e8d48e3d67119b32adb99",
+    commit = "6289410c7a4715d6e7743c4d81cf5d262e90951e",
     run = ":TSUpdate",
     branch = "master",
   },
@@ -61,11 +61,13 @@ treesitter.packages = {
 treesitter.configs = {}
 treesitter.configs["nvim-treesitter"] = function()
   local is_module_enabled = require("doom.utils").is_module_enabled
-  require("nvim-treesitter.configs").setup(vim.tbl_deep_extend("force", doom.core.treesitter.settings.treesitter, {
-    autopairs = {
-      enable = is_module_enabled("features", "autopairs"),
-    },
-  }))
+  require("nvim-treesitter.configs").setup(
+    vim.tbl_deep_extend("force", doom.core.treesitter.settings.treesitter, {
+      autopairs = {
+        enable = is_module_enabled("features", "autopairs"),
+      },
+    })
+  )
 
   --  Check if user is using clang and notify that it has poor compatibility with treesitter
   --  WARN: 19/11/2021 | issues: #222, #246 clang compatibility could improve in future

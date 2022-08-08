@@ -25,18 +25,11 @@ g.loaded_matchparen = 1
 g.loaded_logiPat = 1
 g.loaded_rrhelper = 1
 
-g.loaded_netrw = 1
-g.loaded_netrwPlugin = 1
-g.loaded_netrwSettings = 1
-g.loaded_netrwFileHandlers = 1
-
-local utils = require("doom.utils")
 
 -- Sets the `doom` global object
 require("doom.core.doom_global")
 
--- Load user settings
-doom[ "settings" ] = dofile(utils.find_config("settings.lua"))
+local utils = require("doom.utils")
 
 -- Load user settings
 doom[ "settings" ] = dofile(utils.find_config("settings.lua"))
@@ -44,6 +37,12 @@ doom[ "settings" ] = dofile(utils.find_config("settings.lua"))
 -- Boostraps the doom-nvim framework, runs the user's `config.lua` file.
 local config = utils.safe_require("doom.core.config")
 config.load()
+if not utils.is_module_enabled("features", "netrw") then
+  g.loaded_netrw = 1
+  g.loaded_netrwPlugin = 1
+  g.loaded_netrwSettings = 1
+  g.loaded_netrwFileHandlers = 1
+end
 
 -- Load the colourscheme
 utils.safe_require("doom.core.ui")
@@ -51,12 +50,16 @@ utils.safe_require("doom.core.ui")
 -- Set some extra commands
 utils.safe_require("doom.core.commands")
 
-
 -- Load Doom modules.
 local modules = utils.safe_require("doom.core.modules")
 modules.start()
 modules.load_modules()
 modules.handle_user_config()
 modules.try_sync()
+
+-- Execute autocommand for user to hook custom config into
+vim.api.nvim_exec_autocmds("User", {
+  pattern = "DoomStarted",
+})
 
 -- vim: fdm=marker

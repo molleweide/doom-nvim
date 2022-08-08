@@ -17,7 +17,6 @@ explorer.settings = {
   view = {
     width = 35,
     side = "left",
-    auto_resize = true,
     mappings = {
       custom_only = false,
     },
@@ -72,6 +71,7 @@ explorer.settings = {
   },
   actions = {
     open_file = {
+      resize_window = true, -- previously view.auto_resize
       window_picker = {
         exclude = {
           filetype = {
@@ -94,7 +94,8 @@ explorer.settings = {
 explorer.packages = {
   ["nvim-tree.lua"] = {
     "kyazdani42/nvim-tree.lua",
-    commit = "bdb6d4a25410da35bbf7ce0dbdaa8d60432bc243",
+    commit = "7fcb48c852b9d58709169a4dc1ec634fa9ea56f9",
+    module = "nvim-tree.api",
     cmd = {
       "NvimTreeClipboard",
       "NvimTreeClose",
@@ -181,6 +182,19 @@ explorer.binds = {
         },
       },
     },
+  },
+}
+
+explorer.autocmds = {
+  {
+    "BufEnter",
+    "*",
+    function()
+      local name = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
+      if vim.fn.isdirectory(name) == 1 then
+        require("nvim-tree.api").tree.change_root(name)
+      end
+    end,
   },
 }
 

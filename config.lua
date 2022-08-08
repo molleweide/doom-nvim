@@ -834,8 +834,8 @@ doom.use_cmd({
 
 -- vim.opt.guifont = { 'Hack Nerd Font', 'h12' }
 -- Editor config
-doom.border_style = { "", "", "", "", "", "", "", "" }
-doom.impatient_enabled = true
+-- doom.border_style = { "", "", "", "", "", "", "", "" }
+-- doom.impatient_enabled = true
 -- vim.lsp.set_log_level('trace')
 
 vim.diagnostic.config({

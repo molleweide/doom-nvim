@@ -70,13 +70,8 @@ log.new = function(config, standalone)
 
   local console_output = vim.schedule_wrap(function(level_config, info, nameupper, msg)
     local console_lineinfo = vim.fn.fnamemodify(info.short_src, ":t") .. ":" .. info.currentline
-    local console_string = string.format(
-      "[%-6s%s] %s: %s",
-      nameupper,
-      os.date("%H:%M:%S"),
-      console_lineinfo,
-      msg
-    )
+    local console_string =
+      string.format("[%-6s%s] %s: %s", nameupper, os.date("%H:%M:%S"), console_lineinfo, msg)
 
     if config.highlights and level_config.hl then
       vim.cmd(string.format("echohl %s", level_config.hl))
@@ -111,9 +106,13 @@ log.new = function(config, standalone)
     -- Output to log file
     if config.use_file then
       local fp = io.open(outfile, "a")
-      local str = string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
-      fp:write(str)
-      fp:close()
+      if not fp then
+        vim.cmd(string.format([[echom "Couldn't open log file [%s]"]], outfile))
+      else
+        local str = string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
+        fp:write(str)
+        fp:close()
+      end
     end
   end
 

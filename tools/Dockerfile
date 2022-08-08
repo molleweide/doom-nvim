@@ -24,11 +24,17 @@ RUN pacman -Sy neovim --noconfirm
 # Install runtime dependencies of doom-nvim
 RUN pacman -Sy ripgrep nodejs-lts-fermium npm git bash gcc jq --noconfirm
 
+# Lua
+RUN pacman -Sy luacheck stylua --noconfirm
+
 # Required for nvim-lsp-installer
-RUN pacman -Sy wget unzip
+RUN pacman -Sy wget unzip make --noconfirm
 
 # Required for watching Doom-nvim-contrib for changes
 RUN npm i -g chokidar-cli
+
+# Required for OCaml language
+# RUN pacman -Sy opam diffutils patch ocaml --noconfirm
 
 # Create the doom user and group
 RUN groupadd doom
@@ -39,6 +45,9 @@ RUN chown -R ${UNAME}:${GNAME} /usr/local/lib/node_modules/
 
 USER doom
 WORKDIR /home/doom
+
+# Required for OCaml language
+# RUN opam init --disable-sandboxing && opam install ocaml-lsp-server -y
 
 COPY _docker_entry.sh /usr/local/bin/
 

@@ -5,6 +5,10 @@ local lsp = {}
 lsp.__completions_enabled = true
 
 lsp.settings = {
+  snippets = {
+    history = true,
+    updateevents = "TextChanged,TextChangedI",
+  },
   signature = {
     bind = true,
     doc_lines = 10,
@@ -31,7 +35,6 @@ lsp.settings = {
     hint = "",
     info = "",
   },
-  virtual_text = false,
   severity_sort = true,
   completion = {
     kinds = {
@@ -61,6 +64,9 @@ lsp.settings = {
       Operator = " ",
       TypeParameter = " ",
     },
+    experimental = {
+      ghost_text = true,
+    },
     completeopt = "menu,menuone,preview,noinsert",
     window = {
       documentation = {
@@ -88,20 +94,23 @@ lsp.settings = {
     "sort_text",
     "length",
     "order",
-  }
+  },
 }
 
-local is_module_enabled = require("doom.utils").is_module_enabled
 lsp.packages = {
   ["nvim-lspconfig"] = {
     "neovim/nvim-lspconfig",
-    commit = "4eac16e87f24ad26738e632446e29766e87141ae",
+    commit = "60f2993b9661d9844cee3bebdbd1b5860577eb3c",
     module = "lspconfig",
   },
   ["nvim-cmp"] = {
     "hrsh7th/nvim-cmp",
-    commit = "15c7bf7c0dfb7c75eb526c53f9574633c13dc22d",
-    after = is_module_enabled("features", "snippets") and "LuaSnip" or nil,
+    commit = "706371f1300e7c0acb98b346f80dad2dd9b5f679",
+    requires = {
+      "L3MON4D3/LuaSnip",
+      commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
+      module = "luasnip",
+    },
   },
   ["cmp-nvim-lua"] = {
     "hrsh7th/cmp-nvim-lua",
@@ -115,23 +124,22 @@ lsp.packages = {
   },
   ["cmp-path"] = {
     "hrsh7th/cmp-path",
-    commit = "466b6b8270f7ba89abd59f402c73f63c7331ff6e",
+    commit = "447c87cdd6e6d6a1d2488b1d43108bfa217f56e1",
     after = "nvim-cmp",
   },
   ["cmp-buffer"] = {
     "hrsh7th/cmp-buffer",
-    commit = "12463cfcd9b14052f9effccbf1d84caa7a2d57f0",
+    commit = "62fc67a2b0205136bc3e312664624ba2ab4a9323",
     after = "nvim-cmp",
   },
   ["cmp_luasnip"] = {
     "saadparwaiz1/cmp_luasnip",
     commit = "a9de941bcbda508d0a45d28ae366bb3f08db2e36",
     after = "nvim-cmp",
-    disabled = not is_module_enabled("features", "snippets"),
   },
   ["lsp_signature.nvim"] = {
     "ray-x/lsp_signature.nvim",
-    commit = "9ccee20602a10843e3ea3ebc2536dfdcc6cee9a3",
+    commit = "aea1e060d465fcb565bc1178e4189fc79524ba61",
     after = "nvim-lspconfig",
   },
 }
@@ -193,10 +201,14 @@ lsp.configs["nvim-lspconfig"] = function()
 end
 lsp.configs["nvim-cmp"] = function()
   local utils = require("doom.utils")
-  local snippets_enabled = utils.is_module_enabled("features", "snippets")
 
-  local cmp = require("cmp")
-  local luasnip = snippets_enabled and require("luasnip")
+  local cmp_ok, cmp = pcall(require, "cmp")
+  local luasnip_ok, luasnip = pcall(require, "luasnip")
+  if not cmp_ok or not luasnip_ok then
+    return
+  end
+  luasnip.config.set_config(doom.features.lsp.settings.snippets)
+
   local replace_termcodes = utils.replace_termcodes
 
   local source_map = {
@@ -221,7 +233,7 @@ lsp.configs["nvim-cmp"] = function()
 
   -- Fetch the comparators from cmp
   local comparators = require("cmp.config.compare")
-  doom.features.lsp.settings.sorting = vim.tbl_map(function (comparator)
+  doom.features.lsp.settings.sorting = vim.tbl_map(function(comparator)
     return comparators[comparator]
   end, doom.features.lsp.settings.sorting)
 
@@ -232,11 +244,8 @@ lsp.configs["nvim-cmp"] = function()
     },
     formatting = {
       format = function(entry, item)
-        item.kind = string.format(
-          "%s %s",
-          doom.features.lsp.settings.completion.kinds[item.kind],
-          item.kind
-        )
+        item.kind =
+          string.format("%s %s", doom.features.lsp.settings.completion.kinds[item.kind], item.kind)
         item.menu = source_map[entry.source.name]
         item.dup = vim.tbl_contains({ "path", "buffer" }, entry.source.name)
         return item
@@ -257,7 +266,7 @@ lsp.configs["nvim-cmp"] = function()
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        elseif snippets_enabled and luasnip.expand_or_jumpable() then
+        elseif luasnip.expand_or_jumpable() then
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
         elseif check_backspace() then
           vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
@@ -271,7 +280,7 @@ lsp.configs["nvim-cmp"] = function()
       ["<S-Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        elseif snippets_enabled and luasnip.jumpable(-1) then
+        elseif luasnip.jumpable(-1) then
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")
         else
           fallback()
@@ -364,7 +373,7 @@ lsp.binds = {
                 end,
                 name = "Line",
               },
-              { "l", vim.lsp.diagnostic.set_loclist, name = "Loclist" },
+              { "l", vim.diagnostic.setloclist, name = "Loclist" },
             },
           },
         },

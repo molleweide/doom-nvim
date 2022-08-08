@@ -11,7 +11,6 @@ local filename = "config.lua"
 
 config.source = nil
 
-
 --- Entry point to bootstrap doom-nvim.
 config.load = function()
   -- Set vim defaults on first load. To override these, the user can just
@@ -32,7 +31,6 @@ config.load = function()
   vim.opt.path = "**"
   vim.opt.signcolumn = "auto:2-3"
   vim.opt.foldcolumn = "auto:9"
-  vim.opt.colorcolumn = "80"
   vim.opt.formatoptions:append("j")
   vim.opt.fillchars = {
     vert = "▕",
@@ -47,7 +45,6 @@ config.load = function()
   vim.opt.smartindent = true
   vim.opt.copyindent = true
   vim.opt.preserveindent = true
-  vim.opt.clipboard = "unnamedplus"
   vim.opt.cursorline = true
   vim.opt.splitright = false
   vim.opt.splitbelow = true
@@ -56,8 +53,6 @@ config.load = function()
   vim.opt.mouse = "a"
   vim.opt.wrap = false
   vim.opt.swapfile = false
-  vim.opt.number = true
-  vim.opt.relativenumber = true
   vim.opt.expandtab = true
   vim.opt.conceallevel = 0
   vim.opt.foldenable = true
@@ -69,18 +64,17 @@ config.load = function()
   -- Iterate over each module and save it to the doom global object
   for section_name, section_modules in pairs(enabled_modules) do
     for _, module_name in pairs(section_modules) do
-
       -- If the section is `user` resolves from `lua/user/modules`
       local search_paths = {
         ("user.modules.%s.%s"):format(section_name, module_name),
-        ("doom.modules.%s.%s"):format(section_name, module_name)
+        ("doom.modules.%s.%s"):format(section_name, module_name),
       }
 
       local ok, result
       for _, path in ipairs(search_paths) do
         ok, result = xpcall(require, debug.traceback, path)
         if ok then
-          break;
+          break
         end
       end
       if ok then
@@ -132,13 +126,33 @@ config.load = function()
     vim.opt.undofile = false
     vim.opt.undodir = nil
   end
+
+--   vim.g.mapleader = doom.settings.leader_key
+-- end
+
+  if doom.settings.global_statusline then
+    vim.opt.laststatus = 3
+  end
+
+  -- Use system clipboard
+  if doom.settings.clipboard then
+    vim.opt.clipboard = "unnamedplus"
+  end
+
+  -- Color column
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
+
+  -- Number column
+  vim.opt.number = not doom.settings.disable_numbering
+  vim.opt.relativenumber = not doom.settings.disable_numbering and doom.settings.relative_num
+
   vim.g.mapleader = doom.settings.leader_key
 end
-
 
 -- Path cases:
 --   1. stdpath('config')/../doom-nvim/config.lua
 --   2. stdpath('config')/config.lua
 --   3. <runtimepath>/doom-nvim/config.lua
 config.source = utils.find_config(filename)
+
 return config
