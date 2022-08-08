@@ -13,7 +13,9 @@ if not utils.is_empty(doom.settings.colorscheme) then
   end, debug.traceback)
 
   if not loaded_colorscheme then
-    log.warn("Colorscheme '" .. doom.settings.colorscheme .. "' not found, falling back to doom-one")
+    log.warn(
+      "Colorscheme '" .. doom.settings.colorscheme .. "' not found, falling back to doom-one"
+    )
     vim.api.nvim_command("colorscheme doom-one")
   end
 else

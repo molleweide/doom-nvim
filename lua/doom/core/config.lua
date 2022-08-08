@@ -136,7 +136,9 @@ config.load = function()
   end
 
   -- Color column
-  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
+      and tostring(doom.settings.max_columns)
+    or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering

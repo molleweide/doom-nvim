@@ -301,11 +301,13 @@ lsp.configs["nvim-cmp"] = function()
 end
 lsp.configs["lsp_signature.nvim"] = function()
   -- Signature help
-  require("lsp_signature").setup(vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
-    handler_opts = {
-      border = doom.settings.border_style,
-    },
-  }))
+  require("lsp_signature").setup(
+    vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
+      handler_opts = {
+        border = doom.settings.border_style,
+      },
+    })
+  )
 end
 
 lsp.binds = {
