@@ -15,6 +15,7 @@ local md = {}
 -- jubnzv/mdeval.nvim - A Neovim plugin that evaluates code blocks inside markdown documents.
 -- mjlbach/babelfish.nvim - A Neovim plugin to convert Markdown to vimdoc using Treesitter.
 -- kdheepak/panvimdoc - A pandoc to vimdoc GitHub action.
+-- https://github.com/AckslD/nvim-FeMaco.lua
 
 md.packages = {}
 
