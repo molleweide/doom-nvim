@@ -1,0 +1,2 @@
+-- https://github.com/NMAC427/guess-indent.nvim
+-- https://github.com/Darazaki/indent-o-matic

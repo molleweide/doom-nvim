@@ -4,6 +4,7 @@
 -- what features are being used.
 --
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
+-- Once done, restart doom-nvim and run `:PackerInstall`.
 
 -- TODO: REDO COMMENT HEADERS WITH FIGLET
 
@@ -64,6 +65,7 @@ return {
     -- "readline",        -- ???
     -- "filetype",        -- ???
     -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
+    "root",               -- Auto switch root on-enter new git repo + useful commands
 
     ------------------------------------------------------------------
     -- ::: UI COMPONENTS ::: --
@@ -89,7 +91,7 @@ return {
     -- "vim_ui",            -- improved `vim.ui`
     "virtual_types", -- ???
     -- "code_outline",
-    -- "transparent"
+    -- "transparent",
 
     ------------------------------------------------------------------
     -- ::: VCS / GIT ::: --
@@ -141,6 +143,7 @@ return {
     -- "markdown_tools",  -- ??
     -- "google_docs",
     "zen",
+    -- "repl",
 
     ------------------------------------------------------------------
     -- ::: TABULAR ::: --
@@ -184,7 +187,6 @@ return {
     "docs",
     "editing",
     "formatting",
-    "paths",
     "tweak",
     "windows",
     "wm",
@@ -256,13 +258,13 @@ return {
     -- "ui_pipeline",
     -- "ui_toggle_components",
     -- "vigoux_templar",
-
   },
   langs = {
     -- Scripts
     "lua",
     "python",
     "bash",
+    -- "fish",
 
     -- Web
     "javascript",
@@ -275,6 +277,7 @@ return {
     -- Compiled
     "rust",
     "cc",
+    -- "ocaml",
 
     -- JIT
     -- "c_sharp",
@@ -283,10 +286,12 @@ return {
 
     "config",          -- JSON, YAML, TOML
     "markdown",
+    -- "terraform",       -- Terraform / hcl files support
+    "dockerfile",
 
     -- "fennel",
     -- "latex",
-    -- lisp
+    -- "lisp",
     -- "solidity",          -- ethereum lang
   },
   themes = {
@@ -343,6 +348,7 @@ return {
     -- "rasmus",
     -- "rdark",
     -- "roshivim",
+    -- "starry",
     "solarized",
     "sonokai",
     -- "space",
@@ -359,7 +365,6 @@ return {
     -- "zenbones",
     -- "zephyr",
     -- "zephyrium",
-
   }
 }
 

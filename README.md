@@ -6,8 +6,8 @@
 ![License](https://img.shields.io/github/license/NTBBloodbath/doom-nvim?style=for-the-badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
 ![Latest Release](https://img.shields.io/github/v/release/NTBBloodbath/doom-nvim?include_prereleases&style=for-the-badge&color=red)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/NTBBloodbath/doom-nvim/develop?style=for-the-badge)
-![Neovim version](https://img.shields.io/badge/Neovim-0.5-57A143?style=for-the-badge&logo=neovim)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/NTBBloodbath/doom-nvim/main?style=for-the-badge)
+![Neovim version](https://img.shields.io/badge/Neovim-0.7-57A143?style=for-the-badge&logo=neovim)
 [![Discord](https://img.shields.io/badge/discord-join-7289da?style=for-the-badge&logo=discord)](https://discord.gg/xhvBM45zBf)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
@@ -18,28 +18,10 @@
 
 </div>
 
----
-
-- [Doom Nvim](#doom-nvim)
-  * [What is Doom Nvim?](#what-is-doom-nvim-)
-  * [Install](#install)
-  * [Configuring](#configuring)
-    + [Enabling features: `modules.lua`](#-moduleslua-)
-      - [What is a module?](#what-is-a-module-)
-      - [Enabing/disabling modules](#enabing-disabling-modules)
-      - [All modules](#all-modules)
-    + [Configuring and personalising: `config.lua`](#-configlua-)
-      - [Modifying neovim and doom options](#modifying-neovim-and-doom-options)
-        * [Adding plugins](#adding-plugins)
-        * [Adding Keybinds](#adding-keybinds)
-        * [Adding autocommands](#adding-autocommands)
-        * [Adding commands](#adding-commands)
-      - [Overriding module defaults](#overriding-module-defaults)
-  * [FAQ](#faq)
-  * [Contributing](#contributing)
-  * [Contributors](#contributors)
-
----
+> Note: Doom nvim v4.0.0 has just been released (29th July 2022).
+> This release introduces many changes so feel free to ask questions on the
+> discord or in the github discussions page or create an issue ticket and I'll
+> solve it as soon as possible.
 
 ## What is Doom Nvim?
 
@@ -58,51 +40,97 @@ Some of the defining features that make this project unique are:
 
 ## Install
 
-TODO: Add install docs here
+### Mac OS / Linux
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/NTBBloodbath/doom-nvim/main/tools/install.sh)
+```
+
+### Manual (Mac OS / Linux)
+
+1. Clone doom-nvim to ~/.config/nvim
+  - `git clone https://github.com/NTBBloodbath/doom-nvim.git ${XDG_CONFIG_HOME:-$HOME/.config}/nvim`
+2. (optional) Checkout the latest stable version in a new branch called `my-config` so the auto-updater works.
+  - `git checkout tags/$(git tag -l --sort -version:refname | head -n 1) -b my-config`
+  - ℹ️ The auto-updater will be broken without this step but you're free to check updates using the `:DoomCheckUpdates` command and manage updates manually.
+
+---
+
+- [Configuring](#configuring)
+- [Enabling features: `modules.lua`](#enabling-features-moduleslua)
+  - [What is a module?](#what-is-a-module)
+  - [Enabing/disabling modules](#enabingdisabling-modules)
+  - [All modules](#all-modules)
+- [Configuring and personalising: `config.lua`](#configuring-and-personalising-configlua)
+  - [Modifying neovim and doom options](#modifying-neovim-and-doom-options)
+    * [Adding plugins](#adding-plugins)
+    * [Adding keybinds](#adding-keybinds)
+    * [Adding autocommands](#adding-autocommands)
+    * [Adding commands](#adding-commands)
+  - [Overriding module defaults](#overriding-module-defaults)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+- [Uninstall](#uninstalling)
+
+---
 
 ## Configuring
 
-Doom nvim is configured by enabling modules in the `modules.lua` file and then tweaking, overriding or adding new packages, keybinds and more within the `config.lua` module.
+Doom nvim is configured by enabling modules in the `modules.lua` file and then
+tweaking, overriding or adding new packages, keybinds and more within the
+`config.lua` module.
+
+> We recommend creating a custom config branch (the auto install script will
+> do this for you) and committing your changes to this branch.  The auto updater
+> will merge new releases into your config branch for you.
 
 ### Enabling features: `modules.lua`
 
 #### What is a module?
-A module is a collection of packages, autocommands, keybinds and functions that add new capabilities or functionality to Doom Nvim.
-We organise modules into 3 categories:
+
+A module is a collection of packages, autocommands, keybinds and functions that
+add new capabilities or functionality to Doom Nvim.  See what's avaliable in
+`modules.lua` and enable the modules that you think you would like.  Then restart
+`doom-nvim`, run `:PackerSync` and then restart `doom-nvim` again.
+
+We organise modules into 2 categories:
 - `features` extend the abilities of Doom Nvim by adding new functionality.
 - `langs` add support for new languages.
-- `user` (**optional**) You can create and enable your own modules without modifying the Doom Nvim source code (read more)[#TODO:].
 
 #### Enabing/disabling modules
 
-You can enable or disable a module by going to `modules.lua` (`<leader>Dm`) and commenting or uncommenting the entry.
+You can enable or disable a module by going to `modules.lua` (`<leader>Dm`) and
+commenting or uncommenting the entry.
+
 ```lua
 -- modules.lua
 
 return {
+  -- `lsp` module is enabled, `telescope is disabled`
   features = {
     'lsp'
     -- 'telescope'
   },
+  -- `lua` language is enabled, `rust is disabled`
   langs = {
     'lua',
     -- 'rust',
   }
 }
 ```
-> Here the `lsp` module is enabled but the `telescope` module is disabled,
-> similarly the `lua` language is enabled but the `rust` language module is disabled.
 
 #### All modules
 
 Doom-nvim currently has 35+ `features` modules and 20+ `langs` modules.
-You can find a full list of modules (here)[./docs/modules.md#all-modules]
+You can find a full list of modules [here](./docs/modules.md#all-modules)
 
 ### Configuring and personalising: `config.lua`
 
 #### Modifying neovim and doom options
 
-Doom nvim provides a number of config options, including wrapping some of vim's own options.  See all available config options (in the API Reference)[./docs/api.md].
+Doom nvim provides a number of config options, including wrapping some of vim's
+own options.  See all available config options [in the API Reference](./docs/api.md).
 
 ```lua
 -- config.lua
@@ -114,7 +142,8 @@ doom.settings.indent = 2                   -- Sets vim.opt.shiftwith, vim.opt.so
 vim.opt.colorcolumn = 120         -- Regular vim options can also be set
 ```
 
-> **NOTE:** If you have the `lua` language and `lsp` module enabled all of these options will be autocompleted.
+> **NOTE:** If you have the `lua` language and `lsp` module enabled all of these
+> options will be autocompleted.
 
 ##### Adding plugins
 
@@ -138,7 +167,8 @@ doom.use_package({
 ##### Adding Keybinds
 
 Additional keybinds can be defined with the `doom.use_keybind()` function.
-This is a wrapper around a custom `nest.nvim` implementation and provides the same API. [DOCS](https://github.com/connorgmeehan/nest.nvim/tree/integrations-api#quickstart-guide)
+This is a wrapper around a custom `nest.nvim` implementation and provides the
+same API. [DOCS](https://github.com/connorgmeehan/nest.nvim/tree/integrations-api#quickstart-guide)
 
 ```lua
 -- config.lua
@@ -150,7 +180,8 @@ doom.use_keybind({
 })
 ```
 
-> **NOTE:** By providing the `name` field your custom keybinds will show up in `whichkey` and `mapper` if you have those modules enabled.
+> **NOTE:** By providing the `name` field your custom keybinds will show up
+> in `whichkey` and `mapper` if you have those modules enabled.
 
 ##### Adding autocommands
 
@@ -275,14 +306,22 @@ return {
 The majors changes between v3 and v4 are the following.
 
 - `doom_config.lua` renamed to `config.lua`
-- Adding custom commands, keybinds and autocommands done using new [`doom.use_*`](#-configlua-) helper functions.
-- Adding extra plugins done using new [`doom.use_package`](#adding-plugins) helper function.
+- Adding custom commands, keybinds and autocommands done using new [`doom.use_*`](#-configlua-)
+  helper functions.
+- Adding extra plugins done using new [`doom.use_package`](#adding-plugins) helper
+  function.
 - `doom_modules.lua` renamed to `modules.lua`
-- Many of the modules categories have been combined, there are now only `features` (modifying capabilities of doom-nvim) and `languages` (add support for a language)
+- Many of the modules categories have been combined, there are now only `features`
+  (modifying capabilities of doom-nvim) and `languages` (add support for a language)
 - Languages `+lsp`, `+formatting`, etc flags are no longer necessary
 
 > Because of the durastic changes to the way you configure doom-nvim we recommend
 > starting a new branch and porting your changes across.
+
+## Uninstalling
+
+To uninstall doom-nvim delete the `.nvim` folder from `$XDG_CONFIG_HOME/nvim` (`rm -r ~/.config/nvim`)
+You will also need to delete `packer_compiled.lua` from `$XDG_DATA_HOME/nvim/plugin/packer_compiled` (`rm ~/.local/share/nvim/plugin/packer_compiled.lua`)
 
 ## Contributing
 
@@ -315,6 +354,7 @@ Special thanks to these amazing people for helping improve doom (see [emoji key]
     <td align="center"><a href="https://github.com/AceMouty"><img src="https://avatars.githubusercontent.com/u/45374681?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kyle Guerrero</b></sub></a><br /><a href="https://github.com/NTBBloodbath/doom-nvim/commits?author=AceMouty" title="Documentation">📖</a></td>
   </tr>
 </table>
+
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

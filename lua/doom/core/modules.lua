@@ -19,13 +19,14 @@ modules.source = utils.find_config(filename)
 -- Merge core modules (can't be disabled) with user enabled modules
 local core_modules = {
   core = {
-    'doom',
-    'nest',
-    'treesitter',
-    'reloader',
-  }
+    "doom",
+    "nest",
+    "treesitter",
+    "reloader",
+    "updater",
+  },
 }
-modules.enabled_modules = vim.tbl_deep_extend('keep', core_modules, dofile(modules.source))
+modules.enabled_modules = vim.tbl_deep_extend("keep", core_modules, dofile(modules.source))
 
 local system = require("doom.core.system")
 

@@ -62,7 +62,7 @@ search_and_replace.binds = {
   },
 }
 
-if require("doom.utils").is_module_enabled("whichkey") then
+if require("doom.utils").is_module_enabled("features","whichkey") then
   table.insert(search_and_replace.binds, {
     "<leader>",
     name = "+prefix",

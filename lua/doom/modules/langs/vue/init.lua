@@ -108,7 +108,7 @@ vue.autocmds = {
       -- Contains base configuration necessary for volar to start
       local base_config = {
         default_config = {
-          cmd = { 'vue-language-server', '--stdio' },
+          cmd = { "vue-language-server", "--stdio" },
           -- cmd = volar.document_config.default_config.cmd,
           root_dir = volar_root_dir,
           on_new_config = on_new_config,
@@ -120,34 +120,22 @@ vue.autocmds = {
         },
       }
 
-      local volar_api_config = vim.tbl_deep_extend(
-        "force",
-        {},
-        doom.langs.vue.settings.volar_api,
-        base_config
-      )
+      local volar_api_config =
+        vim.tbl_deep_extend("force", {}, doom.langs.vue.settings.volar_api, base_config)
       langs_utils.use_lsp("volar", {
         name = "volar_api",
         config = volar_api_config,
       })
 
-      local volar_doc_config = vim.tbl_deep_extend(
-        "force",
-        {},
-        doom.langs.vue.settings.volar_doc,
-        base_config
-      )
+      local volar_doc_config =
+        vim.tbl_deep_extend("force", {}, doom.langs.vue.settings.volar_doc, base_config)
       langs_utils.use_lsp("volar", {
         name = "volar_doc",
         config = volar_doc_config,
       })
 
-      local volar_html_config = vim.tbl_deep_extend(
-        "force",
-        {},
-        doom.langs.vue.settings.volar_html,
-        base_config
-      )
+      local volar_html_config =
+        vim.tbl_deep_extend("force", {}, doom.langs.vue.settings.volar_html, base_config)
       langs_utils.use_lsp("volar", {
         name = "volar_html",
         config = volar_html_config,

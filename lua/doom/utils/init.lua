@@ -9,7 +9,8 @@ utils.version = {
   minor = 0,
   patch = 0,
 }
-utils.doom_version = string.format("%d.%d.%d", utils.version.major, utils.version.minor, utils.version.patch)
+utils.doom_version =
+  string.format("%d.%d.%d", utils.version.major, utils.version.minor, utils.version.patch)
 
 -- Finds `filename` (where it is a doom config file).
 utils.find_config = function(filename)
@@ -24,10 +25,8 @@ utils.find_config = function(filename)
   if fs.file_exists(path) then
     return path
   end
-  local candidates = vim.api.nvim_get_runtime_file(
-    get_filepath("*" .. system.sep .. "doon-nvim"),
-    false
-  )
+  local candidates =
+    vim.api.nvim_get_runtime_file(get_filepath("*" .. system.sep .. "doon-nvim"), false)
   if not vim.tbl_isempty(candidates) then
     return candidates[1]
   end
@@ -58,18 +57,12 @@ end
 --- Wraps lua's require function in an xpcall and logs errors.
 ---@param path string
 ---@return any
-utils.safe_require = function (path)
+utils.safe_require = function(path)
   local log = require("doom.utils.logging")
   log.debug(string.format("Doom: loading '%s'... ", path))
   local ok, result = xpcall(require, debug.traceback, path)
   if not ok and result then
-      log.error(
-        string.format(
-          "There was an error requiring '%s'. Traceback:\n%s",
-          path,
-          result
-        )
-      )
+    log.error(string.format("There was an error requiring '%s'. Traceback:\n%s", path, result))
     return nil
   else
     log.debug(string.format("Successfully loaded '%s' module", path))
@@ -98,10 +91,8 @@ end
 -- @param  action string|function The action to execute when the cmd is entered.
 utils.make_cmd = function(cmd_name, action)
   local cmd = "command! " .. cmd_name .. " "
-  cmd = type(action) == "function"
-    and cmd .. utils.commandify_function(action)
-    or cmd .. action
-    vim.cmd(cmd)
+  cmd = type(action) == "function" and cmd .. utils.commandify_function(action) or cmd .. action
+  vim.cmd(cmd)
 end
 
 utils.make_autocmd = function(event, pattern, action, group, nested, once)
@@ -121,9 +112,7 @@ utils.make_autocmd = function(event, pattern, action, group, nested, once)
     cmd = cmd .. "++once "
   end
 
-  cmd = type(action) == "function"
-    and cmd .. utils.commandify_function(action)
-    or cmd .. action
+  cmd = type(action) == "function" and cmd .. utils.commandify_function(action) or cmd .. action
 
   vim.cmd(cmd)
 end
@@ -143,7 +132,7 @@ utils.make_augroup = function(group_name, cmds, existing_group)
   end
 end
 
-utils.get_sysname = function ()
+utils.get_sysname = function()
   return vim.loop.os_uname().sysname
 end
 
@@ -201,19 +190,13 @@ utils.get_diagnostic_count = function(bufnr, severity)
 end
 
 --- Check if the given plugin is disabled in doom-nvim/modules.lua
---- @param plugin string The plugin identifier, e.g. statusline
+--- @param section string The module section, e.g. features
+--- @param plugin string The module identifier, e.g. statusline
 --- @return boolean
-utils.is_module_enabled = function(plugin)
+utils.is_module_enabled = function(section, plugin)
   local modules = require("doom.core.modules").enabled_modules
 
-  -- Iterate over all modules sections (e.g. ui) and their plugins
-  for _, section in pairs(modules) do
-    if vim.tbl_contains(section, plugin) then
-      return true
-    end
-  end
-
-  return false
+  return modules[section] and vim.tbl_contains(modules[section], plugin)
 end
 
 local modules_list_cache = {}
@@ -230,7 +213,7 @@ utils.get_all_modules_as_list = function()
         all_modules[k].name = section_name
       end
     end
-    modules_list_cache = table.sort(all_modules, function (a, b)
+    modules_list_cache = table.sort(all_modules, function(a, b)
       return (a.priority or 100) < (b.priority or 100)
     end)
     return modules_list_cache

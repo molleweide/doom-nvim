@@ -1,0 +1,1 @@
+-- https://github.com/uga-rosa/cmp-dictionary

@@ -41,6 +41,7 @@ neorg.settings = {
       },
     },
     ["core.integrations.telescope"] = {},
+    ["core.integrations.nvim-cmp"] = {},
     ["core.presenter"] = {
       config = {
         zen_mode = "truezen",
@@ -58,7 +59,7 @@ neorg.settings = {
 neorg.packages = {
   ["neorg"] = {
     "nvim-neorg/neorg",
-    commit = "c0ebefa516aa9e93431f0a55e033db0dec072857",
+    commit = "2c4305eb32b10710a043380069c5538632160260",
     after = "nvim-treesitter",
     requires = "nvim-neorg/neorg-telescope", -- https://github.com/nvim-neorg/neorg-telescope#installation
   },
@@ -86,22 +87,22 @@ neorg.autocmds = {
         install_info = {
           url = "https://github.com/nvim-neorg/tree-sitter-norg",
           files = { "src/parser.c", "src/scanner.cc" },
-          branch = "main"
-        }
+          branch = "main",
+        },
       }
       parsers.norg_meta = {
         install_info = {
           url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
           files = { "src/parser.c" },
-          branch = "main"
-        }
+          branch = "main",
+        },
       }
       parsers.norg_table = {
         install_info = {
           url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
           files = { "src/parser.c" },
-          branch = "main"
-        }
+          branch = "main",
+        },
       }
 
       vim.defer_fn(function()
@@ -111,7 +112,7 @@ neorg.autocmds = {
         ensure_installed("norg_table")
       end, 0)
     end,
-  }
+  },
 }
 
 -- If you're using the automatic keybind generation provided by Neorg you can
@@ -154,7 +155,7 @@ neorg.binds = {
             { 'E', ':Neorg workspace example_gtd<cr>', name = "neorg example" },
             { 'g', ':Neorg gtd ', name = "neorg gtd <insert>" },
             { 'c', ':Neorg gtd capture<cr>', name = "neorg capture" },
-            { 'e', ':Neorg gtd edit', name = "neorg gtd edit" },
+            { 'e', ':Neorg gtd edit<cr>', name = "neorg gtd edit" },
             { 'v', ':Neorg gtd views<cr>', name = "neorg gtd views" },
             { 't', ':Neorg journal today<cr>', name = "neorg journal today" },
             { 'n', ':Neorg present<cr>', name = "neorg present" },

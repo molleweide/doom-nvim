@@ -1,16 +1,33 @@
 --[[
 
--> TODAY:
-    1. setup mollewei.de on `heroku`
-    2. clean up -> pitch-machine.com
+https://github.com/soywod/himalaya
+
+you have left politics and you are now outside of the fucking system that keeps you from slapping him into the fucki face like a retarded
+little dog that really dosen't make anything into the righteous strong motherfucking bitch as cucksucker and so that is the
+thing that we would never want to do you know. but on the otherhand we could also run that into the fucking shit hole that they are
+using.
+
+epidemic-sounds/ sonos / spotify /
+
+https://www.youtube.com/results?search_query=paas+comparison
+
+- linode / digital ocean
+
+I need to get a proton email. which is a clean and secure thing that is NOT google
+
+Email turn of -> verisure/facebook/more.???
+
+okay so this is a bit annoying and so that really pisses me off a lot which is a fucking bitch and so that really makes me angry you know.
+fuck this fucking shit you know mother fucking bitch ass cuck sucker.
+
+
+logseq vs obsidian | https://github.com/logseq/logseq
+
+
+todo: neorg -> indentation = 8 (extreme indentations for legebility.)
+
 
 split -> https://www.youtube.com/watch?v=bJl4VSoESpo
-
-allright so this is pretty fucking cool but it still requires something
-that is a little bit more secure than somehting else except for the
-things that we have gotten out in the reason street which is quite fucking insane.
-i don't ufkcing understand how they can do this shit.
-
 
 https://github.com/masukomi/scheme-format
 
@@ -457,16 +474,13 @@ bbb
 --
 --
 
-
 -- invisio + lysa
 
 -- merge settings branch into latest next.
-
 
 -- MODULE STRUCTURE > dynamically collect module category dirs instead of having them hard coded.
 --
 --
 --
-
 
 --

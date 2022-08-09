@@ -1,0 +1,1 @@
+-- https://github.com/ethanholz/nvim-lastplace

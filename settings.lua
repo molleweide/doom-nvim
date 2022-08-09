@@ -1,7 +1,8 @@
--- this is only the `doom.settings` table so that user can make
--- important overrides here if they like. We use treesitter to make sure
--- that this file is in sync with the core.
 return {
+  -- Use the global statusline
+  -- @default = true
+  global_statusline = true,
+
   -- Leader key for keybinds
   -- @default = ' '
   leader_key = ' ',
@@ -39,6 +40,18 @@ return {
   -- @default = false
   disable_suspension = true,
 
+  -- Set numbering
+  -- false : Enable  number lines
+  -- true  : Disable number lines
+  -- @default = false
+  disable_numbering = false,
+
+  -- Set numbering style
+  -- false : Shows absolute number lines
+  -- true  : Shows relative number lines
+  -- @default = true
+  relative_num = true,
+
   -- h,l, wrap lines
   movement_wrap = true,
 
@@ -73,6 +86,12 @@ return {
   -- @default = true
   highlight_yank = true,
 
+  -- Use clipboard outside of vim
+  -- false : won't use third party clipboard
+  -- true  : enables third part clipboard
+  -- @default = true
+  clipboard = true,
+
   -- Enable guicolors
   -- Enables gui colors on GUI versions of Neovim
   -- @default = true
@@ -102,6 +121,12 @@ return {
   -- @default = false
   use_floating_win_packer = false,
 
+  -- Set max cols
+  -- Defines the column to show a vertical marker
+  -- Set to false to disable
+  -- @default = 80
+  max_columns = 80,
+
   -- Default indent size
   -- @default = 4
   indent = 4,
@@ -120,7 +145,7 @@ return {
 
   -- Default colorscheme
   -- @default = doom-one
-  colorscheme = "doom-one",
+  colorscheme = "moonfly",
 
   -- TODO: this one is used but hasn't been defined yet.
   -- complete_transparency = ??,

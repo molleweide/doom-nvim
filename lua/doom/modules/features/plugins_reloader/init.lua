@@ -3,6 +3,8 @@ local use_floating_win_packer = doom.settings.use_floating_win_packer
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 
+-- TODO: compare to source git@github.com:notomo/lreload.nvim.git
+
 local pr = {}
 
 pr.cmds = {

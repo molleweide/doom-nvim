@@ -1,1 +1,2 @@
 -- git@github.com:ghillb/cybu.nvim.git
+-- https://github.com/matbme/JABS.nvim
