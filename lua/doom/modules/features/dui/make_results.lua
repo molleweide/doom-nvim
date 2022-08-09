@@ -1,5 +1,5 @@
-local ax =  require("doom.modules.features.dui.actions")
-local ut =  require("doom.modules.features.dui.utils")
+local ax = require("doom.modules.features.dui.actions")
+local ut = require("doom.modules.features.dui.utils")
 local tree = require("doom.utils.tree")
 
 local function i(x)
@@ -9,24 +9,24 @@ end
 local M = {}
 
 local MODULE_ORIGINS = {
-    "user",
-    "doom",
+  "user",
+  "doom",
 }
 
 local MODULE_CATEGORIES = {
-    "core",
-    "features",
-    "langs",
-    "themes"
+  "core",
+  "features",
+  "langs",
+  "themes",
 }
 
 local MODULE_PARTS = {
-    "settings",
-    "packages",
-    "configs",
-    "binds",
-    "cmds",
-    "autocmds",
+  "settings",
+  "packages",
+  "configs",
+  "binds",
+  "cmds",
+  "autocmds",
 }
 
 --- Gets the results list for the given query made by user. Currently this is
@@ -40,56 +40,47 @@ M.get_results_for_query = function(type, components)
 
   -- inspect_ui_state()
 
-    -- TODO: filters -> investigate
+  -- TODO: filters -> investigate
 
   if doom_ui_state.query.type == "main_menu" then
     for _, entry in ipairs(M.main_menu_flattened()) do
       table.insert(results, entry)
     end
-
   elseif doom_ui_state.query.type == "settings" then
-    -- it feel like the the results table should be passed into the traverse
-    -- function so that we can omit the outer for loop which seems to be
-    -- redundant
-    for _, entry in ipairs(tree.traverse_table {
-        tree = doom.settings,
-        type = "settings",
-        leaf = mr_settings,
-      }) do
-      table.insert(results, entry)
-    end
+    results = tree.traverse_table({
+      tree = doom.settings,
+      type = "settings",
+      leaf = mr_settings,
+      acc = results,
+    })
+    -- do
+    --   table.insert(results, entry)
+    -- end
 
-
-
-  -- TODO: replace modules with traverse_table
+    -- TODO: replace modules with traverse_table
   elseif doom_ui_state.query.type == "modules" then
     for _, entry in pairs(M.get_modules_flattened()) do
       table.insert(results, entry)
     end
 
-    -- for _, entry in ipairs(tree.traverse_table {
-    --     tree = doom.settings,
-    --     type = "settings",
-    --     leaf = mr_settings,
-    --   }) do
-    --   table.insert(results, entry)
-    -- end
-
+    -- results = tree.traverse_table({
+    --   tree = doom.settings,
+    --   type = "settings",
+    --   leaf = mr_settings,
+    --   acc = results,
+    -- })
   elseif doom_ui_state.query.type == "module" then
-      for mk, m_part in pairs(doom_ui_state.selected_module) do
-        for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
-          if mk == qp then
-            for _, entry in pairs(M[mk.."_flattened"](m_part)) do
-              table.insert(results, entry)
-            end
+    for mk, m_part in pairs(doom_ui_state.selected_module) do
+      for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
+        if mk == qp then
+          for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
+            table.insert(results, entry)
           end
         end
       end
-
+    end
   elseif doom_ui_state.query.type == "component" then
-
   elseif doom_ui_state.query.type == "all" then
-
   end
 
   return results
@@ -106,34 +97,34 @@ end
 ---@return list of main menu items
 M.main_menu_flattened = function()
   local doom_menu_items = {
-		{
+    {
       list_display_props = {
-        {"open user config"},
+        { "open user config" },
       },
       mappings = {
         ["<CR>"] = function()
           vim.cmd(("e %s"):format(require("doom.core.config").source))
         end,
       },
-      ordinal = "userconfig"
-		},
-  	{
+      ordinal = "userconfig",
+    },
+    {
       list_display_props = {
-        {"browse user settings"},
+        { "browse user settings" },
       },
       mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
+        ["<CR>"] = function(fuzzy, line, cb)
           doom_ui_state.query = {
             type = "settings",
           }
           doom_ui_state.next()
-  		  end,
+        end,
       },
-      ordinal = "usersettings"
-  	},
-  	{
+      ordinal = "usersettings",
+    },
+    {
       list_display_props = {
-        {"browse all modules"},
+        { "browse all modules" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)
@@ -145,56 +136,56 @@ M.main_menu_flattened = function()
           doom_ui_state.next()
         end,
       },
-      ordinal = "modules"
-  	},
-  	{
+      ordinal = "modules",
+    },
+    {
       list_display_props = {
-        {"browse all binds"},
-      },
-      mappings = {
-        ["<CR>"] =function() end,
-      },
-      ordinal = "binds"
-  	},
-  	{
-      list_display_props = {
-        {"browse all autocmds"},
+        { "browse all binds" },
       },
       mappings = {
         ["<CR>"] = function() end,
       },
-      ordinal = "autocmds"
-  	},
-  	{
+      ordinal = "binds",
+    },
+    {
       list_display_props = {
-        {"browse all cmds"},
+        { "browse all autocmds" },
       },
       mappings = {
         ["<CR>"] = function() end,
       },
-      ordinal = "cmds"
-  	},
-  	{
+      ordinal = "autocmds",
+    },
+    {
       list_display_props = {
-        {"browse all packages"},
+        { "browse all cmds" },
       },
       mappings = {
         ["<CR>"] = function() end,
       },
-      ordinal = "packages"
-  	},
-  	{
+      ordinal = "cmds",
+    },
+    {
       list_display_props = {
-        {"browse all jobs"},
+        { "browse all packages" },
       },
       mappings = {
         ["<CR>"] = function() end,
-      }
-  	},
+      },
+      ordinal = "packages",
+    },
+    {
+      list_display_props = {
+        { "browse all jobs" },
+      },
+      mappings = {
+        ["<CR>"] = function() end,
+      },
+    },
   }
 
   for k, v in pairs(doom_menu_items) do
-    table.insert(v.list_display_props, 1, {"MAIN"})
+    table.insert(v.list_display_props, 1, { "MAIN" })
     v["type"] = "doom_main_menu"
     -- i(v)
   end
@@ -222,8 +213,10 @@ M.get_modules_extended = function()
 
   -- REFACTOR: move into utils -> get modules
   local function glob_modules(cat)
-    if cat ~= "doom" and cat ~= "user" then return end
-    local glob = config_path .. "/lua/"..cat.."/modules/*/*/"
+    if cat ~= "doom" and cat ~= "user" then
+      return
+    end
+    local glob = config_path .. "/lua/" .. cat .. "/modules/*/*/"
     return vim.split(vim.fn.glob(glob), "\n")
   end
 
@@ -242,11 +235,11 @@ M.get_modules_extended = function()
   local prep_all_m = { doom = {}, user = {} }
 
   for _, p in ipairs(all_m) do
-    local m_origin, m_section, m_name =  p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
+    local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
 
     -- if user is empty for now..
     if m_origin == nil then
-        break
+      break
     end
 
     if prep_all_m[m_origin][m_section] == nil then
@@ -261,24 +254,28 @@ M.get_modules_extended = function()
       origin = m_origin,
       path = p,
       list_display_props = {
-        "MODULE", " ", m_origin, m_section, m_name
+        "MODULE",
+        " ",
+        m_origin,
+        m_section,
+        m_name,
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)
-         -- i(fuzzy)
-		      doom_ui_state.selected_module = fuzzy.value
-		      ax.m_edit(fuzzy.value)
-		    end,
-		    ["<C-a>"] = function(fuzzy, line)
+          -- i(fuzzy)
+          doom_ui_state.selected_module = fuzzy.value
+          ax.m_edit(fuzzy.value)
+        end,
+        ["<C-a>"] = function(fuzzy, line)
           doom_ui_state.query = {
             type = "module",
             -- components = {}
           }
-		      doom_ui_state.selected_module = fuzzy.value
+          doom_ui_state.selected_module = fuzzy.value
           doom_ui_state.next()
-	      end
+        end,
       },
-      ordinal = m_name -- connect strings to make it easy to search modules. improve how?
+      ordinal = m_name, -- connect strings to make it easy to search modules. improve how?
     }
   end
 
@@ -288,10 +285,10 @@ M.get_modules_extended = function()
     for _, module_name in pairs(section_modules) do
       local search_paths = {
         ("user.modules.%s.%s"):format(section_name, module_name),
-        ("doom.modules.%s.%s"):format(section_name, module_name)
+        ("doom.modules.%s.%s"):format(section_name, module_name),
       }
       for _, path in ipairs(search_paths) do
-        local origin = path:sub(1,4)
+        local origin = path:sub(1, 4)
 
         if prep_all_m[origin][section_name] ~= nil then
           if prep_all_m[origin][section_name][module_name] ~= nil then
@@ -300,14 +297,14 @@ M.get_modules_extended = function()
             for k, v in pairs(doom[section_name][module_name]) do
               prep_all_m[origin][section_name][module_name][k] = v
             end
-            break;
+            break
           end
         end
       end
     end
   end
 
- return prep_all_m
+  return prep_all_m
 end
 
 -- @return flattened array of all modules extended with meta data.
@@ -323,59 +320,58 @@ M.get_modules_flattened = function()
   return flattened
 end
 
-
 --
 -- SETTINGS (USER/MODULE)
 --
 
 local function mr_settings(stack, k, v)
-    -- collect table_path back to setting in original table
-    local pc
-    if #stack > 0 then
-      pc = vim.deepcopy(stack)
-      table.insert(pc, k)
-    else
-      pc = { k }
-    end
-    -- REFACTOR: concat table_path
-    -- format each setting
-    local pc_display = table.concat(pc, ".")
-    local v_display
-    if type(v) == "table" then
-      local str = ""
-      for _, x in pairs(v) do
-        if type(x) == "table" then
-          str = str .. ", " .. "subt"
-        else
-          str = str .. ", " .. x
-        end
+  -- collect table_path back to setting in original table
+  local pc
+  if #stack > 0 then
+    pc = vim.deepcopy(stack)
+    table.insert(pc, k)
+  else
+    pc = { k }
+  end
+  -- REFACTOR: concat table_path
+  -- format each setting
+  local pc_display = table.concat(pc, ".")
+  local v_display
+  if type(v) == "table" then
+    local str = ""
+    for _, x in pairs(v) do
+      if type(x) == "table" then
+        str = str .. ", " .. "subt"
+      else
+        str = str .. ", " .. x
       end
-      v_display = str -- table.concat(v, ", ")
-    else
-      v_display = tostring(v)
     end
-    return {
-      type = "module_setting",
-      data = {
-        table_path = pc,
-        table_value = v,
-      },
-      list_display_props = {
-        {"SETTING"},
-        {pc_display},
-        {v_display}
-      },
-      ordinal = pc_display,
-      mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
-          i(fuzzy)
-          -- doom_ui_state.query = {
-          --   type = "settings",
-          -- }
-          -- doom_ui_state.next()
-  		  end
-      }
-    }
+    v_display = str -- table.concat(v, ", ")
+  else
+    v_display = tostring(v)
+  end
+  return {
+    type = "module_setting",
+    data = {
+      table_path = pc,
+      table_value = v,
+    },
+    list_display_props = {
+      { "SETTING" },
+      { pc_display },
+      { v_display },
+    },
+    ordinal = pc_display,
+    mappings = {
+      ["<CR>"] = function(fuzzy, line, cb)
+        i(fuzzy)
+        -- doom_ui_state.query = {
+        --   type = "settings",
+        -- }
+        -- doom_ui_state.next()
+      end,
+    },
+  }
 end
 
 -- M.settings_flattened = function(t_settings, flattened, stack)
@@ -499,11 +495,12 @@ end
 ---@param t_packages
 ---@return list of flattened packages
 M.packages_flattened = function(t_packages)
-  if t_packages == nil then return end
+  if t_packages == nil then
+    return
+  end
   local flattened = {}
 
   for k, v in pairs(t_packages) do
-
     local spec = v
     if type(k) == "number" then
       if type(v) == "string" then
@@ -520,20 +517,20 @@ M.packages_flattened = function(t_packages)
         spec = spec,
       },
       list_display_props = {
-        {"PKG"},
-        {repo_name},
-        {pkg_name}
+        { "PKG" },
+        { repo_name },
+        { pkg_name },
       },
       ordinal = repo_name .. pkg_name,
       mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
+        ["<CR>"] = function(fuzzy, line, cb)
           i(fuzzy)
           -- doom_ui_state.query = {
           --   type = "settings",
           -- }
           -- doom_ui_state.next()
-  		  end
-      }
+        end,
+      },
     }
 
     table.insert(flattened, entry)
@@ -575,14 +572,12 @@ end
 --   end
 -- }
 
-
 ---
 ---@param t_configs
 ---@return list of flattened entries
 M.configs_flattened = function(t_configs)
   local flattened = {}
   for k, v in pairs(t_configs) do
-
     local entry = {
       type = "module_config",
       data = {
@@ -590,20 +585,20 @@ M.configs_flattened = function(t_configs)
         table_value = v,
       },
       list_display_props = {
-        {"CFG"},
-        {tostring(k)},
-        {tostring(v)}
+        { "CFG" },
+        { tostring(k) },
+        { tostring(v) },
       },
       ordinal = tostring(k),
       mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
+        ["<CR>"] = function(fuzzy, line, cb)
           i(fuzzy)
           -- doom_ui_state.query = {
           --   type = "settings",
           -- }
           -- doom_ui_state.next()
-  		  end
-      }
+        end,
+      },
     }
 
     table.insert(flattened, entry)
@@ -646,17 +641,17 @@ end
 --   end
 -- }
 
-
 ---
 ---@param t_cmds
 ---@return list of flattened entries
 M.cmds_flattened = function(t_cmds)
   local flattened = {}
 
-  if t_cmds == nil then return end
+  if t_cmds == nil then
+    return
+  end
 
   for k, v in pairs(t_cmds) do
-
     -- i need to attach k here as well, to table_path
 
     local entry = {
@@ -667,19 +662,19 @@ M.cmds_flattened = function(t_cmds)
       },
       ordinal = v[1],
       list_display_props = {
-        {"CMD"},
-        {tostring(v[1])},
-        {tostring(v[2])}
+        { "CMD" },
+        { tostring(v[1]) },
+        { tostring(v[2]) },
       },
       mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
+        ["<CR>"] = function(fuzzy, line, cb)
           i(fuzzy)
           -- doom_ui_state.query = {
           --   type = "settings",
           -- }
           -- doom_ui_state.next()
-  		  end
-      }
+        end,
+      },
     }
 
     table.insert(flattened, entry)
@@ -701,7 +696,9 @@ end
 ---@return list of flattened entries
 M.autocmds_flattened = function(t_autocmds)
   local flattened = {}
-  if t_autocmds == nil then return end
+  if t_autocmds == nil then
+    return
+  end
 
   if type(t_autocmds) == "function" then
     table.insert(flattened, {
@@ -715,19 +712,20 @@ M.autocmds_flattened = function(t_autocmds)
       },
       ordinal = "autocmd_func",
       list_display_props = {
-        {"AUTOCMD"}, {"isfunc"}, {tostring(t_autocmds)}
+        { "AUTOCMD" },
+        { "isfunc" },
+        { tostring(t_autocmds) },
       },
       mappings = {
-        ["<CR>"] = function(fuzzy,line, cb)
+        ["<CR>"] = function(fuzzy, line, cb)
           i(fuzzy)
           -- doom_ui_state.query = {
           --   type = "settings",
           -- }
           -- doom_ui_state.next()
-  		  end
-      }
+        end,
+      },
     })
-
   else
     for k, v in pairs(t_autocmds) do
       table.insert(flattened, {
@@ -737,22 +735,24 @@ M.autocmds_flattened = function(t_autocmds)
           pattern = v[2],
           action = v[3],
         },
-        ordinal = v[1]..v[2],
+        ordinal = v[1] .. v[2],
         list_display_props = {
-           {"AUTOCMD"}, {v[1]}, {v[2]}, {tostring(v[3])}
+          { "AUTOCMD" },
+          { v[1] },
+          { v[2] },
+          { tostring(v[3]) },
         },
         mappings = {
-          ["<CR>"] = function(fuzzy,line, cb)
+          ["<CR>"] = function(fuzzy, line, cb)
             i(fuzzy)
             -- doom_ui_state.query = {
             --   type = "settings",
             -- }
             -- doom_ui_state.next()
-  		    end
-        }
+          end,
+        },
       })
     end
-
   end
 
   return flattened
@@ -775,7 +775,6 @@ M.binds_flattened = function(nest_tree, flattened, bstack)
   if acc == nil then
     for _, t in ipairs(nest_tree) do
       if type(t.rhs) == "table" then
-
         -- --
         -- -- TODO: insert an entry for each new branch here ??
         -- --
@@ -800,7 +799,6 @@ M.binds_flattened = function(nest_tree, flattened, bstack)
         table.insert(bstack, t.lhs)
         flattened = M.binds_flattened(t.rhs, flattened, bstack)
       else
-
         -- i(t)
 
         -- so that you can do `add_mapping_to_same_branch()` ???
@@ -808,18 +806,21 @@ M.binds_flattened = function(nest_tree, flattened, bstack)
           type = "module_bind_leaf",
           data = t,
           list_display_props = {
-            { "BIND" }, { t.lhs }, {t.name}, {t.rhs} -- {t[1], t[2], tostring(t.options)
+            { "BIND" },
+            { t.lhs },
+            { t.name },
+            { t.rhs }, -- {t[1], t[2], tostring(t.options)
           },
-          ordinal = t.name..tostring(lhs),
+          ordinal = t.name .. tostring(lhs),
           mappings = {
-            ["<CR>"] = function(fuzzy,line, cb)
+            ["<CR>"] = function(fuzzy, line, cb)
               i(fuzzy)
               -- doom_ui_state.query = {
               --   type = "settings",
               -- }
               -- doom_ui_state.next()
-  		      end
-          }
+            end,
+          },
         }
 
         table.insert(flattened, entry)

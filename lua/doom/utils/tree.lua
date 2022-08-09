@@ -177,13 +177,6 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
---- THIS IS THE MAIN INTERFACE TO TREE
----
---- 1. opts table
---- 2.
----
---- TODO: smart defaults. look at telescope.nvim
----
 ---@param opts
 ---   tree (required)
 ---     tree you wish to traverse.
@@ -191,6 +184,10 @@ end
 ---   type
 ---     specify which leaf pattern to use.
 ---     Alternatives: ( "modules" | any module_part )
+--
+---   acc
+---     if you want to continue accumulating to an already existing list, then pass this
+---     option.
 ---
 ---   enable_logging: bool
 ---
@@ -214,18 +211,6 @@ end
 M.traverse_table = function(opts)
   local opts = opts or {}
 
-  -- TODO: manage default values in the same manner as telescope.nvim source.
-
-  -- Implements the recursive skeleton for traversing tables.
-  --
-  -- 1. Takes a table.
-  -- 2. keeps track of the stack.
-  -- 3. Gives you an accumulator that can be used in order to flatten or accumulate some
-  --    specific data that you want to collect when traversing.
-  --
-  --    Use the `opts.branch` and `opts.leaf` callbacks to process each node however you like.
-  --    You can see how this is used in `core/modules`
-  --
   local function recurse(tree, stack, accumulator)
     local accumulator = accumulator or {}
     local stack = stack or {}
@@ -259,7 +244,7 @@ M.traverse_table = function(opts)
     return accumulator
   end
 
-  return recurse(opts.tree)
+  return recurse(opts.tree, {}, opts.acc)
 end
 
 return M
