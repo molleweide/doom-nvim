@@ -1,41 +1,38 @@
 local M = {}
 
--- TODO: use table `log.use = true` instead
-local LOG_SEP = "*---"
-local LOG = true
-local LOG_TYPE = "modules"
+local log = {
+  sep = "*---",
+  use = true,
+  type = "modules",
+}
 
--- TODO: move to "core/spec.lua"
+-- todo: move to "core/spec.lua"
 local MODULE_PARTS = {
-    "settings",
-    "packages",
-    "configs",
-    "binds",
-    "cmds",
-    "autocmds",
+  "settings",
+  "packages",
+  "configs",
+  "binds",
+  "cmds",
+  "autocmds",
 }
 
 -- Helper for creating indentation based on the stack length
 --
 -- @param recursive stack
-local function ind(stack)
+local function compute_indentation(stack)
   local a = ""
-  for i=0, #stack do
-    a = a .. LOG_SEP
+  for _ = 0, #stack do
+    a = a .. log.sep
   end
   return a .. ">"
 end
-
--- THE FOLLOWING FUNCTIONS ANALYZE EACH NODE AND RETURN TABLES WITH INFORMATION
--- MAKING IT EASY FOR USER TO DEFINE EDGE CASES.
 
 -- Helper tool for debuggin the traversal
 --
 --
 local function logger(pre, opts, stack, k, v)
-  if LOG and opts.type == LOG_TYPE then
-    -- print("#################################")
-    print(opts.type, "|[", pre, "]", ind(stack), k, v)
+  if log.use and opts.type == log.type then
+    print(opts.type, "|[", pre, "]", compute_indentation(stack), k, v)
   end
 end
 
@@ -60,7 +57,6 @@ local function check_rhs(r, opts)
 
   if type(r) == "function" then
     ret["is_fun"] = true
-
   elseif type(r) == "table" then
     ret["is_tbl"] = true
 
@@ -83,22 +79,18 @@ local function check_rhs(r, opts)
       if type(k) == "number" then
         ret["numeric_keys"] = true
       end
-
     end
     ret["num_keys"] = num_keys
     if num_keys == 0 then
       ret["tbl_empty"] = true
     end
-
   elseif type(r) == "string" then
     ret["is_str"] = true
     if r == "" then
       ret["str_empty"] = true
     end
-
   elseif type(r) == "number" then
     ret["is_num"] = true
-
   end
 
   return ret
@@ -132,9 +124,11 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
     leaf = true
   end
 
-  if opts.type == "settings"
-    and (lhs.is_num or (not rhs.is_tbl) or rhs.numeric_keys or rhs.tbl_empty) then
-      leaf = true
+  if
+    opts.type == "settings"
+    and (lhs.is_num or not rhs.is_tbl or rhs.numeric_keys or rhs.tbl_empty)
+  then
+    leaf = true
   end
 
   -- TODO: binds
@@ -233,18 +227,15 @@ M.traverse_table = function(opts)
   --    You can see how this is used in `core/modules`
   --
   local function recurse(tree, stack, accumulator)
-
     local accumulator = accumulator or {}
     local stack = stack or {}
 
     for k, v in pairs(tree) do
-
       local ret = branch_or_leaf(opts, k, v, stack)
 
       logger(ret.is_leaf, opts, stack, k, v)
 
       if not ret.is_leaf then
-
         -- PROCESS BRANCH --
 
         if opts.branch then
@@ -254,16 +245,13 @@ M.traverse_table = function(opts)
 
         table.insert(stack, k)
         recurse(v, stack, accumulator)
-
       else
-
         -- PROCESS LEAF --
 
-          if opts.leaf then
-            ret = opts.leaf(stack, k, v)
-            table.insert(accumulator, ret)
-          end
-
+        if opts.leaf then
+          ret = opts.leaf(stack, k, v)
+          table.insert(accumulator, ret)
+        end
       end
     end
 
@@ -272,7 +260,6 @@ M.traverse_table = function(opts)
   end
 
   return recurse(opts.tree)
-
 end
 
 return M

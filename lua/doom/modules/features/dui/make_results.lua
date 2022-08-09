@@ -48,6 +48,9 @@ M.get_results_for_query = function(type, components)
     end
 
   elseif doom_ui_state.query.type == "settings" then
+    -- it feel like the the results table should be passed into the traverse
+    -- function so that we can omit the outer for loop which seems to be
+    -- redundant
     for _, entry in ipairs(tree.traverse_table {
         tree = doom.settings,
         type = "settings",
@@ -56,10 +59,21 @@ M.get_results_for_query = function(type, components)
       table.insert(results, entry)
     end
 
+
+
+  -- TODO: replace modules with traverse_table
   elseif doom_ui_state.query.type == "modules" then
     for _, entry in pairs(M.get_modules_flattened()) do
       table.insert(results, entry)
     end
+
+    -- for _, entry in ipairs(tree.traverse_table {
+    --     tree = doom.settings,
+    --     type = "settings",
+    --     leaf = mr_settings,
+    --   }) do
+    --   table.insert(results, entry)
+    -- end
 
   elseif doom_ui_state.query.type == "module" then
       for mk, m_part in pairs(doom_ui_state.selected_module) do
