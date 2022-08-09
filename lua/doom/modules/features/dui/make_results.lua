@@ -46,30 +46,34 @@ M.get_results_for_query = function(type, components)
     for _, entry in ipairs(M.main_menu_flattened()) do
       table.insert(results, entry)
     end
-  elseif doom_ui_state.query.type == "settings" then
+  end
+
+  if doom_ui_state.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       type = "settings",
       leaf = mr_settings,
       acc = results,
     })
-    -- do
-    --   table.insert(results, entry)
-    -- end
+  end
 
-    -- TODO: replace modules with traverse_table
-  elseif doom_ui_state.query.type == "modules" then
+  if doom_ui_state.query.type == "modules" then
     for _, entry in pairs(M.get_modules_flattened()) do
       table.insert(results, entry)
     end
 
+    -- can the same `modules` type be used here? or does the edge filter
+    -- work I mean?
+
     -- results = tree.traverse_table({
-    --   tree = doom.settings,
-    --   type = "settings",
-    --   leaf = mr_settings,
+    --   tree = M.get_modules_extended(),
+    --   type = "modules",
+    --   leaf = function(_, k, v) return v end,
     --   acc = results,
     -- })
-  elseif doom_ui_state.query.type == "module" then
+  end
+
+  if doom_ui_state.query.type == "module" then
     for mk, m_part in pairs(doom_ui_state.selected_module) do
       for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
         if mk == qp then
@@ -79,8 +83,12 @@ M.get_results_for_query = function(type, components)
         end
       end
     end
-  elseif doom_ui_state.query.type == "component" then
-  elseif doom_ui_state.query.type == "all" then
+  end
+
+  if doom_ui_state.query.type == "component" then
+  end
+
+  if doom_ui_state.query.type == "all" then
   end
 
   return results
@@ -199,7 +207,15 @@ end
 -- FLATTENER -> MODULES
 --
 
--- todo: refactor
+-- RENAME: `doom_modules_extend_with_meta_info()`
+--
+-- REFACTOR: `get_modules_extended` should go into its own util so that it
+-- cannot be tampered with from here.
+--
+-- call this function after modules are loaded.
+--
+-- QUESTION: maybe this could be added to a post vim loaded hook so that
+-- this is always loaded but after all of the important stuff has been loaded.
 
 --
 -- takes the global doom table so you don't need to pass any params. however,

@@ -73,6 +73,7 @@ local function check_rhs(r, opts)
       --
       -- TODO: pass as argument
       if vim.tbl_contains(MODULE_PARTS, k) then
+        -- todo: AND type == `modules` so that we don't accidentally use this filter.
         ret["id_match"] = true
       end
 
@@ -120,6 +121,7 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
     leaf = true
   end
 
+  -- ??
   if opts.type == "modules" and rhs.is_tbl and rhs.id_match then
     leaf = true
   end
@@ -234,6 +236,8 @@ M.traverse_table = function(opts)
         -- PROCESS LEAF --
 
         if opts.leaf then
+          -- todo: maybe default should be to return `v`,
+          -- eg. if opts.leaf ... else insert v
           ret = opts.leaf(stack, k, v)
           table.insert(accumulator, ret)
         end
