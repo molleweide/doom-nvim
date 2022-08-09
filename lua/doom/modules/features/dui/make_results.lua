@@ -46,34 +46,23 @@ M.get_results_for_query = function(type, components)
     for _, entry in ipairs(M.main_menu_flattened()) do
       table.insert(results, entry)
     end
-  end
-
-  if doom_ui_state.query.type == "settings" then
+  elseif doom_ui_state.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       type = "settings",
       leaf = mr_settings,
       acc = results,
     })
-  end
-
-  if doom_ui_state.query.type == "modules" then
-    for _, entry in pairs(M.get_modules_flattened()) do
-      table.insert(results, entry)
-    end
-
-    -- can the same `modules` type be used here? or does the edge filter
-    -- work I mean?
-
-    -- results = tree.traverse_table({
-    --   tree = M.get_modules_extended(),
-    --   type = "modules",
-    --   leaf = function(_, k, v) return v end,
-    --   acc = results,
-    -- })
-  end
-
-  if doom_ui_state.query.type == "module" then
+  elseif doom_ui_state.query.type == "modules" then
+    results = tree.traverse_table({
+      tree = M.get_modules_extended(),
+      type = "modules",
+      leaf = function(_, k, v)
+        return v
+      end,
+      acc = results,
+    })
+  elseif doom_ui_state.query.type == "module" then
     for mk, m_part in pairs(doom_ui_state.selected_module) do
       for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
         if mk == qp then
@@ -83,12 +72,8 @@ M.get_results_for_query = function(type, components)
         end
       end
     end
-  end
-
-  if doom_ui_state.query.type == "component" then
-  end
-
-  if doom_ui_state.query.type == "all" then
+  elseif doom_ui_state.query.type == "component" then
+  elseif doom_ui_state.query.type == "all" then
   end
 
   return results
@@ -321,19 +306,6 @@ M.get_modules_extended = function()
   end
 
   return prep_all_m
-end
-
--- @return flattened array of all modules extended with meta data.
-M.get_modules_flattened = function()
-  local flattened = {}
-  for _, origin in pairs(M.get_modules_extended()) do
-    for _, section in pairs(origin) do
-      for _, module in pairs(section) do
-        table.insert(flattened, module)
-      end
-    end
-  end
-  return flattened
 end
 
 --

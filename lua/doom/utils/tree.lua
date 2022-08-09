@@ -2,7 +2,7 @@ local M = {}
 
 local log = {
   sep = "*---",
-  use = true,
+  use = false,
   type = "modules",
 }
 
