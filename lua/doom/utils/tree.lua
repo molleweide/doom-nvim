@@ -1,9 +1,13 @@
 local M = {}
 
+-- TODO: only log if the log flag is passed with opts.
+
 local log = {
   sep = "*---",
-  use = false,
   type = "modules",
+  use = true,
+  leaf = true,
+  branch = true
 }
 
 -- todo: move to "core/spec.lua"
@@ -31,7 +35,10 @@ end
 --
 --
 local function logger(pre, opts, stack, k, v)
-  if log.use and opts.type == log.type then
+  -- if log.use and opts.type == log.type then
+  --   print(opts.type, "|[", pre, "]", compute_indentation(stack), k, v)
+  -- end
+  if opts.log then
     print(opts.type, "|[", pre, "]", compute_indentation(stack), k, v)
   end
 end

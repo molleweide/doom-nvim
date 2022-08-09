@@ -58,9 +58,11 @@ M.get_results_for_query = function(type, components)
       tree = M.get_modules_extended(),
       type = "modules",
       leaf = function(_, k, v)
+        -- print(k, v)
         return v
       end,
       acc = results,
+      log = true,
     })
   elseif doom_ui_state.query.type == "module" then
     for mk, m_part in pairs(doom_ui_state.selected_module) do
@@ -304,6 +306,8 @@ M.get_modules_extended = function()
       end
     end
   end
+
+  i(prep_all_m)
 
   return prep_all_m
 end
