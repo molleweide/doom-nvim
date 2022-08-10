@@ -21,7 +21,7 @@ return {
     "comment",            -- Adds keybinds to comment in any language
     "linter",             -- Linting and formatting for languages
     "lsp",                -- Code completion
-    "snippets",           -- Code snippets for all languages
+    "extra_snippets",           -- Code snippets for all languages
     "context",            -- Provides visual context via Treesitter
     "args",               -- Provides highlighting and tools for managing function args
     "textobjects",
