@@ -4,3 +4,4 @@
 -- https://github.com/xg01/tmux-nvim-integration-for-elixir
 -- https://github.com/andyl/nvim-elixir/tree/master/ftdetect
 -- https://github.com/slashmili/alchemist.vim
+-- https://github.com/brendalf/mix.nvim
