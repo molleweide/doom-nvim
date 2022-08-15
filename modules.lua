@@ -304,6 +304,7 @@ return {
     -- "blue_moon",
     -- "boo",
     -- "calvera",
+    "cassiopeia",
     -- "catpuccino",
     -- "cobalt",
     -- "codeschool",
