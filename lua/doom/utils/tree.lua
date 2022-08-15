@@ -7,7 +7,7 @@ local log = {
   type = "modules",
   use = true,
   leaf = true,
-  branch = true
+  branch = true,
 }
 
 -- todo: move to "core/spec.lua"
@@ -186,6 +186,46 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
+M.recurse = function(opts, tree, stack, accumulator)
+  accumulator = accumulator or {}
+  stack = stack or {}
+
+  for k, v in pairs(tree) do
+    local ret = branch_or_leaf(opts, k, v, stack)
+
+    logger(ret.is_leaf, opts, stack, k, v)
+
+    if not ret.is_leaf then
+      stack, accumulator = M.process_branch(opts, k, v, stack, accumulator, ret)
+    else
+      stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator, ret)
+    end
+  end
+
+  table.remove(stack, #stack)
+  return accumulator
+end
+
+M.process_branch = function(opts, k, v, stack, accumulator, ret)
+  if opts.branch then
+    opts.branch(stack, k, v)
+    -- table.insert(accumulator, ret)
+  end
+  table.insert(stack, k)
+  M.recurse(opts, v, stack, accumulator)
+  return stack, accumulator
+end
+
+-- todo: maybe default should be to return `v`,
+-- eg. if opts.leaf ... else insert v
+M.process_leaf = function(opts, k, v, stack, accumulator, ret)
+  if opts.leaf then
+    ret = opts.leaf(stack, k, v)
+    table.insert(accumulator, ret)
+  end
+  return stack, accumulator
+end
+
 ---@param opts
 ---   tree (required)
 ---     tree you wish to traverse.
@@ -220,42 +260,7 @@ end
 M.traverse_table = function(opts)
   local opts = opts or {}
 
-  local function recurse(tree, stack, accumulator)
-    local accumulator = accumulator or {}
-    local stack = stack or {}
-
-    for k, v in pairs(tree) do
-      local ret = branch_or_leaf(opts, k, v, stack)
-
-      logger(ret.is_leaf, opts, stack, k, v)
-
-      if not ret.is_leaf then
-        -- PROCESS BRANCH --
-
-        if opts.branch then
-          ret = opts.branch(stack, k, v)
-          -- table.insert(accumulator, ret)
-        end
-
-        table.insert(stack, k)
-        recurse(v, stack, accumulator)
-      else
-        -- PROCESS LEAF --
-
-        if opts.leaf then
-          -- todo: maybe default should be to return `v`,
-          -- eg. if opts.leaf ... else insert v
-          ret = opts.leaf(stack, k, v)
-          table.insert(accumulator, ret)
-        end
-      end
-    end
-
-    table.remove(stack, #stack)
-    return accumulator
-  end
-
-  return recurse(opts.tree, {}, opts.acc)
+  return M.recurse(opts.tree, {}, opts.acc)
 end
 
 return M
