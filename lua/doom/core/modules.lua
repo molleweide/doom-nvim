@@ -119,12 +119,11 @@ modules.load_modules = function()
   -- print(vim.inspect(doom.modules) )
 
   -- default > traverse `doom.modules` if nothing specified
-  require("doom.utils.tree").traverse_table {
+  require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     type = "modules",
     stop_at = "modules",
     leaf = function(_, module_name, module)
-
       -- print(module_name, module)
 
       -- Import dependencies with packer from module.packages
@@ -163,7 +162,7 @@ modules.load_modules = function()
         )
       end
     end,
-  }
+  })
 end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
@@ -207,5 +206,3 @@ modules.try_sync = function()
 end
 
 return modules
-
-

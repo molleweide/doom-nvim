@@ -50,13 +50,20 @@ M.get_results_for_query = function(type, components)
     for _, entry in ipairs(res_main.main_menu_flattened()) do
       table.insert(results, entry)
     end
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif doom_ui_state.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       type = "settings",
       leaf = res_settings.mr_settings,
       acc = results,
+      edge = function (o,l,r)
+        return o.type == "settings" and (l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty)
+      end
     })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif doom_ui_state.query.type == "modules" then
     results = tree.traverse_table({
       tree = extmod.get_modules_extended(),
@@ -65,8 +72,13 @@ M.get_results_for_query = function(type, components)
         return v
       end,
       acc = results,
-      log = true,
+      edge = function (o,l,r)
+        return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
+      end,
+      -- log = true,
     })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif doom_ui_state.query.type == "module" then
     for mk, m_part in pairs(doom_ui_state.selected_module) do
       for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
@@ -77,6 +89,8 @@ M.get_results_for_query = function(type, components)
         end
       end
     end
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif doom_ui_state.query.type == "component" then
   elseif doom_ui_state.query.type == "all" then
   end

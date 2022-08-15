@@ -109,13 +109,6 @@ local function check_rhs(r, opts)
     for k, v in pairs(r) do
       num_keys = num_keys + 1
 
-      -- replace this with `leaf_ids`
-      -- defaults to always check for `doom.spec.module_parts`
-      -- TODO: `core/spec.lua`
-      --
-      -- if not opts.leaf_ids use MODULE_PARTS
-      --
-      -- TODO: pass as argument
       if vim.tbl_contains(MODULE_PARTS, k) then
         -- todo: AND type == `modules` so that we don't accidentally use this filter.
         ret["id_match"] = true
@@ -159,24 +152,10 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   local lhs = check_lhs(node_lhs, opts)
   local rhs = check_rhs(node_rhs, opts)
 
-  -- TODO: pass variable filters as func param each of the following cases should be refactore into an argument for the function
-
-  if opts.type == "load_config" and rhs.is_str then
+  if opts.edge(opts, lhs, rhs) then
     leaf = true
   end
 
-  if rhs.is_module or (opts.type == "modules" and rhs.is_tbl and rhs.id_match) then
-    leaf = true
-  end
-
-  if
-    opts.type == "settings"
-    and (lhs.is_num or not rhs.is_tbl or rhs.numeric_keys or rhs.tbl_empty)
-  then
-    leaf = true
-  end
-
-  -- TODO: binds
   -- if opts.type == "binds" then
   --   -- for _, t in ipairs(nest_tree) do
   --   --   if type(t.rhs) == "table" then
@@ -188,7 +167,6 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
     rhs = rhs,
   }
 end
-
 
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
@@ -277,7 +255,10 @@ M.traverse_table = function(opts, tree, acc)
 
   --      table array containing predefined properties that you know identifies a leaf.
   --      Eg. doom module parts. See `core/spec.module_parts`
-  if opts.leaf_ids then
+  if not opts.edge then
+    opts.edge = function(o, _, r)
+      return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
+    end
   end
 
   return M.recurse(opts, tree, {}, acc)
