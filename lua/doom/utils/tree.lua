@@ -43,6 +43,39 @@ local function logger(pre, opts, stack, k, v)
   end
 end
 
+--- Concatenates the stack with the leaf node.
+---
+---@returns the full path to leaf as an array
+local function flatten_stack(stack, v)
+  local pc = { v }
+  if #stack > 0 then
+    pc = vim.deepcopy(stack)
+    table.insert(pc, v)
+  end
+  return pc
+end
+
+-- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
+-- could be a head if you want to append all modules upon loading doom.
+--
+---@param table | pointer to which you want to append
+---@param table | path to append
+---@param data | leaf node data that will be appended at the tip of path
+---@return todo..
+M.attach_table_path = function(head, tp, data)
+  local last = #tp
+  for i, p in ipairs(tp) do
+    if i ~= last then
+      if head[p] == nil then
+        head[p] = {}
+      end
+      head = head[p]
+    else
+      head[p] = data
+    end
+  end
+end
+
 -- Collect data from LEFT hand side of a table node
 --
 -- @return table of relevant data for building recursive pattern specs
@@ -153,38 +186,6 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   }
 end
 
---- Concatenates the stack with the leaf node.
----
----@returns the full path to leaf as an array
-local function flatten_stack(stack, v)
-  local pc = { v }
-  if #stack > 0 then
-    pc = vim.deepcopy(stack)
-    table.insert(pc, v)
-  end
-  return pc
-end
-
--- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
--- could be a head if you want to append all modules upon loading doom.
---
----@param table | pointer to which you want to append
----@param table | path to append
----@param data | leaf node data that will be appended at the tip of path
----@return todo..
-M.attach_table_path = function(head, tp, data)
-  local last = #tp
-  for i, p in ipairs(tp) do
-    if i ~= last then
-      if head[p] == nil then
-        head[p] = {}
-      end
-      head = head[p]
-    else
-      head[p] = data
-    end
-  end
-end
 
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
@@ -226,48 +227,54 @@ M.process_leaf = function(opts, k, v, stack, accumulator, ret)
   return stack, accumulator
 end
 
----@param opts
----   tree (required)
----     tree you wish to traverse.
----
----   type
----     specify which leaf pattern to use.
----     Alternatives: ( "modules" | any module_part )
---
----   acc
----     if you want to continue accumulating to an already existing list, then pass this
----     option.
----
----   enable_logging: bool
----
----   fn_log_cb
----     pass a custom log function
----
----   fn_leaf_cb
----     how to process each leaf node
----     return appens to accumulator
---
----   fn_branch_cb
----     how to process each branch node
----       return appens to accumulator
---
----   leaf_ids
---      table array containing predefined properties that you know identifies a leaf.
---      Eg. doom module parts. See `core/spec.module_parts`
---
----@return accumulator. Whatever you return in branch/leaf callbacks will be appended
---        to the accumulator
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
 
+  -- PUT ALL THESE SETUP STATEMENTS IN A METATABLE.
+
+  -- tree to travrse (required)
   if opts.tree then
     tree = opts.tree or tree
     -- remove tree prop
   end
 
+  --     specify which leaf pattern to use.
+  --     Alternatives: ( "modules" | any module_part )
+  if opts.type then
+  end
+
+  -- accumulator
+  --
+  ---     if you want to continue accumulating to an already existing list, then pass this
+  ---     option.
   if opts.acc then
     acc = opts.acc or acc
     -- remove acc prop
+  end
+
+  ---
+  ---   enable_logging: bool
+  ---
+
+  -- logging callback
+  if opts.log then
+  end
+
+  -- leaf callback
+  ---     how to process each leaf node
+  ---     return appens to accumulator
+  if opts.leaf then
+  end
+
+  -- branch callback
+  ---     how to process each branch node
+  ---       return appens to accumulator
+  if opts.branch then
+  end
+
+  --      table array containing predefined properties that you know identifies a leaf.
+  --      Eg. doom module parts. See `core/spec.module_parts`
+  if opts.leaf_ids then
   end
 
   return M.recurse(opts, tree, {}, acc)
