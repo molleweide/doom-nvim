@@ -196,7 +196,7 @@ M.recurse = function(opts, tree, stack, accumulator)
     logger(ret.is_leaf, opts, stack, k, v)
 
     if not ret.is_leaf then
-      stack, accumulator = M.process_branch(opts, k, v, stack, accumulator, ret)
+      stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
     else
       stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator, ret)
     end
@@ -206,7 +206,7 @@ M.recurse = function(opts, tree, stack, accumulator)
   return accumulator
 end
 
-M.process_branch = function(opts, k, v, stack, accumulator, ret)
+M.process_branch = function(opts, k, v, stack, accumulator)
   if opts.branch then
     opts.branch(stack, k, v)
     -- table.insert(accumulator, ret)
@@ -257,10 +257,20 @@ end
 --
 ---@return accumulator. Whatever you return in branch/leaf callbacks will be appended
 --        to the accumulator
-M.traverse_table = function(opts)
-  local opts = opts or {}
+M.traverse_table = function(opts, tree, acc)
+  opts = opts or {}
 
-  return M.recurse(opts.tree, {}, opts.acc)
+  if opts.tree then
+    tree = opts.tree or tree
+    -- remove tree prop
+  end
+
+  if opts.acc then
+    acc = opts.acc or acc
+    -- remove acc prop
+  end
+
+  return M.recurse(opts, tree, {}, acc)
 end
 
 return M
