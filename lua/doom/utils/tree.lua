@@ -151,16 +151,13 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
   local leaf = false
   local lhs = check_lhs(node_lhs, opts)
   local rhs = check_rhs(node_rhs, opts)
-
   if opts.edge(opts, lhs, rhs) then
     leaf = true
   end
-
   -- if opts.type == "binds" then
   --   -- for _, t in ipairs(nest_tree) do
   --   --   if type(t.rhs) == "table" then
   -- end
-
   return {
     is_leaf = leaf,
     lhs = lhs,
@@ -210,21 +207,22 @@ end
 
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
+  tree = opts.tree or tree
 
   -- PUT ALL THESE SETUP STATEMENTS IN A METATABLE.
 
   -- tree to travrse (required)
-  if opts.tree then
-    tree = opts.tree or tree
-    -- remove tree prop
+  if not tree then
+    tree = doom.modules
   end
 
+  -- OPTS.TYPE
   --     specify which leaf pattern to use.
   --     Alternatives: ( "modules" | any module_part )
   if opts.type then
   end
 
-  -- accumulator
+  -- ACCUMULATOR
   --
   ---     if you want to continue accumulating to an already existing list, then pass this
   ---     option.
@@ -233,31 +231,42 @@ M.traverse_table = function(opts, tree, acc)
     -- remove acc prop
   end
 
+
+  -- LOGGING CALLBACK
   ---
   ---   enable_logging: bool
   ---
-
-  -- logging callback
   if opts.log then
   end
 
-  -- leaf callback
+  -- LEAF CALLBACK
+  --
   ---     how to process each leaf node
   ---     return appens to accumulator
   if opts.leaf then
   end
 
-  -- branch callback
+  -- BRANCH CALLBACK
+  --
   ---     how to process each branch node
   ---       return appens to accumulator
   if opts.branch then
   end
 
+  -- OPTS.EDGE
+  --
   --      table array containing predefined properties that you know identifies a leaf.
   --      Eg. doom module parts. See `core/spec.module_parts`
   if not opts.edge then
-    opts.edge = function(o, _, r)
-      return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
+    if opts.type == "modules" then
+      opts.edge = function(o, _, r)
+        return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
+      end
+    end
+    if opts.type == "load_config" then
+      opts.edge = function(o, _, r)
+        return o.type == "load_config" and r.is_str
+      end
     end
   end
 

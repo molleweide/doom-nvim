@@ -122,7 +122,6 @@ modules.load_modules = function()
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     type = "modules",
-    stop_at = "modules",
     leaf = function(_, module_name, module)
       -- print(module_name, module)
 
