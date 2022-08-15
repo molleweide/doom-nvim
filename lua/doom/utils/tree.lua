@@ -102,6 +102,10 @@ local function check_rhs(r, opts)
 
     local num_keys = 0
 
+    if opts.type == "modules" and r.type == "module" then
+      ret["is_module"] = true
+    end
+
     for k, v in pairs(r) do
       num_keys = num_keys + 1
 
@@ -161,8 +165,7 @@ local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
     leaf = true
   end
 
-  -- ??
-  if opts.type == "modules" and rhs.is_tbl and rhs.id_match then
+  if rhs.is_module or (opts.type == "modules" and rhs.is_tbl and rhs.id_match) then
     leaf = true
   end
 
