@@ -134,62 +134,25 @@ local function check_rhs(r, opts)
   return ret
 end
 
--- DETERMINES HOW WE RECURSE DOWN INTO SUB TABLES
---
--- Currently this function contains a set of hardcoded definitions so that this function can be
--- used for everything (load config, modules, service/keymap, dui, etc.), but the idea is to make this a bit tighter
--- so that you can specify with minimal effort the recursive definition for each case easilly.
---
--- 1. The aim of this util is to be very general
--- 2. Allow for quickly specifying recursive table patterns.
--- 3. You do this by writing how leaf nodes should be identified.
--- 4. Two methods for doing so:
---    a. hard code: add a new if-statement and check for a specific opts.type and write your leaf pattern.
---    b. pass variable: pass an opts.leaf_pattern prop that specifies your leaf pattern.
---
-local function branch_or_leaf(opts, node_lhs, node_rhs, stack)
-  local leaf = false
-  local lhs = check_lhs(node_lhs, opts)
-  local rhs = check_rhs(node_rhs, opts)
-  if opts.edge(opts, lhs, rhs) then
-    leaf = true
-  end
-  -- if opts.type == "binds" then
-  --   -- for _, t in ipairs(nest_tree) do
-  --   --   if type(t.rhs) == "table" then
-  -- end
-  return {
-    is_leaf = leaf,
-    lhs = lhs,
-    rhs = rhs,
-  }
-end
-
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
-
   for k, v in pairs(tree) do
-    local ret = branch_or_leaf(opts, k, v, stack)
-
-    logger(ret.is_leaf, opts, stack, k, v)
-
-    if not ret.is_leaf then
+    local is_leaf = opts.edge(opts, check_lhs(k, opts), check_rhs(v, opts))
+    logger(is_leaf, opts, stack, k, v)
+    if not is_leaf then
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
     else
-      stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator, ret)
+      stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
     end
   end
-
   table.remove(stack, #stack)
   return accumulator
 end
 
 M.process_branch = function(opts, k, v, stack, accumulator)
-  if opts.branch then
-    opts.branch(stack, k, v)
-    -- table.insert(accumulator, ret)
-  end
+  opts.branch(stack, k, v)
+  -- table.insert(accumulator, ret)
   table.insert(stack, k)
   M.recurse(opts, v, stack, accumulator)
   return stack, accumulator
@@ -197,11 +160,9 @@ end
 
 -- todo: maybe default should be to return `v`,
 -- eg. if opts.leaf ... else insert v
-M.process_leaf = function(opts, k, v, stack, accumulator, ret)
-  if opts.leaf then
-    ret = opts.leaf(stack, k, v)
-    table.insert(accumulator, ret)
-  end
+M.process_leaf = function(opts, k, v, stack, accumulator)
+  local ret = opts.leaf(stack, k, v)
+  table.insert(accumulator, ret)
   return stack, accumulator
 end
 
@@ -231,7 +192,6 @@ M.traverse_table = function(opts, tree, acc)
     -- remove acc prop
   end
 
-
   -- LOGGING CALLBACK
   ---
   ---   enable_logging: bool
@@ -243,14 +203,16 @@ M.traverse_table = function(opts, tree, acc)
   --
   ---     how to process each leaf node
   ---     return appens to accumulator
-  if opts.leaf then
+  if not opts.leaf then
+    -- log ...
   end
 
   -- BRANCH CALLBACK
   --
   ---     how to process each branch node
   ---       return appens to accumulator
-  if opts.branch then
+  if not opts.branch then
+    -- log...
   end
 
   -- OPTS.EDGE

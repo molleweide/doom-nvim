@@ -122,7 +122,7 @@ M.get_modules_extended = function()
     end
   end
 
-  i(prep_all_m)
+  -- i(prep_all_m)
 
   return prep_all_m
 end
