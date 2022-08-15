@@ -151,7 +151,9 @@ M.recurse = function(opts, tree, stack, accumulator)
 end
 
 M.process_branch = function(opts, k, v, stack, accumulator)
-  opts.branch(stack, k, v)
+  if opts.branch ~= nil then
+    opts.branch(stack, k, v)
+  end
   -- table.insert(accumulator, ret)
   table.insert(stack, k)
   M.recurse(opts, v, stack, accumulator)
@@ -204,7 +206,9 @@ M.traverse_table = function(opts, tree, acc)
   ---     how to process each leaf node
   ---     return appens to accumulator
   if not opts.leaf then
-    -- log ...
+    opts.leaf = function(_, k, v)
+      return v
+    end
   end
 
   -- BRANCH CALLBACK

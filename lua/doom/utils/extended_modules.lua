@@ -1,3 +1,5 @@
+local ax = require("doom.modules.features.dui.actions")
+
 local function i(x)
   print(vim.inspect(x))
 end

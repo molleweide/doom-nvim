@@ -1,4 +1,3 @@
-local ax = require("doom.modules.features.dui.actions")
 local ut = require("doom.modules.features.dui.utils")
 local tree = require("doom.utils.tree")
 local extmod = require("doom.utils.extended_modules")
@@ -12,17 +11,17 @@ end
 
 local M = {}
 
-local MODULE_ORIGINS = {
-  "user",
-  "doom",
-}
-
-local MODULE_CATEGORIES = {
-  "core",
-  "features",
-  "langs",
-  "themes",
-}
+-- local MODULE_ORIGINS = {
+--   "user",
+--   "doom",
+-- }
+--
+-- local MODULE_CATEGORIES = {
+--   "core",
+--   "features",
+--   "langs",
+--   "themes",
+-- }
 
 local MODULE_PARTS = {
   "settings",
@@ -57,7 +56,6 @@ M.get_results_for_query = function(type, components)
       tree = doom.settings,
       type = "settings",
       leaf = res_settings.mr_settings,
-      acc = results,
       edge = function(o, l, r)
         return o.type == "settings" and (l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty)
       end,
@@ -68,10 +66,6 @@ M.get_results_for_query = function(type, components)
     results = tree.traverse_table({
       tree = extmod.get_modules_extended(),
       type = "modules",
-      leaf = function(_, k, v)
-        return v
-      end,
-      acc = results,
       edge = function(o, l, r)
         return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
       end,
