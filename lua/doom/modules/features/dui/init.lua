@@ -84,6 +84,7 @@ local function make_results()
   local results = {}
 
   if DOOM_UI_STATE.query.type == "main_menu" then
+    -- TODO: USE `TREE` HERE JUST FOR THE SAKE OF IT
     for _, entry in ipairs(res_main.main_menu_flattened()) do
       table.insert(results, entry)
     end
@@ -126,10 +127,10 @@ local function make_results()
             leaf = function(_, l, _)
               require("doom.modules.features.dui.edge_funcs." .. k)
             end,
+
             edge = function(_, l, r)
-              -- REFACTOR:
-              -- 1. rename edge modules to `doom_components`
-              -- 2. move these edge into the entry maker modules
+              -- REFACTOR: used edge = "settings" and move this into tree since this is
+              -- such a general occurence.
               return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
             end,
           })
@@ -139,6 +140,7 @@ local function make_results()
           --   leaf = function(_, l, _)
           --     require("doom.modules.features.dui.edge_funcs." .. k)
           --   end,
+          -- REFACTOR: this however is more of a custom rule and therefore it could go into `results/binds`
           --   -- edge = function() end,
           -- })
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
@@ -153,6 +155,7 @@ local function make_results()
           })
         end
       end,
+      -- REFACTOR: INTO EDGE = "LIST" AND SET THIS INSIDE OF TREE.
       edge = function()
         return true
       end,
