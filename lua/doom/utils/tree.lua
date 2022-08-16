@@ -46,16 +46,15 @@ end
 -- iii. print colors
 --
 -- eg.
-      -- log = {
-      --   use = true,
-      --   mult = 8,
-      --   name_string = "test list modules",
-      --   cat = 1,
-      --   -- inspect = true,
-      --   frame = true,
-      --   separate = true,
-      -- },
-
+-- log = {
+--   use = true,
+--   mult = 8,
+--   name_string = "test list modules",
+--   cat = 1,
+--   -- inspect = true,
+--   frame = true,
+--   separate = true,
+-- },
 
 -- 1 = log all
 -- 2 = log only branch and leaf
@@ -204,7 +203,6 @@ M.recurse = function(opts, tree, stack, accumulator)
   stack = stack or {}
 
   for k, v in pairs(tree) do
-
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
     local is_leaf = opts.edge(opts, left, right)
@@ -280,20 +278,19 @@ M.traverse_table = function(opts, tree, acc)
     opts.log = {}
   end
 
-  -- PUT ALL THESE SETUP STATEMENTS IN A METATABLE.
+  -- TODO: PUT ALL THESE SETUP STATEMENTS IN A METATABLE??
 
+  -- TREE -----------------------------------------------------------------------------
   if not tree then
     -- assert tree here to make sure it is passed.
     print("TREE ERROR > tree is required")
   end
 
-  -- OPTS.TYPE
-  --     specify which leaf pattern to use.
-  --     Alternatives: ( "modules" | any module_part )
+  -- OPTS.MAX_LEVEL -----------------------------------------------------------------------------
 
   opts.max_level = opts.max_level or 10
 
-  -- ACCUMULATOR
+  -- ACCUMULATOR -----------------------------------------------------------------------------
   --
   ---     if you want to continue accumulating to an already existing list, then pass this
   ---     option.
@@ -302,7 +299,7 @@ M.traverse_table = function(opts, tree, acc)
     -- remove acc prop
   end
 
-  -- LEAF DEFAULT CALLBACK
+  -- LEAF DEFAULT CALLBACK -----------------------------------------------------------------------------
   --
   ---     how to process each leaf node
   ---     return appens to accumulator
@@ -312,7 +309,7 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  -- BRANCH DEFAULT CALLBACK
+  -- BRANCH DEFAULT CALLBACK -----------------------------------------------------------------------------
   --
   ---     how to process each branch node
   ---       return appens to accumulator
@@ -322,7 +319,7 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  -- LEAF IDS
+  -- LEAF IDS -----------------------------------------------------------------------------
   --
   --      table array containing predefined properties that you know identifies a leaf.
   --      Eg. doom module parts. See `core/spec.module_parts`
@@ -331,13 +328,26 @@ M.traverse_table = function(opts, tree, acc)
   -- and filter on this
   opts.leaf_ids = opts.leaf_ids or false
 
-  -- OPTS.EDGE
+  -- OPTS.EDGE -----------------------------------------------------------------------------
   --
   -- callback function used to identify a leaf
+  --
+  -- special keywords: (string, list)
+  --
   if type(opts.edge) == "string" then
-    local flt_str = opts.edge
-    opts.edge = function(_, _, r)
-      return r.val.type == flt_str
+    if opts.edge == "list" then
+      opts.edge = function()
+        return true
+      end
+    elseif opts.edge == "settings" then
+      opts.edge = function(_, l, r)
+        return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
+      end
+    else
+      local flt_str = opts.edge
+      opts.edge = function(_, _, r)
+        return r.val.type == flt_str
+      end
     end
   end
 

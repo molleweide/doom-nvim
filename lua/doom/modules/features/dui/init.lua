@@ -84,27 +84,25 @@ local function make_results()
   local results = {}
 
   if DOOM_UI_STATE.query.type == "main_menu" then
-    -- TODO: USE `TREE` HERE JUST FOR THE SAKE OF IT
     for _, entry in ipairs(res_main.main_menu_flattened()) do
       table.insert(results, entry)
     end
-    -- results = tree.traverse_table({
-    --   tree = doom.settings,
-    --   -- type = "settings",
-    --   leaf = res_settings.mr_settings,
-    --   edge = function(_, l, r)
-    --     return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
-    --   end,
-    -- })
+
+    -- TODO: USE `TREE` HERE JUST FOR THE SAKE OF IT
+
+    results = tree.traverse_table({
+      tree = res_main.main_menu_flattened(),
+      edge = "list",
+      -- leaf = res_settings.mr_settings,
+    })
+
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       leaf = res_settings.mr_settings,
-      edge = function(_, l, r)
-        return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
-      end,
+      edge = "settings",
     })
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
@@ -118,20 +116,16 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "module" then
     tree.traverse_table({
       tree = DOOM_UI_STATE.selected_module,
+      edge = "list",
       leaf = function(_, k, v)
         -- TODO: REMEMBER TO PASS ALONG THE `RESULTS` TABLE
 
         if k == "settings" then
           results = tree.traverse_table({
             tree = v,
+            edge = "settings",
             leaf = function(_, l, _)
               require("doom.modules.features.dui.edge_funcs." .. k)
-            end,
-
-            edge = function(_, l, r)
-              -- REFACTOR: used edge = "settings" and move this into tree since this is
-              -- such a general occurence.
-              return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
             end,
           })
         elseif k == "binds" then
@@ -143,21 +137,17 @@ local function make_results()
           -- REFACTOR: this however is more of a custom rule and therefore it could go into `results/binds`
           --   -- edge = function() end,
           -- })
+          --
+          -- TODO: use vim.tbl_contains() here...
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
           results = tree.traverse_table({
             tree = v,
+            edge = "list",
             leaf = function()
               require("doom.modules.features.dui.edge_funcs." .. k)
             end,
-            edge = function()
-              return true
-            end,
           })
         end
-      end,
-      -- REFACTOR: INTO EDGE = "LIST" AND SET THIS INSIDE OF TREE.
-      edge = function()
-        return true
       end,
     })
 
