@@ -8,29 +8,28 @@ local M = {}
 
 -- TODO: if levels above thresh assert warning
 
-local log = {
-  sep = "*---",
-  use = false,
-  leaf = false,
-  branch = false,
-  edge = false,
-  levels = false, -- single int or table of ints. or string `n-m` so that you can specify range
-}
-
 -- Helper for creating indentation based on the stack length
 --
 -- @param recursive stack
-local function compute_indentation(stack, sep)
+local function compute_indentation(stack, sep, mult)
   local a = ""
-  for _ = 0, #stack do
-    a = a .. sep
+  local b = ""
+  for _ = 1, #stack do
+      a = a .. sep
   end
-  return a .. ">"
+  for _ = 1, mult do
+    b = b .. a
+  end
+  return b
 end
 
 -- Helper tool for debuggin the traversal
 --
--- use opts.log_prefix??
+--
+-- 2. set indentation multiplier. max = 8
+-- 3. inspect each node in a smart visual way. list all keys.
+-- 4. print colors
+
 --
 -- 1 = log all
 -- 2 = log only branch and leaf
@@ -38,55 +37,61 @@ end
 -- 4 = only branches
 -- 5 = only edge data
 local function logger(is_leaf, opts, stack, k, v)
-  if not opts.log then
+  if not opts.log.use then
     return
   end
 
-  local cat = opts.log.cat
+  local cat = opts.log.cat or 2
 
-  if opts.log.cat then
-    local msg = ""
-    local all = cat == 1
-    local full = cat == 2
-    local ind = compute_indentation(stack, "    ")
+  -- print(">>>", opts.log.mult)
 
-    -- LEAF (GREEN)
-    if is_leaf and (all or full or cat == 3) then
-      msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#+++"), k.val, v.val)
-    end
+  local msg = ""
+  local all = cat == 1
+  local full = cat == 2
+  local ind = compute_indentation(stack, " ", opts.log.mult)
 
-    -- BRANCH (BLUE)
-    if not is_leaf and (all or full or cat == 4) then
-      msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#---"), k.val, v.val)
-    end
-
-    -- EDGE
-    if all or cat == 5 then
-      local msgl = ""
-      local msgr = ""
-
-      for key, value in pairs(k) do
-        if key ~= "val" then
-          msgl = msgl .. "|" .. tostring(key) .. ":" .. tostring(value)
-        else
-        end
-      end
-
-      for key, value in pairs(v) do
-        if key ~= "val" then
-          msgr = msgr .. "|" .. tostring(key) .. ":" .. tostring(value)
-        else
-        end
-      end
-
-      msg = msg .. "\n[e] " .. ind .. " L: "
-      msg = msg .. msgl .. "\n[e] " .. ind .. " R: "
-      msg = msg .. msgr
-    end
-
-    -- PRINT DATA......
-    print(msg)
+  -- LEAF (GREEN)
+  if is_leaf and (all or full or cat == 3) then
+    msg = string.format([[%s > (%s) %s]], compute_indentation(stack, "+", opts.log.mult), #stack, k.val, v.val)
   end
+
+  -- BRANCH (BLUE)
+  if not is_leaf and (all or full or cat == 4) then
+    msg = string.format([[%s > (%s) %s]], compute_indentation(stack, "-", opts.log.mult), #stack, k.val, v.val)
+  end
+
+  local edge_shift = "      "
+
+  -- EDGE
+  if all or cat == 5 then
+    local msg_l_inspect = ""
+    local msg_r_inspect = ""
+    local msg_l_state = ""
+    local msg_r_state = ""
+
+    for key, value in pairs(k) do
+      if key ~= "val" then
+        msg_l_state = msg_l_state .. "|" .. tostring(key) .. ":" .. tostring(value)
+      else
+        -- TODO: COLLECT LEFT INSPECT
+      end
+    end
+
+    for key, value in pairs(v) do
+      if key ~= "val" then
+        msg_r_state = msg_r_state .. "|" .. tostring(key) .. ":" .. tostring(value)
+      else
+        -- TODO: COLLECT RIGHT INSPECT
+      end
+    end
+
+    msg = msg .. "\n" .. edge_shift .. ind .. " L: "
+    msg = msg .. msg_l_state .. "\n" .. edge_shift .. ind .. " R: "
+    msg = msg .. msg_r_state
+  end
+
+  -- PRINT DATA......
+  print(msg)
 end
 
 --- Concatenates the stack with the leaf node.
@@ -193,6 +198,9 @@ end
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
   tree = opts.tree or tree
+  if not opts.log then
+    opts.log = {}
+  end
 
   -- PUT ALL THESE SETUP STATEMENTS IN A METATABLE.
 
@@ -248,7 +256,17 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  return M.recurse(opts, tree, {}, acc)
+  if opts.log.frame then
+    print("[---------" .. opts.log.name_string .. "---------]")
+  end
+
+  acc = M.recurse(opts, tree, {}, acc)
+
+  if opts.log.frame then
+    print("[------------------------------------------------]")
+  end
+
+  return acc
 end
 
 return M

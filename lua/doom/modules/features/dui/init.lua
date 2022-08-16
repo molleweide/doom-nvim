@@ -115,8 +115,12 @@ local function make_results()
         return r.is_module or (r.is_tbl and r.id_match)
       end,
       log = {
+        use = true,
+        mult = 8,
+        name_string = "test list modules",
         cat = 1,
-        nodes = true
+        nodes = true,
+        frame = true
       },
 
       -- log = true,
