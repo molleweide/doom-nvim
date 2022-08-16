@@ -56,7 +56,7 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
-local function check_lhs(l, opts)
+local function check_lhs(l)
   return {
     key = l,
     is_num = type(l) == "number",
@@ -65,49 +65,32 @@ local function check_lhs(l, opts)
 end
 
 local function check_rhs(r, opts)
+  local t = type(r)
   local ret = {
     val = r,
-    is_fun = false,
-    is_tbl = false,
+    is_fun = t == "function",
+    is_tbl = t == "table",
+    is_str = t == "string",
+    is_num = t == "number",
+    str_empty = r == "",
     id_match = false,
     numeric_keys = false,
+    num_keys = nil,
   }
-
-  if type(r) == "function" then
-    ret.is_fun = true
-    -------------------------------------------------------
-  elseif type(r) == "table" then
-    ret.is_tbl = true
+  if ret.is_tbl then
     local num_keys = 0
-
     for k, _ in pairs(r) do
       num_keys = num_keys + 1
-
-      if opts.leaf_ids ~= nil then
+      if opts.leaf_ids then
         if vim.tbl_contains(opts.leaf_ids, k) then
           ret.id_match = true
         end
       end
-
-      if type(k) == "number" then
-        ret.numeric_keys = true
-      end
+      ret.numeric_keys = type(k) == "number"
     end
     ret.num_keys = num_keys
-    if num_keys == 0 then
-      ret.tbl_empty = true
-    end
-    -------------------------------------------------------
-  elseif type(r) == "string" then
-    ret.is_str = true
-    if r == "" then
-      ret.str_empty = true
-    end
-    -------------------------------------------------------
-  elseif type(r) == "number" then
-    ret.is_num = true
+    ret.tbl_empty = num_keys == 0
   end
-
   return ret
 end
 
@@ -115,7 +98,7 @@ M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
   for k, v in pairs(tree) do
-    local is_leaf = opts.edge(opts, check_lhs(k, opts), check_rhs(v, opts))
+    local is_leaf = opts.edge(opts, check_lhs(k), check_rhs(v, opts))
     logger(is_leaf, opts, stack, k, v)
 
     if not is_leaf then
@@ -130,7 +113,7 @@ M.recurse = function(opts, tree, stack, accumulator)
 end
 
 M.process_branch = function(opts, k, v, stack, accumulator)
-    opts.branch(stack, k, v)
+  opts.branch(stack, k, v)
   -- table.insert(accumulator, ret)
   table.insert(stack, k)
   M.recurse(opts, v, stack, accumulator)
@@ -151,7 +134,6 @@ M.traverse_table = function(opts, tree, acc)
 
   -- PUT ALL THESE SETUP STATEMENTS IN A METATABLE.
 
-  -- tree to travrse (required)
   if not tree then
     -- assert tree here to make sure it is passed.
     print("TREE ERROR > tree is required")
@@ -160,10 +142,6 @@ M.traverse_table = function(opts, tree, acc)
   -- OPTS.TYPE
   --     specify which leaf pattern to use.
   --     Alternatives: ( "modules" | any module_part )
-
-  if not opts.type then
-    -- opts.type = false
-  end
 
   -- ACCUMULATOR
   --
@@ -200,6 +178,8 @@ M.traverse_table = function(opts, tree, acc)
       return false
     end
   end
+
+  opts.leaf_ids = opts.leaf_ids or false
 
   -- OPTS.EDGE
   --

@@ -100,7 +100,6 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
-      -- type = "settings",
       leaf = res_settings.mr_settings,
       edge = function(_, l, r)
         return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
@@ -111,7 +110,6 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "modules" then
     results = tree.traverse_table({
       tree = res_modules.get_modules_extended(),
-      -- type = "modules",
       leaf_ids = require("doom.core.spec").module_components,
       edge = function(_, _, r)
         return r.is_module or (r.is_tbl and r.id_match)
