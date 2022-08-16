@@ -1,5 +1,34 @@
 local M = {}
 
+--- Concatenates the stack with the leaf node.
+local function flatten_stack(stack, v)
+  local pc = { v }
+  if #stack > 0 then
+    pc = vim.deepcopy(stack)
+    table.insert(pc, v)
+  end
+  return pc
+end
+
+-- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
+-- could be a head if you want to append all modules upon loading doom.
+M.attach_table_path = function(head, tp, data)
+  local last = #tp
+  for i, p in ipairs(tp) do
+    if i ~= last then
+      if head[p] == nil then
+        head[p] = {}
+      end
+      head = head[p]
+    else
+      head[p] = data
+    end
+  end
+end
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
 local function compute_indentation(stack, sep, mult)
   local a = ""
   local b = ""
@@ -124,31 +153,8 @@ local function logger(is_leaf, opts, stack, k, v)
   end
 end
 
---- Concatenates the stack with the leaf node.
-local function flatten_stack(stack, v)
-  local pc = { v }
-  if #stack > 0 then
-    pc = vim.deepcopy(stack)
-    table.insert(pc, v)
-  end
-  return pc
-end
-
--- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
--- could be a head if you want to append all modules upon loading doom.
-M.attach_table_path = function(head, tp, data)
-  local last = #tp
-  for i, p in ipairs(tp) do
-    if i ~= last then
-      if head[p] == nil then
-        head[p] = {}
-      end
-      head = head[p]
-    else
-      head[p] = data
-    end
-  end
-end
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 local function check_lhs(l)
   return {
@@ -188,10 +194,15 @@ local function check_rhs(r, opts)
   return ret
 end
 
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
+
   for k, v in pairs(tree) do
+
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
     local is_leaf = opts.edge(opts, left, right)
@@ -200,8 +211,16 @@ M.recurse = function(opts, tree, stack, accumulator)
 
     if not is_leaf then
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
+      -- opts.branch(stack, k, v)
+      -- -- table.insert(accumulator, ret)
+      -- table.insert(stack, k)
+      -- M.recurse(opts, v, stack, accumulator)
+      -- return stack, accumulator
     else
       stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
+      -- local ret = opts.leaf(stack, k, v)
+      -- table.insert(accumulator, ret)
+      -- return stack, accumulator
     end
   end
 
@@ -225,6 +244,16 @@ M.process_leaf = function(opts, k, v, stack, accumulator)
   return stack, accumulator
 end
 
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+-- TODO: USE ... TO MANAGE VARIABLE ARGS
+--
+-- if # args == 1  -> opts table
+--
+-- if # args = 2 -> opts, acc
+--
+-- if arg1 == string -> edge,
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
   tree = opts.tree or tree
@@ -276,14 +305,16 @@ M.traverse_table = function(opts, tree, acc)
 
   -- LEAF IDS
   --
+  --      table array containing predefined properties that you know identifies a leaf.
+  --      Eg. doom module parts. See `core/spec.module_parts`
+  --
   -- pass a list of specific attributes that you know constitutes a leaf node
   -- and filter on this
   opts.leaf_ids = opts.leaf_ids or false
 
   -- OPTS.EDGE
   --
-  --      table array containing predefined properties that you know identifies a leaf.
-  --      Eg. doom module parts. See `core/spec.module_parts`
+  -- callback function used to identify a leaf
   if type(opts.edge) == "string" then
     local flt_str = opts.edge
     opts.edge = function(_, _, r)
@@ -291,9 +322,10 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
+  -- default case if you leave edge empty.
   if not opts.edge then
     opts.edge = function(_, _, r)
-      return r.is_str
+      return not r.is_tbl
     end
   end
 

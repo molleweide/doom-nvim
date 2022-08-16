@@ -98,10 +98,7 @@ config.load = function()
         )
       end
       return pc
-    end,
-    edge = function(o, _, r)
-      return r.is_str -- and o.type == "load_config"
-    end,
+    end
   })
 
   -- Execute user's `config.lua` so they can modify the doom global object.
