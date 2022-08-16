@@ -112,19 +112,48 @@ local function make_results()
       tree = res_modules.get_modules_extended(),
       edge = "doom_module_single",
     })
-    -----------------------------------------------------------------------------
-    -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "module" then
-    -- TODO: HOW IS THIS SELECTED?
-    for mk, m_part in pairs(DOOM_UI_STATE.selected_module) do
-      for _, qp in ipairs(DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components) do
-        if mk == qp then
-          for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
-            table.insert(results, entry)
-          end
+    -- this should only be a loop over the module since are modules only contain
+    -- single level props
+    --
+    -- for each prope > check if == spec
+
+    tree.traverse_table({
+      tree = DOOM_UI_STATE.selected_module,
+      leaf = function(_, k, v)
+        -- TODO: how do I make sure that we only loop for list configs and use recursive for `settings`??
+        results = tree.traverse_table({
+          tree = v.val,
+          leaf = require("doom.modules.features.dui.edge_funcs." .. k.val)
+        })
+      end,
+      edge = function(_, k, v)
+        if
+          vim.tbl_contains(
+            DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components,
+            k.value
+          )
+        then
+          return true
         end
-      end
-    end
+      end,
+    })
+
+    -- for each part
+    --
+
+    -- for mk, m_part in pairs(DOOM_UI_STATE.selected_module) do
+    --   for _, qp in ipairs(DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components) do
+    --     -- -- if settings > use edge/settings
+    --     --
+    --     --   if mk == qp then
+    --     --     for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
+    --     --       table.insert(results, entry)
+    --     --     end
+    --     --   end
+    --   end
+    -- end
+
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "component" then
@@ -150,7 +179,7 @@ local function doom_picker()
 
   -- i(results)
 
-  -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
+  print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
   -- print("picker -> title:", title)
 
   require("telescope.pickers").new(opts, {
