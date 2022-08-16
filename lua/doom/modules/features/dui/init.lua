@@ -110,21 +110,7 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "modules" then
     results = tree.traverse_table({
       tree = res_modules.get_modules_extended(),
-      leaf_ids = require("doom.core.spec").module_components,
-      edge = function(_, _, r)
-        return r.is_module or (r.is_tbl and r.id_match)
-      end,
-      log = {
-        use = true,
-        mult = 8,
-        name_string = "test list modules",
-        cat = 1,
-        nodes = true,
-        frame = true,
-        separate = true,
-      },
-
-      -- log = true,
+      edge = "doom_module_single",
     })
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------

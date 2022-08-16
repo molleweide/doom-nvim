@@ -64,7 +64,6 @@ config.load = function()
   -- Crawl the modules table and require all modules
   tree.traverse_table({
     tree = enabled_modules,
-    -- type = "load_config",
     leaf = function(stack, k, v)
       -- print(vim.inspect(stack), k, v)
       local pc = { v }
@@ -86,6 +85,7 @@ config.load = function()
       end
       if ok then
         result["is_module"] = true -- I add this flag here to make it easier to catch each module node
+        result.type = "doom_module_single"
         tree.attach_table_path(doom.modules, pc, result)
       else
         local log = require("doom.utils.logging")

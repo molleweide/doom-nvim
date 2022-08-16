@@ -1,21 +1,10 @@
 local M = {}
 
--- TODO: IN LOGGER FOR EACH NODE LOG THE EDGE COMPUTE DATA.
---
--- now!!!
---
--- log.levels
-
--- TODO: if levels above thresh assert warning
-
--- Helper for creating indentation based on the stack length
---
--- @param recursive stack
 local function compute_indentation(stack, sep, mult)
   local a = ""
   local b = ""
   for _ = 1, #stack do
-      a = a .. sep
+    a = a .. sep
   end
   for _ = 1, mult do
     b = b .. a
@@ -23,14 +12,22 @@ local function compute_indentation(stack, sep, mult)
   return b
 end
 
--- Helper tool for debuggin the traversal
+-- i. within count range. always keep a count and only print nodes [x - y]
+-- ii. levels range
+-- iii. print colors
 --
---
--- 2. set indentation multiplier. max = 8
--- 3. inspect each node in a smart visual way. list all keys.
--- 4. print colors
+-- eg.
+      -- log = {
+      --   use = true,
+      --   mult = 8,
+      --   name_string = "test list modules",
+      --   cat = 1,
+      --   -- inspect = true,
+      --   frame = true,
+      --   separate = true,
+      -- },
 
---
+
 -- 1 = log all
 -- 2 = log only branch and leaf
 -- 3 = only leaves
@@ -48,22 +45,34 @@ local function logger(is_leaf, opts, stack, k, v)
 
   local cat = opts.log.cat or 2
 
-  -- print(">>>", opts.log.mult)
-
   local msg = ""
   local all = cat == 1
   local full = cat == 2
   local ind = compute_indentation(stack, " ", opts.log.mult)
 
-  -- LEAF (GREEN)
+  -- local ind_str = "+" and is_leaf or "-"
+
+  -- LEAF / BRANCH
   if is_leaf and (all or full or cat == 3) then
-    msg = string.format([[%s > (%s) %s %s]], compute_indentation(stack, "+", opts.log.mult), #stack, k.val, v.val)
+    msg = string.format(
+      [[%s > (%s) %s %s]],
+      compute_indentation(stack, "+", opts.log.mult),
+      #stack,
+      k.val,
+      v.val
+    )
+  end
+  if not is_leaf and (all or full or cat == 4) then
+    msg = string.format(
+      [[%s > (%s) %s %s]],
+      compute_indentation(stack, "-", opts.log.mult),
+      #stack,
+      k.val,
+      v.val
+    )
   end
 
-  -- BRANCH (BLUE)
-  if not is_leaf and (all or full or cat == 4) then
-    msg = string.format([[%s > (%s) %s %s]], compute_indentation(stack, "-", opts.log.mult), #stack, k.val, v.val)
-  end
+  ------------------------------------
 
   local edge_shift = "      "
 
@@ -74,28 +83,40 @@ local function logger(is_leaf, opts, stack, k, v)
     local msg_l_state = ""
     local msg_r_state = ""
 
+    -- print(vim.inspect(k.val))
+
     for key, value in pairs(k) do
       if key ~= "val" then
-        msg_l_state = msg_l_state .. "|" .. tostring(key) .. ":" .. tostring(value)
+        msg_l_state = msg_l_state .. " / " .. tostring(key) .. ":" .. tostring(value)
       else
-        -- TODO: COLLECT LEFT INSPECT
+        msg_l_inspect = msg_l_inspect .. " / " .. type(value) .. ":" .. value
       end
     end
 
     for key, value in pairs(v) do
       if key ~= "val" then
-        msg_r_state = msg_r_state .. "|" .. tostring(key) .. ":" .. tostring(value)
+        msg_r_state = msg_r_state .. " / " .. tostring(key) .. ":" .. tostring(value)
       else
-        -- TODO: COLLECT RIGHT INSPECT
+        if type(v.val) == "table" then
+          for i, j in pairs(value) do
+            msg_r_inspect = msg_r_inspect .. " / " .. i .. ":" .. tostring(j)
+          end
+        else
+          msg_r_inspect = msg_r_inspect .. " / " .. type(value) .. ":" .. tostring(value)
+        end
       end
     end
 
-    msg = msg .. "\n" .. edge_shift .. ind .. " L: "
-    msg = msg .. msg_l_state .. "\n" .. edge_shift .. ind .. " R: "
-    msg = msg .. msg_r_state
+    if opts.log.inspect then
+      msg = msg .. "\n" .. edge_shift .. ind .. " L: " .. msg_l_inspect
+    end
+    msg = msg .. "\n" .. edge_shift .. ind .. " L: " .. msg_l_state
+    if opts.log.inspect then
+      msg = msg .. "\n" .. edge_shift .. ind .. " R: " .. msg_r_inspect
+    end
+    msg = msg .. "\n" .. edge_shift .. ind .. " R: " .. msg_r_state
   end
 
-  -- PRINT DATA......
   print(msg)
 
   if opts.log.separate then
@@ -253,17 +274,29 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
+  -- LEAF IDS
+  --
+  -- pass a list of specific attributes that you know constitutes a leaf node
+  -- and filter on this
   opts.leaf_ids = opts.leaf_ids or false
 
   -- OPTS.EDGE
   --
   --      table array containing predefined properties that you know identifies a leaf.
   --      Eg. doom module parts. See `core/spec.module_parts`
+  if type(opts.edge) == "string" then
+    local flt_str = opts.edge
+    opts.edge = function(_, _, r)
+      return r.val.type == flt_str
+    end
+  end
+
   if not opts.edge then
     opts.edge = function(_, _, r)
       return r.is_str
     end
   end
+
 
   if opts.log.frame then
     print("[---------" .. opts.log.name_string .. "---------]")

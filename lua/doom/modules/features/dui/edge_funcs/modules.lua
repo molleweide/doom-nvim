@@ -67,7 +67,7 @@ M.get_modules_extended = function()
     end
 
     prep_all_m[m_origin][m_section][m_name] = {
-      type = "module",
+      type = "doom_module_single",
       enabled = false,
       name = m_name,
       section = m_section,
