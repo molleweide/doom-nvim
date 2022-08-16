@@ -4,6 +4,7 @@ local M = {}
 -- PACKAGES
 --
 
+M.get_results = function(_, pname, package)
 -- tree.traverse_table {
 --   tree = doom.settings,
 --   type = "settings",
@@ -39,6 +40,7 @@ local M = {}
 --     }
 --   end
 -- }
+end
 
 ---
 ---@param t_packages

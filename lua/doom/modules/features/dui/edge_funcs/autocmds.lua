@@ -7,6 +7,8 @@ local M = {}
 --
 -- TODO: if type cmd / autocmd -> use same `tree-flattener` and pass `list = true` param to force only level 0 loop
 
+M.get_results = function(_, pname, package)
+end
 ---
 ---@param t_autocmds
 ---@return list of flattened entries
