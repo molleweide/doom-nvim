@@ -104,13 +104,12 @@ local function make_results()
       tree = DOOM_UI_STATE.selected_module,
       edge = "list",
       leaf = function(_, k, v)
-        -- TODO: REMEMBER TO PASS ALONG THE `RESULTS` TABLE
-
         if k == "settings" then
           results = tree.traverse_table({
             tree = v,
             edge = "settings",
             leaf = require("doom.modules.features.dui.edge_funcs." .. k),
+            acc = results,
           })
         elseif k == "binds" then
           --   -- results = tree.traverse_table({
@@ -118,16 +117,18 @@ local function make_results()
           --   --   leaf = function(_, l, _)
           --   --     require("doom.modules.features.dui.edge_funcs." .. k)
           --   --   end,
+            -- -- acc = results,
           --   --   -- edge = function() end,
           --   -- })
           --   --
           --   -- TODO: use vim.tbl_contains() here...
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
-          -- results = tree.traverse_table({
-          --   tree = v,
-          --   edge = "list",
-          --   leaf = require("doom.modules.features.dui.edge_funcs." .. k),
-          -- })
+          results = tree.traverse_table({
+            tree = v,
+            edge = "list",
+            leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_results,
+            acc = results,
+          })
         end
       end,
     })
