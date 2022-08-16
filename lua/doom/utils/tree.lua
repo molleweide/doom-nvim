@@ -249,6 +249,23 @@ end
 
 -- TODO: USE ... TO MANAGE VARIABLE ARGS
 --
+-- function minimumvalue (...)
+--    local mi = 1 -- maximum index
+--    local m = 100 -- maximum value
+--    local args = {...}
+--    for i,val in ipairs(args) do
+--       if val < m then
+--          mi = i
+--          m = val
+--       end
+--    end
+--    return m, mi
+-- end
+--
+-- print(minimumvalue(8,10,23,12,5))
+--
+-- print(minimumvalue(1,2,3))
+--
 -- if # args == 1  -> opts table
 --
 -- if # args = 2 -> opts, acc
@@ -328,7 +345,6 @@ M.traverse_table = function(opts, tree, acc)
       return not r.is_tbl
     end
   end
-
 
   if opts.log.frame then
     print("[---------" .. opts.log.name_string .. "---------]")
