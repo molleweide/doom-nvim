@@ -43,31 +43,24 @@ local function logger(is_leaf, opts, stack, k, v)
   end
 
   local cat = opts.log.cat
-  -- local ist = type(opts.log) == "table"
+
   if opts.log.cat then
     local msg = ""
     local all = cat == 1
     local full = cat == 2
     local ind = compute_indentation(stack, "    ")
 
-    -- todo: use different ind string for leaf / branch (+ / -)
-
-
-
-
-    -- LEAF + (GREEN)
+    -- LEAF (GREEN)
     if is_leaf and (all or full or cat == 3) then
       msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#+++"), k.val, v.val)
     end
 
-    -- BRANCH - (BLUE)
+    -- BRANCH (BLUE)
     if not is_leaf and (all or full or cat == 4) then
       msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#---"), k.val, v.val)
     end
 
     -- EDGE
-    --
-    -- vim.inspect  k or v
     if all or cat == 5 then
       local msgl = ""
       local msgr = ""
@@ -79,7 +72,6 @@ local function logger(is_leaf, opts, stack, k, v)
         end
       end
 
-
       for key, value in pairs(v) do
         if key ~= "val" then
           msgr = msgr .. "|" .. tostring(key) .. ":" .. tostring(value)
@@ -90,7 +82,6 @@ local function logger(is_leaf, opts, stack, k, v)
       msg = msg .. "\n[e] " .. ind .. " L: "
       msg = msg .. msgl .. "\n[e] " .. ind .. " R: "
       msg = msg .. msgr
-
     end
 
     -- PRINT DATA......
