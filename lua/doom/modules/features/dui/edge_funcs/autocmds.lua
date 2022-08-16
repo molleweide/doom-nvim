@@ -19,6 +19,20 @@ M.autocmds_flattened = function(t_autocmds)
     return
   end
 
+
+  -- TODO: handle this case in the tree function ->
+  --    if not tree then just return the corresponding value..
+  --    ie. use the leaf function to process the value.
+  --
+  --    OR
+  --
+  --    would it be possible to call the function in order to get
+  --    the data. it shouldn't be a problem since we are just getting
+  --    the binds and not changing anything outside.
+  --
+  --    in any case this is not a super big deal since most stuff
+  --    is not contained in functions
+
   if type(t_autocmds) == "function" then
     table.insert(flattened, {
       type = "module_autocmd",

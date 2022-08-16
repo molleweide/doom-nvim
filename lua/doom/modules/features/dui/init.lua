@@ -21,10 +21,6 @@ local doom_ui = {}
 --    -
 --
 
-local function i(x)
-  print(vim.inspect(x))
-end
-
 local function goback(prompt_bufnr, map)
   return map("i", "<C-z>", function(prompt_bufnr)
     require("telescope.actions").close(prompt_bufnr)

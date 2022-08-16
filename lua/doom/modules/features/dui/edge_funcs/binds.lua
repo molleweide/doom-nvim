@@ -1,7 +1,6 @@
 local M = {}
---
--- BINDS
---
+
+M.get_results = function(_, k, v) end
 
 -- list tree flattener. binds contain both anonymous list and potential trees.
 ---
