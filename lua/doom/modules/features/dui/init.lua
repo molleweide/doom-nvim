@@ -1,5 +1,10 @@
-local make_title =  require("doom.modules.features.dui.make_title")
-local make_results =  require("doom.modules.features.dui.make_results")
+local make_title = require("doom.modules.features.dui.make_title")
+-- local ut = require("doom.modules.features.dui.utils")
+local tree = require("doom.utils.tree")
+
+local res_modules = require("doom.modules.features.dui.edge_funcs.modules")
+local res_main = require("doom.modules.features.dui.edge_funcs.main")
+local res_settings = require("doom.modules.features.dui.edge_funcs.settings")
 
 local doom_ui = {}
 
@@ -22,11 +27,11 @@ local function i(x)
 end
 
 local function goback(prompt_bufnr, map)
-	  return map("i", "<C-z>", function(prompt_bufnr)
-	    require("telescope.actions").close(prompt_bufnr)
-	    -- print(doom_ui_state.history[1].title)
-	    -- us.prev_hist()
-	  end)
+  return map("i", "<C-z>", function(prompt_bufnr)
+    require("telescope.actions").close(prompt_bufnr)
+    -- print(DOOM_UI_STATE.history[1].title)
+    -- us.prev_hist()
+  end)
 end
 
 local function picker_get_state(prompt_bufnr)
@@ -36,10 +41,17 @@ local function picker_get_state(prompt_bufnr)
   return fuzzy, line
 end
 
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- MAKE DISPLAY
+--
+
 -- TODO: make this dynamic / add display configs to each parts result maker.
-function doom_displayer(entry)
+local function doom_displayer(entry)
   local entry_display = require("telescope.pickers.entry_display")
-  local displayer = entry_display.create {
+  local displayer = entry_display.create({
     separator = "▏",
     items = {
       { width = 10 },
@@ -50,107 +62,181 @@ function doom_displayer(entry)
       { width = 20 },
       { remaining = true },
     },
-  }
+  })
   local make_display = function(entry)
     return displayer(entry.value.list_display_props)
   end
-	return {
-	  value = entry,
-	  display = make_display,
-	  ordinal = entry.ordinal,
-	}
+  return {
+    value = entry,
+    display = make_display,
+    ordinal = entry.ordinal,
+  }
 end
 
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- MAKE RESULTS
+--
+
+local function make_results()
+  local results = {}
+
+  if DOOM_UI_STATE.query.type == "main_menu" then
+    for _, entry in ipairs(res_main.main_menu_flattened()) do
+      table.insert(results, entry)
+    end
+    -- results = tree.traverse_table({
+    --   tree = doom.settings,
+    --   -- type = "settings",
+    --   leaf = res_settings.mr_settings,
+    --   edge = function(_, l, r)
+    --     return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
+    --   end,
+    -- })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
+  elseif DOOM_UI_STATE.query.type == "settings" then
+    results = tree.traverse_table({
+      tree = doom.settings,
+      -- type = "settings",
+      leaf = res_settings.mr_settings,
+      edge = function(_, l, r)
+        return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
+      end,
+    })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
+  elseif DOOM_UI_STATE.query.type == "modules" then
+    results = tree.traverse_table({
+      tree = res_modules.get_modules_extended(),
+      -- type = "modules",
+      leaf_ids = require("doom.core.spec").module_components,
+      edge = function(_, _, r)
+        return r.is_module or (r.is_tbl and r.id_match)
+      end,
+      -- log = true,
+    })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
+  elseif DOOM_UI_STATE.query.type == "module" then
+    -- TODO: HOW IS THIS SELECTED?
+    for mk, m_part in pairs(DOOM_UI_STATE.selected_module) do
+      for _, qp in ipairs(DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components) do
+        if mk == qp then
+          for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
+            table.insert(results, entry)
+          end
+        end
+      end
+    end
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
+  elseif DOOM_UI_STATE.query.type == "component" then
+  elseif DOOM_UI_STATE.query.type == "all" then
+  end
+
+  return results
+end
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- PICKER
+--
+
 -- can I redo this passing an `opts` table as arg and start follow the opts pattern
-local function doom_picker(type, components)
-  local pickers = require("telescope.pickers")
-  local finders = require("telescope.finders")
-  local conf = require("telescope.config").values
+local function doom_picker()
   local actions_set = require("telescope.actions.set")
-  local state = require("telescope.actions.state")
-  local actions = require("telescope.actions")
-  local previewers = require("telescope.previewers")
   local title = make_title.get_title()
-  local results = make_results.get_results_for_query()
+  local results = make_results() --.get_results_for_query()
   local opts = require("telescope.themes").get_ivy()
+
   -- i(results)
-  -- print("picker -> query:", vim.inspect(doom_ui_state.query))
+
+  -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
   -- print("picker -> title:", title)
+
   require("telescope.pickers").new(opts, {
     prompt_title = title,
     finder = require("telescope.finders").new_table({
       results = results,
-      entry_maker = doom_displayer
+      entry_maker = doom_displayer,
     }),
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-
       actions_set.select:replace(function()
-	      local fuzzy, line = picker_get_state(prompt_bufnr)
-	      require("telescope.actions").close(prompt_bufnr)
+        local fuzzy, line = picker_get_state(prompt_bufnr)
+        require("telescope.actions").close(prompt_bufnr)
         fuzzy.value.mappings["<CR>"](fuzzy, line)
-	    end)
+      end)
 
-	    map("i", "<C-a>", function()
-	      local fuzzy, line = picker_get_state(prompt_bufnr)
-	      require("telescope.actions").close(prompt_bufnr)
-	      if fuzzy.value.mappings["<C-a>"] ~= nil then
-	        fuzzy.value.mappings["<C-a>"](fuzzy, line)
-	      end
-	    end)
+      map("i", "<C-a>", function()
+        local fuzzy, line = picker_get_state(prompt_bufnr)
+        require("telescope.actions").close(prompt_bufnr)
+        if fuzzy.value.mappings["<C-a>"] ~= nil then
+          fuzzy.value.mappings["<C-a>"](fuzzy, line)
+        end
+      end)
 
-	    goback(prompt_bufnr, map)
+      goback(prompt_bufnr, map)
 
       return true
     end,
     initial_mode = "insert",
-
   }):find()
-
 end
 
--- TODO: read up on telescopes internal history maker.
-doom_ui_state = {
-    history = {},
-    next = function()
-      -- if doom_ui_state ~= nil then return end
-    -- local old_query = vim.deepcopy(doom_ui_state.query)
-    -- table.insert(doom_ui_state.history, 1, store)
-    -- local hlen = #doom_ui_state.history
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- UI STATE
+--
+
+DOOM_UI_STATE = {
+  history = {},
+  next = function()
+    -- if DOOM_UI_STATE ~= nil then return end
+    -- local old_query = vim.deepcopy(DOOM_UI_STATE.query)
+    -- table.insert(DOOM_UI_STATE.history, 1, store)
+    -- local hlen = #DOOM_UI_STATE.history
     -- if hlen > 10 then
-    --   table.remove(doom_ui_state.history, hlen)
+    --   table.remove(DOOM_UI_STATE.history, hlen)
     -- end
-	  doom_picker()
-  end
-  }
+    doom_picker()
+  end,
+}
 
 local function reset()
-  doom_ui_state.query = nil
-  doom_ui_state.selected_module = nil
-  doom_ui_state.selected_component = nil
+  DOOM_UI_STATE.query = nil
+  DOOM_UI_STATE.selected_module = nil
+  DOOM_UI_STATE.selected_component = nil
 end
 
 doom_ui.cmds = {
-	{
-	  "DoomPickerMain",
-	  function()
+  {
+    "DoomPickerMain",
+    function()
       reset()
-      doom_ui_state.query = {
+      DOOM_UI_STATE.query = {
         type = "main_menu",
       }
-      doom_ui_state.next()
-	  end
-	},
-	{
-	  "DoomPickerModules",
-	  function()
-	    reset()
-      doom_ui_state.query = {
+      DOOM_UI_STATE.next()
+    end,
+  },
+  {
+    "DoomPickerModules",
+    function()
+      reset()
+      DOOM_UI_STATE.query = {
         type = "modules",
       }
-      doom_ui_state.next()
-	  end,
-	},
+      DOOM_UI_STATE.next()
+    end,
+  },
 }
 
 doom_ui.binds = {
@@ -160,12 +246,17 @@ doom_ui.binds = {
     name = "+prefix",
     {
       -- TODO: this should be all mods + settings, so that everything can be reached.
-      { "k", [[ :DoomPickerModules<cr> ]], name = "Browse modules", options = { silent = false }, },
+      {
+        "k",
+        [[ :DoomPickerModules<cr> ]],
+        name = "Browse modules",
+        options = { silent = false },
+      },
       {
         "n",
         name = "+test",
         {
-          { "l", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false }, },
+          { "l", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false } },
         },
       },
     },

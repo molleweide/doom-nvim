@@ -1,24 +1,24 @@
 local M = {}
 
--- TODO: only log if the log flag is passed with opts.
+-- TODO: IN LOGGER FOR EACH NODE LOG THE EDGE COMPUTE DATA.
 
 local log = {
   sep = "*---",
-  type = "modules",
-  use = true,
-  leaf = true,
-  branch = true,
+  use = false,
+  leaf = false,
+  branch = false,
+  edge = false,
 }
 
--- todo: move to "core/spec.lua"
-local MODULE_PARTS = {
-  "settings",
-  "packages",
-  "configs",
-  "binds",
-  "cmds",
-  "autocmds",
-}
+-- -- todo: move to "core/spec.lua"
+-- local MODULE_PARTS = {
+--   "settings",
+--   "packages",
+--   "configs",
+--   "binds",
+--   "cmds",
+--   "autocmds",
+-- }
 
 -- Helper for creating indentation based on the stack length
 --
@@ -106,11 +106,6 @@ local function check_rhs(r, opts)
     ret.is_tbl = true
     local num_keys = 0
 
-    -- REFACTOR: THIS IS DOOM SPECIFIC SO IT SHOULD NOT BE IN HERE!
-    if opts.type == "modules" and r.type == "module" then
-      ret["is_module"] = true
-    end
-
     for k, _ in pairs(r) do
       num_keys = num_keys + 1
 
@@ -193,7 +188,7 @@ M.traverse_table = function(opts, tree, acc)
   --     Alternatives: ( "modules" | any module_part )
 
   if not opts.type then
-    opts.type = false
+    -- opts.type = false
   end
 
   -- ACCUMULATOR

@@ -113,7 +113,7 @@ M.is_sub_setting = function(a, b)
   return true
 end
 
-  -- doom_ui_state = {
+  -- DOOM_UI_STATE = {
   --   -- doom_global_extended,
   --   all_modules_flattened = nil,
   --   selected_module_idx = nil,
@@ -131,10 +131,10 @@ end
 
 M.inspect_ui_state = function()
     print("--------------------------------------------")
-    print("PREVIOUS:", vim.inspect(doom_ui_state.prev))
-    print("CURRENT:", vim.inspect(doom_ui_state.current))
+    print("PREVIOUS:", vim.inspect(DOOM_UI_STATE.prev))
+    print("CURRENT:", vim.inspect(DOOM_UI_STATE.current))
 
-    -- for k, v in pairs(doom_ui_state) do
+    -- for k, v in pairs(DOOM_UI_STATE) do
     --   if k == "current" then
     --     for a, b in pairs(v) do
     --        print("  curr:", a, b)

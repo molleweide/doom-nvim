@@ -5,9 +5,9 @@
 --
 -- local uistate = {}
 --
--- function uistate.ensure_doom_ui_state()
+-- function uistate.ensure_DOOM_UI_STATE()
 --
---   doom_ui_state = {
+--   DOOM_UI_STATE = {
 --     -- doom_global_extended,
 --     all_modules_flattened = nil,
 --     selected_module_idx = nil, -- is this necessary?
@@ -31,40 +31,40 @@
 -- end
 --
 -- function uistate.reset_selections()
---   doom_ui_state.selected_module = nil
---   doom_ui_state.current = nil
+--   DOOM_UI_STATE.selected_module = nil
+--   DOOM_UI_STATE.current = nil
 -- end
 --
--- function uistate.doom_ui_state_reset()
---   doom_ui_state = nil
+-- function uistate.DOOM_UI_STATE_reset()
+--   DOOM_UI_STATE = nil
 -- end
 --
--- -- function uistate.doom_ui_state_reset_modules()
--- --     doom_ui_state.all_modules_flattened = pu.get_modules_flattened()
+-- -- function uistate.DOOM_UI_STATE_reset_modules()
+-- --     DOOM_UI_STATE.all_modules_flattened = pu.get_modules_flattened()
 -- -- end
 --
 -- function uistate.next()
 --
---   -- print(vim.inspect(doom_ui_state.current))
+--   -- print(vim.inspect(DOOM_UI_STATE.current))
 --
---   -- local store = vim.deepcopy(doom_ui_state.current)
+--   -- local store = vim.deepcopy(DOOM_UI_STATE.current)
 --
---   -- doom_ui_state.prev = store
+--   -- DOOM_UI_STATE.prev = store
 --
---   -- table.insert(doom_ui_state.history, 1, store)
---   -- local hlen = #doom_ui_state.history
+--   -- table.insert(DOOM_UI_STATE.history, 1, store)
+--   -- local hlen = #DOOM_UI_STATE.history
 --   -- if hlen > 10 then
---   --   table.remove(doom_ui_state.history, hlen)
+--   --   table.remove(DOOM_UI_STATE.history, hlen)
 --   -- end
 --
 --   if picker ~= nil then picker() end
 -- end
 --
 -- function uistate.prev_hist()
---   local res = table.remove(doom_ui_state.history, 1)
+--   local res = table.remove(DOOM_UI_STATE.history, 1)
 --   if res ~= nil then
---     doom_ui_state.prev = res
---     doom_ui_state.prev.picker()
+--     DOOM_UI_STATE.prev = res
+--     DOOM_UI_STATE.prev.picker()
 --   end
 -- end
 --

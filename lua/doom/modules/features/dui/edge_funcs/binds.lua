@@ -56,10 +56,10 @@ M.binds_flattened = function(nest_tree, flattened, bstack)
           mappings = {
             ["<CR>"] = function(fuzzy, line, cb)
               i(fuzzy)
-              -- doom_ui_state.query = {
+              -- DOOM_UI_STATE.query = {
               --   type = "settings",
               -- }
-              -- doom_ui_state.next()
+              -- DOOM_UI_STATE.next()
             end,
           },
         }

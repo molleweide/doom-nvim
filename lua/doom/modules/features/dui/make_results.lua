@@ -5,25 +5,12 @@ local res_modules = require("doom.modules.features.dui.edge_funcs.modules")
 local res_main = require("doom.modules.features.dui.edge_funcs.main")
 local res_settings = require("doom.modules.features.dui.edge_funcs.settings")
 
-local function i(x)
-  print(vim.inspect(x))
-end
-
 local M = {}
 
-local MODULE_PARTS = {
-  "settings",
-  "packages",
-  "configs",
-  "binds",
-  "cmds",
-  "autocmds",
-}
-
-M.get_results_for_query = function(type, components)
+M.get_results_for_query = function()
   local results = {}
 
-  if doom_ui_state.query.type == "main_menu" then
+  if DOOM_UI_STATE.query.type == "main_menu" then
     for _, entry in ipairs(res_main.main_menu_flattened()) do
       table.insert(results, entry)
     end
@@ -37,7 +24,7 @@ M.get_results_for_query = function(type, components)
     -- })
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif doom_ui_state.query.type == "settings" then
+  elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       -- type = "settings",
@@ -48,22 +35,22 @@ M.get_results_for_query = function(type, components)
     })
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif doom_ui_state.query.type == "modules" then
+  elseif DOOM_UI_STATE.query.type == "modules" then
     results = tree.traverse_table({
       tree = res_modules.get_modules_extended(),
-      type = "modules",
-      -- leaf_ids = require("doom.core.spec").module_components,
+      -- type = "modules",
+      leaf_ids = require("doom.core.spec").module_components,
       edge = function(_, _, r)
-        return r.is_module -- or (o.type == "modules" and r.is_tbl and r.id_match)
+        return r.is_module or (r.is_tbl and r.id_match)
       end,
       -- log = true,
     })
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif doom_ui_state.query.type == "module" then
+  elseif DOOM_UI_STATE.query.type == "module" then
     -- TODO: HOW IS THIS SELECTED?
-    for mk, m_part in pairs(doom_ui_state.selected_module) do
-      for _, qp in ipairs(doom_ui_state.query.parts or MODULE_PARTS) do
+    for mk, m_part in pairs(DOOM_UI_STATE.selected_module) do
+      for _, qp in ipairs(DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components) do
         if mk == qp then
           for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
             table.insert(results, entry)
@@ -73,8 +60,8 @@ M.get_results_for_query = function(type, components)
     end
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif doom_ui_state.query.type == "component" then
-  elseif doom_ui_state.query.type == "all" then
+  elseif DOOM_UI_STATE.query.type == "component" then
+  elseif DOOM_UI_STATE.query.type == "all" then
   end
 
   return results

@@ -28,10 +28,10 @@ M.main_menu_flattened = function()
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line, cb)
-          doom_ui_state.query = {
+          DOOM_UI_STATE.query = {
             type = "settings",
           }
-          doom_ui_state.next()
+          DOOM_UI_STATE.next()
         end,
       },
       ordinal = "usersettings",
@@ -42,12 +42,12 @@ M.main_menu_flattened = function()
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)
-          doom_ui_state.query = {
+          DOOM_UI_STATE.query = {
             type = "modules",
             -- origins = {},
             -- categories = {},
           }
-          doom_ui_state.next()
+          DOOM_UI_STATE.next()
         end,
       },
       ordinal = "modules",

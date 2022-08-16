@@ -22,10 +22,10 @@ local M = {}
 --       mappings = {
 --         ["<CR>"] = function(fuzzy,line, cb)
 --           i(fuzzy)
---           -- doom_ui_state.query = {
+--           -- DOOM_UI_STATE.query = {
 --           --   type = "settings",
 --           -- }
---           -- doom_ui_state.next()
+--           -- DOOM_UI_STATE.next()
 --   		  end
 --       }
 --     }
@@ -53,10 +53,10 @@ M.configs_flattened = function(t_configs)
       mappings = {
         ["<CR>"] = function(fuzzy, line, cb)
           i(fuzzy)
-          -- doom_ui_state.query = {
+          -- DOOM_UI_STATE.query = {
           --   type = "settings",
           -- }
-          -- doom_ui_state.next()
+          -- DOOM_UI_STATE.next()
         end,
       },
     }

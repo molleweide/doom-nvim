@@ -120,8 +120,8 @@ end
 -- 	-- print(vim.inspect(node))
 -- 	local f1 = entry:named_child(0)
 -- 	local f2 = entry:named_child(1)
---   local f1x = ts.ntext(f1, doom_ui_state.current.buf_ref)
--- 	local f2x = ts.ntext(f2, doom_ui_state.current.buf_ref)
+--   local f1x = ts.ntext(f1, DOOM_UI_STATE.current.buf_ref)
+-- 	local f2x = ts.ntext(f2, DOOM_UI_STATE.current.buf_ref)
 -- 	local f2ccnt = f2:named_child_count()
 -- 	if f2:type() == "table_constructor" then
 -- 	  f2x = " >>> { #"..f2ccnt.." }"
@@ -147,7 +147,7 @@ end
 -- function entry_makers.display_binds_table(entry)
 -- 	-- print(vim.inspect(entry))
 -- 	  local function make_display(t)
--- 	    local s = t.level .. " / " .. ts.ntext(t.prefix, doom_ui_state.current.buf_ref) .. " / "
+-- 	    local s = t.level .. " / " .. ts.ntext(t.prefix, DOOM_UI_STATE.current.buf_ref) .. " / "
 -- 	    -- print(s)
 -- 	    return s
 -- 	  end

@@ -83,16 +83,16 @@ M.get_modules_extended = function()
       mappings = {
         ["<CR>"] = function(fuzzy, line)
           -- i(fuzzy)
-          doom_ui_state.selected_module = fuzzy.value
+          DOOM_UI_STATE.selected_module = fuzzy.value
           ax.m_edit(fuzzy.value)
         end,
         ["<C-a>"] = function(fuzzy, line)
-          doom_ui_state.query = {
+          DOOM_UI_STATE.query = {
             type = "module",
             -- components = {}
           }
-          doom_ui_state.selected_module = fuzzy.value
-          doom_ui_state.next()
+          DOOM_UI_STATE.selected_module = fuzzy.value
+          DOOM_UI_STATE.next()
         end,
       },
       ordinal = m_name, -- connect strings to make it easy to search modules. improve how?

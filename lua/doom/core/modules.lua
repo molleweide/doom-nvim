@@ -161,8 +161,9 @@ modules.load_modules = function()
         )
       end
     end,
+    leaf_ids = require("doom.core.spec").module_components,
     edge = function(_, _, r)
-      return r.val.is_module --or (o.type == "modules" and r.is_tbl and r.id_match)
+      return r.is_module or (r.is_tbl and r.id_match)
     end,
   })
 end
