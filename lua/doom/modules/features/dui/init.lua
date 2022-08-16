@@ -4,7 +4,6 @@ local tree = require("doom.utils.tree")
 
 local res_modules = require("doom.modules.features.dui.edge_funcs.modules")
 local res_main = require("doom.modules.features.dui.edge_funcs.main")
-local res_settings = require("doom.modules.features.dui.edge_funcs.settings")
 
 local doom_ui = {}
 
@@ -84,24 +83,16 @@ local function make_results()
   local results = {}
 
   if DOOM_UI_STATE.query.type == "main_menu" then
-    for _, entry in ipairs(res_main.main_menu_flattened()) do
-      table.insert(results, entry)
-    end
-
-    -- TODO: USE `TREE` HERE JUST FOR THE SAKE OF IT
-
     results = tree.traverse_table({
       tree = res_main.main_menu_flattened(),
       edge = "list",
-      -- leaf = res_settings.mr_settings,
     })
-
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
-      leaf = res_settings.mr_settings,
+      leaf = require("doom.modules.features.dui.edge_funcs.settings"),
       edge = "settings",
     })
     -----------------------------------------------------------------------------
@@ -124,9 +115,7 @@ local function make_results()
           results = tree.traverse_table({
             tree = v,
             edge = "settings",
-            leaf = function(_, l, _)
-              require("doom.modules.features.dui.edge_funcs." .. k)
-            end,
+            leaf = require("doom.modules.features.dui.edge_funcs." .. k),
           })
         elseif k == "binds" then
           -- results = tree.traverse_table({
@@ -134,7 +123,6 @@ local function make_results()
           --   leaf = function(_, l, _)
           --     require("doom.modules.features.dui.edge_funcs." .. k)
           --   end,
-          -- REFACTOR: this however is more of a custom rule and therefore it could go into `results/binds`
           --   -- edge = function() end,
           -- })
           --

@@ -5,29 +5,7 @@ local function i(x)
 end
 
 local M = {}
--- todo: refactor
 
---
--- FLATTENER -> MODULES
---
-
--- RENAME: `doom_modules_extend_with_meta_info()`
---
--- REFACTOR: `get_modules_extended` should go into its own util so that it
--- cannot be tampered with from here.
---
--- call this function after modules are loaded.
---
--- QUESTION: maybe this could be added to a post vim loaded hook so that
--- this is always loaded but after all of the important stuff has been loaded.
-
---
--- takes the global doom table so you don't need to pass any params. however,
--- maybe some of this should be brough into the config loader, or defered, somehow.
--- so that this info is always up to date, and you don't have to re-run this on each
--- call to the picker.
---
----@return returns the doom modules tree extended with meta data that makes it easier to perform actions on modules and module parts.
 M.get_modules_extended = function()
   local config_path = vim.fn.stdpath("config")
 

@@ -1,5 +1,3 @@
-local M = {}
-
 local function i(x)
   print(vim.inspect(x))
 end
@@ -85,7 +83,7 @@ end
 --   return flattened
 -- end
 
-M.mr_settings = function(stack, k, v)
+return function(stack, k, v)
   -- collect table_path back to setting in original table
   local pc
   if #stack > 0 then
@@ -134,5 +132,3 @@ M.mr_settings = function(stack, k, v)
     },
   }
 end
-
-return M
