@@ -161,6 +161,9 @@ modules.load_modules = function()
         )
       end
     end,
+    edge = function(_, _, r)
+      return r.val.is_module --or (o.type == "modules" and r.is_tbl and r.id_match)
+    end,
   })
 end
 

@@ -76,59 +76,67 @@ M.attach_table_path = function(head, tp, data)
   end
 end
 
--- Collect data from LEFT hand side of a table node
---
--- @return table of relevant data for building recursive pattern specs
 local function check_lhs(l, opts)
-  local ret = {}
+  local ret = {
+    key = l,
+    is_num = false,
+    is_str = false,
+  }
   if type(l) == "number" then
-    ret["is_num"] = true
+    ret.is_num = true
   else
-    ret["is_str"] = true
+    ret.is_str = true
   end
   return ret
 end
 
--- Collect data from RIGHT hand side of a table node
---
--- @return table of relevant data for building recursive pattern specs
 local function check_rhs(r, opts)
-  local ret = {}
+  local ret = {
+    val = r,
+    is_fun = false,
+    is_tbl = false,
+    id_match = false,
+    numeric_keys = false,
+  }
 
   if type(r) == "function" then
-    ret["is_fun"] = true
+    ret.is_fun = true
+    -------------------------------------------------------
   elseif type(r) == "table" then
-    ret["is_tbl"] = true
-
+    ret.is_tbl = true
     local num_keys = 0
 
+    -- REFACTOR: THIS IS DOOM SPECIFIC SO IT SHOULD NOT BE IN HERE!
     if opts.type == "modules" and r.type == "module" then
       ret["is_module"] = true
     end
 
-    for k, v in pairs(r) do
+    for k, _ in pairs(r) do
       num_keys = num_keys + 1
 
-      if vim.tbl_contains(MODULE_PARTS, k) then
-        -- todo: AND type == `modules` so that we don't accidentally use this filter.
-        ret["id_match"] = true
+      if opts.leaf_ids ~= nil then
+        if vim.tbl_contains(opts.leaf_ids, k) then
+          ret.id_match = true
+        end
       end
 
       if type(k) == "number" then
-        ret["numeric_keys"] = true
+        ret.numeric_keys = true
       end
     end
-    ret["num_keys"] = num_keys
+    ret.num_keys = num_keys
     if num_keys == 0 then
-      ret["tbl_empty"] = true
+      ret.tbl_empty = true
     end
+    -------------------------------------------------------
   elseif type(r) == "string" then
-    ret["is_str"] = true
+    ret.is_str = true
     if r == "" then
-      ret["str_empty"] = true
+      ret.str_empty = true
     end
+    -------------------------------------------------------
   elseif type(r) == "number" then
-    ret["is_num"] = true
+    ret.is_num = true
   end
 
   return ret
@@ -140,20 +148,20 @@ M.recurse = function(opts, tree, stack, accumulator)
   for k, v in pairs(tree) do
     local is_leaf = opts.edge(opts, check_lhs(k, opts), check_rhs(v, opts))
     logger(is_leaf, opts, stack, k, v)
+
     if not is_leaf then
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
     else
       stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
     end
   end
+
   table.remove(stack, #stack)
   return accumulator
 end
 
 M.process_branch = function(opts, k, v, stack, accumulator)
-  if opts.branch ~= nil then
     opts.branch(stack, k, v)
-  end
   -- table.insert(accumulator, ret)
   table.insert(stack, k)
   M.recurse(opts, v, stack, accumulator)
@@ -176,13 +184,16 @@ M.traverse_table = function(opts, tree, acc)
 
   -- tree to travrse (required)
   if not tree then
-    tree = doom.modules
+    -- assert tree here to make sure it is passed.
+    print("TREE ERROR > tree is required")
   end
 
   -- OPTS.TYPE
   --     specify which leaf pattern to use.
   --     Alternatives: ( "modules" | any module_part )
-  if opts.type then
+
+  if not opts.type then
+    opts.type = false
   end
 
   -- ACCUMULATOR
@@ -201,22 +212,24 @@ M.traverse_table = function(opts, tree, acc)
   if opts.log then
   end
 
-  -- LEAF CALLBACK
+  -- LEAF DEFAULT CALLBACK
   --
   ---     how to process each leaf node
   ---     return appens to accumulator
   if not opts.leaf then
-    opts.leaf = function(_, k, v)
+    opts.leaf = function(_, _, v)
       return v
     end
   end
 
-  -- BRANCH CALLBACK
+  -- BRANCH DEFAULT CALLBACK
   --
   ---     how to process each branch node
   ---       return appens to accumulator
   if not opts.branch then
-    -- log...
+    opts.branch = function()
+      return false
+    end
   end
 
   -- OPTS.EDGE
@@ -224,15 +237,8 @@ M.traverse_table = function(opts, tree, acc)
   --      table array containing predefined properties that you know identifies a leaf.
   --      Eg. doom module parts. See `core/spec.module_parts`
   if not opts.edge then
-    if opts.type == "modules" then
-      opts.edge = function(o, _, r)
-        return r.is_module or (o.type == "modules" and r.is_tbl and r.id_match)
-      end
-    end
-    if opts.type == "load_config" then
-      opts.edge = function(o, _, r)
-        return o.type == "load_config" and r.is_str
-      end
+    opts.edge = function(_, _, r)
+      return r.is_str
     end
   end
 
