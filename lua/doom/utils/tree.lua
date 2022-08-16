@@ -281,9 +281,18 @@ M.traverse_table = function(opts, tree, acc)
   -- TODO: PUT ALL THESE SETUP STATEMENTS IN A METATABLE??
 
   -- TREE -----------------------------------------------------------------------------
+  --
   if not tree then
     -- assert tree here to make sure it is passed.
     print("TREE ERROR > tree is required")
+  end
+
+  if type(tree) == "table" and #tree == 0 then
+    -- return
+  end
+
+  if type(tree) == "function" then
+    tree = tree()
   end
 
   -- OPTS.MAX_LEVEL -----------------------------------------------------------------------------

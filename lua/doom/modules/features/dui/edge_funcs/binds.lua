@@ -1,6 +1,27 @@
 local M = {}
 
-M.get_results = function(_, k, v) end
+M.get_results = function(_, k, v)
+  return {
+    type = "module_bind_leaf",
+    data = v,
+    list_display_props = {
+      { "BIND" },
+      { v.lhs },
+      { v.name },
+      { v.rhs }, -- {v[1], v[2], tostring(v.options)
+    },
+    ordinal = v.name .. tostring(lhs),
+    mappings = {
+      ["<CR>"] = function(fuzzy, line, cb)
+        i(fuzzy)
+        -- DOOM_UI_STATE.query = {
+        --   type = "settings",
+        -- }
+        -- DOOM_UI_STATE.next()
+      end,
+    },
+  }
+end
 
 -- list tree flattener. binds contain both anonymous list and potential trees.
 ---
