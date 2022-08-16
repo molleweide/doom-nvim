@@ -114,6 +114,11 @@ local function make_results()
       edge = function(_, _, r)
         return r.is_module or (r.is_tbl and r.id_match)
       end,
+      log = {
+        cat = 1,
+        nodes = true
+      },
+
       -- log = true,
     })
     -----------------------------------------------------------------------------

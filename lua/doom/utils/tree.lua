@@ -1,6 +1,12 @@
 local M = {}
 
 -- TODO: IN LOGGER FOR EACH NODE LOG THE EDGE COMPUTE DATA.
+--
+-- now!!!
+--
+-- log.levels
+
+-- TODO: if levels above thresh assert warning
 
 local log = {
   sep = "*---",
@@ -8,15 +14,16 @@ local log = {
   leaf = false,
   branch = false,
   edge = false,
+  levels = false, -- single int or table of ints. or string `n-m` so that you can specify range
 }
 
 -- Helper for creating indentation based on the stack length
 --
 -- @param recursive stack
-local function compute_indentation(stack)
+local function compute_indentation(stack, sep)
   local a = ""
   for _ = 0, #stack do
-    a = a .. log.sep
+    a = a .. sep
   end
   return a .. ">"
 end
@@ -24,9 +31,70 @@ end
 -- Helper tool for debuggin the traversal
 --
 -- use opts.log_prefix??
-local function logger(pre, opts, stack, k, v)
-  if opts.log then
-    print("|[", pre, "]", compute_indentation(stack), k, v)
+--
+-- 1 = log all
+-- 2 = log only branch and leaf
+-- 3 = only leaves
+-- 4 = only branches
+-- 5 = only edge data
+local function logger(is_leaf, opts, stack, k, v)
+  if not opts.log then
+    return
+  end
+
+  local cat = opts.log.cat
+  -- local ist = type(opts.log) == "table"
+  if opts.log.cat then
+    local msg = ""
+    local all = cat == 1
+    local full = cat == 2
+    local ind = compute_indentation(stack, "    ")
+
+    -- todo: use different ind string for leaf / branch (+ / -)
+
+
+
+
+    -- LEAF + (GREEN)
+    if is_leaf and (all or full or cat == 3) then
+      msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#+++"), k.val, v.val)
+    end
+
+    -- BRANCH - (BLUE)
+    if not is_leaf and (all or full or cat == 4) then
+      msg = string.format([[%s %s %s]], "+", compute_indentation(stack, "#---"), k.val, v.val)
+    end
+
+    -- EDGE
+    --
+    -- vim.inspect  k or v
+    if all or cat == 5 then
+      local msgl = ""
+      local msgr = ""
+
+      for key, value in pairs(k) do
+        if key ~= "val" then
+          msgl = msgl .. "|" .. tostring(key) .. ":" .. tostring(value)
+        else
+        end
+      end
+
+
+      for key, value in pairs(v) do
+        if key ~= "val" then
+          msgr = msgr .. "|" .. tostring(key) .. ":" .. tostring(value)
+        else
+        end
+      end
+
+      msg = msg .. "\n[e] " .. ind .. " L: "
+      msg = msg .. msgl .. "\n[e] " .. ind .. " R: "
+      msg = msg .. msgr
+
+    end
+
+    -- PRINT DATA......
+    print(msg)
   end
 end
 
@@ -58,7 +126,7 @@ end
 
 local function check_lhs(l)
   return {
-    key = l,
+    val = l,
     is_num = type(l) == "number",
     is_str = type(l) == "string",
   }
@@ -98,8 +166,11 @@ M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
   for k, v in pairs(tree) do
-    local is_leaf = opts.edge(opts, check_lhs(k), check_rhs(v, opts))
-    logger(is_leaf, opts, stack, k, v)
+    local left = check_lhs(k)
+    local right = check_rhs(v, opts)
+    local is_leaf = opts.edge(opts, left, right)
+
+    logger(is_leaf, opts, stack, left, right)
 
     if not is_leaf then
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
@@ -143,6 +214,8 @@ M.traverse_table = function(opts, tree, acc)
   --     specify which leaf pattern to use.
   --     Alternatives: ( "modules" | any module_part )
 
+  opts.max_level = opts.max_level or 10
+
   -- ACCUMULATOR
   --
   ---     if you want to continue accumulating to an already existing list, then pass this
@@ -150,13 +223,6 @@ M.traverse_table = function(opts, tree, acc)
   if opts.acc then
     acc = opts.acc or acc
     -- remove acc prop
-  end
-
-  -- LOGGING CALLBACK
-  ---
-  ---   enable_logging: bool
-  ---
-  if opts.log then
   end
 
   -- LEAF DEFAULT CALLBACK
