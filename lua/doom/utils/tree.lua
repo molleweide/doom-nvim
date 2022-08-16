@@ -41,6 +41,11 @@ local function logger(is_leaf, opts, stack, k, v)
     return
   end
 
+  local iters = opts.log.iters or (#stack + 1)
+  if #stack + 1 ~= iters then
+    return
+  end
+
   local cat = opts.log.cat or 2
 
   -- print(">>>", opts.log.mult)
@@ -52,12 +57,12 @@ local function logger(is_leaf, opts, stack, k, v)
 
   -- LEAF (GREEN)
   if is_leaf and (all or full or cat == 3) then
-    msg = string.format([[%s > (%s) %s]], compute_indentation(stack, "+", opts.log.mult), #stack, k.val, v.val)
+    msg = string.format([[%s > (%s) %s %s]], compute_indentation(stack, "+", opts.log.mult), #stack, k.val, v.val)
   end
 
   -- BRANCH (BLUE)
   if not is_leaf and (all or full or cat == 4) then
-    msg = string.format([[%s > (%s) %s]], compute_indentation(stack, "-", opts.log.mult), #stack, k.val, v.val)
+    msg = string.format([[%s > (%s) %s %s]], compute_indentation(stack, "-", opts.log.mult), #stack, k.val, v.val)
   end
 
   local edge_shift = "      "
@@ -92,6 +97,10 @@ local function logger(is_leaf, opts, stack, k, v)
 
   -- PRINT DATA......
   print(msg)
+
+  if opts.log.separate then
+    print(" ")
+  end
 end
 
 --- Concatenates the stack with the leaf node.

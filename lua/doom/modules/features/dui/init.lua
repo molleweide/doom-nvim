@@ -120,7 +120,8 @@ local function make_results()
         name_string = "test list modules",
         cat = 1,
         nodes = true,
-        frame = true
+        frame = true,
+        separate = true,
       },
 
       -- log = true,
