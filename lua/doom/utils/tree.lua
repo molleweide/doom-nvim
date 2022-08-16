@@ -10,16 +10,6 @@ local log = {
   edge = false,
 }
 
--- -- todo: move to "core/spec.lua"
--- local MODULE_PARTS = {
---   "settings",
---   "packages",
---   "configs",
---   "binds",
---   "cmds",
---   "autocmds",
--- }
-
 -- Helper for creating indentation based on the stack length
 --
 -- @param recursive stack
@@ -33,19 +23,14 @@ end
 
 -- Helper tool for debuggin the traversal
 --
---
+-- use opts.log_prefix??
 local function logger(pre, opts, stack, k, v)
-  -- if log.use and opts.type == log.type then
-  --   print(opts.type, "|[", pre, "]", compute_indentation(stack), k, v)
-  -- end
   if opts.log then
-    print(opts.type, "|[", pre, "]", compute_indentation(stack), k, v)
+    print("|[", pre, "]", compute_indentation(stack), k, v)
   end
 end
 
 --- Concatenates the stack with the leaf node.
----
----@returns the full path to leaf as an array
 local function flatten_stack(stack, v)
   local pc = { v }
   if #stack > 0 then
@@ -57,11 +42,6 @@ end
 
 -- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
 -- could be a head if you want to append all modules upon loading doom.
---
----@param table | pointer to which you want to append
----@param table | path to append
----@param data | leaf node data that will be appended at the tip of path
----@return todo..
 M.attach_table_path = function(head, tp, data)
   local last = #tp
   for i, p in ipairs(tp) do
@@ -77,17 +57,11 @@ M.attach_table_path = function(head, tp, data)
 end
 
 local function check_lhs(l, opts)
-  local ret = {
+  return {
     key = l,
-    is_num = false,
-    is_str = false,
+    is_num = type(l) == "number",
+    is_str = type(l) == "string",
   }
-  if type(l) == "number" then
-    ret.is_num = true
-  else
-    ret.is_str = true
-  end
-  return ret
 end
 
 local function check_rhs(r, opts)
