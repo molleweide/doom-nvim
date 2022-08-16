@@ -84,7 +84,8 @@ local function logger(is_leaf, opts, stack, k, v)
   -- LEAF / BRANCH
   if is_leaf and (all or full or cat == 3) then
     msg = string.format(
-      [[%s > (%s) %s %s]],
+      [[%s %s > (%s) %s %s]],
+      "+",
       compute_indentation(stack, "+", opts.log.mult),
       #stack,
       k.val,
@@ -93,7 +94,8 @@ local function logger(is_leaf, opts, stack, k, v)
   end
   if not is_leaf and (all or full or cat == 4) then
     msg = string.format(
-      [[%s > (%s) %s %s]],
+      [[%s %s > (%s) %s %s]],
+      "-",
       compute_indentation(stack, "-", opts.log.mult),
       #stack,
       k.val,

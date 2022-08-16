@@ -112,51 +112,57 @@ local function make_results()
       tree = res_modules.get_modules_extended(),
       edge = "doom_module_single",
     })
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "module" then
-    -- this should only be a loop over the module since are modules only contain
-    -- single level props
-    --
-    -- for each prope > check if == spec
-
     tree.traverse_table({
       tree = DOOM_UI_STATE.selected_module,
       leaf = function(_, k, v)
-        -- TODO: how do I make sure that we only loop for list configs and use recursive for `settings`??
-        results = tree.traverse_table({
-          tree = v.val,
-          leaf = require("doom.modules.features.dui.edge_funcs." .. k.val)
-        })
-      end,
-      edge = function(_, k, v)
-        if
-          vim.tbl_contains(
-            DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components,
-            k.value
-          )
-        then
-          return true
+        -- TODO: REMEMBER TO PASS ALONG THE `RESULTS` TABLE
+
+        if k == "settings" then
+          results = tree.traverse_table({
+            tree = v,
+            leaf = function(_, l, _)
+              require("doom.modules.features.dui.edge_funcs." .. k)
+            end,
+            edge = function(_, l, r)
+              -- REFACTOR:
+              -- 1. rename edge modules to `doom_components`
+              -- 2. move these edge into the entry maker modules
+              return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
+            end,
+          })
+        elseif k == "binds" then
+          -- results = tree.traverse_table({
+          --   tree = v,
+          --   leaf = function(_, l, _)
+          --     require("doom.modules.features.dui.edge_funcs." .. k)
+          --   end,
+          --   -- edge = function() end,
+          -- })
+        elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
+          results = tree.traverse_table({
+            tree = v,
+            leaf = function()
+              require("doom.modules.features.dui.edge_funcs." .. k)
+            end,
+            edge = function()
+              return true
+            end,
+          })
         end
       end,
+      edge = function()
+        return true
+      end,
     })
-
-    -- for each part
-    --
-
-    -- for mk, m_part in pairs(DOOM_UI_STATE.selected_module) do
-    --   for _, qp in ipairs(DOOM_UI_STATE.query.parts or require("doom.core.spec").module_components) do
-    --     -- -- if settings > use edge/settings
-    --     --
-    --     --   if mk == qp then
-    --     --     for _, entry in pairs(M[mk .. "_flattened"](m_part)) do
-    --     --       table.insert(results, entry)
-    --     --     end
-    --     --   end
-    --   end
-    -- end
 
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "component" then
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "all" then
   end
 
