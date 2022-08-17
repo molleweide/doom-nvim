@@ -162,12 +162,13 @@ local function make_results()
             end,
             log = {
                 use = true,
-              --   mult = 8,
-              --   name_string = "test list modules",
+                mult = 8,
+                name_string = "test list modules",
                 cat = 1,
-              --   -- inspect = true,
-              --   frame = true,
-              --   separate = true,
+                inspect = true,
+                new_line = true,
+                frame = true,
+                separate = true,
             },
           })
 

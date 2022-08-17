@@ -10,9 +10,26 @@
 --
 -- print(minimumvalue(1,2,3))
 --
--- if # args == 1  -> opts table
+-- # 0 --------------------------
 --
--- if # args = 2 -> opts, acc
+--    crawl default tree > requires setup configuration
+--
+--
+-- # 1 AND TABLE --------------------------
+--
+--    pass options
+--
+-- # 1 AND STRING --------------------------
+--
+--    load `string` defaults
+--
+-- # 1 AND FUNC --------------------------
+--
+--
+-- # 2 AND (TABLE, TABLE)
+--
+--      1 = options,
+--      2 = accumulator
 --
 -- if arg1 == string -> edge,
 --
@@ -61,6 +78,10 @@
 -------------------------------------------------------------------------------
 --
 -- TODO
+--
+--------------------------------------
+-- logger > print each inspect entry on new line \n
+--    so that it becomes extra easy to compare
 --
 --------------------------------------
 -- use metatable?
@@ -187,6 +208,9 @@ local function logger(is_leaf, opts, stack, k, v)
     local msg_r_state = ""
 
     -- print(vim.inspect(k.val))
+
+
+    -- TODO: new_line
 
     for key, value in pairs(k) do
       if key ~= "val" then
