@@ -49,6 +49,15 @@
 --      allows for quickly traversing a tree and flattening out all nodes
 --      to a list easilly
 --
+-- # 4 -------------------------------------------------------
+--
+--      1 table = tree
+--      2 function|string' =
+--      3 table = accumulator
+--      4
+--
+-- -----------------------------------------------------------------------------
+--
 -- _WARNING: if you are using a string filter arg, you have to make sure it is
 -- one of the special keywords, or it will be treated as a match string for
 -- computing nodes, see XXX.
