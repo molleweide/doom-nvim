@@ -365,6 +365,8 @@ M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
 
+  -- TODO: assert tree == table or return and run logger on the previous entry
+
   for k, v in pairs(tree) do
     local left = check_lhs(k)
     local right = check_rhs(v, opts)

@@ -190,8 +190,13 @@ local function make_results()
     -- 2. select components set
     -- 3. how do I attach the corresponding `module` into each component entry?
     tree.traverse_table({
-      -- TODO: .extend(filter = {})
-      tree = require("doom.modules.utils").extend(),
+      tree = require("doom.modules.utils").extend({
+        -- TODO:
+        -- origins = ,
+        -- sections = ,
+        -- names = ,
+        -- enabled = ,
+      }),
       -- remember that edge will be renamed to filter...
       edge = function(_, l, r)
         -- TODO: AND vim.tbl_contains(DOOM_UI_STATE.query.module_name_set, l.val)
