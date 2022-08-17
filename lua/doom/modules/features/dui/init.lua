@@ -1,10 +1,4 @@
--- local make_title = require("doom.modules.features.dui.make_title")
-
--- local ut = require("doom.modules.features.dui.utils")
 local tree = require("doom.utils.tree")
-
-local res_modules = require("doom.modules.features.dui.edge_funcs.modules")
-local res_main = require("doom.modules.features.dui.edge_funcs.main")
 
 local doom_ui = {}
 
