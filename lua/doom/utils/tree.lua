@@ -183,6 +183,16 @@ end
 -- 3 = only leaves
 -- 4 = only branches
 -- 5 = only edge data
+--
+-- ::: LOGGING DEFAULTS :::
+--
+-- nodes
+-- edge
+-- mini | minimal
+-- all | both | base | default
+-- full | inspect
+-- pretty
+--
 local function logger(is_leaf, opts, stack, k, v)
   if not opts.log.use then
     return
@@ -224,6 +234,8 @@ local function logger(is_leaf, opts, stack, k, v)
     )
   end
 
+  -- A. PRINT LEAF/BRANCH HERE --
+
   ------------------------------------
 
   local edge_shift = "      "
@@ -238,8 +250,6 @@ local function logger(is_leaf, opts, stack, k, v)
     -- print(vim.inspect(k.val))
 
 
-    -- TODO: new_line
-
     for key, value in pairs(k) do
       if key ~= "val" then
         msg_l_state = msg_l_state .. " / " .. tostring(key) .. ":" .. tostring(value)
@@ -247,6 +257,14 @@ local function logger(is_leaf, opts, stack, k, v)
         msg_l_inspect = msg_l_inspect .. " / " .. type(value) .. ":" .. value
       end
     end
+
+
+    -- B. PRINT LEFT --
+
+    -- inspect
+
+    -- state
+
 
     for key, value in pairs(v) do
       if key ~= "val" then
@@ -262,6 +280,13 @@ local function logger(is_leaf, opts, stack, k, v)
       end
     end
 
+    -- C. PRINT RIGHT --
+
+    -- inspect
+
+    -- state
+
+
     if opts.log.inspect then
       msg = msg .. "\n" .. edge_shift .. ind .. " L: " .. msg_l_inspect
     end
@@ -272,7 +297,9 @@ local function logger(is_leaf, opts, stack, k, v)
     msg = msg .. "\n" .. edge_shift .. ind .. " R: " .. msg_r_state
   end
 
-  print(msg)
+  -- print(msg)
+
+  -- D. separator
 
   if opts.log.separate then
     print(" ")
@@ -496,3 +523,5 @@ M.traverse_table = function(opts, tree, acc)
 end
 
 return M
+
+
