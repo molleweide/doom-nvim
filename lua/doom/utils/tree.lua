@@ -201,7 +201,7 @@ end
 local function logger(is_leaf, opts, stack, k, v)
   -- use table pattern to make the messages more variable and dynamic.
 
-  local msg = { entry = {}, lhs = { data = "", state = "" }, rhs = { data = "", state = "" } }
+  local msg = { entry = {}, rhs = { data = "", state = "" } }
 
   if not opts.log.use then
     return
@@ -217,6 +217,10 @@ local function logger(is_leaf, opts, stack, k, v)
   local all = cat == 1
   local full = cat == 2
   local ind = compute_indentation(stack, " ", opts.log.mult)
+  local edge_shift = "      "
+  local pre = edge_shift .. ind
+
+  local post_sep = new_line and "" or " / "
 
   -- local ind_str = "+" and is_leaf or "-"
 
@@ -246,44 +250,41 @@ local function logger(is_leaf, opts, stack, k, v)
   print(msg.entry)
   ------------------------------------
 
-  local edge_shift = "      "
-  local pre = edge_shift .. ind
+  -- TODO: IF NEW LINE INSERT NEW LINE BEFORE EACH PROP
 
-  -- EDGE
   if all or cat == 5 then
-    -- print(vim.inspect(k.val))
-
+    msg.lhs = { data = "", state = "" }
     for key, value in pairs(k) do
       if key ~= "val" then
-        msg.lhs.state = msg.lhs.state .. pre .. " ls: / " .. tostring(key) .. ":" .. tostring(value)
+        msg.lhs.state = msg.lhs.state .. tostring(key) .. ":" .. tostring(value) .. post_sep
       else
-        msg.lhs.data = msg.lhs.data .. pre .. " ld: / " .. type(value) .. ":" .. value
+        msg.lhs.data = msg.lhs.data .. type(value) .. ":" .. value .. post_sep
       end
     end
-
     if opts.log.inspect then
-      print(msg.lhs.data)
+      print(pre .. " ld: " .. msg.lhs.data)
     end
-    print(msg.lhs.state)
+    print(pre .. " ls: " .. msg.lhs.state)
 
+    msg.rhs = { data = "", state = "" }
     for key, value in pairs(v) do
       if key ~= "val" then
-        msg.rhs.state = msg.rhs.state .. pre .. " rs: / " .. tostring(key) .. ":" .. tostring(value)
+        msg.rhs.state = msg.rhs.state .. tostring(key) .. ":" .. tostring(value) .. post_sep
       else
         if type(v.val) == "table" then
           for i, j in pairs(value) do
-            msg.rhs.data = msg.rhs.data .. pre .. " rd: / " .. i .. ":" .. tostring(j)
+            msg.rhs.data = msg.rhs.data .. i .. ":" .. tostring(j) .. post_sep
           end
         else
-          msg.rhs.data = msg.rhs.data .. pre .. " rd: / " .. type(value) .. ":" .. tostring(value)
+          msg.rhs.data = msg.rhs.data .. type(value) .. ":" .. tostring(value) .. post_sep
         end
       end
     end
 
     if opts.log.inspect then
-      print(msg.rhs.data)
+      print(pre .. " rd: " .. msg.rhs.data)
     end
-    print(msg.rhs.state)
+    print(pre .. " rs: " .. msg.rhs.state)
   end
 
   if opts.log.separate then
@@ -369,6 +370,11 @@ M.process_branch = function(opts, k, v, stack, accumulator)
   opts.branch(stack, k, v)
   -- table.insert(accumulator, ret)
   table.insert(stack, k)
+
+  -- TODO: need to be able to determine which prop to recurse down!!!
+  --
+  -- a. select which prop to recurse down.
+  -- b. should this be the same table as the one we return?
   M.recurse(opts, v, stack, accumulator)
   return stack, accumulator
 end
