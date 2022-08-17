@@ -81,7 +81,7 @@
 --
 --  ::: branch (edges|process_edge) :::
 --
---  ::: branch_next (edge_next) :::
+--  ::: branch_next (edge_next|subtable) :::
 --
 --    if there is a specific way that you access the next entry to analyze
 --    within RHS if rhs == table
