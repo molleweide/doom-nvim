@@ -125,19 +125,19 @@ local function make_results()
 
   if DOOM_UI_STATE.query.type == "main_menu" then
     results = tree.traverse_table({
-      tree = res_main.main_menu_flattened(),
+      tree = require("doom.modules.features.dui.results").main_menu,
       edge = "list",
     })
   elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
-      leaf = require("doom.modules.features.dui.edge_funcs.settings"),
+      leaf = require("doom.modules.features.dui.results").settings,
       edge = "settings",
     })
   elseif DOOM_UI_STATE.query.type == "modules" then
     results = tree.traverse_table({
       tree = require("doom.modules.utils").extend(),
-      leaf = require("doom.modules.features.dui.edge_funcs.modules").get_results,
+      leaf = require("doom.modules.features.dui.results").modules,
       edge = "doom_module_single",
     })
   elseif DOOM_UI_STATE.query.type == "module" then
@@ -149,7 +149,7 @@ local function make_results()
           results = tree.traverse_table({
             tree = v,
             edge = "settings",
-            leaf = require("doom.modules.features.dui.edge_funcs." .. k),
+            leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         elseif k == "binds" then
@@ -159,7 +159,7 @@ local function make_results()
             branch_next = function(v)
               return v.rhs
             end,
-            leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_leaf,
+            leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
             edge = function(_, l, r)
               return type(r.val.rhs) ~= "table"
@@ -171,7 +171,7 @@ local function make_results()
           results = tree.traverse_table({
             tree = v,
             edge = "list",
-            leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_results,
+            leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         end
@@ -190,7 +190,7 @@ local function make_results()
           results = tree.traverse_table({
             tree = v,
             edge = "list",
-            leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_results,
+            leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         end
