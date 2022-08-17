@@ -186,9 +186,8 @@ local function make_results()
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
-    -- 1. select modules range
-    -- 2. select components set
-    -- 3. how do I attach the corresponding `module` into each component entry?
+    -- 1. select components set
+    -- 2. how do I attach the corresponding `module` into each component entry?
     tree.traverse_table({
       tree = require("doom.modules.utils").extend({
         origins = { "doom" },
@@ -196,13 +195,11 @@ local function make_results()
         names = { "git", "lsp", "dap" },
         enabled = true,
       }),
-      -- remember that edge will be renamed to filter...
-      edge = function(_, l, r)
-        -- TODO: AND vim.tbl_contains(DOOM_UI_STATE.query.module_name_set, l.val)
-        return r.val.type == "doom_module_single"
-      end,
+      edge = "doom_module_single",
       leaf = function(_, k, v)
         -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
+        -- I can assign results here inside of `leaf` or I could return entry if package.
+        -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
         if k == "packages" then
           results = tree.traverse_table({
             tree = v,
