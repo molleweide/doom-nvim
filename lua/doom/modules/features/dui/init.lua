@@ -101,12 +101,12 @@ local function make_results()
       edge = "list",
       leaf = function(_, k, v)
         if k == "settings" then
-          results = tree.traverse_table({
-            tree = v,
-            edge = "settings",
-            leaf = require("doom.modules.features.dui.edge_funcs." .. k),
-            acc = results,
-          })
+          -- results = tree.traverse_table({
+          --   tree = v,
+          --   edge = "settings",
+          --   leaf = require("doom.modules.features.dui.edge_funcs." .. k),
+          --   acc = results,
+          -- })
         elseif k == "binds" then
           results = tree.traverse_table({
             tree = v,
@@ -114,7 +114,7 @@ local function make_results()
             leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_leaf,
             acc = results,
             edge = function(_, l, r)
-              print(vim.inspect(r.val))
+              -- print(vim.inspect(r.val))
               return type(r.val.rhs) ~= "table"
             end,
             log = {
@@ -130,6 +130,26 @@ local function make_results()
 
           -- TODO: use vim.tbl_contains() here...
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
+          -- results = tree.traverse_table({
+          --   tree = v,
+          --   edge = "list",
+          --   leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_results,
+          --   acc = results,
+          -- })
+        end
+      end,
+    })
+
+    -----------------------------------------------------------------------------
+    -----------------------------------------------------------------------------
+  elseif DOOM_UI_STATE.query.type == "component" then
+
+    -- TODO: LIST ALL PACKAGES
+    tree.traverse_table({
+      tree = require("doom.modules.utils").extend(),
+      edge = "list",
+      leaf = function(_, k, v)
+        if k == "packages" then
           results = tree.traverse_table({
             tree = v,
             edge = "list",
@@ -142,10 +162,8 @@ local function make_results()
 
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif DOOM_UI_STATE.query.type == "component" then
-    -----------------------------------------------------------------------------
-    -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "all" then
+    -- todo: list everything!
   end
 
   return results
