@@ -191,11 +191,10 @@ local function make_results()
     -- 3. how do I attach the corresponding `module` into each component entry?
     tree.traverse_table({
       tree = require("doom.modules.utils").extend({
-        -- TODO:
-        -- origins = ,
-        -- sections = ,
-        -- names = ,
-        -- enabled = ,
+        origins = { "doom" },
+        sections = { "features" },
+        names = { "git", "lsp", "dap" },
+        enabled = true,
       }),
       -- remember that edge will be renamed to filter...
       edge = function(_, l, r)

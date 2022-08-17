@@ -78,36 +78,19 @@ M.extend = function(filter)
   local function apply_filters(mods)
     if filter then
       if filter.origins then
-        for o, origin in pairs(filter.origins) do
-          -- remove mods[o]
-        end
-      end
-      if filter.sections then
         for o, origin in pairs(mods) do
-          for s, section in pairs(origin) do
-            if not vim.tbl_contains(filter.sections, s) then
-               -- remove mods[o][s]
-            end
-          end
-        end
-      end
-      if filter.names then
-        for o, origin in pairs(mods) do
-          for s, section in pairs(origin) do
-            for m, module in pairs(origin) do
-              if not vim.tbl_contains(filter.names, m) then
-                 -- remove mods[o][s][m]
-              end
-            end
-          end
-        end
-      end
-      if filter.enabled then
-        for o, origin in pairs(mods) do
-          for s, section in pairs(origin) do
-            for m, module in pairs(origin) do
-              if m.enabled == filter.enabled then
-                 -- remove mods[o][s][m]
+          if vim.tbl_contains(filter.origins, o) then
+            table.remove(mods, o) -- filter origins
+          else
+            for s, section in pairs(origin) do
+              if not vim.tbl_contains(filter.sections, s) then
+                table.remove(mods[o], s) -- filter sections
+              else
+                for m, _ in pairs(section) do
+                  if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
+                    table.remove(mods[o][s], m) -- filter modules by name
+                  end
+                end
               end
             end
           end
