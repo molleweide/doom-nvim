@@ -1,4 +1,5 @@
-local make_title = require("doom.modules.features.dui.make_title")
+-- local make_title = require("doom.modules.features.dui.make_title")
+
 -- local ut = require("doom.modules.features.dui.utils")
 local tree = require("doom.utils.tree")
 
@@ -66,6 +67,48 @@ local function doom_displayer(entry)
     display = make_display,
     ordinal = entry.ordinal,
   }
+end
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- MAKE TITLE
+--
+
+local function make_title()
+  local title
+
+  if DOOM_UI_STATE.query.type == "main_menu" then
+    title = ":: MAIN MENU ::"
+
+  elseif DOOM_UI_STATE.query.type == "settings" then
+    title = ":: USER SETTINGS ::"
+
+  elseif DOOM_UI_STATE.query.type == "modules" then
+    title = ":: MODULES LIST ::"
+
+    -- TODO: MODULES LIST (ORIGINS/CATEGORIES)
+
+  elseif DOOM_UI_STATE.query.type == "module" then
+    local postfix = ""
+	  local morig = DOOM_UI_STATE.selected_module.origin
+	  local mfeat = DOOM_UI_STATE.selected_module.section
+	  local mname = DOOM_UI_STATE.selected_module.name
+	  local menab = DOOM_UI_STATE.selected_module.enabled
+    local on = menab and "enabled" or "disabled"
+	  postfix = postfix .. "["..morig..":"..mfeat.."] -> " .. mname .. " (" .. on .. ")"
+    title = "MODULE_FULL: " .. postfix -- make into const
+
+  elseif DOOM_UI_STATE.query.type == "component" then
+    -- TODO: MODULES LIST (/CATEGORIES)
+
+  elseif DOOM_UI_STATE.query.type == "all" then
+    -- TODO: MODULES LIST (/CATEGORIES)
+
+  end
+
+  return title
 end
 
 -----------------------------------------------------------------------------
@@ -179,7 +222,7 @@ end
 -- can I redo this passing an `opts` table as arg and start follow the opts pattern
 local function doom_picker()
   local actions_set = require("telescope.actions.set")
-  local title = make_title.get_title()
+  local title = make_title()
   local results = make_results() --.get_results_for_query()
   local opts = require("telescope.themes").get_ivy()
 
