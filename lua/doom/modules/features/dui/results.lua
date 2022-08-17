@@ -81,7 +81,17 @@ result_nodes.main_menu = function()
         { "browse all packages" },
       },
       mappings = {
-        ["<CR>"] = function() end,
+        ["<CR>"] = function()
+          DOOM_UI_STATE.query = {
+            type = "ALL_MODULES_SINGLE_COMPONENT",
+            -- components = {}
+          }
+
+          -- TODO: FUZZY.VALUE.???
+          DOOM_UI_STATE.selected_component = fuzzy.value
+
+          DOOM_UI_STATE.next()
+        end,
       },
       ordinal = "packages",
     },
@@ -131,6 +141,17 @@ result_nodes.modules = function(_, _, module)
         -- components = {}
       }
       DOOM_UI_STATE.selected_module = fuzzy.value
+      DOOM_UI_STATE.next()
+    end,
+    ["<C-b>"] = function(fuzzy, _)
+      DOOM_UI_STATE.query = {
+        type = "MODULE_COMPONENT",
+        -- components = {}
+      }
+
+      -- TODO: FUZZY.VALUE.???
+      DOOM_UI_STATE.selected_component = fuzzy.value
+
       DOOM_UI_STATE.next()
     end,
   }

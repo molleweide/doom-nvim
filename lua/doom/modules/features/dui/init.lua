@@ -6,11 +6,15 @@ local doom_ui = {}
 --
 --
 --
+--    - capitalize query types. easier to read
+--
 --    - specify theme
 --    - display > col width
 --    - display > change colors
 --    - list all packages
+--
 --    - CRUD
+--
 --    - visually select the node inside of corresponding module file
 --
 --
@@ -134,11 +138,16 @@ local function make_results()
       leaf = require("doom.modules.features.dui.results").modules,
       edge = "doom_module_single",
     })
+
+    -- todo: rename "SINGLE_MODULE"
   elseif DOOM_UI_STATE.query.type == "module" then
     tree.traverse_table({
       tree = DOOM_UI_STATE.selected_module,
       edge = "list",
       leaf = function(_, k, v)
+        -- TODO: use
+        -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
+        -- end
         if k == "settings" then
           results = tree.traverse_table({
             tree = v,
@@ -159,8 +168,6 @@ local function make_results()
               return type(r.val.rhs) ~= "table"
             end,
           })
-
-          -- TODO: use vim.tbl_contains() here...
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
           results = tree.traverse_table({
             tree = v,
@@ -174,8 +181,9 @@ local function make_results()
 
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
-  elseif DOOM_UI_STATE.query.type == "component" then
-    -- TODO: LIST ALL PACKAGES
+  elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
+    -- 1. select modules range
+    -- 2. select components set
     tree.traverse_table({
       tree = require("doom.modules.utils").extend(),
       edge = "list",
