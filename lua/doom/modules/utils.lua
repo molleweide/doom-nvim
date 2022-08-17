@@ -3,6 +3,7 @@ local M = {}
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 
 M.extend = function(filter)
+  filter = filter or {}
   local config_path = vim.fn.stdpath("config")
 
   local function glob_modules(cat)
@@ -75,14 +76,43 @@ M.extend = function(filter)
   end
 
   local function apply_filters(mods)
-    filter = filter or {}
-    if filter.origins then
-    end
-    if filter.sections then
-    end
-    if filter.names then
-    end
-    if filter.enabled then
+    if filter then
+      if filter.origins then
+        for o, origin in pairs(filter.origins) do
+          -- remove mods[o]
+        end
+      end
+      if filter.sections then
+        for o, origin in pairs(mods) do
+          for s, section in pairs(origin) do
+            if not vim.tbl_contains(filter.sections, s) then
+               -- remove mods[o][s]
+            end
+          end
+        end
+      end
+      if filter.names then
+        for o, origin in pairs(mods) do
+          for s, section in pairs(origin) do
+            for m, module in pairs(origin) do
+              if not vim.tbl_contains(filter.names, m) then
+                 -- remove mods[o][s][m]
+              end
+            end
+          end
+        end
+      end
+      if filter.enabled then
+        for o, origin in pairs(mods) do
+          for s, section in pairs(origin) do
+            for m, module in pairs(origin) do
+              if m.enabled == filter.enabled then
+                 -- remove mods[o][s][m]
+              end
+            end
+          end
+        end
+      end
     end
     return mods
   end
