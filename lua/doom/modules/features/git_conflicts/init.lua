@@ -1,0 +1,1 @@
+-- https://github.com/akinsho/git-conflict.nvim
