@@ -10,6 +10,15 @@ local doom_ui = {}
 
 -- TODO:
 --
+--
+--
+--    - specify theme
+--    - change colors
+--    - list all packages
+--    - CRUD
+--
+--
+--
 --    -> CHECK OUT `LEGENDARY` SOURCE AND SEE HOW THE DISPLAYER IS CONFIGURED.
 --
 --    - sorters
@@ -17,9 +26,6 @@ local doom_ui = {}
 --    - native fuzzy
 --    - properly use the options object
 --    - ovrerride actions properly.
---    - refactor the `table-tree-flattener`
---        -> use same for settings trees, and flat package/cmd lists
---    -
 --
 
 local function goback(prompt_bufnr, map)
@@ -147,6 +153,7 @@ local function make_results()
         elseif k == "binds" then
           results = tree.traverse_table({
             tree = v,
+            -- TODO: simplify this by just adding the string name for the subtable
             branch_next = function(v)
               return v.rhs
             end,
@@ -155,16 +162,6 @@ local function make_results()
             edge = function(_, l, r)
               return type(r.val.rhs) ~= "table"
             end,
-            log = {
-              use = true,
-              mult = 8,
-              name_string = "test list modules",
-              cat = 1,
-              inspect = true,
-              new_line = true,
-              frame = true,
-              separate = true,
-            },
           })
 
           -- TODO: use vim.tbl_contains() here...

@@ -188,15 +188,16 @@ end
 -- iii. print colors
 --
 -- eg.
--- log = {
---   use = true,
---   mult = 8,
---   name_string = "test list modules",
---   cat = 1,
---   -- inspect = true,
---   frame = true,
---   separate = true,
--- },
+            -- log = {
+            --   use = true,
+            --   mult = 8,
+            --   name_string = "test list modules",
+            --   cat = 1,
+            --   inspect = true,
+            --   new_line = true,
+            --   frame = true,
+            --   separate = true,
+            -- },
 
 -- 1 = log all
 -- 2 = log only branch and leaf
