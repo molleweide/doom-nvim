@@ -1,11 +1,9 @@
 local M = {}
 
--- TODO: REFACTOR INTO 4 sub functions.
---
 -- FILTER_PROPS: origins, sections, names, enabled
 --
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
---
+
 M.extend = function(filter)
   local config_path = vim.fn.stdpath("config")
 
@@ -27,9 +25,9 @@ M.extend = function(filter)
     return all
   end
 
-  local function add_meta_data()
+  local function add_meta_data(paths)
     local prep_all_m = { doom = {}, user = {} }
-    for _, p in ipairs(get_all_module_paths()) do
+    for _, p in ipairs(paths) do
       local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
       -- if user is empty for now..
       if m_origin == nil then
@@ -50,12 +48,9 @@ M.extend = function(filter)
     return prep_all_m
   end
 
-  local all_modules_base = add_meta_data()
-
   local function merge_with_enabled(allm)
     local prep_all_m = allm
     local enabled_modules = require("doom.core.modules").enabled_modules
-
     for section_name, section_modules in pairs(enabled_modules) do
       for _, module_name in pairs(section_modules) do
         local search_paths = {
@@ -64,7 +59,6 @@ M.extend = function(filter)
         }
         for _, path in ipairs(search_paths) do
           local origin = path:sub(1, 4)
-
           if prep_all_m[origin][section_name] ~= nil then
             if prep_all_m[origin][section_name][module_name] ~= nil then
               prep_all_m[origin][section_name][module_name].enabled = true
@@ -80,8 +74,7 @@ M.extend = function(filter)
     return prep_all_m
   end
 
-  -- return prep_all_m
-  return merge_with_enabled(all_modules_base)
+  return merge_with_enabled(add_meta_data(get_all_module_paths()))
 end
 
 return M
