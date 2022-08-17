@@ -71,11 +71,20 @@
 --
 --  ::: option (new name ideas) :::
 --
---  tree (required)
---  max_level
---  acc
---  leaf (do|nodes|node_apply|process_node)
---  branch (edges|process_edge)
+--  ::: tree (required) :::
+--
+--  ::: max_level :::
+--
+--  ::: acc :::
+--
+--  ::: leaf (do|nodes|node_apply|process_node) :::
+--
+--  ::: branch (edges|process_edge) :::
+--
+--  ::: branch_next (edge_next) :::
+--
+--    if there is a specific way that you access the next entry to analyze
+--    within RHS if rhs == table
 --
 --  ::: leaf_ids (filter_props) :::
 --
@@ -120,6 +129,12 @@
 -- make it possible to
 --
 -- local res = crawl(opts).crawl()
+--
+--------------------------------------
+--  entry_counter, leaf_counter, edge_counter.
+--
+--------------------------------------
+-- rename: leaf > node; branch > edge; edge > filter
 --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -197,9 +212,15 @@ end
 -- all | both | base | default
 -- full | inspect
 -- pretty
+-- large_pretty
+--
+--
+--  create a frame around the tree so that you can make very descriptive logs on large screens
 --
 local function logger(is_leaf, opts, stack, k, v)
   -- use table pattern to make the messages more variable and dynamic.
+  --
+  -- NOTE: FRAME -> LOOK AT HOW VENN.NVIM IS WRITTEN
 
   local msg = { entry = {}, rhs = { data = "", state = "" } }
 
@@ -213,6 +234,10 @@ local function logger(is_leaf, opts, stack, k, v)
   end
 
   local cat = opts.log.cat or 2
+
+  -- use these to compute a frame for the tree.
+  local num_col = 0
+  local num_lines = 0
 
   local all = cat == 1
   local full = cat == 2
@@ -346,7 +371,10 @@ M.recurse = function(opts, tree, stack, accumulator)
 
     logger(is_leaf, opts, stack, left, right)
 
+    -- TODO: increment `counter_entry`
+
     if not is_leaf then
+      -- TODO: increment `counter_branch`
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
       -- opts.branch(stack, k, v)
       -- -- table.insert(accumulator, ret)
@@ -354,6 +382,7 @@ M.recurse = function(opts, tree, stack, accumulator)
       -- M.recurse(opts, v, stack, accumulator)
       -- return stack, accumulator
     else
+      -- TODO: increment `counter_leaf`
       stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
       -- local ret = opts.leaf(stack, k, v)
       -- table.insert(accumulator, ret)
@@ -374,7 +403,11 @@ M.process_branch = function(opts, k, v, stack, accumulator)
   --
   -- a. select which prop to recurse down.
   -- b. should this be the same table as the one we return?
-  M.recurse(opts, v, stack, accumulator)
+
+
+  -- M.recurse(opts, v, stack, accumulator)
+  M.recurse(opts, opts.branch_next(v), stack, accumulator)
+
   return stack, accumulator
 end
 
@@ -457,6 +490,12 @@ M.traverse_table = function(opts, tree, acc)
   if not opts.branch then
     opts.branch = function()
       return false
+    end
+  end
+
+  if not opts.branch_next then
+    opts.branch_next = function(v)
+      return v
     end
   end
 

@@ -81,31 +81,25 @@ local function make_title()
 
   if DOOM_UI_STATE.query.type == "main_menu" then
     title = ":: MAIN MENU ::"
-
   elseif DOOM_UI_STATE.query.type == "settings" then
     title = ":: USER SETTINGS ::"
-
   elseif DOOM_UI_STATE.query.type == "modules" then
     title = ":: MODULES LIST ::"
 
     -- TODO: MODULES LIST (ORIGINS/CATEGORIES)
-
   elseif DOOM_UI_STATE.query.type == "module" then
     local postfix = ""
-	  local morig = DOOM_UI_STATE.selected_module.origin
-	  local mfeat = DOOM_UI_STATE.selected_module.section
-	  local mname = DOOM_UI_STATE.selected_module.name
-	  local menab = DOOM_UI_STATE.selected_module.enabled
+    local morig = DOOM_UI_STATE.selected_module.origin
+    local mfeat = DOOM_UI_STATE.selected_module.section
+    local mname = DOOM_UI_STATE.selected_module.name
+    local menab = DOOM_UI_STATE.selected_module.enabled
     local on = menab and "enabled" or "disabled"
-	  postfix = postfix .. "["..morig..":"..mfeat.."] -> " .. mname .. " (" .. on .. ")"
+    postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
     title = "MODULE_FULL: " .. postfix -- make into const
-
   elseif DOOM_UI_STATE.query.type == "component" then
     -- TODO: MODULES LIST (/CATEGORIES)
-
   elseif DOOM_UI_STATE.query.type == "all" then
     -- TODO: MODULES LIST (/CATEGORIES)
-
   end
 
   return title
@@ -154,6 +148,9 @@ local function make_results()
           results = tree.traverse_table({
             tree = v,
             -- branch = require("doom.modules.features.dui.edge_funcs." .. k).get_branch,
+            branch_next = function(v)
+              return v.rhs
+            end,
             leaf = require("doom.modules.features.dui.edge_funcs." .. k).get_leaf,
             acc = results,
             edge = function(_, l, r)
@@ -161,14 +158,14 @@ local function make_results()
               return type(r.val.rhs) ~= "table"
             end,
             log = {
-                use = true,
-                mult = 8,
-                name_string = "test list modules",
-                cat = 1,
-                inspect = true,
-                new_line = true,
-                frame = true,
-                separate = true,
+              use = true,
+              mult = 8,
+              name_string = "test list modules",
+              cat = 1,
+              inspect = true,
+              new_line = true,
+              frame = true,
+              separate = true,
             },
           })
 
@@ -187,7 +184,6 @@ local function make_results()
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
   elseif DOOM_UI_STATE.query.type == "component" then
-
     -- TODO: LIST ALL PACKAGES
     tree.traverse_table({
       tree = require("doom.modules.utils").extend(),
