@@ -115,6 +115,11 @@
 -- use metatable?
 --
 --------------------------------------
+-- functional chaining
+--
+-- make it possible to
+--
+-- local res = crawl(opts).crawl()
 --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -194,6 +199,10 @@ end
 -- pretty
 --
 local function logger(is_leaf, opts, stack, k, v)
+  -- use table pattern to make the messages more variable and dynamic.
+
+  local msg = { entry = {}, lhs = { data = "", state = "" }, rhs = { data = "", state = "" } }
+
   if not opts.log.use then
     return
   end
@@ -205,16 +214,15 @@ local function logger(is_leaf, opts, stack, k, v)
 
   local cat = opts.log.cat or 2
 
-  local msg = ""
   local all = cat == 1
   local full = cat == 2
   local ind = compute_indentation(stack, " ", opts.log.mult)
 
   -- local ind_str = "+" and is_leaf or "-"
 
-  -- LEAF / BRANCH
+  -- todo: LEAF / BRANCH merge into one statement!!!
   if is_leaf and (all or full or cat == 3) then
-    msg = string.format(
+    msg.entry = string.format(
       [[%s %s > (%s) %s %s]],
       "+",
       compute_indentation(stack, "+", opts.log.mult),
@@ -223,8 +231,9 @@ local function logger(is_leaf, opts, stack, k, v)
       v.val
     )
   end
+
   if not is_leaf and (all or full or cat == 4) then
-    msg = string.format(
+    msg.entry = string.format(
       [[%s %s > (%s) %s %s]],
       "-",
       compute_indentation(stack, "-", opts.log.mult),
@@ -234,75 +243,51 @@ local function logger(is_leaf, opts, stack, k, v)
     )
   end
 
-  -- A. PRINT LEAF/BRANCH HERE --
-
+  print(msg.entry)
   ------------------------------------
 
   local edge_shift = "      "
+  local pre = edge_shift .. ind
 
   -- EDGE
   if all or cat == 5 then
-    local msg_l_inspect = ""
-    local msg_r_inspect = ""
-    local msg_l_state = ""
-    local msg_r_state = ""
-
     -- print(vim.inspect(k.val))
-
 
     for key, value in pairs(k) do
       if key ~= "val" then
-        msg_l_state = msg_l_state .. " / " .. tostring(key) .. ":" .. tostring(value)
+        msg.lhs.state = msg.lhs.state .. pre .. " ls: / " .. tostring(key) .. ":" .. tostring(value)
       else
-        msg_l_inspect = msg_l_inspect .. " / " .. type(value) .. ":" .. value
+        msg.lhs.data = msg.lhs.data .. pre .. " ld: / " .. type(value) .. ":" .. value
       end
     end
 
-
-    -- B. PRINT LEFT --
-
-    -- inspect
-
-    -- state
-
+    if opts.log.inspect then
+      print(msg.lhs.data)
+    end
+    print(msg.lhs.state)
 
     for key, value in pairs(v) do
       if key ~= "val" then
-        msg_r_state = msg_r_state .. " / " .. tostring(key) .. ":" .. tostring(value)
+        msg.rhs.state = msg.rhs.state .. pre .. " rs: / " .. tostring(key) .. ":" .. tostring(value)
       else
         if type(v.val) == "table" then
           for i, j in pairs(value) do
-            msg_r_inspect = msg_r_inspect .. " / " .. i .. ":" .. tostring(j)
+            msg.rhs.data = msg.rhs.data .. pre .. " rd: / " .. i .. ":" .. tostring(j)
           end
         else
-          msg_r_inspect = msg_r_inspect .. " / " .. type(value) .. ":" .. tostring(value)
+          msg.rhs.data = msg.rhs.data .. pre .. " rd: / " .. type(value) .. ":" .. tostring(value)
         end
       end
     end
 
-    -- C. PRINT RIGHT --
-
-    -- inspect
-
-    -- state
-
-
     if opts.log.inspect then
-      msg = msg .. "\n" .. edge_shift .. ind .. " L: " .. msg_l_inspect
+      print(msg.rhs.data)
     end
-    msg = msg .. "\n" .. edge_shift .. ind .. " L: " .. msg_l_state
-    if opts.log.inspect then
-      msg = msg .. "\n" .. edge_shift .. ind .. " R: " .. msg_r_inspect
-    end
-    msg = msg .. "\n" .. edge_shift .. ind .. " R: " .. msg_r_state
+    print(msg.rhs.state)
   end
 
-  -- print(msg)
-
-  -- D. separator
-
   if opts.log.separate then
-    print(" ")
+    print("\n")
   end
 end
 
@@ -523,5 +508,3 @@ M.traverse_table = function(opts, tree, acc)
 end
 
 return M
-
-
