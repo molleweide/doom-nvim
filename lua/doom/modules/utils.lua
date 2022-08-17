@@ -1,7 +1,5 @@
 local M = {}
 
--- FILTER_PROPS: origins, sections, names, enabled
---
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 
 M.extend = function(filter)
@@ -48,17 +46,19 @@ M.extend = function(filter)
     return prep_all_m
   end
 
-  local function merge_with_enabled(allm)
-    local prep_all_m = allm
+  local function merge_with_enabled(prep_all_m)
     local enabled_modules = require("doom.core.modules").enabled_modules
+
     for section_name, section_modules in pairs(enabled_modules) do
       for _, module_name in pairs(section_modules) do
         local search_paths = {
           ("user.modules.%s.%s"):format(section_name, module_name),
           ("doom.modules.%s.%s"):format(section_name, module_name),
         }
+
         for _, path in ipairs(search_paths) do
           local origin = path:sub(1, 4)
+
           if prep_all_m[origin][section_name] ~= nil then
             if prep_all_m[origin][section_name][module_name] ~= nil then
               prep_all_m[origin][section_name][module_name].enabled = true
@@ -74,7 +74,20 @@ M.extend = function(filter)
     return prep_all_m
   end
 
-  return merge_with_enabled(add_meta_data(get_all_module_paths()))
+  local function apply_filters(mods)
+    filter = filter or {}
+    if filter.origins then
+    end
+    if filter.sections then
+    end
+    if filter.names then
+    end
+    if filter.enabled then
+    end
+    return mods
+  end
+
+  return apply_filters(merge_with_enabled(add_meta_data(get_all_module_paths())))
 end
 
 return M
