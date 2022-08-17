@@ -161,10 +161,10 @@ local function make_results()
               return type(r.val.rhs) ~= "table"
             end,
             log = {
-              --   use = true,
+                use = true,
               --   mult = 8,
               --   name_string = "test list modules",
-              --   cat = 1,
+                cat = 1,
               --   -- inspect = true,
               --   frame = true,
               --   separate = true,

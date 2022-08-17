@@ -1,3 +1,75 @@
+--
+--
+--
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--  ARGS | HOW YOU CAN USE CALL `TRAVERSE()`
+--
+-- print(minimumvalue(8,10,23,12,5))
+--
+-- print(minimumvalue(1,2,3))
+--
+-- if # args == 1  -> opts table
+--
+-- if # args = 2 -> opts, acc
+--
+-- if arg1 == string -> edge,
+--
+--
+--
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--
+--  OPTIONS
+--
+--  ::: option (new name ideas) :::
+--
+--  tree (required)
+--  max_level
+--  acc
+--  leaf (do|nodes|node_apply|process_node)
+--  branch (edges|process_edge)
+--
+--  ::: leaf_ids (filter_props) :::
+--
+--      IS THIS A SPECIAL CASE OF `FILTER` BELOW WHERE THE TYPE(ARG) == "TABLE"???.
+--      THIS WOULD SIMPLIFY THINGS QUITE A LOT...
+--
+--      table array containing predefined properties that you know identifies a leaf.
+--      Eg. doom module parts. See `core/spec.module_parts`
+--      pass a list of specific attributes that you know constitutes a leaf node
+--      and filter on this
+--
+--  ::: edge (filter/separator/determine_node) :::
+--
+--      callback determine if tree entry is node or branch
+--
+--      FUNCTION
+--
+--      TABLE
+--
+--      STRING
+--        special keyword  := string|list
+--
+-- -- callback function used to identify a leaf
+-- --
+-- -- special keywords: (string, list)
+--
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+-- TODO
+--
+--------------------------------------
+-- use metatable?
+--
+--------------------------------------
+--
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 local M = {}
 
 --- Concatenates the stack with the leaf node.
@@ -32,6 +104,7 @@ end
 local function compute_indentation(stack, sep, mult)
   local a = ""
   local b = ""
+  mult = mult or 1
   for _ = 1, #stack do
     a = a .. sep
   end
@@ -261,16 +334,6 @@ end
 --    end
 --    return m, mi
 -- end
---
--- print(minimumvalue(8,10,23,12,5))
---
--- print(minimumvalue(1,2,3))
---
--- if # args == 1  -> opts table
---
--- if # args = 2 -> opts, acc
---
--- if arg1 == string -> edge,
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
   tree = opts.tree or tree
