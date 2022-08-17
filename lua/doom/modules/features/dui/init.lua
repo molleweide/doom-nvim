@@ -13,9 +13,11 @@ local doom_ui = {}
 --
 --
 --    - specify theme
---    - change colors
+--    - display > col width
+--    - display > change colors
 --    - list all packages
 --    - CRUD
+--    - visually select the node inside of corresponding module file
 --
 --
 --
