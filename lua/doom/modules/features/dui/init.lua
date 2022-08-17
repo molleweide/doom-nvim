@@ -121,17 +121,21 @@ end
 local function make_results()
   local results = {}
 
+  -- TODO: "MAIN_MENU"
   if DOOM_UI_STATE.query.type == "main_menu" then
     results = tree.traverse_table({
       tree = require("doom.modules.features.dui.results").main_menu,
       edge = "list",
     })
+
+    -- TODO: "DOOM_SETTINGS"
   elseif DOOM_UI_STATE.query.type == "settings" then
     results = tree.traverse_table({
       tree = doom.settings,
       leaf = require("doom.modules.features.dui.results").settings,
       edge = "settings",
     })
+    -- TODO: RENAME "LIST_ALL_MODULES"
   elseif DOOM_UI_STATE.query.type == "modules" then
     results = tree.traverse_table({
       tree = require("doom.modules.utils").extend(),
@@ -201,6 +205,7 @@ local function make_results()
 
     -----------------------------------------------------------------------------
     -----------------------------------------------------------------------------
+    -- feels like this should be a special case of the above "MULT/SINGLE"
   elseif DOOM_UI_STATE.query.type == "all" then
     -- todo: list everything!
   end

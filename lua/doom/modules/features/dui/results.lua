@@ -10,7 +10,7 @@ result_nodes.main_menu = function()
   local doom_menu_items = {
     {
       list_display_props = {
-        { "open user config" },
+        { "OPEN USER CONFIG" },
       },
       mappings = {
         ["<CR>"] = function()
@@ -21,7 +21,7 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "browse user settings" },
+        { "BROWSE USER SETTINGS" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line, cb)
@@ -35,7 +35,7 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "browse all modules" },
+        { "BROWSE ALL MODULES" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)
@@ -51,40 +51,72 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "browse all binds" },
+        { "BROWSE ALL BINDS" },
       },
       mappings = {
-        ["<CR>"] = function() end,
+        ["<CR>"] = function()
+          DOOM_UI_STATE.query = {
+            type = "MULTIPLE_MODULES",
+            origins = { "doom" },
+            -- sections = { "core", "features" },
+            components = { "BINDS" },
+          }
+          -- TODO: FUZZY.VALUE.???
+          DOOM_UI_STATE.selected_component = fuzzy.value
+          DOOM_UI_STATE.next()
+        end,
       },
       ordinal = "binds",
     },
     {
       list_display_props = {
-        { "browse all autocmds" },
+        { "BROWSE ALL AUTOCMDS" },
       },
       mappings = {
-        ["<CR>"] = function() end,
+        ["<CR>"] = function()
+          DOOM_UI_STATE.query = {
+            type = "MULTIPLE_MODULES",
+            origins = { "doom" },
+            -- sections = { "core", "features" },
+            components = { "CMDS" },
+          }
+          -- TODO: FUZZY.VALUE.???
+          DOOM_UI_STATE.selected_component = fuzzy.value
+          DOOM_UI_STATE.next()
+        end,
       },
       ordinal = "autocmds",
     },
     {
       list_display_props = {
-        { "browse all cmds" },
+        { "BROWSE ALL CMDS" },
       },
       mappings = {
-        ["<CR>"] = function() end,
+        ["<CR>"] = function()
+          DOOM_UI_STATE.query = {
+            type = "MULTIPLE_MODULES",
+            origins = { "doom" },
+            -- sections = { "core", "features" },
+            components = { "CMDS" },
+          }
+          -- TODO: FUZZY.VALUE.???
+          DOOM_UI_STATE.selected_component = fuzzy.value
+          DOOM_UI_STATE.next()
+        end,
       },
       ordinal = "cmds",
     },
     {
       list_display_props = {
-        { "browse all packages" },
+        { "BROWSE ALL PACKAGES" },
       },
       mappings = {
         ["<CR>"] = function()
           DOOM_UI_STATE.query = {
-            type = "ALL_MODULES_SINGLE_COMPONENT",
-            -- components = {}
+            type = "MULTIPLE_MODULES",
+            origins = { "doom" },
+            sections = { "core", "features" },
+            components = { "PACKAGES" },
           }
 
           -- TODO: FUZZY.VALUE.???
@@ -97,14 +129,16 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "browse all jobs" },
+        { "BROWSE ALL JOBS" },
       },
       mappings = {
         ["<CR>"] = function() end,
       },
+      ordinal = "jobs"
     },
   }
 
+  -- REFACTOR: into titles for main menu
   for k, v in pairs(doom_menu_items) do
     table.insert(v.list_display_props, 1, { "MAIN" })
     v["type"] = "doom_main_menu"
@@ -148,10 +182,8 @@ result_nodes.modules = function(_, _, module)
         type = "MODULE_COMPONENT",
         -- components = {}
       }
-
       -- TODO: FUZZY.VALUE.???
       DOOM_UI_STATE.selected_component = fuzzy.value
-
       DOOM_UI_STATE.next()
     end,
   }
