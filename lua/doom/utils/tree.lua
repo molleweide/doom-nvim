@@ -219,8 +219,9 @@ local function logger(is_leaf, opts, stack, k, v)
   local ind = compute_indentation(stack, " ", opts.log.mult)
   local edge_shift = "      "
   local pre = edge_shift .. ind
+  local points_to = " : "
 
-  local post_sep = new_line and "" or " / "
+  local post_sep = opts.log.new_line and ("\n     " .. pre) or " / "
 
   -- local ind_str = "+" and is_leaf or "-"
 
@@ -250,15 +251,13 @@ local function logger(is_leaf, opts, stack, k, v)
   print(msg.entry)
   ------------------------------------
 
-  -- TODO: IF NEW LINE INSERT NEW LINE BEFORE EACH PROP
-
   if all or cat == 5 then
     msg.lhs = { data = "", state = "" }
     for key, value in pairs(k) do
       if key ~= "val" then
-        msg.lhs.state = msg.lhs.state .. tostring(key) .. ":" .. tostring(value) .. post_sep
+        msg.lhs.state = msg.lhs.state .. tostring(key) .. points_to .. tostring(value) .. post_sep
       else
-        msg.lhs.data = msg.lhs.data .. type(value) .. ":" .. value .. post_sep
+        msg.lhs.data = msg.lhs.data .. type(value) .. points_to .. value
       end
     end
     if opts.log.inspect then
@@ -269,14 +268,14 @@ local function logger(is_leaf, opts, stack, k, v)
     msg.rhs = { data = "", state = "" }
     for key, value in pairs(v) do
       if key ~= "val" then
-        msg.rhs.state = msg.rhs.state .. tostring(key) .. ":" .. tostring(value) .. post_sep
+        msg.rhs.state = msg.rhs.state .. tostring(key) .. points_to .. tostring(value) .. post_sep
       else
         if type(v.val) == "table" then
           for i, j in pairs(value) do
-            msg.rhs.data = msg.rhs.data .. i .. ":" .. tostring(j) .. post_sep
+            msg.rhs.data = msg.rhs.data .. i .. points_to .. tostring(j) .. post_sep
           end
         else
-          msg.rhs.data = msg.rhs.data .. type(value) .. ":" .. tostring(value) .. post_sep
+          msg.rhs.data = msg.rhs.data .. type(value) .. points_to .. tostring(value)
         end
       end
     end
