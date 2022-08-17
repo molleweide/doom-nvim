@@ -10,29 +10,48 @@
 --
 -- print(minimumvalue(1,2,3))
 --
+--
 -- # 0 --------------------------
 --
 --    crawl default tree > requires setup configuration
 --
 --
--- # 1 AND TABLE --------------------------
+-- # 1 -------------------------------------------------------
 --
---    pass options
+--    1 table = options
 --
--- # 1 AND STRING --------------------------
+--    1 string = filter default
+--      load `string` defaults
 --
---    load `string` defaults
---
--- # 1 AND FUNC --------------------------
+--    1 func = returns options table
 --
 --
--- # 2 AND (TABLE, TABLE)
+-- # 2 -------------------------------------------------------
 --
---      1 = options,
---      2 = accumulator
+--      1 table = options,
+--      2 table = accumulator
 --
--- if arg1 == string -> edge,
+--      1 table = opts
+--      2 string = filter
 --
+--      1 table
+--      2 function
+--
+--
+-- # 3 -------------------------------------------------------
+--
+--      acc = crawl(tree, filter, acc)
+--
+--      1 table = tree
+--      2 function|string' =
+--      3 table = accumulator
+--
+--      allows for quickly traversing a tree and flattening out all nodes
+--      to a list easilly
+--
+-- _WARNING: if you are using a string filter arg, you have to make sure it is
+-- one of the special keywords, or it will be treated as a match string for
+-- computing nodes, see XXX.
 --
 --
 -------------------------------------------------------------------------------
