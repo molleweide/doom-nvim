@@ -37,7 +37,7 @@ local doom_ui = {}
 --    - properly use the options object
 --    - ovrerride actions properly.
 --
---
+--  NOTE: SCREEN RECORD GIF AND POST MY PROGRESS UNDER DOOM-NVIM
 --
 --
 -- is default mode -> insert working properly now?

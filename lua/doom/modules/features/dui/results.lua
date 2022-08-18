@@ -4,9 +4,27 @@ local ax = require("doom.modules.features.dui.actions")
 -- and then store all related customization to each component in the
 -- same file SO that this file doesn't become insanely huge...
 
-local result_nodes = {}
+--
+-- HELPERS
+--
 
--- TODO: READ DOCS ON ENTRY_DISPLAY -> ADD PROPS FOR EACH OPTION TO ALL DOOM COMPONENTS
+-- main_menu = surround_with("<<" , ">>", doom_menu_items)
+local function surround_with_chars(t_items, search_string, start_char, end_char)
+  --   - shift with s
+  --   - insert with e
+  --   - ???? find entry by search string -> add custom surround chars for each entry
+  --
+end
+
+local function extend_entries()
+  -- add the same highlighting group for all items.
+end
+
+--
+-- COMPONENTS
+--
+
+local result_nodes = {}
 
 --
 -- MAIN
@@ -33,16 +51,6 @@ local result_nodes = {}
 -- 5. wrap menu in symbols
 
 result_nodes.main_menu = function()
-  -- if we use a custom displayer config then this is not necessary.
-  --
-  -- main_menu = surround_with("<<" , ">>", doom_menu_items)
-  local function surround_with_chars(t_items, search_string, start_char, end_char)
-    --   - shift with s
-    --   - insert with e
-    --   - ???? find entry by search string -> add custom surround chars for each entry
-    --
-  end
-
   -- how can I test and use this?
   local main_menu = {
     theme = require("telescope.themes").get_cursor(),
@@ -50,6 +58,8 @@ result_nodes.main_menu = function()
     displayer = function(ldp) -- i believe that I'll recieve the `list_display_props` for each entry here
       return {
         separator = function() end, -- menu has no sep
+
+        -- use *nvim-treesitter-highlights* groups for colors
         items = function() end,
         -- {
         --   separator = "▏",
@@ -66,12 +76,13 @@ result_nodes.main_menu = function()
       }
     end,
     ordinal = function() end,
+    entries = {},
   }
 
   local doom_menu_items = {
     {
       list_display_props = {
-        { "OPEN USER CONFIG" },
+        { "OPEN USER CONFIG", "TSBoolean" },
       },
       mappings = {
         ["<CR>"] = function()
@@ -82,7 +93,7 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "BROWSE USER SETTINGS" },
+        { "BROWSE USER SETTINGS", "TSError" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line, cb)
@@ -96,7 +107,7 @@ result_nodes.main_menu = function()
     },
     {
       list_display_props = {
-        { "BROWSE ALL MODULES" },
+        { "BROWSE ALL MODULES", "TSKeyword" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)

@@ -14,7 +14,7 @@ telescope.settings = {
     },
     initial_mode = "insert",
     selection_strategy = "reset",
-    sorting_strategy = "descending",
+    sorting_strategy = "ascending",
     layout_strategy = "horizontal",
     prompt_prefix = "   ",
     layout_config = {
@@ -29,10 +29,10 @@ telescope.settings = {
       },
     },
     file_ignore_patterns = { "^%.git/", "^node_modules/", "^__pycache__/" },
-    winblend = 25,
+    winblend = 18,
     wrap_results = true,
     scroll_strategy = "cycle",
-    border = false, -- {},
+    border = {},
     borderchars = {
       "─",
       "│",
