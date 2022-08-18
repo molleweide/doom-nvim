@@ -1,6 +1,7 @@
 local M = {}
 
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
+--    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.
 
 M.extend = function(filter)
   filter = filter or {}

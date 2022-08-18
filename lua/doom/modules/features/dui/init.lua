@@ -1,23 +1,33 @@
+-- local pickers = require("telescope.pickers")
+-- local finders = require("telescope.finders")
+-- local conf = require("telescope.config").values -- allows us to use the values from the users config
+-- local entry_display = require("telescope.pickers.entry_display")
+-- local actions_set = require("telescope.actions.set")
+-- local state = require("telescope.actions.state")
+-- local previewers = require("telescope.previewers")
+
 local tree = require("doom.utils.tree")
 
 local doom_ui = {}
 
 -- TODO:
 --
---
---
---    - capitalize query types. easier to read
+--    - TODO: capitalize query types so that I know what I am dealing with.
 --
 --    - specify theme
 --    - display > col width
 --    - display > change colors
 --    - list all packages
 --
+--    MAPPINGS: write a cb that facilitates per entry mappings.
+--    i. create an issue and ask about this feature, if this is already impl.
+--    ii. show my use case and see what response I'll get.
+--
 --    - CRUD
 --
 --    - visually select the node inside of corresponding module file
 --
---
+--    - custom legend depending on what entry is under cursor
 --
 --    -> CHECK OUT `LEGENDARY` SOURCE AND SEE HOW THE DISPLAYER IS CONFIGURED.
 --
@@ -26,6 +36,17 @@ local doom_ui = {}
 --    - native fuzzy
 --    - properly use the options object
 --    - ovrerride actions properly.
+--
+-- QUESTIONS:
+--
+-- @max397
+--
+--    Do you have any suggestions on how to attach
+--    custom mappings on a `per results entry` basis in a slim and nice way?
+--    Eg if you list all module components. how do I pass each results mapping
+--    to each entry mapping?
+--    So that eg. <C-a> would execute a different mapping for each component entry.
+--
 --
 
 local function goback(prompt_bufnr, map)
@@ -51,8 +72,13 @@ end
 --
 
 -- TODO: make this dynamic / add display configs to each parts result maker.
+-- -> add a callback to each doom component
 local function doom_displayer(entry)
   local entry_display = require("telescope.pickers.entry_display")
+
+  -- TODO: refactor into `make_entry` and create a custom config table per each results component.
+  --
+  -- entry_display.create(components[x] or default {...})
   local displayer = entry_display.create({
     separator = "▏",
     items = {
@@ -65,8 +91,11 @@ local function doom_displayer(entry)
       { remaining = true },
     },
   })
-  local make_display = function(entry)
-    return displayer(entry.value.list_display_props)
+  local make_display = function(display_entry)
+    -- I can custom transform each entry here if I like.
+    -- Eg. I could do the `char surrounding` here instead if inside each
+    -- component config. What would be smart to do here?
+    return displayer(display_entry.value.list_display_props)
   end
   return {
     value = entry,
@@ -254,6 +283,7 @@ local function doom_picker()
         fuzzy.value.mappings["<CR>"](fuzzy, line)
       end)
 
+      -- TODO: custom entry mappings AND function that maps entries to keys here.
       map("i", "<C-a>", function()
         local fuzzy, line = picker_get_state(prompt_bufnr)
         require("telescope.actions").close(prompt_bufnr)

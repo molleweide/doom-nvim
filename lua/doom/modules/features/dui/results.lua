@@ -1,12 +1,68 @@
 local ax = require("doom.modules.features.dui.actions")
 
+-- TODO: rename this file to `components/<comp_N>.lua`
+-- and then store all related customization to each component in the
+-- same file SO that this file doesn't become insanely huge...
+
 local result_nodes = {}
+
+-- TODO: READ DOCS ON ENTRY_DISPLAY -> ADD PROPS FOR EACH OPTION TO ALL DOOM COMPONENTS
 
 --
 -- MAIN
 --
+-- TODO:
+--
+-- return table
+-- {
+--  theme = string | function,
+--  entry_display_config = table | function,
+--  results = table | function,
+--  global_mappings = table | function,
+-- }
+--
+-- 1. center items
+-- 2. theme: cursor OR center screen
+-- 3. disable -> mult selection!!!
+-- 4. remove selection left-side cursor symbol.
+-- 5. wrap menu in symbols
 
 result_nodes.main_menu = function()
+  -- if we use a custom displayer config then this is not necessary.
+  --
+  -- main_menu = surround_with("<<" , ">>", doom_menu_items)
+  local function surround_with_chars(t_items, search_string, start_char, end_char)
+    --   - shift with s
+    --   - insert with e
+    --   - ???? find entry by search string -> add custom surround chars for each entry
+    --
+  end
+
+  -- how can I test and use this?
+  local main_menu = {
+    theme = require("telescope.themes").get_cursor(),
+    -- configurates the display for a single results entry. -> each entry can hold any number of entries
+    displayer = function(ldp) -- i believe that I'll recieve the `list_display_props` for each entry here
+      return {
+        separator = function() end, -- menu has no sep
+        items = function() end,
+        -- {
+        --   separator = "▏",
+        --   items = {
+        --     { width = 10 },
+        --     { width = 20 },
+        --     { width = 20 },
+        --     { width = 20 },
+        --     { width = 20 },
+        --     { width = 20 },
+        --     { remaining = true },
+        --   },
+        -- },
+      }
+    end,
+    ordinal = function() end,
+  }
+
   local doom_menu_items = {
     {
       list_display_props = {
@@ -134,16 +190,16 @@ result_nodes.main_menu = function()
       mappings = {
         ["<CR>"] = function() end,
       },
-      ordinal = "jobs"
+      ordinal = "jobs",
     },
   }
 
-  -- REFACTOR: into titles for main menu
-  for k, v in pairs(doom_menu_items) do
-    table.insert(v.list_display_props, 1, { "MAIN" })
-    v["type"] = "doom_main_menu"
-    -- i(v)
-  end
+  -- -- REFACTOR: into titles for main menu
+  -- for k, v in pairs(doom_menu_items) do
+  --   table.insert(v.list_display_props, 1, { "MAIN" })
+  --   v["type"] = "doom_main_menu"
+  --   -- i(v)
+  -- end
 
   -- i(doom_menu_items)
 
