@@ -37,6 +37,15 @@ local doom_ui = {}
 --    - properly use the options object
 --    - ovrerride actions properly.
 --
+--
+--
+--
+-- is default mode -> insert working properly now?
+--
+--
+-- configure `opts.history` to see if this can be used to navigate menus?
+--
+--
 -- QUESTIONS:
 --
 -- @max397
@@ -76,10 +85,7 @@ end
 local function doom_displayer(entry)
   local entry_display = require("telescope.pickers.entry_display")
 
-  -- TODO: refactor into `make_entry` and create a custom config table per each results component.
-  --
-  -- entry_display.create(components[x] or default {...})
-  local displayer = entry_display.create({
+  local default = {
     separator = "▏",
     items = {
       { width = 10 },
@@ -90,7 +96,13 @@ local function doom_displayer(entry)
       { width = 20 },
       { remaining = true },
     },
-  })
+  }
+
+  -- TODO: refactor into `make_entry` and create a custom config table per each results component.
+  --
+  -- entry_display.create(components[x] or default {...})
+  local displayer = entry_display.create(default)
+
   local make_display = function(display_entry)
     -- I can custom transform each entry here if I like.
     -- Eg. I could do the `char surrounding` here instead if inside each

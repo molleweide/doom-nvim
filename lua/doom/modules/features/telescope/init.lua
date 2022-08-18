@@ -18,9 +18,10 @@ telescope.settings = {
     layout_strategy = "horizontal",
     prompt_prefix = "   ",
     layout_config = {
-      width = 0.75,
+      -- TODO: add center prompt text on each key press
+      width = 0.80,
       preview_cutoff = 120,
-      prompt_position = "bottom",
+      prompt_position = "top",
       vertical = { mirror = false },
       horizontal = {
         mirror = false,
@@ -28,9 +29,10 @@ telescope.settings = {
       },
     },
     file_ignore_patterns = { "^%.git/", "^node_modules/", "^__pycache__/" },
-    winblend = 0,
+    winblend = 25,
+    wrap_results = true,
     scroll_strategy = "cycle",
-    border = {},
+    border = false, -- {},
     borderchars = {
       "─",
       "│",
@@ -42,8 +44,9 @@ telescope.settings = {
       "╰",
     },
     color_devicons = true,
-    use_less = true,
+    use_less = true, -- deprecated option > remove?
     set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+    -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
   },
   extensions = { "mapper" },
 }

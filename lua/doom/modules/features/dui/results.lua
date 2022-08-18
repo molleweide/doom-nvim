@@ -21,10 +21,15 @@ local result_nodes = {}
 --  global_mappings = table | function,
 -- }
 --
+-- 0. highlights
+--
+--    paste neorgx into `config.lua`
+--      run picker
+--        understand how highlights are applied?
 -- 1. center items
 -- 2. theme: cursor OR center screen
 -- 3. disable -> mult selection!!!
--- 4. remove selection left-side cursor symbol.
+-- 4. disable `selection_caret`
 -- 5. wrap menu in symbols
 
 result_nodes.main_menu = function()

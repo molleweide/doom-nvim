@@ -111,7 +111,7 @@ return {
 
   -- sequences used for escaping insert mode
   -- @default = { 'jk', 'kj' }
-  escape_sequences = {"zm"},
+  escape_sequences = { "zm" },
 
   -- If you require a specific command to be run when initiating the terminal
   -- @default = ""
@@ -200,6 +200,15 @@ return {
     confirm = "<CR>",
     tab = "<Tab>",
     stab = "<S-Tab>",
+  },
+
+  mappings = {
+    completion_binds = {},
+    telescope = {
+      -- i = {
+      --   ["<esc>"] = require("telescope.actions").close,
+      -- },
+    },
   },
 
   -- Automatically reload local plugins during development
