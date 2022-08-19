@@ -329,7 +329,6 @@ end
 --
 -- local components_module = {
 --   main_menu_entries = {
---     opts,
 --     displayer,
 --     entries_list
 --   },
@@ -357,8 +356,6 @@ local result_nodes = {}
 --
 -- MAIN
 --
--- TODO:
---
 -- return table
 -- {
 --  theme = string | function,
@@ -367,24 +364,15 @@ local result_nodes = {}
 --  tree_node_cb,
 -- }
 --
--- 0. highlights
---
---    paste neorgx into `config.lua`
---      run picker
---        understand how highlights are applied?
--- 1. center items
--- 2. theme: cursor OR center screen
--- 3. disable -> mult selection!!!
--- 4. disable `selection_caret`
--- 5. wrap menu in symbols
 
 -- components.main_menu
 --
--- todo: use components = {
+-- todo: use doom_component_classes = {
 --   ["doom_main_menu"] = {
---     theme,
---     displayer,
---     ordinal,
+--     display = {
+--        displayer,
+--        ordinal,
+--     },
 --     entries_list | entry_single,
 --   }
 -- }
@@ -415,9 +403,8 @@ result_nodes.main_menu = function()
     -- be accessed dynamically in the displayer function. The I wouldn't need to configure it here.
     --
     entries = entries_surround_with("<<", ">>", {
-      -- ALL ENTRIES NEED TO BE EXTENDED WITH THE COMPONENT TYPE NAME OR THE DISPLAYER FUNC REFERENCE SO THAT
-      -- IT CAN BE REACHED IN THE DISPLAY MAKER IN THE PICKER
       -- extend_entries(
+      --  -- what would be some good things to extend with?
       {
         -- RENAME: DISPLAY_ITEMS
         list_display_props = {
@@ -504,7 +491,7 @@ result_nodes.main_menu = function()
       },
       {
         list_display_props = {
-          { "BROWSE ALL CMDS" },
+          { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
         },
         mappings = {
           ["<CR>"] = function()
@@ -523,7 +510,7 @@ result_nodes.main_menu = function()
       },
       {
         list_display_props = {
-          { "BROWSE ALL PACKAGES" },
+          { "BROWSE ALL PACKAGES" }, --
         },
         mappings = {
           ["<CR>"] = function()
@@ -543,13 +530,16 @@ result_nodes.main_menu = function()
       },
       {
         list_display_props = {
-          { "BROWSE ALL JOBS" },
+          { "BROWSE ALL JOBS" }, -- browse job definitions
         },
         mappings = {
           ["<CR>"] = function() end,
         },
         ordinal = "jobs",
       },
+      -- {
+      --   -- list running jobs
+      -- },
     }),
   }
 

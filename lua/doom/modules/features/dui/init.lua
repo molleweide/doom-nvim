@@ -85,11 +85,7 @@ local function doom_displayer(entry)
     },
   }
 
-  -- TODO: refactor into `make_entry` and create a custom config table per each results component.
-  --
   -- entry_display.create(components[x] or default {...})
-  --
-  --
   -- entry_display.create(components[entry.name].displayer(entry) or default)
   local displayer = entry_display.create(default)
 
@@ -310,11 +306,12 @@ end
 -- UI STATE
 --
 
--- query definition
+-- QUERY DEFINITION
 --
 --  {
 --    type, -- determines what types of data should be collected for listing in the picker.
 --    topts, -- telescope config overrides
+--    filters,
 --  }
 
 DOOM_UI_STATE = {
@@ -345,7 +342,10 @@ doom_ui.cmds = {
       DOOM_UI_STATE.query = {
         type = "MAIN_MENU",
         topts = {
+          -- how can one center the text as to make a centered menu on screen.
           theme = require("telescope.themes").get_cursor(),
+          -- disable_caret = true,
+          -- todo: disable multible selection?
         },
       } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
       DOOM_UI_STATE.next()
