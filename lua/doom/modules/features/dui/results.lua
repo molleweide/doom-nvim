@@ -439,7 +439,7 @@ result_nodes.main_menu = function()
             components = { "BINDS" },
           }
           -- TODO: FUZZY.VALUE.???
-          DOOM_UI_STATE.selected_component = fuzzy.value
+          -- DOOM_UI_STATE.selected_component = fuzzy.value
           DOOM_UI_STATE.next()
         end,
       },
@@ -458,7 +458,7 @@ result_nodes.main_menu = function()
             components = { "CMDS" },
           }
           -- TODO: FUZZY.VALUE.???
-          DOOM_UI_STATE.selected_component = fuzzy.value
+          -- DOOM_UI_STATE.selected_component = fuzzy.value
           DOOM_UI_STATE.next()
         end,
       },
@@ -496,8 +496,7 @@ result_nodes.main_menu = function()
             components = { "PACKAGES" },
           }
 
-          -- TODO: FUZZY.VALUE.???
-          DOOM_UI_STATE.selected_component = fuzzy.value
+          -- DOOM_UI_STATE.selected_component = fuzzy.value
 
           DOOM_UI_STATE.next()
         end,

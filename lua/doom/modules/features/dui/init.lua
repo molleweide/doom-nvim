@@ -10,50 +10,40 @@ local tree = require("doom.utils.tree")
 
 local doom_ui = {}
 
+-- is default mode -> insert working properly now?
+--
 -- TODO:
 --
---    - impl `component` table pattern
---    - capitalize query types so that I know what I am dealing with.
---    - list all doom module packages
+--    - 1. impl `component` table pattern
+--    - 2. capitalize query types so that I know what I am dealing with.
+--    - 3. list packages across all modules
+--    - history -> configure `opts.history` to see if this can be used to navigate menus?
 --
 --    MAPPINGS: write a cb that facilitates per entry mappings.
 --    i. create an issue and ask about this feature, if this is already impl.
 --    ii. show my use case and see what response I'll get.
 --
---    - CRUD
---
---    - visually select the node inside of corresponding module file
---
---    - custom legend depending on what entry is under cursor
+--    - 1. CRUD
+--    - 2. visually select the node inside of corresponding module file
+--    - 3. custom legend depending on what entry is under cursor
 --
 --    -> CHECK OUT `LEGENDARY` SOURCE AND SEE HOW THE DISPLAYER IS CONFIGURED.
 --
---    - sorters
---    - displayers
---    - native fuzzy
---    - properly use the options object
---    - ovrerride actions properly.
---
 --  NOTE: SCREEN RECORD GIF AND POST MY PROGRESS UNDER DOOM-NVIM
---
---
--- is default mode -> insert working properly now?
---
---
--- configure `opts.history` to see if this can be used to navigate menus?
 --
 --
 -- QUESTIONS:
 --
 -- @max397
 --
+--
+--    show multiple types of data -> dynamic mappings per entry.
+--
 --    Do you have any suggestions on how to attach
 --    custom mappings on a `per results entry` basis in a slim and nice way?
 --    Eg if you list all module components. how do I pass each results mapping
 --    to each entry mapping?
 --    So that eg. <C-a> would execute a different mapping for each component entry.
---
---
 
 local function goback(prompt_bufnr, map)
   return map("i", "<C-z>", function(prompt_bufnr)
