@@ -12,12 +12,9 @@ local doom_ui = {}
 
 -- TODO:
 --
---    - TODO: capitalize query types so that I know what I am dealing with.
---
---    - specify theme
---    - display > col width
---    - display > change colors
---    - list all packages
+--    - impl `component` table pattern
+--    - capitalize query types so that I know what I am dealing with.
+--    - list all doom module packages
 --
 --    MAPPINGS: write a cb that facilitates per entry mappings.
 --    i. create an issue and ask about this feature, if this is already impl.

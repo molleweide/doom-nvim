@@ -1,5 +1,10 @@
 local ax = require("doom.modules.features.dui.actions")
 
+-- local components = {
+--   main_menu = {},
+--   modules = {},
+-- }
+
 -- TODO: rename this file to `components/<comp_N>.lua`
 -- and then store all related customization to each component in the
 -- same file SO that this file doesn't become insanely huge...
@@ -35,8 +40,8 @@ local result_nodes = {}
 -- {
 --  theme = string | function,
 --  entry_display_config = table | function,
---  results = table | function,
---  global_mappings = table | function,
+--  all_results = {},
+--  tree_node_cb,
 -- }
 --
 -- 0. highlights
@@ -50,6 +55,7 @@ local result_nodes = {}
 -- 4. disable `selection_caret`
 -- 5. wrap menu in symbols
 
+-- components.main_menu
 result_nodes.main_menu = function()
   -- how can I test and use this?
   local main_menu = {
@@ -226,6 +232,16 @@ end
 -- MODULES
 --
 
+-- result_nodes.modules = function()
+--   local modules_component = {
+--    themes = ,
+--     displayer = ,
+--     ordinal = ,
+--     tree_node_cb = function(_, _, module)
+--     end
+--   }
+-- end
+
 result_nodes.modules = function(_, _, module)
   module["ordinal"] = module.name -- connect strings to make it easy to search modules. improve how?
   module["list_display_props"] = {
@@ -261,6 +277,20 @@ result_nodes.modules = function(_, _, module)
   }
   return module
 end
+
+--
+-- SETTINGS
+--
+
+-- result_nodes.modules = function()
+--   local modules_component = {
+--    themes = ,
+--     displayer = ,
+--     ordinal = ,
+--     tree_node_cb = function(_, _, module)
+--     end
+--   }
+-- end
 
 result_nodes.settings = function(stack, k, v)
   -- collect table_path back to setting in original table
@@ -315,6 +345,16 @@ end
 --
 -- PACKAGES
 --
+
+-- result_nodes.modules = function()
+--   local modules_component = {
+--    themes = ,
+--     displayer = ,
+--     ordinal = ,
+--     tree_node_cb = function(_, _, module)
+--     end
+--   }
+-- end
 
 result_nodes.packages = function(_, k, v)
   local spec = v
