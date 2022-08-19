@@ -312,12 +312,14 @@ local ax = require("doom.modules.features.dui.actions")
 -- HELPERS
 --
 
--- main_menu = surround_with("<<" , ">>", doom_menu_items)
-local function surround_with_chars(t_items, search_string, start_char, end_char)
-  --   - shift with s
-  --   - insert with e
-  --   - ???? find entry by search string -> add custom surround chars for each entry
-  --
+-- TODO: rename create entry and add metatable with the `surround char` and other features built into it
+--
+-- will this work with single-entry tables, eg. `packages` template below?
+local function entries_surround_with(t_items, start_char, end_char, search_string)
+  for i, item in pairs(t_items) do
+    table.insert(item, 1, start_char)
+    table.insert(item, end_char)
+  end
 end
 
 local function extend_entries()
@@ -365,23 +367,156 @@ result_nodes.main_menu = function()
         separator = function() end, -- menu has no sep
 
         -- use *nvim-treesitter-highlights* groups for colors
-        items = function() end,
-        -- {
-        --   separator = "▏",
-        --   items = {
-        --     { width = 10 },
-        --     { width = 20 },
-        --     { width = 20 },
-        --     { width = 20 },
-        --     { width = 20 },
-        --     { width = 20 },
-        --     { remaining = true },
-        --   },
-        -- },
+        -- play around with anonymous function generation
+        items = (function()
+          return {
+            separator = "▏",
+            items = {
+              { width = 10 },
+              { width = 20 },
+              { width = 20 },
+              { width = 20 },
+              { width = 20 },
+              { width = 20 },
+              { remaining = true },
+            },
+          }
+        end)(),
       }
     end,
     ordinal = function() end,
-    entries = {},
+    -- maybe I should add displayer configs to each entry in the entries table so that this can
+    -- be accessed dynamically in the displayer function. The I wouldn't need to configure it here.
+    --
+    entries = entries_surround_with("<<", ">>", {
+      {
+        list_display_props = {
+          { "OPEN USER CONFIG", "TSBoolean" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            vim.cmd(("e %s"):format(require("doom.core.config").source))
+          end,
+        },
+        ordinal = "userconfig",
+      },
+      {
+        list_display_props = {
+          { "BROWSE USER SETTINGS", "TSError" },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            DOOM_UI_STATE.query = {
+              type = "settings",
+            }
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "usersettings",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL MODULES", "TSKeyword" },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line)
+            DOOM_UI_STATE.query = {
+              type = "modules",
+              -- origins = {},
+              -- categories = {},
+            }
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "modules",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL BINDS" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "BINDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "binds",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL AUTOCMDS" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "CMDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "autocmds",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL CMDS" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "CMDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "cmds",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL PACKAGES" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              sections = { "core", "features" },
+              components = { "PACKAGES" },
+            }
+
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "packages",
+      },
+      {
+        list_display_props = {
+          { "BROWSE ALL JOBS" },
+        },
+        mappings = {
+          ["<CR>"] = function() end,
+        },
+        ordinal = "jobs",
+      },
+    }),
   }
 
   local doom_menu_items = {
