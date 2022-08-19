@@ -307,15 +307,30 @@ local ax = require("doom.modules.features.dui.actions")
 --
 -- will this work with single-entry tables, eg. `packages` template below?
 local function entries_surround_with(start_char, end_char, t_items, search_string)
-  for i, item in pairs(t_items) do
-    table.insert(item, 1, start_char)
-    table.insert(item, end_char)
+  for i, _ in pairs(t_items) do
+    table.insert(t_items[i], 1, start_char)
+    table.insert(t_items[i], end_char)
   end
+  return t_items
 end
 
 local function extend_entries(...)
-  -- add the same highlighting group for all items.
-  return ...
+  -- if single string -> then just add the highlight group
+  local args = { ... }
+
+  if args[1].hl then
+    for i, _ in ipairs(args) do
+      if i > 1 then
+        table.insert(args[i], args[1].hl)
+      end
+      -- if val < m then
+      --    mi = i
+      --    m = val
+      -- end
+    end
+  end
+
+  return args
 end
 
 --
@@ -379,7 +394,7 @@ local result_nodes = {}
 
 result_nodes.main_menu = function()
   local main_menu = {
-    displayer = function(entry) -- i believe that I'll recieve the `list_display_props` for each entry here
+    displayer = function(entry) -- i believe that I'll recieve the `items` for each entry here
       return {
         -- separator = " | ",
         items = (function()
@@ -387,9 +402,6 @@ result_nodes.main_menu = function()
             separator = "▏",
             items = {
               { width = 10 },
-              { width = 20 },
-              { width = 20 },
-              { width = 20 },
               { width = 20 },
               { width = 20 },
               { remaining = true },
@@ -402,12 +414,11 @@ result_nodes.main_menu = function()
     -- maybe I should add displayer configs to each entry in the entries table so that this can
     -- be accessed dynamically in the displayer function. The I wouldn't need to configure it here.
     --
-    entries = entries_surround_with("<<", ">>", {
-      -- extend_entries(
-      --  -- what would be some good things to extend with?
-      {
-        -- RENAME: DISPLAY_ITEMS
-        list_display_props = {
+    entries = entries_surround_with({ "<<", "TSComment" }, { ">>", "TSComment" }, {
+      -- if this is invalid for populating a table > then I can use table.insert to insert
+      -- all sublists.
+      extend_entries({ hl = "TSBoolean" }, {
+        items = {
           { "OPEN USER CONFIG", "TSBoolean" },
         },
         mappings = {
@@ -416,13 +427,17 @@ result_nodes.main_menu = function()
           end,
         },
         ordinal = "userconfig",
-      },
-      --   {
-      --   -- TODO: open settings file
-      -- }
-      -- ),
+      }, {
+        items = {
+          { "OPEN USER SETTINGS", "TSBoolean" },
+        },
+        mappings = {
+          ["<CR>"] = function() end,
+        },
+        ordinal = "usersettings",
+      }),
       {
-        list_display_props = {
+        items = {
           { "BROWSE USER SETTINGS", "TSError" },
         },
         mappings = {
@@ -436,7 +451,7 @@ result_nodes.main_menu = function()
         ordinal = "usersettings",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL MODULES", "TSKeyword" },
         },
         mappings = {
@@ -452,7 +467,7 @@ result_nodes.main_menu = function()
         ordinal = "modules",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL BINDS" },
         },
         mappings = {
@@ -471,7 +486,7 @@ result_nodes.main_menu = function()
         ordinal = "binds",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL AUTOCMDS" },
         },
         mappings = {
@@ -490,7 +505,7 @@ result_nodes.main_menu = function()
         ordinal = "autocmds",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
         },
         mappings = {
@@ -509,7 +524,7 @@ result_nodes.main_menu = function()
         ordinal = "cmds",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL PACKAGES" }, --
         },
         mappings = {
@@ -529,7 +544,7 @@ result_nodes.main_menu = function()
         ordinal = "packages",
       },
       {
-        list_display_props = {
+        items = {
           { "BROWSE ALL JOBS" }, -- browse job definitions
         },
         mappings = {
@@ -545,7 +560,7 @@ result_nodes.main_menu = function()
 
   local doom_menu_items = {
     {
-      list_display_props = {
+      items = {
         { "OPEN USER CONFIG", "TSBoolean" },
       },
       mappings = {
@@ -556,7 +571,7 @@ result_nodes.main_menu = function()
       ordinal = "userconfig",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE USER SETTINGS", "TSError" },
       },
       mappings = {
@@ -570,7 +585,7 @@ result_nodes.main_menu = function()
       ordinal = "usersettings",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL MODULES", "TSKeyword" },
       },
       mappings = {
@@ -586,7 +601,7 @@ result_nodes.main_menu = function()
       ordinal = "modules",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL BINDS" },
       },
       mappings = {
@@ -605,7 +620,7 @@ result_nodes.main_menu = function()
       ordinal = "binds",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL AUTOCMDS" },
       },
       mappings = {
@@ -624,7 +639,7 @@ result_nodes.main_menu = function()
       ordinal = "autocmds",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL CMDS" },
       },
       mappings = {
@@ -643,7 +658,7 @@ result_nodes.main_menu = function()
       ordinal = "cmds",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL PACKAGES" },
       },
       mappings = {
@@ -663,7 +678,7 @@ result_nodes.main_menu = function()
       ordinal = "packages",
     },
     {
-      list_display_props = {
+      items = {
         { "BROWSE ALL JOBS" },
       },
       mappings = {
@@ -692,7 +707,7 @@ end
 
 result_nodes.modules = function(_, _, module)
   module["ordinal"] = module.name -- connect strings to make it easy to search modules. improve how?
-  module["list_display_props"] = {
+  module["items"] = {
     "MODULE",
     module.enabled and "x" or " ",
     module.origin,
@@ -772,7 +787,7 @@ result_nodes.settings = function(stack, k, v)
       table_path = pc,
       table_value = v,
     },
-    list_display_props = {
+    items = {
       { "SETTING" },
       { pc_display },
       { v_display },
@@ -818,7 +833,7 @@ result_nodes.packages = function(_, k, v)
       table_path = k,
       spec = spec,
     },
-    list_display_props = {
+    items = {
       { "PKG" },
       { repo_name },
       { pkg_name },
@@ -846,7 +861,7 @@ result_nodes.configs = function(_, k, v)
       table_path = k,
       table_value = v,
     },
-    list_display_props = {
+    items = {
       { "CFG" },
       { tostring(k) },
       { tostring(v) },
@@ -876,7 +891,7 @@ result_nodes.cmds = function(_, k, v)
       cmd = v[2],
     },
     ordinal = v[1],
-    list_display_props = {
+    items = {
       { "CMD" },
       { tostring(v[1]) },
       { tostring(v[2]) },
@@ -906,7 +921,7 @@ result_nodes.autocmds = function(_, k, v)
       action = v[3],
     },
     ordinal = v[1] .. v[2],
-    list_display_props = {
+    items = {
       { "AUTOCMD" },
       { v[1] },
       { v[2] },
@@ -931,7 +946,7 @@ result_nodes.binds = function(_, _, v)
   return {
     type = "module_bind_leaf",
     data = v,
-    list_display_props = {
+    items = {
       { "BIND" },
       { v.lhs },
       { v.name },

@@ -93,7 +93,7 @@ local function doom_displayer(entry)
     -- I can custom transform each entry here if I like.
     -- Eg. I could do the `char surrounding` here instead if inside each
     -- component config. What would be smart to do here?
-    return displayer(display_entry.value.list_display_props)
+    return displayer(display_entry.value.items)
   end
   return {
     value = entry,
@@ -329,6 +329,7 @@ DOOM_UI_STATE = {
 }
 
 local function reset()
+  -- TODO: traverse the ui state and nullify all entries.
   DOOM_UI_STATE.query = nil
   DOOM_UI_STATE.selected_module = nil
   DOOM_UI_STATE.selected_component = nil
