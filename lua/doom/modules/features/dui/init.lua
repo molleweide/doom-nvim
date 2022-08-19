@@ -88,6 +88,9 @@ local function doom_displayer(entry)
   -- TODO: refactor into `make_entry` and create a custom config table per each results component.
   --
   -- entry_display.create(components[x] or default {...})
+  --
+  --
+  -- entry_display.create(components[entry.name].displayer(entry) or default)
   local displayer = entry_display.create(default)
 
   local make_display = function(display_entry)
@@ -113,15 +116,15 @@ end
 local function make_title()
   local title
 
-  if DOOM_UI_STATE.query.type == "main_menu" then
+  if DOOM_UI_STATE.query.type == "MAIN_MENU" then
     title = ":: MAIN MENU ::"
-  elseif DOOM_UI_STATE.query.type == "settings" then
+  elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
     title = ":: USER SETTINGS ::"
-  elseif DOOM_UI_STATE.query.type == "modules" then
+  elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     title = ":: MODULES LIST ::"
 
     -- TODO: MODULES LIST (ORIGINS/CATEGORIES)
-  elseif DOOM_UI_STATE.query.type == "module" then
+  elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
     local postfix = ""
     local morig = DOOM_UI_STATE.selected_module.origin
     local mfeat = DOOM_UI_STATE.selected_module.section
@@ -146,25 +149,26 @@ end
 -- MAKE RESULTS
 --
 
+-- returns telescope picker results table based on the ui query type
 local function make_results()
   local results = {}
 
   -- TODO: "MAIN_MENU"
-  if DOOM_UI_STATE.query.type == "main_menu" then
+  if DOOM_UI_STATE.query.type == "MAIN_MENU" then
     results = tree.traverse_table({
       tree = require("doom.modules.features.dui.results").main_menu,
       edge = "list",
     })
 
     -- TODO: "DOOM_SETTINGS"
-  elseif DOOM_UI_STATE.query.type == "settings" then
+  elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
     results = tree.traverse_table({
       tree = doom.settings,
       leaf = require("doom.modules.features.dui.results").settings,
       edge = "settings",
     })
     -- TODO: RENAME "LIST_ALL_MODULES"
-  elseif DOOM_UI_STATE.query.type == "modules" then
+  elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     results = tree.traverse_table({
       tree = require("doom.modules.utils").extend(),
       leaf = require("doom.modules.features.dui.results").modules,
@@ -172,7 +176,7 @@ local function make_results()
     })
 
     -- todo: rename "SINGLE_MODULE"
-  elseif DOOM_UI_STATE.query.type == "module" then
+  elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
     tree.traverse_table({
       tree = DOOM_UI_STATE.selected_module,
       edge = "list",
@@ -306,6 +310,13 @@ end
 -- UI STATE
 --
 
+-- query definition
+--
+--  {
+--    type, -- determines what types of data should be collected for listing in the picker.
+--    topts, -- telescope config overrides
+--  }
+
 DOOM_UI_STATE = {
   history = {},
   next = function()
@@ -332,8 +343,11 @@ doom_ui.cmds = {
     function()
       reset()
       DOOM_UI_STATE.query = {
-        type = "main_menu",
-      }
+        type = "MAIN_MENU",
+        topts = {
+          theme = require("telescope.themes").get_cursor(),
+        },
+      } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
       DOOM_UI_STATE.next()
     end,
   },
@@ -342,7 +356,7 @@ doom_ui.cmds = {
     function()
       reset()
       DOOM_UI_STATE.query = {
-        type = "modules",
+        type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
       }
       DOOM_UI_STATE.next()
     end,

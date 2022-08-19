@@ -299,15 +299,6 @@ local ax = require("doom.modules.features.dui.actions")
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- local components = {
---   main_menu = {},
---   modules = {},
--- }
-
--- TODO: rename this file to `components/<comp_N>.lua`
--- and then store all related customization to each component in the
--- same file SO that this file doesn't become insanely huge...
-
 --
 -- HELPERS
 --
@@ -315,20 +306,51 @@ local ax = require("doom.modules.features.dui.actions")
 -- TODO: rename create entry and add metatable with the `surround char` and other features built into it
 --
 -- will this work with single-entry tables, eg. `packages` template below?
-local function entries_surround_with(t_items, start_char, end_char, search_string)
+local function entries_surround_with(start_char, end_char, t_items, search_string)
   for i, item in pairs(t_items) do
     table.insert(item, 1, start_char)
     table.insert(item, end_char)
   end
 end
 
-local function extend_entries()
+local function extend_entries(...)
   -- add the same highlighting group for all items.
+  return ...
 end
 
 --
 -- COMPONENTS
 --
+
+-- <COMPONENT DEFINITION>
+--
+-- returns table containing all related configs and functions pertaining to a
+-- specific doom module
+--
+-- local components_module = {
+--   main_menu_entries = {
+--     opts,
+--     displayer,
+--     entries_list
+--   },
+--   module = {
+--     opts,
+--     displayer,
+--     entry_single
+--   },
+-- }
+--
+--
+-- a component can either be atomic single entry or a full list of all entries
+--
+-- main_menu_entries = full list of entries. (plural name)
+-- module_entry = atomic (singular name)
+
+-- TODO: rename this file to `components/<comp_N>.lua`
+-- and then store all related customization to each component in the
+-- same file SO that this file doesn't become insanely huge...
+--
+-- or maybe this should even be moved into `module_specs.lua`
 
 local result_nodes = {}
 
@@ -357,17 +379,21 @@ local result_nodes = {}
 -- 5. wrap menu in symbols
 
 -- components.main_menu
-result_nodes.main_menu = function()
-  -- how can I test and use this?
-  local main_menu = {
-    theme = require("telescope.themes").get_cursor(),
-    -- configurates the display for a single results entry. -> each entry can hold any number of entries
-    displayer = function(ldp) -- i believe that I'll recieve the `list_display_props` for each entry here
-      return {
-        separator = function() end, -- menu has no sep
+--
+-- todo: use components = {
+--   ["doom_main_menu"] = {
+--     theme,
+--     displayer,
+--     ordinal,
+--     entries_list | entry_single,
+--   }
+-- }
 
-        -- use *nvim-treesitter-highlights* groups for colors
-        -- play around with anonymous function generation
+result_nodes.main_menu = function()
+  local main_menu = {
+    displayer = function(entry) -- i believe that I'll recieve the `list_display_props` for each entry here
+      return {
+        -- separator = " | ",
         items = (function()
           return {
             separator = "▏",
@@ -389,7 +415,11 @@ result_nodes.main_menu = function()
     -- be accessed dynamically in the displayer function. The I wouldn't need to configure it here.
     --
     entries = entries_surround_with("<<", ">>", {
+      -- ALL ENTRIES NEED TO BE EXTENDED WITH THE COMPONENT TYPE NAME OR THE DISPLAYER FUNC REFERENCE SO THAT
+      -- IT CAN BE REACHED IN THE DISPLAY MAKER IN THE PICKER
+      -- extend_entries(
       {
+        -- RENAME: DISPLAY_ITEMS
         list_display_props = {
           { "OPEN USER CONFIG", "TSBoolean" },
         },
@@ -400,6 +430,10 @@ result_nodes.main_menu = function()
         },
         ordinal = "userconfig",
       },
+      --   {
+      --   -- TODO: open settings file
+      -- }
+      -- ),
       {
         list_display_props = {
           { "BROWSE USER SETTINGS", "TSError" },
@@ -407,7 +441,7 @@ result_nodes.main_menu = function()
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
             DOOM_UI_STATE.query = {
-              type = "settings",
+              type = "SHOW_DOOM_SETTINGS",
             }
             DOOM_UI_STATE.next()
           end,
@@ -649,15 +683,6 @@ result_nodes.main_menu = function()
     },
   }
 
-  -- -- REFACTOR: into titles for main menu
-  -- for k, v in pairs(doom_menu_items) do
-  --   table.insert(v.list_display_props, 1, { "MAIN" })
-  --   v["type"] = "doom_main_menu"
-  --   -- i(v)
-  -- end
-
-  -- i(doom_menu_items)
-
   return doom_menu_items
 end
 
@@ -692,7 +717,7 @@ result_nodes.modules = function(_, _, module)
     end,
     ["<C-a>"] = function(fuzzy, _)
       DOOM_UI_STATE.query = {
-        type = "module",
+        type = "SHOW_SINGLE_MODULE",
         -- components = {}
       }
       DOOM_UI_STATE.selected_module = fuzzy.value
