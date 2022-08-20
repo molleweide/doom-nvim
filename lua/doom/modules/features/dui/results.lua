@@ -306,12 +306,12 @@ local ax = require("doom.modules.features.dui.actions")
 -- TODO: rename create entry and add metatable with the `surround char` and other features built into it
 --
 -- will this work with single-entry tables, eg. `packages` template below?
-local function entries_surround_with(start_char, end_char, t_items, search_string)
-  for i, _ in pairs(t_items) do
-    table.insert(t_items[i], 1, start_char)
-    table.insert(t_items[i], end_char)
+local function entries_surround_with(start_char, end_char, t_entries, search_string)
+  for i, _ in pairs(t_entries) do
+    table.insert(t_entries[i].items, 1, start_char)
+    table.insert(t_entries[i].items, end_char)
   end
-  return t_items
+  return t_entries
 end
 
 local function extend_entries(...)
@@ -394,7 +394,7 @@ local result_nodes = {}
 
 result_nodes.main_menu = function()
   local main_menu = {
-    displayer = function(entry) -- i believe that I'll recieve the `items` for each entry here
+    displayer = function(entry)
       return {
         -- separator = " | ",
         items = (function()
@@ -411,157 +411,16 @@ result_nodes.main_menu = function()
       }
     end,
     ordinal = function() end,
-    -- maybe I should add displayer configs to each entry in the entries table so that this can
-    -- be accessed dynamically in the displayer function. The I wouldn't need to configure it here.
-    --
-    entries = entries_surround_with({ "<<", "TSComment" }, { ">>", "TSComment" }, {
-      -- if this is invalid for populating a table > then I can use table.insert to insert
-      -- all sublists.
-      extend_entries({ hl = "TSBoolean" }, {
-        items = {
-          { "OPEN USER CONFIG", "TSBoolean" },
-        },
-        mappings = {
-          ["<CR>"] = function()
-            vim.cmd(("e %s"):format(require("doom.core.config").source))
-          end,
-        },
-        ordinal = "userconfig",
-      }, {
-        items = {
-          { "OPEN USER SETTINGS", "TSBoolean" },
-        },
-        mappings = {
-          ["<CR>"] = function() end,
-        },
-        ordinal = "usersettings",
-      }),
-      {
-        items = {
-          { "BROWSE USER SETTINGS", "TSError" },
-        },
-        mappings = {
-          ["<CR>"] = function(fuzzy, line, cb)
-            DOOM_UI_STATE.query = {
-              type = "SHOW_DOOM_SETTINGS",
-            }
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "usersettings",
-      },
-      {
-        items = {
-          { "BROWSE ALL MODULES", "TSKeyword" },
-        },
-        mappings = {
-          ["<CR>"] = function(fuzzy, line)
-            DOOM_UI_STATE.query = {
-              type = "modules",
-              -- origins = {},
-              -- categories = {},
-            }
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "modules",
-      },
-      {
-        items = {
-          { "BROWSE ALL BINDS" },
-        },
-        mappings = {
-          ["<CR>"] = function()
-            DOOM_UI_STATE.query = {
-              type = "MULTIPLE_MODULES",
-              origins = { "doom" },
-              -- sections = { "core", "features" },
-              components = { "BINDS" },
-            }
-            -- TODO: FUZZY.VALUE.???
-            -- DOOM_UI_STATE.selected_component = fuzzy.value
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "binds",
-      },
-      {
-        items = {
-          { "BROWSE ALL AUTOCMDS" },
-        },
-        mappings = {
-          ["<CR>"] = function()
-            DOOM_UI_STATE.query = {
-              type = "MULTIPLE_MODULES",
-              origins = { "doom" },
-              -- sections = { "core", "features" },
-              components = { "CMDS" },
-            }
-            -- TODO: FUZZY.VALUE.???
-            -- DOOM_UI_STATE.selected_component = fuzzy.value
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "autocmds",
-      },
-      {
-        items = {
-          { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
-        },
-        mappings = {
-          ["<CR>"] = function()
-            DOOM_UI_STATE.query = {
-              type = "MULTIPLE_MODULES",
-              origins = { "doom" },
-              -- sections = { "core", "features" },
-              components = { "CMDS" },
-            }
-            -- TODO: FUZZY.VALUE.???
-            DOOM_UI_STATE.selected_component = fuzzy.value
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "cmds",
-      },
-      {
-        items = {
-          { "BROWSE ALL PACKAGES" }, --
-        },
-        mappings = {
-          ["<CR>"] = function()
-            DOOM_UI_STATE.query = {
-              type = "MULTIPLE_MODULES",
-              origins = { "doom" },
-              sections = { "core", "features" },
-              components = { "PACKAGES" },
-            }
-
-            -- DOOM_UI_STATE.selected_component = fuzzy.value
-
-            DOOM_UI_STATE.next()
-          end,
-        },
-        ordinal = "packages",
-      },
-      {
-        items = {
-          { "BROWSE ALL JOBS" }, -- browse job definitions
-        },
-        mappings = {
-          ["<CR>"] = function() end,
-        },
-        ordinal = "jobs",
-      },
-      -- {
-      --   -- list running jobs
-      -- },
-    }),
+    entries = {},
   }
 
-  local doom_menu_items = {
-    {
+  table.insert(
+    main_menu.entries,
+    -- for each extend entry -> loop insert at position..
+    1,
+    extend_entries({ hl = "TSBoolean" }, {
       items = {
-        { "OPEN USER CONFIG", "TSBoolean" },
+        { "OPEN USER CONFIG" },
       },
       mappings = {
         ["<CR>"] = function()
@@ -569,24 +428,35 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "userconfig",
-    },
-    {
+    }, {
       items = {
-        { "BROWSE USER SETTINGS", "TSError" },
+        { "OPEN USER SETTINGS" },
+      },
+      mappings = {
+        ["<CR>"] = function() end,
+      },
+      ordinal = "usersettings",
+    })
+  )
+
+  table.insert(
+    main_menu.entries,
+    extend_entries({ hl = "TSBoolean" }, {
+      items = {
+        { "BROWSE USER SETTINGS" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line, cb)
           DOOM_UI_STATE.query = {
-            type = "settings",
+            type = "SHOW_DOOM_SETTINGS",
           }
           DOOM_UI_STATE.next()
         end,
       },
       ordinal = "usersettings",
-    },
-    {
+    }, {
       items = {
-        { "BROWSE ALL MODULES", "TSKeyword" },
+        { "BROWSE ALL MODULES" },
       },
       mappings = {
         ["<CR>"] = function(fuzzy, line)
@@ -599,8 +469,7 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "modules",
-    },
-    {
+    }, {
       items = {
         { "BROWSE ALL BINDS" },
       },
@@ -618,8 +487,7 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "binds",
-    },
-    {
+    }, {
       items = {
         { "BROWSE ALL AUTOCMDS" },
       },
@@ -637,10 +505,9 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "autocmds",
-    },
-    {
+    }, {
       items = {
-        { "BROWSE ALL CMDS" },
+        { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
       },
       mappings = {
         ["<CR>"] = function()
@@ -656,10 +523,9 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "cmds",
-    },
-    {
+    }, {
       items = {
-        { "BROWSE ALL PACKAGES" },
+        { "BROWSE ALL PACKAGES" }, --
       },
       mappings = {
         ["<CR>"] = function()
@@ -676,19 +542,23 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "packages",
-    },
-    {
+    }, {
       items = {
-        { "BROWSE ALL JOBS" },
+        { "BROWSE ALL JOBS" }, -- browse job definitions
       },
       mappings = {
         ["<CR>"] = function() end,
       },
       ordinal = "jobs",
-    },
-  }
+    }, {
+      -- list running jobs
+    })
+  )
 
-  return doom_menu_items
+  main_menu.entries = entries_surround_with({ "<<", "TSComment" }, { ">>", "TSComment" }, main_menu)
+  print(vim.inspect(main_menu))
+
+  return main_menu
 end
 
 --

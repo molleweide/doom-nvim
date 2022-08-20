@@ -152,7 +152,7 @@ local function make_results()
   -- TODO: "MAIN_MENU"
   if DOOM_UI_STATE.query.type == "MAIN_MENU" then
     results = tree.traverse_table({
-      tree = require("doom.modules.features.dui.results").main_menu,
+      tree = require("doom.modules.features.dui.results").main_menu().entries,
       edge = "list",
     })
 
