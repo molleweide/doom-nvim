@@ -262,7 +262,7 @@ local function doom_picker()
   local actions_set = require("telescope.actions.set")
   local title = make_title()
   local results = make_results() --.get_results_for_query()
-  local opts = require("telescope.themes").get_ivy()
+  local opts = opts -- or require("telescope.themes").get_ivy()
 
   -- i(results)
 
