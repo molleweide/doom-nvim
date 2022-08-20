@@ -383,9 +383,13 @@ end
 
 -- <COMPONENT DEFINITION>
 --
+-- [[[ each component table should contain all relevan information necessary when
+-- displaying and validating a component within doom ]]]
+--
 --
 -- todo: use doom_component_classes = {
 --   ["doom_main_menu"] = {
+--   -- TODO: imple display = {}; because this pattern just seems more logical to follow
 --     display = {
 --        displayer,
 --        ordinal,
@@ -431,7 +435,7 @@ result_nodes.main_menu = function()
         separator = "",
         items = {
           { width = 4 },
-          { width = 20 },
+          { width = 20 }, -- TODO: dynamically compute width = widest element in the menu
           { width = 4 },
           -- { remaining = true },
         },
@@ -611,6 +615,27 @@ end
 --     tree_node_cb = function(_, _, module)
 --     end
 --   }
+-- end
+
+-- result_nodes.modules = function()
+--   local modules_component = {
+--     displayer = function()
+--       return {
+--         separator = "",
+--         items = {
+--           { width = 4 },
+--           { width = 20 },
+--           { width = 4 },
+--           -- { remaining = true },
+--         },
+--       }
+--     end,
+--     ordinal = function() end,
+--     entry_template = function()
+--        -- note: this is the current modules function below
+--     end,
+--   }
+--   return modules_component
 -- end
 
 result_nodes.modules = function(_, _, module)
