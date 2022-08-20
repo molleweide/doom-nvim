@@ -7,7 +7,7 @@
 -- local previewers = require("telescope.previewers")
 
 local tree = require("doom.utils.tree")
-
+local components = require("doom.modules.features.dui.results")
 local doom_ui = {}
 
 -- is default mode -> insert working properly now?
@@ -86,8 +86,10 @@ local function doom_displayer(entry)
   }
 
   -- entry_display.create(components[x] or default {...})
-  -- entry_display.create(components[entry.name].displayer(entry) or default)
-  local displayer = entry_display.create(default)
+  -- print(entry.component_type)
+  -- entry_display.create((components[entry.component_type]()).displayer(entry) or default)
+  local comp_disp = components[entry.component_type]()
+  local displayer = entry_display.create(comp_disp.displayer(entry) or default)
 
   local make_display = function(display_entry)
     -- I can custom transform each entry here if I like.
