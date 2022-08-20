@@ -314,6 +314,12 @@ local function entries_surround_with(start_char, end_char, t_entries, search_str
   return t_entries
 end
 
+local function each_item_add(items, prop)
+  for key, value in pairs(items) do
+    table.insert(value, prop)
+  end
+end
+
 -- if you are building a menu and you want to apply props to multiple entries.
 -- Then wrap the entries in this function and supply your args.
 --
@@ -332,17 +338,28 @@ local function extend_entries(t_to_extend, opts, input_entries)
 
   -- if single string -> then just add the highlight group
 
+  -- A. loop over entries.
+  -- B. loop over options.
+  --
+  -- CAN I DO THIS WITH VIM.TBL_EXTEND()????
   if input_entries then
     for k, v in ipairs(input_entries) do
-      if opts.hl then
-        table.insert(v.items, opts.hl)
+      for o, opt in pairs(opts) do
+        if o == "hl" then
+          each_item_add(v.items, opts.hl)
+        else
+        end
       end
       table.insert(t_to_extend, v)
     end
   else
     for k, v in ipairs(t_to_extend) do
-      if opts.hl then
-        table.insert(v.items, opts.hl)
+      for o, opt in pairs(opts) do
+        if o == "hl" then
+          -- table.insert(v.items, opts.hl)
+          each_item_add(v.items, opts.hl)
+        else
+        end
       end
     end
   end
@@ -442,121 +459,128 @@ result_nodes.main_menu = function()
     },
   })
 
-  -- table.insert(
-  --   main_menu.entries,
-  --   extend_entries({ hl = "TSBoolean" }, {
-  --     items = {
-  --       { "BROWSE USER SETTINGS" },
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function(fuzzy, line, cb)
-  --         DOOM_UI_STATE.query = {
-  --           type = "SHOW_DOOM_SETTINGS",
-  --         }
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "usersettings",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL MODULES" },
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function(fuzzy, line)
-  --         DOOM_UI_STATE.query = {
-  --           type = "modules",
-  --           -- origins = {},
-  --           -- categories = {},
-  --         }
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "modules",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL BINDS" },
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function()
-  --         DOOM_UI_STATE.query = {
-  --           type = "MULTIPLE_MODULES",
-  --           origins = { "doom" },
-  --           -- sections = { "core", "features" },
-  --           components = { "BINDS" },
-  --         }
-  --         -- TODO: FUZZY.VALUE.???
-  --         -- DOOM_UI_STATE.selected_component = fuzzy.value
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "binds",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL AUTOCMDS" },
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function()
-  --         DOOM_UI_STATE.query = {
-  --           type = "MULTIPLE_MODULES",
-  --           origins = { "doom" },
-  --           -- sections = { "core", "features" },
-  --           components = { "CMDS" },
-  --         }
-  --         -- TODO: FUZZY.VALUE.???
-  --         -- DOOM_UI_STATE.selected_component = fuzzy.value
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "autocmds",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function()
-  --         DOOM_UI_STATE.query = {
-  --           type = "MULTIPLE_MODULES",
-  --           origins = { "doom" },
-  --           -- sections = { "core", "features" },
-  --           components = { "CMDS" },
-  --         }
-  --         -- TODO: FUZZY.VALUE.???
-  --         DOOM_UI_STATE.selected_component = fuzzy.value
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "cmds",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL PACKAGES" }, --
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function()
-  --         DOOM_UI_STATE.query = {
-  --           type = "MULTIPLE_MODULES",
-  --           origins = { "doom" },
-  --           sections = { "core", "features" },
-  --           components = { "PACKAGES" },
-  --         }
-  --
-  --         -- DOOM_UI_STATE.selected_component = fuzzy.value
-  --
-  --         DOOM_UI_STATE.next()
-  --       end,
-  --     },
-  --     ordinal = "packages",
-  --   }, {
-  --     items = {
-  --       { "BROWSE ALL JOBS" }, -- browse job definitions
-  --     },
-  --     mappings = {
-  --       ["<CR>"] = function() end,
-  --     },
-  --     ordinal = "jobs",
-  --   }, {
-  --     -- list running jobs
-  --   })
-  -- )
+    extend_entries(main_menu.entries,
+      { hl = "TSFunction" }, {
+      {
+        items = {
+          { "BROWSE USER SETTINGS" },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            DOOM_UI_STATE.query = {
+              type = "SHOW_DOOM_SETTINGS",
+            }
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "usersettings",
+      },
+      {
+        items = {
+          { "BROWSE ALL MODULES" },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line)
+            DOOM_UI_STATE.query = {
+              type = "modules",
+              -- origins = {},
+              -- categories = {},
+            }
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "modules",
+      },
+      {
+        items = {
+          { "BROWSE ALL BINDS" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "BINDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "binds",
+      },
+      {
+        items = {
+          { "BROWSE ALL AUTOCMDS" },
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "CMDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "autocmds",
+      },
+      {
+        items = {
+          { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              -- sections = { "core", "features" },
+              components = { "CMDS" },
+            }
+            -- TODO: FUZZY.VALUE.???
+            DOOM_UI_STATE.selected_component = fuzzy.value
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "cmds",
+      },
+      {
+        items = {
+          { "BROWSE ALL PACKAGES" }, --
+        },
+        mappings = {
+          ["<CR>"] = function()
+            DOOM_UI_STATE.query = {
+              type = "MULTIPLE_MODULES",
+              origins = { "doom" },
+              sections = { "core", "features" },
+              components = { "PACKAGES" },
+            }
+
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+
+            DOOM_UI_STATE.next()
+          end,
+        },
+        ordinal = "packages",
+      },
+      {
+        items = {
+          { "BROWSE ALL JOBS" }, -- browse job definitions
+        },
+        mappings = {
+          ["<CR>"] = function() end,
+        },
+        ordinal = "jobs",
+      }
+      --   , {
+      --   -- list running jobs
+      -- }
+    })
 
   main_menu.entries = entries_surround_with(
     { "<<", "TSComment" },
