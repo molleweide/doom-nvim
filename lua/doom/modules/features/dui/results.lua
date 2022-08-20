@@ -591,7 +591,7 @@ result_nodes.main_menu = function()
   -- if only two args then the options are applied to all entries. and not just the
   extend_entries(main_menu.entries, { component_type = "main_menu" })
 
-  print(vim.inspect(main_menu))
+  -- print(vim.inspect(main_menu))
 
   return main_menu
 end

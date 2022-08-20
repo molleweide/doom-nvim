@@ -262,7 +262,7 @@ local function doom_picker()
   local actions_set = require("telescope.actions.set")
   local title = make_title()
   local results = make_results() --.get_results_for_query()
-  local opts = opts -- or require("telescope.themes").get_ivy()
+  local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
 
   -- i(results)
 
@@ -344,9 +344,16 @@ doom_ui.cmds = {
       DOOM_UI_STATE.query = {
         type = "MAIN_MENU",
         topts = {
+          -- TODO: READ DOCS AND CHANGE AS MANY PARAMS HER AS POSSIBLE TO SEE HOW I CAN CUSTOMIZE A PICKER ON THE FLY.
           -- how can one center the text as to make a centered menu on screen.
-          theme = require("telescope.themes").get_cursor(),
-          -- disable_caret = true,
+          -- NOTE: IS IT POSSIBLE TO SET THE MATCH_CHAR_COLOR???
+          -- theme = require("telescope.themes").get_cursor(),
+          layout_stategy = "center",
+          winblend = 0,
+          layout_config = { width = 0.4, center = {
+            width = 0.4,
+          } },
+          selection_caret = "",
           -- todo: disable multible selection?
         },
       } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
