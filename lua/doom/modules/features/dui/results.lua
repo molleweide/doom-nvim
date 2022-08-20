@@ -321,16 +321,30 @@ end
 --
 --
 -- RENAME: add new entries
+--
+-- if only two args apply the options globally to all entries on the left. otherwise apply them to the new entries,
+-- and then insert these into the main table.
 local function extend_entries(t_to_extend, opts, input_entries)
   -- if not t and t not == table -> return
+  --
+
+  -- TODO: MAKE SURE THAT EACH ENTRY ITEM HAS A HIGHLIGHT GROUP ATTACHED.
 
   -- if single string -> then just add the highlight group
 
-  for k, v in ipairs(input_entries) do
-    if opts.hl then
-      table.insert(v, opts.hl)
+  if input_entries then
+    for k, v in ipairs(input_entries) do
+      if opts.hl then
+        table.insert(v.items, opts.hl)
+      end
+      table.insert(t_to_extend, v)
     end
-    table.insert(t_to_extend, v)
+  else
+    for k, v in ipairs(t_to_extend) do
+      if opts.hl then
+        table.insert(v.items, opts.hl)
+      end
+    end
   end
 
   return t_to_extend
@@ -549,7 +563,6 @@ result_nodes.main_menu = function()
     { ">>", "TSComment" },
     main_menu.entries
   )
-
 
   -- if only two args then the options are applied to all entries. and not just the
   extend_entries(main_menu.entries, { component_type = "main_menu" })
