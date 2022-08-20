@@ -383,6 +383,18 @@ end
 
 -- <COMPONENT DEFINITION>
 --
+--
+-- todo: use doom_component_classes = {
+--   ["doom_main_menu"] = {
+--     display = {
+--        displayer,
+--        ordinal,
+--     },
+--     entries_list (table) | entry_single_template (function),
+--   }
+-- }
+
+--
 -- returns table containing all related configs and functions pertaining to a
 -- specific doom module
 --
@@ -412,21 +424,9 @@ local result_nodes = {}
 -- MAIN MENU
 --
 
--- components.main_menu
---
--- todo: use doom_component_classes = {
---   ["doom_main_menu"] = {
---     display = {
---        displayer,
---        ordinal,
---     },
---     entries_list | entry_single,
---   }
--- }
-
 result_nodes.main_menu = function()
   local main_menu = {
-    displayer = function(entry)
+    displayer = function()
       return {
         separator = "",
         items = {
@@ -592,7 +592,6 @@ result_nodes.main_menu = function()
     main_menu.entries
   )
 
-  -- if only two args then the options are applied to all entries. and not just the
   extend_entries(main_menu.entries, { component_type = "main_menu" })
 
   -- print(vim.inspect(main_menu))

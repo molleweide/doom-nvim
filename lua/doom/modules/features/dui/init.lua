@@ -6,7 +6,7 @@
 -- local state = require("telescope.actions.state")
 -- local previewers = require("telescope.previewers")
 
-local tree = require("doom.utils.tree")
+local crawl = require("doom.utils.tree").traverse_table
 local components = require("doom.modules.features.dui.results")
 local doom_ui = {}
 
@@ -45,6 +45,24 @@ local doom_ui = {}
 --    to each entry mapping?
 --    So that eg. <C-a> would execute a different mapping for each component entry.
 
+doom_ui.settings = {
+  telescope_module_defaults = {
+    initial_mode = "insert",
+  },
+  displayer_default = {
+    separator = "▏",
+    items = {
+      { width = 20 },
+      { width = 20 },
+      { width = 20 },
+      { width = 20 },
+      { width = 20 },
+      { width = 20 },
+      { remaining = true },
+    },
+  },
+}
+
 local function goback(prompt_bufnr, map)
   return map("i", "<C-z>", function(prompt_bufnr)
     require("telescope.actions").close(prompt_bufnr)
@@ -64,82 +82,38 @@ end
 -----------------------------------------------------------------------------
 
 --
--- MAKE DISPLAY
---
-
--- TODO: make this dynamic / add display configs to each parts result maker.
--- -> add a callback to each doom component
-local function doom_displayer(entry)
-  local entry_display = require("telescope.pickers.entry_display")
-
-  local default = {
-    separator = "▏",
-    items = {
-      { width = 10 },
-      { width = 20 },
-      { width = 20 },
-      { width = 20 },
-      { width = 20 },
-      { width = 20 },
-      { remaining = true },
-    },
-  }
-
-  -- entry_display.create(components[x] or default {...})
-  -- print(entry.component_type)
-  -- entry_display.create((components[entry.component_type]()).displayer(entry) or default)
-  local comp_disp = components[entry.component_type]()
-  local displayer = entry_display.create(comp_disp.displayer(entry) or default)
-
-  local make_display = function(display_entry)
-    -- I can custom transform each entry here if I like.
-    -- Eg. I could do the `char surrounding` here instead if inside each
-    -- component config. What would be smart to do here?
-    return displayer(display_entry.value.items)
-  end
-  return {
-    value = entry,
-    display = make_display,
-    ordinal = entry.ordinal,
-  }
-end
-
------------------------------------------------------------------------------
------------------------------------------------------------------------------
-
---
 -- MAKE TITLE
 --
 
--- how can this be put into the main picker???
-local function make_title()
-  local title
-
-  if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-    title = ":: MAIN MENU ::"
-  elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-    title = ":: USER SETTINGS ::"
-  elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-    title = ":: MODULES LIST ::"
-
-    -- TODO: MODULES LIST (ORIGINS/CATEGORIES)
-  elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-    local postfix = ""
-    local morig = DOOM_UI_STATE.selected_module.origin
-    local mfeat = DOOM_UI_STATE.selected_module.section
-    local mname = DOOM_UI_STATE.selected_module.name
-    local menab = DOOM_UI_STATE.selected_module.enabled
-    local on = menab and "enabled" or "disabled"
-    postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
-    title = "MODULE_FULL: " .. postfix -- make into const
-  elseif DOOM_UI_STATE.query.type == "component" then
-    -- TODO: MODULES LIST (/CATEGORIES)
-  elseif DOOM_UI_STATE.query.type == "all" then
-    -- TODO: MODULES LIST (/CATEGORIES)
-  end
-
-  return title
-end
+-- -- how can this be put into the main picker???
+-- local function make_title()
+--   local title
+--
+--   if DOOM_UI_STATE.query.type == "MAIN_MENU" then
+--     title = ":: MAIN MENU ::"
+--   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
+--     title = ":: USER SETTINGS ::"
+--   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
+--     title = ":: MODULES LIST ::"
+--
+--     -- TODO: MODULES LIST (ORIGINS/CATEGORIES)
+--   elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
+--     local postfix = ""
+--     local morig = DOOM_UI_STATE.selected_module.origin
+--     local mfeat = DOOM_UI_STATE.selected_module.section
+--     local mname = DOOM_UI_STATE.selected_module.name
+--     local menab = DOOM_UI_STATE.selected_module.enabled
+--     local on = menab and "enabled" or "disabled"
+--     postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
+--     title = "MODULE_FULL: " .. postfix -- make into const
+--   elseif DOOM_UI_STATE.query.type == "component" then
+--     -- TODO: MODULES LIST (/CATEGORIES)
+--   elseif DOOM_UI_STATE.query.type == "all" then
+--     -- TODO: MODULES LIST (/CATEGORIES)
+--   end
+--
+--   return title
+-- end
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -152,23 +126,20 @@ end
 local function make_results()
   local results = {}
 
-  -- TODO: "MAIN_MENU"
   if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-    results = tree.traverse_table({
+    results = crawl({
       tree = require("doom.modules.features.dui.results").main_menu().entries,
       edge = "list",
     })
 
-    -- TODO: "DOOM_SETTINGS"
   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-    results = tree.traverse_table({
+    results = crawl({
       tree = doom.settings,
       leaf = require("doom.modules.features.dui.results").settings,
       edge = "settings",
     })
-    -- TODO: RENAME "LIST_ALL_MODULES"
   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-    results = tree.traverse_table({
+    results = crawl({
       tree = require("doom.modules.utils").extend(),
       leaf = require("doom.modules.features.dui.results").modules,
       edge = "doom_module_single",
@@ -176,7 +147,7 @@ local function make_results()
 
     -- todo: rename "SINGLE_MODULE"
   elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-    tree.traverse_table({
+    crawl({
       tree = DOOM_UI_STATE.selected_module,
       edge = "list",
       leaf = function(_, k, v)
@@ -184,14 +155,14 @@ local function make_results()
         -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
         -- end
         if k == "settings" then
-          results = tree.traverse_table({
+          results = crawl({
             tree = v,
             edge = "settings",
             leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         elseif k == "binds" then
-          results = tree.traverse_table({
+          results = crawl({
             tree = v,
             -- TODO: simplify this by just adding the string name for the subtable
             branch_next = function(v)
@@ -204,7 +175,7 @@ local function make_results()
             end,
           })
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
-          results = tree.traverse_table({
+          results = crawl({
             tree = v,
             edge = "list",
             leaf = require("doom.modules.features.dui.results")[k],
@@ -219,7 +190,7 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
     -- 1. select components set
     -- 2. how do I attach the corresponding `module` into each component entry?
-    tree.traverse_table({
+    crawl({
       tree = require("doom.modules.utils").extend({
         origins = { "doom" },
         sections = { "features" },
@@ -232,7 +203,7 @@ local function make_results()
         -- I can assign results here inside of `leaf` or I could return entry if package.
         -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
         if k == "packages" then
-          results = tree.traverse_table({
+          results = crawl({
             tree = v,
             edge = "list",
             leaf = require("doom.modules.features.dui.results")[k],
@@ -262,21 +233,65 @@ end
 -- can I redo this passing an `opts` table as arg and start follow the opts pattern
 local function doom_picker()
   local actions_set = require("telescope.actions.set")
-  local title = make_title()
   local results = make_results() --.get_results_for_query()
   local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
 
   -- i(results)
-
-  print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
+  -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
   -- print("picker -> title:", title)
 
   require("telescope.pickers").new(opts, {
-    prompt_title = title,
+    -------------------------------------------------------
+    prompt_title = (function()
+      local title
+      if DOOM_UI_STATE.query.type == "MAIN_MENU" then
+        title = ":: MAIN MENU ::"
+      elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
+        title = ":: USER SETTINGS ::"
+      elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
+        title = ":: MODULES LIST ::"
+      elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
+        local postfix = ""
+        local morig = DOOM_UI_STATE.selected_module.origin
+        local mfeat = DOOM_UI_STATE.selected_module.section
+        local mname = DOOM_UI_STATE.selected_module.name
+        local menab = DOOM_UI_STATE.selected_module.enabled
+        local on = menab and "enabled" or "disabled"
+        postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
+        title = "MODULE_FULL: " .. postfix -- make into const
+      elseif DOOM_UI_STATE.query.type == "component" then
+      elseif DOOM_UI_STATE.query.type == "all" then
+      end
+      return title
+    end)(),
+    -------------------------------------------------------
     finder = require("telescope.finders").new_table({
       results = results,
-      entry_maker = doom_displayer,
+      -- results = (
+      --
+      --
+      --
+      --
+      --
+      --
+      -- )(),
+      entry_maker = function(entry)
+        local entry_display = require("telescope.pickers.entry_display")
+        local displayer = entry_display.create(
+          components[entry.component_type]().displayer(entry) or doom_ui.settings.displayer_default
+        )
+        local make_display = function(display_entry)
+          -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
+          return displayer(display_entry.value.items)
+        end
+        return {
+          value = entry,
+          display = make_display,
+          ordinal = entry.ordinal,
+        }
+      end,
     }),
+    -------------------------------------------------------
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       actions_set.select:replace(function()
