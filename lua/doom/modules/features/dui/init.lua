@@ -109,6 +109,7 @@ end
 -- MAKE TITLE
 --
 
+-- how can this be put into the main picker???
 local function make_title()
   local title
 

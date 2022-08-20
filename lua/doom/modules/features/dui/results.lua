@@ -315,6 +315,9 @@ local function entries_surround_with(start_char, end_char, t_entries, search_str
 end
 
 local function extend_entries(...)
+
+  -- if not t and t not == table -> return
+
   -- if single string -> then just add the highlight group
   local args = { ... }
 
@@ -334,7 +337,7 @@ local function extend_entries(...)
 end
 
 --
--- COMPONENTS
+-- COMPONENTS ----------------------------------------------------------------
 --
 
 -- <COMPONENT DEFINITION>
@@ -360,24 +363,12 @@ end
 -- main_menu_entries = full list of entries. (plural name)
 -- module_entry = atomic (singular name)
 
--- TODO: rename this file to `components/<comp_N>.lua`
--- and then store all related customization to each component in the
--- same file SO that this file doesn't become insanely huge...
---
--- or maybe this should even be moved into `module_specs.lua`
+-- TODO: rename this file to `components/<comp_N>.lua` or move into modules spec . lua?
 
 local result_nodes = {}
 
 --
--- MAIN
---
--- return table
--- {
---  theme = string | function,
---  entry_display_config = table | function,
---  all_results = {},
---  tree_node_cb,
--- }
+-- MAIN MENU
 --
 
 -- components.main_menu
@@ -400,6 +391,7 @@ result_nodes.main_menu = function()
         items = (function()
           return {
             separator = "▏",
+            -- make items into a function that dynamically loops out items..
             items = {
               { width = 10 },
               { width = 20 },
@@ -416,142 +408,158 @@ result_nodes.main_menu = function()
 
   table.insert(
     main_menu.entries,
-    -- for each extend entry -> loop insert at position..
-    1,
-    extend_entries({ hl = "TSBoolean" }, {
-      items = {
-        { "OPEN USER CONFIG" },
+    extend_entries({
+      table = {
+        {
+          items = {
+            { "OPEN USER CONFIG" },
+          },
+          mappings = {
+            ["<CR>"] = function()
+              vim.cmd(("e %s"):format(require("doom.core.config").source))
+            end,
+          },
+          ordinal = "userconfig",
+        },
+        {
+          items = {
+            { "OPEN USER SETTINGS" },
+          },
+          mappings = {
+            ["<CR>"] = function() end,
+          },
+          ordinal = "usersettings",
+        },
       },
-      mappings = {
-        ["<CR>"] = function()
-          vim.cmd(("e %s"):format(require("doom.core.config").source))
-        end,
-      },
-      ordinal = "userconfig",
-    }, {
-      items = {
-        { "OPEN USER SETTINGS" },
-      },
-      mappings = {
-        ["<CR>"] = function() end,
-      },
-      ordinal = "usersettings",
+      with = { hl = "TSBoolean" },
     })
   )
 
   table.insert(
     main_menu.entries,
-    extend_entries({ hl = "TSBoolean" }, {
-      items = {
-        { "BROWSE USER SETTINGS" },
-      },
-      mappings = {
-        ["<CR>"] = function(fuzzy, line, cb)
-          DOOM_UI_STATE.query = {
-            type = "SHOW_DOOM_SETTINGS",
-          }
-          DOOM_UI_STATE.next()
-        end,
-      },
-      ordinal = "usersettings",
-    }, {
-      items = {
-        { "BROWSE ALL MODULES" },
-      },
-      mappings = {
-        ["<CR>"] = function(fuzzy, line)
-          DOOM_UI_STATE.query = {
-            type = "modules",
-            -- origins = {},
-            -- categories = {},
-          }
-          DOOM_UI_STATE.next()
-        end,
-      },
-      ordinal = "modules",
-    }, {
-      items = {
-        { "BROWSE ALL BINDS" },
-      },
-      mappings = {
-        ["<CR>"] = function()
-          DOOM_UI_STATE.query = {
-            type = "MULTIPLE_MODULES",
-            origins = { "doom" },
-            -- sections = { "core", "features" },
-            components = { "BINDS" },
-          }
-          -- TODO: FUZZY.VALUE.???
-          -- DOOM_UI_STATE.selected_component = fuzzy.value
-          DOOM_UI_STATE.next()
-        end,
-      },
-      ordinal = "binds",
-    }, {
-      items = {
-        { "BROWSE ALL AUTOCMDS" },
-      },
-      mappings = {
-        ["<CR>"] = function()
-          DOOM_UI_STATE.query = {
-            type = "MULTIPLE_MODULES",
-            origins = { "doom" },
-            -- sections = { "core", "features" },
-            components = { "CMDS" },
-          }
-          -- TODO: FUZZY.VALUE.???
-          -- DOOM_UI_STATE.selected_component = fuzzy.value
-          DOOM_UI_STATE.next()
-        end,
-      },
-      ordinal = "autocmds",
-    }, {
-      items = {
-        { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
-      },
-      mappings = {
-        ["<CR>"] = function()
-          DOOM_UI_STATE.query = {
-            type = "MULTIPLE_MODULES",
-            origins = { "doom" },
-            -- sections = { "core", "features" },
-            components = { "CMDS" },
-          }
-          -- TODO: FUZZY.VALUE.???
-          DOOM_UI_STATE.selected_component = fuzzy.value
-          DOOM_UI_STATE.next()
-        end,
-      },
-      ordinal = "cmds",
-    }, {
-      items = {
-        { "BROWSE ALL PACKAGES" }, --
-      },
-      mappings = {
-        ["<CR>"] = function()
-          DOOM_UI_STATE.query = {
-            type = "MULTIPLE_MODULES",
-            origins = { "doom" },
-            sections = { "core", "features" },
-            components = { "PACKAGES" },
-          }
+    extend_entries({
+      table = {
+        {
+          items = {
+            { "BROWSE USER SETTINGS" },
+          },
+          mappings = {
+            ["<CR>"] = function(fuzzy, line, cb)
+              DOOM_UI_STATE.query = {
+                type = "SHOW_DOOM_SETTINGS",
+              }
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "usersettings",
+        },
+        {
+          items = {
+            { "BROWSE ALL MODULES" },
+          },
+          mappings = {
+            ["<CR>"] = function(fuzzy, line)
+              DOOM_UI_STATE.query = {
+                type = "modules",
+                -- origins = {},
+                -- categories = {},
+              }
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "modules",
+        },
+        {
+          items = {
+            { "BROWSE ALL BINDS" },
+          },
+          mappings = {
+            ["<CR>"] = function()
+              DOOM_UI_STATE.query = {
+                type = "MULTIPLE_MODULES",
+                origins = { "doom" },
+                -- sections = { "core", "features" },
+                components = { "BINDS" },
+              }
+              -- TODO: FUZZY.VALUE.???
+              -- DOOM_UI_STATE.selected_component = fuzzy.value
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "binds",
+        },
+        {
+          items = {
+            { "BROWSE ALL AUTOCMDS" },
+          },
+          mappings = {
+            ["<CR>"] = function()
+              DOOM_UI_STATE.query = {
+                type = "MULTIPLE_MODULES",
+                origins = { "doom" },
+                -- sections = { "core", "features" },
+                components = { "CMDS" },
+              }
+              -- TODO: FUZZY.VALUE.???
+              -- DOOM_UI_STATE.selected_component = fuzzy.value
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "autocmds",
+        },
+        {
+          items = {
+            { "BROWSE ALL CMDS" }, -- browse all doom commands, then also make browse all user commands.
+          },
+          mappings = {
+            ["<CR>"] = function()
+              DOOM_UI_STATE.query = {
+                type = "MULTIPLE_MODULES",
+                origins = { "doom" },
+                -- sections = { "core", "features" },
+                components = { "CMDS" },
+              }
+              -- TODO: FUZZY.VALUE.???
+              DOOM_UI_STATE.selected_component = fuzzy.value
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "cmds",
+        },
+        {
+          items = {
+            { "BROWSE ALL PACKAGES" }, --
+          },
+          mappings = {
+            ["<CR>"] = function()
+              DOOM_UI_STATE.query = {
+                type = "MULTIPLE_MODULES",
+                origins = { "doom" },
+                sections = { "core", "features" },
+                components = { "PACKAGES" },
+              }
 
-          -- DOOM_UI_STATE.selected_component = fuzzy.value
+              -- DOOM_UI_STATE.selected_component = fuzzy.value
 
-          DOOM_UI_STATE.next()
-        end,
+              DOOM_UI_STATE.next()
+            end,
+          },
+          ordinal = "packages",
+        },
+        {
+          items = {
+            { "BROWSE ALL JOBS" }, -- browse job definitions
+          },
+          mappings = {
+            ["<CR>"] = function() end,
+          },
+          ordinal = "jobs",
+        },
+        {
+          -- list running jobs
+        },
       },
-      ordinal = "packages",
-    }, {
-      items = {
-        { "BROWSE ALL JOBS" }, -- browse job definitions
-      },
-      mappings = {
-        ["<CR>"] = function() end,
-      },
-      ordinal = "jobs",
-    }, {
-      -- list running jobs
+      with = { hl = "TSBoolean" },
     })
   )
 
