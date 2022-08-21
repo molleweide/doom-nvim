@@ -311,6 +311,10 @@ end
 ---       HELPERS       ---
 ---------------------------
 
+function i(x, pre)
+  print(pre or "", vim.inspect(x))
+end
+
 -- local function get_system_info_string()
 --   -- Get the neovim version
 --   local nvim_vinfo = vim.version()

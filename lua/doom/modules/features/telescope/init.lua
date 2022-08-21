@@ -1,6 +1,9 @@
 local telescope = {}
 
 -- todo: configure with select_ui prompt -> default to open telescope.
+--
+-- TODO: center everything in telescope so that you are always looking with you head
+-- in center position.
 
 telescope.settings = {
   defaults = {

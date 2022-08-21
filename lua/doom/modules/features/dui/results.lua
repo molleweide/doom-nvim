@@ -7,6 +7,8 @@ local ax = require("doom.modules.features.dui.actions")
 --  3. create custom telescope theme per query.
 --  4. create default styles.
 --  5.
+--  6. Default separator highlighting
+--  7. try highlighting with hex colors.
 --
 -- NOTE: would entry.displayer = self.packages.displayer work?!?!
 
@@ -351,7 +353,6 @@ result_nodes.modules = function()
       }
       module["mappings"] = {
         ["<CR>"] = function(fuzzy, _)
-          -- i(fuzzy)
           DOOM_UI_STATE.selected_module = fuzzy.value
           ax.m_edit(fuzzy.value)
         end,

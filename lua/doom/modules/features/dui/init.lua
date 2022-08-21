@@ -9,6 +9,7 @@ local doom_ui = {}
 --    - center picker entries text
 --    - list packages across all modules
 --    - history -> configure `opts.history` to see if this can be used to navigate menus?
+--    - default telescope UI options.
 --
 --    - implement nice distinguishing between entry lists and entry templates pattern,
 --        so that creating or crawling and collecting nodes becomes more convenient.
@@ -332,7 +333,7 @@ local function doom_picker()
       -- )(),
       entry_maker = function(entry)
         local entry_display = require("telescope.pickers.entry_display")
-        print(vim.inspect(entry))
+        -- print(vim.inspect(entry))
         local displayer = entry_display.create(
           components[entry.component_type]().displayer(entry) or doom_ui.settings.displayer_default
         )
