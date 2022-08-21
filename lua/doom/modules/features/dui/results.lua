@@ -5,12 +5,8 @@ local ax = require("doom.modules.features.dui.actions")
 --
 --  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
 --
---  - highlights:
---      -> settings
---
 --  - modules -> origin / section hl
 --  - modules -> enabled hl
---
 --
 --  - create default styles.
 --
@@ -728,7 +724,7 @@ result_nodes.binds = function()
   local binds_component = {
     displayer = function(entry)
       return {
-        separator = " $ ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
