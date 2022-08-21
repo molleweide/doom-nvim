@@ -5,12 +5,12 @@ local ax = require("doom.modules.features.dui.actions")
 --
 --  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
 --
---  - >>>>> fix `modules` query from main menu.
---  - add opts to modules.
---  - custom color per each origin/section
+--  - highlights:
+--      -> settings
 --
---  - add highlights to `settings`
---  - add opts to settings.
+--  - modules -> origin / section hl
+--  - modules -> enabled hl
+--
 --
 --  - create default styles.
 --
@@ -421,7 +421,7 @@ result_nodes.settings = function()
   local settings_component = {
     displayer = function(entry)
       return {
-        separator = " $ ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
@@ -471,11 +471,11 @@ result_nodes.settings = function()
           table_path = pc,
           table_value = v,
         },
-        items = {
+        items = extend_entries_list({
           { "SETTING" },
           { pc_display },
           { v_display },
-        },
+        }, { hl = "TSFloat" }),
         ordinal = pc_display,
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
@@ -499,7 +499,7 @@ result_nodes.packages = function()
   local packages_component = {
     displayer = function(entry)
       return {
-        separator = " % ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
@@ -531,11 +531,16 @@ result_nodes.packages = function()
           table_path = k,
           spec = spec,
         },
-        items = {
+        items = extend_entries_list({
           { "PKG" },
           { repo_name },
           { pkg_name },
-        },
+        }, { hl = "TSConditional" }),
+        -- items = {
+        --   { "PKG" },
+        --   { repo_name },
+        --   { pkg_name },
+        -- },
         ordinal = repo_name .. pkg_name,
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
@@ -551,37 +556,6 @@ result_nodes.packages = function()
   return packages_component
 end
 
--- result_nodes.packages = function(_, k, v)
---   local spec = v
---   if type(k) == "number" then
---     if type(v) == "string" then
---       spec = { v }
---     end
---   end
---   local repo_name, pkg_name = spec[1]:match("(.*)/([%w%-%.%_]*)$")
---   return {
---     type = "module_package",
---     data = {
---       table_path = k,
---       spec = spec,
---     },
---     items = {
---       { "PKG" },
---       { repo_name },
---       { pkg_name },
---     },
---     ordinal = repo_name .. pkg_name,
---     mappings = {
---       ["<CR>"] = function(fuzzy, line, cb)
---         -- DOOM_UI_STATE.query = {
---         --   type = "settings",
---         -- }
---         -- DOOM_UI_STATE.next()
---       end,
---     },
---   }
--- end
-
 --
 -- CONFIGS
 --
@@ -590,7 +564,7 @@ result_nodes.configs = function()
   local configs_component = {
     displayer = function(entry)
       return {
-        separator = " $ ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
@@ -615,11 +589,11 @@ result_nodes.configs = function()
           table_path = k,
           table_value = v,
         },
-        items = {
+        items = extend_entries_list({
           { "CFG" },
           { tostring(k) },
           { tostring(v) },
-        },
+        }, { hl = "TSAttribute" }),
         ordinal = tostring(k),
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
@@ -634,30 +608,6 @@ result_nodes.configs = function()
   }
   return configs_component
 end
-
--- result_nodes.configs = function(_, k, v)
---   return {
---     type = "module_config",
---     data = {
---       table_path = k,
---       table_value = v,
---     },
---     items = {
---       { "CFG" },
---       { tostring(k) },
---       { tostring(v) },
---     },
---     ordinal = tostring(k),
---     mappings = {
---       ["<CR>"] = function(fuzzy, line, cb)
---         -- DOOM_UI_STATE.query = {
---         --   type = "settings",
---         -- }
---         -- DOOM_UI_STATE.next()
---       end,
---     },
---   }
--- end
 
 --
 -- CMDS
@@ -694,11 +644,11 @@ result_nodes.cmds = function()
           cmd = v[2],
         },
         ordinal = v[1],
-        items = {
+        items = extend_entries_list({
           { "CMD" },
           { tostring(v[1]) },
           { tostring(v[2]) },
-        },
+        }, { hl = "TSError" }),
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
             i(fuzzy)
@@ -714,32 +664,6 @@ result_nodes.cmds = function()
   return cmds_component
 end
 
--- result_nodes.cmds = function(_, k, v)
---   -- TODO: i need to attach k here as well, to table_path
---   return {
---     type = "module_cmd",
---     data = {
---       name = v[1],
---       cmd = v[2],
---     },
---     ordinal = v[1],
---     items = {
---       { "CMD" },
---       { tostring(v[1]) },
---       { tostring(v[2]) },
---     },
---     mappings = {
---       ["<CR>"] = function(fuzzy, line, cb)
---         i(fuzzy)
---         -- DOOM_UI_STATE.query = {
---         --   type = "settings",
---         -- }
---         -- DOOM_UI_STATE.next()
---       end,
---     },
---   }
--- end
-
 --
 -- AUTOCMDS
 --
@@ -748,7 +672,7 @@ result_nodes.autocmds = function()
   local autocmds_component = {
     displayer = function(entry)
       return {
-        separator = " $ ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
@@ -775,12 +699,12 @@ result_nodes.autocmds = function()
           action = v[3],
         },
         ordinal = v[1] .. v[2],
-        items = {
+        items = extend_entries_list({
           { "AUTOCMD" },
           { v[1] },
           { v[2] },
           { tostring(v[3]) },
-        },
+        }, { hl = "TSDebug" }),
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
             -- DOOM_UI_STATE.query = {
@@ -795,31 +719,6 @@ result_nodes.autocmds = function()
   return autocmds_component
 end
 
--- result_nodes.autocmds = function(_, k, v)
---   return {
---     type = "module_autocmd",
---     data = {
---       event = v[1],
---       pattern = v[2],
---       action = v[3],
---     },
---     ordinal = v[1] .. v[2],
---     items = {
---       { "AUTOCMD" },
---       { v[1] },
---       { v[2] },
---       { tostring(v[3]) },
---     },
---     mappings = {
---       ["<CR>"] = function(fuzzy, line, cb)
---         -- DOOM_UI_STATE.query = {
---         --   type = "settings",
---         -- }
---         -- DOOM_UI_STATE.next()
---       end,
---     },
---   }
--- end
 
 --
 -- BINDS
@@ -851,12 +750,12 @@ result_nodes.binds = function()
         component_type = "binds",
         type = "module_bind_leaf",
         data = v,
-        items = {
+        items = extend_entries_list({
           { "BIND" },
           { v.lhs },
           { v.name },
           { v.rhs }, -- {v[1], v[2], tostring(v.options)
-        },
+        }, { hl = "TSKeywordFunction" }),
         ordinal = v.name .. tostring(v.lhs),
         mappings = {
           ["<CR>"] = function()
@@ -871,27 +770,5 @@ result_nodes.binds = function()
   }
   return binds_component
 end
-
--- result_nodes.binds = function(_, _, v)
---   return {
---     type = "module_bind_leaf",
---     data = v,
---     items = {
---       { "BIND" },
---       { v.lhs },
---       { v.name },
---       { v.rhs }, -- {v[1], v[2], tostring(v.options)
---     },
---     ordinal = v.name .. tostring(v.lhs),
---     mappings = {
---       ["<CR>"] = function()
---         -- DOOM_UI_STATE.query = {
---         --   type = "settings",
---         -- }
---         -- DOOM_UI_STATE.next()
---       end,
---     },
---   }
--- end
 
 return result_nodes
