@@ -443,6 +443,7 @@ doom_ui.cmds = {
     "DoomPickerModules",
     function()
       reset()
+      -- NOTE: SINCE THIS QUERY IS USED IN MULTIPLE PLACES. QUERIES SHOULD BE MOVED INTO ITS OWN FILE.
       DOOM_UI_STATE.query = {
         type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
         topts = {

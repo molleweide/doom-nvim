@@ -198,7 +198,7 @@ result_nodes.main_menu = function()
     },
   })
 
-  extend_entries_list(main_menu.entries, { hl = "TSFunction" }, {
+  extend_entries_list(main_menu.entries, { hl = "TSError" }, {
     {
       items = {
         { "BROWSE USER SETTINGS" },
@@ -213,6 +213,10 @@ result_nodes.main_menu = function()
       },
       ordinal = "usersettings",
     },
+  })
+
+  extend_entries_list(main_menu.entries, { hl = "TSFunction" }, {
+
     {
       items = {
         { "BROWSE ALL MODULES" },
@@ -220,9 +224,17 @@ result_nodes.main_menu = function()
       mappings = {
         ["<CR>"] = function(fuzzy, line)
           DOOM_UI_STATE.query = {
-            type = "modules",
-            -- origins = {},
-            -- categories = {},
+            type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
+            topts = {
+              layout_config = {
+                width = 0.6,
+                center = {
+                  width = 0.6,
+                },
+              },
+              -- selection_caret = "",
+              initial_mode = "insert",
+            },
           }
           DOOM_UI_STATE.next()
         end,
