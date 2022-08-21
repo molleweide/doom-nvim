@@ -7,6 +7,9 @@ local ax = require("doom.modules.features.dui.actions")
 --  3. create custom telescope theme per query.
 --  4. create default styles.
 --  5.
+--
+-- NOTE: would entry.displayer = self.packages.displayer work?!?!
+
 
 --
 -- HELPERS
@@ -455,47 +458,88 @@ result_nodes.settings = function()
   return settings_component
 end
 
--- result_nodes.settings = function(stack, k, v)
---   -- collect table_path back to setting in original table
---   local pc
---   if #stack > 0 then
---     pc = vim.deepcopy(stack)
---     table.insert(pc, k)
---   else
---     pc = { k }
---   end
---   -- REFACTOR: concat table_path
---   -- format each setting
---   local pc_display = table.concat(pc, ".")
---   local v_display
---   if type(v) == "table" then
---     local str = ""
---     for _, x in pairs(v) do
---       if type(x) == "table" then
---         str = str .. ", " .. "subt"
---       else
---         str = str .. ", " .. x
---       end
+--
+-- PACKAGES
+--
+
+result_nodes.packages = function()
+  local packages_component = {
+    displayer = function(entry)
+      return {
+        separator = " % ",
+        items = {
+          { width = 10 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          -- { width = 4 },
+          { remaining = true },
+        },
+      }
+    end,
+    ordinal = function()
+      -- return module.name
+    end,
+    entry_template = function(stack, k, v)
+      local spec = v
+      if type(k) == "number" then
+        if type(v) == "string" then
+          spec = { v }
+        end
+      end
+      local repo_name, pkg_name = spec[1]:match("(.*)/([%w%-%.%_]*)$")
+      return {
+        component_type = "packages",
+        type = "module_package",
+        data = {
+          table_path = k,
+          spec = spec,
+        },
+        items = {
+          { "PKG" },
+          { repo_name },
+          { pkg_name },
+        },
+        ordinal = repo_name .. pkg_name,
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            -- DOOM_UI_STATE.query = {
+            --   type = "settings",
+            -- }
+            -- DOOM_UI_STATE.next()
+          end,
+        },
+      }
+    end,
+  }
+  return packages_component
+end
+
+-- result_nodes.packages = function(_, k, v)
+--   local spec = v
+--   if type(k) == "number" then
+--     if type(v) == "string" then
+--       spec = { v }
 --     end
---     v_display = str -- table.concat(v, ", ")
---   else
---     v_display = tostring(v)
 --   end
+--   local repo_name, pkg_name = spec[1]:match("(.*)/([%w%-%.%_]*)$")
 --   return {
---     type = "module_setting",
+--     type = "module_package",
 --     data = {
---       table_path = pc,
---       table_value = v,
+--       table_path = k,
+--       spec = spec,
 --     },
 --     items = {
---       { "SETTING" },
---       { pc_display },
---       { v_display },
+--       { "PKG" },
+--       { repo_name },
+--       { pkg_name },
 --     },
---     ordinal = pc_display,
+--     ordinal = repo_name .. pkg_name,
 --     mappings = {
 --       ["<CR>"] = function(fuzzy, line, cb)
---         i(fuzzy)
 --         -- DOOM_UI_STATE.query = {
 --         --   type = "settings",
 --         -- }
@@ -506,53 +550,35 @@ end
 -- end
 
 --
--- PACKAGES
---
-
--- result_nodes.modules = function()
---   local modules_component = {
---    themes = ,
---     displayer = ,
---     ordinal = ,
---     tree_node_cb = function(_, _, module)
---     end
---   }
--- end
-
-result_nodes.packages = function(_, k, v)
-  local spec = v
-  if type(k) == "number" then
-    if type(v) == "string" then
-      spec = { v }
-    end
-  end
-  local repo_name, pkg_name = spec[1]:match("(.*)/([%w%-%.%_]*)$")
-  return {
-    type = "module_package",
-    data = {
-      table_path = k,
-      spec = spec,
-    },
-    items = {
-      { "PKG" },
-      { repo_name },
-      { pkg_name },
-    },
-    ordinal = repo_name .. pkg_name,
-    mappings = {
-      ["<CR>"] = function(fuzzy, line, cb)
-        -- DOOM_UI_STATE.query = {
-        --   type = "settings",
-        -- }
-        -- DOOM_UI_STATE.next()
-      end,
-    },
-  }
-end
-
---
 -- CONFIGS
 --
+
+-- result_nodes.configs = function()
+--   local configs_component = {
+--     displayer = function(entry)
+--       return {
+--         separator = " $ ",
+--         items = {
+--           { width = 10 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           -- { width = 4 },
+--           { remaining = true },
+--         },
+--       }
+--     end,
+--     ordinal = function()
+--       -- return module.name
+--     end,
+--     entry_template = function(stack, k, v)
+--     end,
+--   }
+--   return configs_component
+-- end
 
 result_nodes.configs = function(_, k, v)
   return {
@@ -581,6 +607,33 @@ end
 --
 -- CMDS
 --
+
+-- result_nodes.cmds = function()
+--   local cmds_component = {
+--     displayer = function(entry)
+--       return {
+--         separator = " $ ",
+--         items = {
+--           { width = 10 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           -- { width = 4 },
+--           { remaining = true },
+--         },
+--       }
+--     end,
+--     ordinal = function()
+--       -- return module.name
+--     end,
+--     entry_template = function(stack, k, v)
+--     end,
+--   }
+--   return cmds_component
+-- end
 
 result_nodes.cmds = function(_, k, v)
   -- TODO: i need to attach k here as well, to table_path
@@ -612,6 +665,33 @@ end
 -- AUTOCMDS
 --
 
+-- result_nodes.autocmds = function()
+--   local autocmds_component = {
+--     displayer = function(entry)
+--       return {
+--         separator = " $ ",
+--         items = {
+--           { width = 10 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           -- { width = 4 },
+--           { remaining = true },
+--         },
+--       }
+--     end,
+--     ordinal = function()
+--       -- return module.name
+--     end,
+--     entry_template = function(stack, k, v)
+--     end,
+--   }
+--   return autocmds_component
+-- end
+
 result_nodes.autocmds = function(_, k, v)
   return {
     type = "module_autocmd",
@@ -641,6 +721,34 @@ end
 --
 -- BINDS
 --
+
+
+-- result_nodes.binds = function()
+--   local binds_component = {
+--     displayer = function(entry)
+--       return {
+--         separator = " $ ",
+--         items = {
+--           { width = 10 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           { width = 20 },
+--           -- { width = 4 },
+--           { remaining = true },
+--         },
+--       }
+--     end,
+--     ordinal = function()
+--       -- return module.name
+--     end,
+--     entry_template = function(stack, k, v)
+--     end,
+--   }
+--   return binds_component
+-- end
 
 result_nodes.binds = function(_, _, v)
   return {
