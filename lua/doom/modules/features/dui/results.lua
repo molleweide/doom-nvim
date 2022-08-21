@@ -10,7 +10,6 @@ local ax = require("doom.modules.features.dui.actions")
 --
 -- NOTE: would entry.displayer = self.packages.displayer work?!?!
 
-
 --
 -- HELPERS
 --
@@ -553,223 +552,312 @@ end
 -- CONFIGS
 --
 
--- result_nodes.configs = function()
---   local configs_component = {
---     displayer = function(entry)
---       return {
---         separator = " $ ",
---         items = {
---           { width = 10 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           -- { width = 4 },
---           { remaining = true },
---         },
---       }
---     end,
---     ordinal = function()
---       -- return module.name
---     end,
---     entry_template = function(stack, k, v)
---     end,
---   }
---   return configs_component
--- end
-
-result_nodes.configs = function(_, k, v)
-  return {
-    type = "module_config",
-    data = {
-      table_path = k,
-      table_value = v,
-    },
-    items = {
-      { "CFG" },
-      { tostring(k) },
-      { tostring(v) },
-    },
-    ordinal = tostring(k),
-    mappings = {
-      ["<CR>"] = function(fuzzy, line, cb)
-        -- DOOM_UI_STATE.query = {
-        --   type = "settings",
-        -- }
-        -- DOOM_UI_STATE.next()
-      end,
-    },
+result_nodes.configs = function()
+  local configs_component = {
+    displayer = function(entry)
+      return {
+        separator = " $ ",
+        items = {
+          { width = 10 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          -- { width = 4 },
+          { remaining = true },
+        },
+      }
+    end,
+    ordinal = function()
+      -- return module.name
+    end,
+    entry_template = function(stack, k, v)
+      return {
+        component_type = "configs",
+        type = "module_config",
+        data = {
+          table_path = k,
+          table_value = v,
+        },
+        items = {
+          { "CFG" },
+          { tostring(k) },
+          { tostring(v) },
+        },
+        ordinal = tostring(k),
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            -- DOOM_UI_STATE.query = {
+            --   type = "settings",
+            -- }
+            -- DOOM_UI_STATE.next()
+          end,
+        },
+      }
+    end,
   }
+  return configs_component
 end
+
+-- result_nodes.configs = function(_, k, v)
+--   return {
+--     type = "module_config",
+--     data = {
+--       table_path = k,
+--       table_value = v,
+--     },
+--     items = {
+--       { "CFG" },
+--       { tostring(k) },
+--       { tostring(v) },
+--     },
+--     ordinal = tostring(k),
+--     mappings = {
+--       ["<CR>"] = function(fuzzy, line, cb)
+--         -- DOOM_UI_STATE.query = {
+--         --   type = "settings",
+--         -- }
+--         -- DOOM_UI_STATE.next()
+--       end,
+--     },
+--   }
+-- end
 
 --
 -- CMDS
 --
 
--- result_nodes.cmds = function()
---   local cmds_component = {
---     displayer = function(entry)
---       return {
---         separator = " $ ",
---         items = {
---           { width = 10 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           -- { width = 4 },
---           { remaining = true },
---         },
---       }
---     end,
---     ordinal = function()
---       -- return module.name
---     end,
---     entry_template = function(stack, k, v)
---     end,
---   }
---   return cmds_component
--- end
-
-result_nodes.cmds = function(_, k, v)
-  -- TODO: i need to attach k here as well, to table_path
-  return {
-    type = "module_cmd",
-    data = {
-      name = v[1],
-      cmd = v[2],
-    },
-    ordinal = v[1],
-    items = {
-      { "CMD" },
-      { tostring(v[1]) },
-      { tostring(v[2]) },
-    },
-    mappings = {
-      ["<CR>"] = function(fuzzy, line, cb)
-        i(fuzzy)
-        -- DOOM_UI_STATE.query = {
-        --   type = "settings",
-        -- }
-        -- DOOM_UI_STATE.next()
-      end,
-    },
+result_nodes.cmds = function()
+  local cmds_component = {
+    displayer = function(entry)
+      return {
+        separator = " $ ",
+        items = {
+          { width = 10 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          -- { width = 4 },
+          { remaining = true },
+        },
+      }
+    end,
+    ordinal = function()
+      -- return module.name
+    end,
+    entry_template = function(stack, k, v)
+      -- TODO: i need to attach k here as well, to table_path
+      return {
+        component_type = "cmds",
+        type = "module_cmd",
+        data = {
+          name = v[1],
+          cmd = v[2],
+        },
+        ordinal = v[1],
+        items = {
+          { "CMD" },
+          { tostring(v[1]) },
+          { tostring(v[2]) },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            i(fuzzy)
+            -- DOOM_UI_STATE.query = {
+            --   type = "settings",
+            -- }
+            -- DOOM_UI_STATE.next()
+          end,
+        },
+      }
+    end,
   }
+  return cmds_component
 end
+
+-- result_nodes.cmds = function(_, k, v)
+--   -- TODO: i need to attach k here as well, to table_path
+--   return {
+--     type = "module_cmd",
+--     data = {
+--       name = v[1],
+--       cmd = v[2],
+--     },
+--     ordinal = v[1],
+--     items = {
+--       { "CMD" },
+--       { tostring(v[1]) },
+--       { tostring(v[2]) },
+--     },
+--     mappings = {
+--       ["<CR>"] = function(fuzzy, line, cb)
+--         i(fuzzy)
+--         -- DOOM_UI_STATE.query = {
+--         --   type = "settings",
+--         -- }
+--         -- DOOM_UI_STATE.next()
+--       end,
+--     },
+--   }
+-- end
 
 --
 -- AUTOCMDS
 --
 
--- result_nodes.autocmds = function()
---   local autocmds_component = {
---     displayer = function(entry)
---       return {
---         separator = " $ ",
---         items = {
---           { width = 10 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           -- { width = 4 },
---           { remaining = true },
---         },
---       }
---     end,
---     ordinal = function()
---       -- return module.name
---     end,
---     entry_template = function(stack, k, v)
---     end,
---   }
---   return autocmds_component
--- end
-
-result_nodes.autocmds = function(_, k, v)
-  return {
-    type = "module_autocmd",
-    data = {
-      event = v[1],
-      pattern = v[2],
-      action = v[3],
-    },
-    ordinal = v[1] .. v[2],
-    items = {
-      { "AUTOCMD" },
-      { v[1] },
-      { v[2] },
-      { tostring(v[3]) },
-    },
-    mappings = {
-      ["<CR>"] = function(fuzzy, line, cb)
-        -- DOOM_UI_STATE.query = {
-        --   type = "settings",
-        -- }
-        -- DOOM_UI_STATE.next()
-      end,
-    },
+result_nodes.autocmds = function()
+  local autocmds_component = {
+    displayer = function(entry)
+      return {
+        separator = " $ ",
+        items = {
+          { width = 10 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          -- { width = 4 },
+          { remaining = true },
+        },
+      }
+    end,
+    ordinal = function()
+      -- return module.name
+    end,
+    entry_template = function(stack, k, v)
+      return {
+        component_type = "autocmds",
+        type = "module_autocmd",
+        data = {
+          event = v[1],
+          pattern = v[2],
+          action = v[3],
+        },
+        ordinal = v[1] .. v[2],
+        items = {
+          { "AUTOCMD" },
+          { v[1] },
+          { v[2] },
+          { tostring(v[3]) },
+        },
+        mappings = {
+          ["<CR>"] = function(fuzzy, line, cb)
+            -- DOOM_UI_STATE.query = {
+            --   type = "settings",
+            -- }
+            -- DOOM_UI_STATE.next()
+          end,
+        },
+      }
+    end,
   }
+  return autocmds_component
 end
+
+-- result_nodes.autocmds = function(_, k, v)
+--   return {
+--     type = "module_autocmd",
+--     data = {
+--       event = v[1],
+--       pattern = v[2],
+--       action = v[3],
+--     },
+--     ordinal = v[1] .. v[2],
+--     items = {
+--       { "AUTOCMD" },
+--       { v[1] },
+--       { v[2] },
+--       { tostring(v[3]) },
+--     },
+--     mappings = {
+--       ["<CR>"] = function(fuzzy, line, cb)
+--         -- DOOM_UI_STATE.query = {
+--         --   type = "settings",
+--         -- }
+--         -- DOOM_UI_STATE.next()
+--       end,
+--     },
+--   }
+-- end
 
 --
 -- BINDS
 --
 
-
--- result_nodes.binds = function()
---   local binds_component = {
---     displayer = function(entry)
---       return {
---         separator = " $ ",
---         items = {
---           { width = 10 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           { width = 20 },
---           -- { width = 4 },
---           { remaining = true },
---         },
---       }
---     end,
---     ordinal = function()
---       -- return module.name
---     end,
---     entry_template = function(stack, k, v)
---     end,
---   }
---   return binds_component
--- end
-
-result_nodes.binds = function(_, _, v)
-  return {
-    type = "module_bind_leaf",
-    data = v,
-    items = {
-      { "BIND" },
-      { v.lhs },
-      { v.name },
-      { v.rhs }, -- {v[1], v[2], tostring(v.options)
-    },
-    ordinal = v.name .. tostring(v.lhs),
-    mappings = {
-      ["<CR>"] = function()
-        -- DOOM_UI_STATE.query = {
-        --   type = "settings",
-        -- }
-        -- DOOM_UI_STATE.next()
-      end,
-    },
+result_nodes.binds = function()
+  local binds_component = {
+    displayer = function(entry)
+      return {
+        separator = " $ ",
+        items = {
+          { width = 10 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          { width = 20 },
+          -- { width = 4 },
+          { remaining = true },
+        },
+      }
+    end,
+    ordinal = function()
+      -- return module.name
+    end,
+    entry_template = function(stack, k, v)
+      return {
+        component_type = "binds",
+        type = "module_bind_leaf",
+        data = v,
+        items = {
+          { "BIND" },
+          { v.lhs },
+          { v.name },
+          { v.rhs }, -- {v[1], v[2], tostring(v.options)
+        },
+        ordinal = v.name .. tostring(v.lhs),
+        mappings = {
+          ["<CR>"] = function()
+            -- DOOM_UI_STATE.query = {
+            --   type = "settings",
+            -- }
+            -- DOOM_UI_STATE.next()
+          end,
+        },
+      }
+    end,
   }
+  return binds_component
 end
+
+-- result_nodes.binds = function(_, _, v)
+--   return {
+--     type = "module_bind_leaf",
+--     data = v,
+--     items = {
+--       { "BIND" },
+--       { v.lhs },
+--       { v.name },
+--       { v.rhs }, -- {v[1], v[2], tostring(v.options)
+--     },
+--     ordinal = v.name .. tostring(v.lhs),
+--     mappings = {
+--       ["<CR>"] = function()
+--         -- DOOM_UI_STATE.query = {
+--         --   type = "settings",
+--         -- }
+--         -- DOOM_UI_STATE.next()
+--       end,
+--     },
+--   }
+-- end
 
 return result_nodes

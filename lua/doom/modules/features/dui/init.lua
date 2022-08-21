@@ -114,7 +114,7 @@ local function make_results()
           results = crawl({
             tree = v,
             edge = "settings",
-            leaf = require("doom.modules.features.dui.results")[k],
+            leaf = require("doom.modules.features.dui.results")[k]().entry_template,
             acc = results,
           })
         elseif k == "binds" then
@@ -124,7 +124,7 @@ local function make_results()
             branch_next = function(v)
               return v.rhs
             end,
-            leaf = require("doom.modules.features.dui.results")[k],
+            leaf = ( require("doom.modules.features.dui.results")[k] )().entry_template,
             acc = results,
             edge = function(_, l, r)
               return type(r.val.rhs) ~= "table"
@@ -134,7 +134,7 @@ local function make_results()
           results = crawl({
             tree = v,
             edge = "list",
-            leaf = require("doom.modules.features.dui.results")[k],
+            leaf = ( require("doom.modules.features.dui.results")[k] )().entry_template,
             acc = results,
           })
         end
@@ -332,6 +332,7 @@ local function doom_picker()
       -- )(),
       entry_maker = function(entry)
         local entry_display = require("telescope.pickers.entry_display")
+        print(vim.inspect(entry))
         local displayer = entry_display.create(
           components[entry.component_type]().displayer(entry) or doom_ui.settings.displayer_default
         )
