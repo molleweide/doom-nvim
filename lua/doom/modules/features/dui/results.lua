@@ -3,9 +3,16 @@ local ax = require("doom.modules.features.dui.actions")
 
 -- TODO:
 --
---  1. follow new table pattern.
---  2. start customizing stylez.
---  3. create custom telescope theme per query.
+--  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
+--
+--  - fix `extend`
+--
+--  - add highlights to `modules`.
+--  - add opts to modules.
+--
+--  - add highlights to `settings`
+--  - add opts to settings.
+--
 --  4. create default styles.
 --  5.
 --  6. Default separator highlighting
@@ -56,17 +63,13 @@ end
 --
 -- if only two args apply the options globally to all entries on the left. otherwise apply them to the new entries,
 -- and then insert these into the main table.
-local function extend_entries(t_to_extend, opts, input_entries)
+--
+-- FIX: if list doesn't have an `items` key -> then, assume we have passed the `items` table instead of the full list.
+local function extend_entries_list(t_to_extend, opts, input_entries)
   -- if not t and t not == table -> return
-  --
-
-  -- TODO: MAKE SURE THAT EACH ENTRY ITEM HAS A HIGHLIGHT GROUP ATTACHED.
 
   -- if single string -> then just add the highlight group
 
-  -- A. loop over entries.
-  -- B. loop over options.
-  --
   -- CAN I DO THIS WITH VIM.TBL_EXTEND()????
   if input_entries then
     for k, v in ipairs(input_entries) do
@@ -83,6 +86,7 @@ local function extend_entries(t_to_extend, opts, input_entries)
       for o, opt in pairs(opts) do
         if o == "hl" then
           -- table.insert(v.items, opts.hl)
+          -- i(v.items)
           add_opts_to_each_sub_table(v.items, opt)
         else
           v[o] = opt
@@ -162,7 +166,7 @@ result_nodes.main_menu = function()
     entries = {},
   }
 
-  extend_entries(main_menu.entries, { hl = "TSBoolean" }, {
+  extend_entries_list(main_menu.entries, { hl = "TSBoolean" }, {
     {
       items = {
         { "OPEN USER CONFIG" },
@@ -187,7 +191,7 @@ result_nodes.main_menu = function()
     },
   })
 
-  extend_entries(main_menu.entries, { hl = "TSFunction" }, {
+  extend_entries_list(main_menu.entries, { hl = "TSFunction" }, {
     {
       items = {
         { "BROWSE USER SETTINGS" },
@@ -315,7 +319,7 @@ result_nodes.main_menu = function()
     main_menu.entries
   )
 
-  extend_entries(main_menu.entries, { component_type = "main_menu" })
+  extend_entries_list(main_menu.entries, { component_type = "main_menu" })
 
   -- print(vim.inspect(main_menu))
 
@@ -350,13 +354,18 @@ result_nodes.modules = function()
     entry_template = function(_, _, module)
       module["component_type"] = "modules"
       module["ordinal"] = module.name -- connect strings to make it easy to search modules. improve how?
+      -- can I replace this with a function in order to colorize the
       module["items"] = {
-        "MODULE",
-        module.enabled and "x" or " ",
-        module.origin,
-        module.section,
-        module.name,
+        { "MODULE" },
+        { module.enabled and "x" or " " },
+        { module.origin },
+        { module.section },
+        { module.name },
       }
+
+      -- FIX: if list doesn't have an `items` key -> then, assume we have passed the `items` table instead of the full list.
+      extend_items_list(module.items, { hl = "TSFunction" })
+
       module["mappings"] = {
         ["<CR>"] = function(fuzzy, _)
           DOOM_UI_STATE.selected_module = fuzzy.value
