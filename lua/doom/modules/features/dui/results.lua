@@ -1,3 +1,4 @@
+local utils = require("doom.utils")
 local ax = require("doom.modules.features.dui.actions")
 
 -- TODO:
@@ -19,6 +20,9 @@ local ax = require("doom.modules.features.dui.actions")
 -- todo: rename create entry and add metatable with the `surround char` and other features built into it
 --
 -- will this work with single-entry tables, eg. `packages` template below?
+--
+--
+-- TODO: move into utils
 local function entries_surround_with(start_char, end_char, t_entries, search_string)
   for i, _ in pairs(t_entries) do
     table.insert(t_entries[i].items, 1, start_char)
@@ -175,7 +179,9 @@ result_nodes.main_menu = function()
         { "OPEN USER SETTINGS" },
       },
       mappings = {
-        ["<CR>"] = function() end,
+        ["<CR>"] = function()
+          vim.cmd(("e %s"):format(utils.find_config("settings.lua")))
+        end,
       },
       ordinal = "usersettings",
     },

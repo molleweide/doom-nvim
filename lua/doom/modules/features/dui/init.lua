@@ -41,8 +41,11 @@ local doom_ui = {}
 --    So that eg. <C-a> would execute a different mapping for each component entry.
 
 doom_ui.settings = {
-  telescope_module_defaults = {
-    initial_mode = "insert",
+  opts = {
+    default = {
+      initial_mode = "insert",
+    },
+    main_menu = {},
   },
   displayer_default = {
     separator = "▏",
@@ -125,7 +128,7 @@ local function make_results()
             branch_next = function(v)
               return v.rhs
             end,
-            leaf = ( require("doom.modules.features.dui.results")[k] )().entry_template,
+            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
             edge = function(_, l, r)
               return type(r.val.rhs) ~= "table"
@@ -135,7 +138,7 @@ local function make_results()
           results = crawl({
             tree = v,
             edge = "list",
-            leaf = ( require("doom.modules.features.dui.results")[k] )().entry_template,
+            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
           })
         end
@@ -428,6 +431,8 @@ doom_ui.cmds = {
             width = 0.4,
           } },
           selection_caret = "",
+          initial_mode = "insert",
+          -- border = false,
           -- todo: disable multible selection?
         },
       } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
@@ -440,6 +445,13 @@ doom_ui.cmds = {
       reset()
       DOOM_UI_STATE.query = {
         type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
+        topts = {
+          layout_config = { width = 0.6, center = {
+            width = 0.6,
+          } },
+          -- selection_caret = "",
+          initial_mode = "insert",
+        },
       }
       DOOM_UI_STATE.next()
     end,

@@ -11,7 +11,6 @@ local confirm_alternatives = { "yes", "no" }
 
 actions.m_edit = function(m)
   if m.type == "doom_module_single" then
-
     local buf = utils.get_buf_handle(m.path .. "init.lua")
     vim.api.nvim_win_set_buf(0, buf)
     -- vim.fn.cursor(er+1,ec)
