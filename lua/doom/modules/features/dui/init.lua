@@ -10,6 +10,9 @@ local doom_ui = {}
 --    - list packages across all modules
 --    - history -> configure `opts.history` to see if this can be used to navigate menus?
 --
+--    - implement nice distinguishing between entry lists and entry templates pattern,
+--        so that creating or crawling and collecting nodes becomes more convenient.
+--
 --    MAPPINGS: write a cb that facilitates per entry mappings.
 --    i. create an issue and ask about this feature, if this is already impl.
 --    ii. show my use case and see what response I'll get.
@@ -88,13 +91,13 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
     results = crawl({
       tree = doom.settings,
-      leaf = require("doom.modules.features.dui.results").settings,
+      leaf = (require("doom.modules.features.dui.results").settings)().entry_template,
       edge = "settings",
     })
   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     results = crawl({
       tree = require("doom.modules.utils").extend(),
-      leaf = require("doom.modules.features.dui.results").modules,
+      leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
       edge = "doom_module_single",
     })
 
