@@ -5,15 +5,18 @@ local ax = require("doom.modules.features.dui.actions")
 --
 --  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
 --
---  - fix `extend`
---
---  - add highlights to `modules`.
+--  - >>>>> fix `modules` query from main menu.
 --  - add opts to modules.
+--  - custom color per each origin/section
 --
 --  - add highlights to `settings`
 --  - add opts to settings.
 --
---  4. create default styles.
+--  - create default styles.
+--
+--  - REFACTOR: THE `EXTEND` FUNCTION SO THAT IT DOESN'T LOOK LIKE SHIT.
+--
+--
 --  5.
 --  6. Default separator highlighting
 --  7. try highlighting with hex colors.
@@ -64,7 +67,6 @@ end
 -- if only two args apply the options globally to all entries on the left. otherwise apply them to the new entries,
 -- and then insert these into the main table.
 --
--- FIX: if list doesn't have an `items` key -> then, assume we have passed the `items` table instead of the full list.
 local function extend_entries_list(t_to_extend, opts, input_entries)
   -- if not t and t not == table -> return
 
@@ -72,6 +74,8 @@ local function extend_entries_list(t_to_extend, opts, input_entries)
 
   -- CAN I DO THIS WITH VIM.TBL_EXTEND()????
   if input_entries then
+    -- We should never arrive here if we pass the `items` table.
+    -- Only for the `entries` list
     for k, v in ipairs(input_entries) do
       for o, opt in pairs(opts) do
         if o == "hl" then
@@ -86,8 +90,11 @@ local function extend_entries_list(t_to_extend, opts, input_entries)
       for o, opt in pairs(opts) do
         if o == "hl" then
           -- table.insert(v.items, opts.hl)
-          -- i(v.items)
-          add_opts_to_each_sub_table(v.items, opt)
+          if v.items then
+            add_opts_to_each_sub_table(v.items, opt)
+          else
+            table.insert(v, opt)
+          end
         else
           v[o] = opt
         end
@@ -334,7 +341,7 @@ result_nodes.modules = function()
   local modules_component = {
     displayer = function(entry)
       return {
-        separator = " # ",
+        separator = "| ",
         items = {
           { width = 10 },
           { width = 20 },
@@ -363,8 +370,7 @@ result_nodes.modules = function()
         { module.name },
       }
 
-      -- FIX: if list doesn't have an `items` key -> then, assume we have passed the `items` table instead of the full list.
-      extend_items_list(module.items, { hl = "TSFunction" })
+      extend_entries_list(module.items, { hl = "TSFunction" })
 
       module["mappings"] = {
         ["<CR>"] = function(fuzzy, _)
