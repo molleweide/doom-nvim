@@ -223,9 +223,9 @@ result_nodes.main_menu = function()
             type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
             topts = {
               layout_config = {
-                width = 0.6,
+                width = 0.8,
                 center = {
-                  width = 0.6,
+                  width = 0.8,
                 },
               },
               -- selection_caret = "",
