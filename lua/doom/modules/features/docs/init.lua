@@ -5,6 +5,9 @@ local docs = {}
 docs.settings = {}
 
 -- https://github.com/natw/nvim-hover-doc-url
+--
+-- devdocs.vim
+-- zeal.vim
 
 docs.packages = {
   ["nvim-lua-guide"] = { "nanotee/nvim-lua-guide" },
