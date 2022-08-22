@@ -1,11 +1,36 @@
 --[[
+--
+--
+
+git checkout feat/core-recursive --
+  settings.lua
+  lua/doom/modules/utils.lua
+  lua/doom/modules/features/dui
+  lua/doom/utils/tree.lua
+
+0. FIRST TRY MERGING `FEAT/CORE-RECURSIVE` INTO MOLLEWEIDE.
+1. checkout files into molleweide main branch.
+2. checkout files into `main`.
+3. make sure `core.config` and `core.modules` are untouched.
+4. move `modules` to under `doom.utils`?
+5. create new branch or merge into `root-settings` PR branch?
+
+you just fucking google the shit and learn it yourself which is something that is a bit more interesting and so that
+is the most insane thing that you could ever do.
+so this is a shitpost thingy that is not so good for them and the first thing that you might see because the
+offering is done correctly and under deliveries. for something that she did not do and because she had confessed
+to this unrelated thingy she was fired from her new position and then she was moved back and so that is a bit
+interesting. the government counsil.
+
+pay me or I won't tell you who these bad people are I am getting this how do you think that I am not understanding it.
+and all of this shit ended up in the hospital and then the documentary then since it has been released.
+first of all it is a constant non stop on social media. accuse me of things that I never did.
+the girls that were part of the. the honey pot. the same kind of deal. mayhem and dissarray.
+false allegations. and I was cleared of these alligations. there is no ten girls.
+
+you fucking cheered and go nuts and don't heckle and don't make them feel fucking silly and so the thing.
 
 https://github.com/soywod/himalaya
-
-you have left politics and you are now outside of the fucking system that keeps you from slapping him into the fucki face like a retarded
-little dog that really dosen't make anything into the righteous strong motherfucking bitch as cucksucker and so that is the
-thing that we would never want to do you know. but on the otherhand we could also run that into the fucking shit hole that they are
-using.
 
 epidemic-sounds/ sonos / spotify /
 
@@ -16,10 +41,6 @@ https://www.youtube.com/results?search_query=paas+comparison
 I need to get a proton email. which is a clean and secure thing that is NOT google
 
 Email turn of -> verisure/facebook/more.???
-
-okay so this is a bit annoying and so that really pisses me off a lot which is a fucking bitch and so that really makes me angry you know.
-fuck this fucking shit you know mother fucking bitch ass cuck sucker.
-
 
 logseq vs obsidian | https://github.com/logseq/logseq
 

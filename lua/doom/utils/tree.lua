@@ -213,7 +213,9 @@ end
 -- all | both | base | default
 -- full | inspect
 -- pretty
--- large_pretty
+-- large_pretty: large prints where each entry is printed with a nice frame and colors so that
+--    you can truly see what is happening.
+--    Or open up a split that writes this as a temporary file with highlights and everything so that you can truly debug easilly.
 --
 --
 --  create a frame around the tree so that you can make very descriptive logs on large screens

@@ -3,6 +3,9 @@ local parsers = require "nvim-treesitter.parsers"
 
 local tst = {}
 
+-- THIS IS A REWRITE OF `SERVICES/KEYMAPS` WITH TREESITTERE, IE. IT FOLLOWS THE EXACT SAME
+-- PATTERN BUT NODES ARE ITERATED WITH TS INSTEAD OF REGULAR LUA TABLE.
+
 tst.parse_nest_tables_meta_data = function(buf, node, accumulated,level)
   if accumulated == nil then
     accumulated = {

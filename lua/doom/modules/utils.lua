@@ -3,6 +3,8 @@ local M = {}
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 --    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.
 
+-- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
+
 M.extend = function(filter)
   filter = filter or {}
   local config_path = vim.fn.stdpath("config")
