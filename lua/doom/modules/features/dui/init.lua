@@ -8,11 +8,20 @@ local doom_ui = {}
 --
 --    - center picker entries text
 --    - list packages across all modules
---    - history -> configure `opts.history` to see if this can be used to navigate menus?
 --    - default telescope UI options.
+--
+--    - HISTORY -> configure `opts.history` to see if this can be used to navigate menus?
+--      why? a good usecase of why history would be useful is for example if you inspect
+--      a module and then want to return back to the modules list. ATM you have
+--      to close dui and reopen it which is not good.
 --
 --    - implement nice distinguishing between entry lists and entry templates pattern,
 --        so that creating or crawling and collecting nodes becomes more convenient.
+--
+--
+--    - autocmds w/`once` prop seem to NOT SHOW in picker
+--
+--    - FIX: make sure `user` modules are listed.
 --
 --    MAPPINGS: write a cb that facilitates per entry mappings.
 --    i. create an issue and ask about this feature, if this is already impl.
@@ -152,7 +161,8 @@ local function make_results()
     -- 2. how do I attach the corresponding `module` into each component entry?
     crawl({
       tree = require("doom.modules.utils").extend({
-        origins = { "doom" },
+        -- TODO: get `user` to work here for origins
+        origins = { "doom", "user" },
         sections = { "features" },
         names = { "git", "lsp", "dap" },
         enabled = true,
@@ -227,6 +237,8 @@ local function doom_picker()
     -------------------------------------------------------
     finder = require("telescope.finders").new_table({
       results = results,
+
+      -- TODO: move results make into picker here
       -- results = (
       --
       --

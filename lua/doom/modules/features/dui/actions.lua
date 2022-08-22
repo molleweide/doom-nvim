@@ -5,9 +5,46 @@ local system = require("doom.core.system")
 -- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
 
+-- TODO: MODULES CRUD
+--
+--  - play around with nui.
+--
+--  - RENAME module
+--
+--  - DELETE module
+--
+--  - CREATE module
+--
+--
+--
+--
+--  - open new module in split
+--  - edit module in split.
+--
+--  TODO: COMPONENTS CRUD
+--
+--  - settings
+--
+--  - packages
+--
+--  - configs
+--
+--  - cmds
+--
+--  - autocmds
+--
+--  - binds
+--
+--
+--
+
 local actions = {}
 
 local confirm_alternatives = { "yes", "no" }
+
+--
+-- MODULE ACTIONS
+--
 
 actions.m_edit = function(m)
   if m.type == "doom_module_single" then
@@ -142,6 +179,23 @@ actions.m_merge = function(buf, config)
   --   -- 1. new prompt for B
   --   -- 2. select which module to pull into A
   --   -- 3. do...
+end
+
+actions.m_submit_module_to_upstream = function(buf, config)
+  -- create a PR onto `main` for selected module and submit PR.
+  -- cherry pick relevant co mmits onto `main`
+end
+
+--
+-- COMPONENT ACTIONS
+--
+
+actions.c_edit_setting = function(buf, config) end
+actions.c_edit_bind = function(buf, config) end
+actions.c_add_new_bind = function(buf, config) end
+actions.c_edit_add_new_bind = function(buf, config) end
+actions.c_add_new_bind_with_compose_ui = function(buf, config)
+  -- use NUI to create a UI pipeline for creating a new bind
 end
 
 return actions

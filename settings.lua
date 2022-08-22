@@ -20,7 +20,9 @@ return {
   -- false : Disable autosave
   -- true  : Enable autosave
   -- @default = false
-  autosave = false,
+  autosave = true,
+
+  -- TODO: format on save
 
   -- Disable Vim macros
   -- false : Enable
@@ -38,7 +40,7 @@ return {
   -- false : Enable
   -- true  : Disable
   -- @default = false
-  disable_suspension = true,
+  disable_suspension = false,
 
   -- Set numbering
   -- false : Enable  number lines
@@ -202,6 +204,7 @@ return {
     stab = "<S-Tab>",
   },
 
+  -- TODO: PUT MAPPINGS IN MAPPINGS TABLE??
   mappings = {
     completion_binds = {},
     telescope = {

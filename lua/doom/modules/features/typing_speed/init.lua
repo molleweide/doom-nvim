@@ -1,0 +1,1 @@
+-- git@github.com:OriginalOrangeXD/typeSpeedNvim.git

@@ -1,0 +1,1 @@
+-- git@github.com:mbpowers/lorem-nvim.git

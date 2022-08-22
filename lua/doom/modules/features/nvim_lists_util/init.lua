@@ -1,0 +1,1 @@
+-- git@github.com:slarwise/lists.nvim.git
