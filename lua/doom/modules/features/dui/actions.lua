@@ -17,6 +17,10 @@ actions.m_edit = function(m)
   end
 end
 
+-- requires
+--    - replace internal require statements
+--    - rename module dir
+--    - rename module in ./modules.lua
 actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(c, value) then

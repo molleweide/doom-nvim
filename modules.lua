@@ -8,6 +8,14 @@
 
 -- TODO: REDO COMMENT HEADERS WITH FIGLET
 
+-- TODO: AUTOMATICALLY SYNC THIS FILE WITH THE MODULES DIR.
+--
+-- requires
+--  - recurse modules dir
+--  - rewrite this file with an additional `category` dir that gives
+--      you higher clarity
+--  - maintain `enabled` states, ie. check if TSComment contains `module name` pattern.
+
 return {
   features = {
 
