@@ -22,8 +22,6 @@ doom.moll = {}
 --   stab = "<C-h>",
 -- }
 
-
-
 ------------------------
 ---       TODO       ---
 ------------------------
@@ -312,6 +310,10 @@ end
 ---------------------------
 ---       HELPERS       ---
 ---------------------------
+
+function i(x, pre)
+  print(pre or "", vim.inspect(x))
+end
 
 -- local function get_system_info_string()
 --   -- Get the neovim version
@@ -913,4 +915,5 @@ vim.opt.guifont = { "Hack Nerd Font", "h12" }
 vim.cmd("let g:neovide_refresh_rate=60")
 vim.cmd("let g:neovide_cursor_animation_length=0.03")
 vim.cmd("set laststatus=3")
+
 -- vim: sw=2 sts=2 ts=2 expandtab

@@ -5,7 +5,7 @@ return {
 
   -- Leader key for keybinds
   -- @default = ' '
-  leader_key = ' ',
+  leader_key = " ",
 
   -- Enables impatent.nvim caching to speed up start time.
   -- Can cause more issues so disabled by default
@@ -111,7 +111,7 @@ return {
 
   -- sequences used for escaping insert mode
   -- @default = { 'jk', 'kj' }
-  escape_sequences = {"zm"},
+  escape_sequences = { "zm" },
 
   -- If you require a specific command to be run when initiating the terminal
   -- @default = ""
@@ -177,6 +177,19 @@ return {
   -- so that we can add binds tha easilly modify and refactor core
   -- with eg. Treesitter..
   core_dev_binds_enabled = false,
+
+  -- Completion bindings
+  --
+  -- defaults:
+  --    select_prev_item  = "<C-p>",
+  --    select_next_item  = "<C-n>",
+  --    scroll_docs_fwd   = "<C-d>",
+  --    scroll_docs_bkw   = "<C-f>",
+  --    complete          = "<C-Space>",
+  --    close             = "<C-e>",
+  --    confirm           = "<CR>",
+  --    tab               = "<Tab>",
+  --    stab              = "<S-Tab>",
   cmp_binds = {
     select_prev_item = "<C-p>",
     select_next_item = "<C-n>",
@@ -187,6 +200,15 @@ return {
     confirm = "<CR>",
     tab = "<Tab>",
     stab = "<S-Tab>",
+  },
+
+  mappings = {
+    completion_binds = {},
+    telescope = {
+      -- i = {
+      --   ["<esc>"] = require("telescope.actions").close,
+      -- },
+    },
   },
 
   -- Automatically reload local plugins during development
