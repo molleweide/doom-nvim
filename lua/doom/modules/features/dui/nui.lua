@@ -1,5 +1,7 @@
 local M = {}
 
+-- REFACTOR: SHOULDN'T THIS GO INTO A MORE GENERALIZED UI OR UTIL LOCATION??
+
 local nui_settings = {
   confirm_alternatives = { "yes", "no" },
   section_alternatives = { "user", "features", "langs", "core" },

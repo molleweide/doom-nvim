@@ -2,6 +2,8 @@ local utils = require("doom.utils")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- REFACTOR: `DOOM/UTILS/SHELL.LUA`
+
 local pu = require("doom.modules.features.dui.templates")
 
 local shell = {}
