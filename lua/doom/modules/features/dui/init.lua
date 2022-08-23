@@ -11,6 +11,11 @@ local doom_ui = {}
 --    - default telescope UI options.
 --    - add `OPEN MODULES`
 --
+--    - config > add optional file preview to L/R
+--        >>> look at how `litee` is configured to learn a smart config pattern.
+--
+--    -
+--
 --    - HISTORY -> configure `opts.history` to see if this can be used to navigate menus?
 --      why? a good usecase of why history would be useful is for example if you inspect
 --      a module and then want to return back to the modules list. ATM you have

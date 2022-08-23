@@ -8,14 +8,23 @@ local ax = require("doom.modules.features.dui.actions")
 --  - modules -> origin / section hl
 --  - modules -> enabled hl
 --
+--  - settings -> make `path` pattern width dynamic.
+--      >> add minimum width for safety.
+--      >> shorten paths with `my.secret...prop.is.this`
+--
 --  - create default styles.
 --
---  - REFACTOR: THE `EXTEND` FUNCTION SO THAT IT DOESN'T LOOK LIKE SHIT.
+--  if settings/bind/config = function
+--      -> stringify contents and display as an exercise in how to retrieve stuff with treesitter
+--
+--  - improve ordinals by making a smarter expression or function that computes something nice
+--      >>> maybe come up with a few special begin chars for `origins/sections/etc`. Things that make sense to codify.
 --
 --
---  5.
---  6. Default separator highlighting
---  7. try highlighting with hex colors.
+--
+--  - default separator highlighting ???
+--
+--   try highlighting with hex colors.
 --
 -- NOTE: would entry.displayer = self.packages.displayer work?!?!
 
@@ -725,7 +734,6 @@ result_nodes.autocmds = function()
   }
   return autocmds_component
 end
-
 
 --
 -- BINDS
