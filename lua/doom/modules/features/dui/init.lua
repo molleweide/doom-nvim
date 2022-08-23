@@ -439,7 +439,7 @@ doom_ui.cmds = {
           -- NOTE: IS IT POSSIBLE TO SET THE MATCH_CHAR_COLOR???
           -- theme = require("telescope.themes").get_cursor(),
           layout_stategy = "center",
-          winblend = 0,
+          winblend = .25,
           layout_config = { width = 0.4, center = {
             width = 0.4,
           } },

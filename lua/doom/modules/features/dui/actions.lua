@@ -190,9 +190,36 @@ end
 -- COMPONENT ACTIONS
 --
 
-actions.c_edit_setting = function(buf, config) end
-actions.c_edit_bind = function(buf, config) end
-actions.c_add_new_bind = function(buf, config) end
+actions.c_edit_setting = function(buf, config)
+  -- find settings prop in settings file
+  -- enter insert at last position.
+end
+actions.c_add_new_setting = function(buf, config)
+  -- find settings prop in settings file
+  -- enter table snippet at last position in settings file.
+end
+
+actions.c_edit_bind = function(buf, config)
+  -- 1. find binds table.
+  -- 2. find selected bind in table
+  -- 3. find selected prop
+  -- 4. put cursor in position.
+  -- 5. enter insert mode.
+end
+actions.c_add_new_bind = function(buf, config)
+  -- 1. check if module has binds table
+  -- 2. check for regular binds AND leader table
+  -- 3. enter new binds snippet before leader.
+end
+actions.c_add_new_leader = function(buf, config)
+  -- 1. check if module has binds table
+  -- 2. check for leader table
+  -- 3. add to last
+end
+actions.c_add_to_selected_leader = function(buf, config)
+  -- find selected leader bind in module file.
+  -- enter new binds snippet in the correct selected leader node.
+end
 actions.c_edit_add_new_bind = function(buf, config) end
 actions.c_add_new_bind_with_compose_ui = function(buf, config)
   -- use NUI to create a UI pipeline for creating a new bind
