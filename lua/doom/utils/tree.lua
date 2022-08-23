@@ -1,4 +1,27 @@
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 --
+-- TODO
+--
+--------------------------------------
+-- RENAME: LEAF > NODE; BRANCH > EDGE; EDGE > FILTER
+--
+--------------------------------------
+-- logger > print each inspect entry on new line \n
+--    so that it becomes extra easy to compare
+--
+--------------------------------------
+-- use metatable?
+--
+--------------------------------------
+-- functional chaining
+--
+-- make it possible to
+--
+-- local res = crawl(opts).crawl()
+--
+--------------------------------------
+--  entry_counter, leaf_counter, edge_counter.
 --
 --
 -------------------------------------------------------------------------------
@@ -77,26 +100,17 @@
 --
 --  ::: acc :::
 --
---  ::: leaf (do|nodes|node_apply|process_node) :::
+--  ::: leaf -> node (do|nodes|node_apply|process_node) :::
 --
---  ::: branch (edges|process_edge) :::
+--  ::: branch -> edge (edges|process_edge) :::
 --
---  ::: branch_next (edge_next|subtable) :::
+--  ::: branch_next -> next_subtable (edge_next|subtable) :::
 --
 --    if there is a specific way that you access the next entry to analyze
 --    within RHS if rhs == table
 --
---  ::: leaf_ids (filter_props) :::
 --
---      IS THIS A SPECIAL CASE OF `FILTER` BELOW WHERE THE TYPE(ARG) == "TABLE"???.
---      THIS WOULD SIMPLIFY THINGS QUITE A LOT...
---
---      table array containing predefined properties that you know identifies a leaf.
---      Eg. doom module parts. See `core/spec.module_parts`
---      pass a list of specific attributes that you know constitutes a leaf node
---      and filter on this
---
---  ::: edge (filter/separator/determine_node) :::
+--  ::: edge -> filter (filter/separator/determine_node) :::
 --
 --      callback determine if tree entry is node or branch
 --
@@ -107,39 +121,28 @@
 --      STRING
 --        special keyword  := string|list
 --
+--  ::: leaf_ids -> node_ids (filter_props|node_ids|filter_ids) :::
+--
+--      IS THIS A SPECIAL CASE OF `FILTER` BELOW WHERE THE TYPE(ARG) == "TABLE"???.
+--      THIS WOULD SIMPLIFY THINGS QUITE A LOT...
+--
+--      table array containing predefined properties that you know identifies a leaf.
+--      Eg. doom module parts. See `core/spec.module_parts`
+--      pass a list of specific attributes that you know constitutes a leaf node
+--      and filter on this
+--
 -- -- callback function used to identify a leaf
 -- --
 -- -- special keywords: (string, list)
 --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
---
--- TODO
---
---------------------------------------
--- logger > print each inspect entry on new line \n
---    so that it becomes extra easy to compare
---
---------------------------------------
--- use metatable?
---
---------------------------------------
--- functional chaining
---
--- make it possible to
---
--- local res = crawl(opts).crawl()
---
---------------------------------------
---  entry_counter, leaf_counter, edge_counter.
---
---------------------------------------
--- rename: leaf > node; branch > edge; edge > filter
---
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 
 local M = {}
+
+--
+-- A couple of helper functions that should be considered moval into some other location maybe.
+--
 
 --- Concatenates the stack with the leaf node.
 local function flatten_stack(stack, v)
@@ -183,6 +186,13 @@ local function compute_indentation(stack, sep, mult)
   return b
 end
 
+--
+-- WIP: TREE LOG/DEBUG HELPER
+--
+
+-- At the moment (1) below is probably the most reliable.
+-- The goal is to make `large_pretty` for debugging large trees with colors n stuff.
+--
 -- i. within count range. always keep a count and only print nodes [x - y]
 -- ii. levels range
 -- iii. print colors
@@ -322,6 +332,8 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
+-- compute state of left and right hand sides of the key value pair for each table entry.
+
 local function check_lhs(l)
   return {
     val = l,
@@ -428,6 +440,8 @@ end
 -----------------------------------------------------------------------------
 
 -- TODO: USE ... TO MANAGE VARIABLE ARGS
+--
+-- ARGS SYNTAX EXAMPLE
 --
 -- function minimumvalue (...)
 --    local mi = 1 -- maximum index

@@ -1,9 +1,15 @@
 --[[
 
-
-rename vars / document `tree.lua`
-add - wip
+tree rename (tree/branch/edge/leaf_ids)
+add dui to current pull request
 luasnip
+  -> fix support for doom user snippets > add support for config.
+  -> make a generalized description on github
+  -> credit user snippets
+plenary
+  -> ask about `table_resursive` >> this is definitely a function that I would never want to write twice.
+  -> It comes especially in handy for flattening out tables for displayning them in telescope.
+  -> Used in `doom-nvim` for browsing and managing modules.
 
 
 so what is more or less dangerous and cannabis substances then it felt even more exciting
