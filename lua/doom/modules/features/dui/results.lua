@@ -172,7 +172,7 @@ result_nodes.main_menu = function()
   extend_entries_list(main_menu.entries, { hl = "TSBoolean" }, {
     {
       items = {
-        { "OPEN USER CONFIG" },
+        { "CONFIG" },
       },
       mappings = {
         ["<CR>"] = function()
@@ -183,7 +183,7 @@ result_nodes.main_menu = function()
     },
     {
       items = {
-        { "OPEN USER SETTINGS" },
+        { "SETTINGS" },
       },
       mappings = {
         ["<CR>"] = function()
@@ -191,6 +191,17 @@ result_nodes.main_menu = function()
         end,
       },
       ordinal = "usersettings",
+    },
+    {
+      items = {
+        { "MODULES" },
+      },
+      mappings = {
+        ["<CR>"] = function()
+          vim.cmd(("e %s"):format(utils.find_config("modules.lua")))
+        end,
+      },
+      ordinal = "modules",
     },
   })
 

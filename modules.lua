@@ -79,7 +79,7 @@ return {
     -- ::: UI COMPONENTS ::: --
     ------------------------------------------------------------------
 
-    "dui",                -- Browse config and modules with Telescope
+    "dui",                -- [WIP] Managen your doom config with Telescope.
     "lsp_progress",       -- Check status of LSP loading
     "tabline",            -- Tab bar buffer switcher
     "dashboard",          -- A pretty dashboard upon opening

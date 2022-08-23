@@ -1,6 +1,30 @@
 --[[
 
 
+rename vars / document `tree.lua`
+add - wip
+luasnip
+
+
+so what is more or less dangerous and cannabis substances then it felt even more exciting
+and so in the second year we decided to look at this kind of shit and see what we can find.
+
+now is the time to look into luasnip.
+
+because the dui and tree module is good enough so I can move on to other stuff.
+
+this is pretty fucking cool dude and the reason why that cannot happen is because there is something
+that is just a fucking bit insane with that thingy that you cannot really see.
+
+break down 11 hydroxy thc which is a bit stronger than thc and so this is a bit different
+and it is dery different but the regular thc is broken down in the stomach fluids. and so
+it feels completely different and so that is actually quite fucking insane and it feels
+completely different. your body vibrates in completely different way.
+
+so norg is quite a fucking interesTng project that we are all going for.
+we didi that because we wanted to see if cbd changes the effects of thc but that is a bit insane
+and that is why they asked something that you mightne never want to understand you know and so the
+thing is that they would never fucking do that shit you know.
 
 https://github.com/soywod/himalaya
 

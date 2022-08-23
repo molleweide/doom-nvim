@@ -9,6 +9,7 @@ local doom_ui = {}
 --    - center picker entries text
 --    - list packages across all modules
 --    - default telescope UI options.
+--    - add `OPEN MODULES`
 --
 --    - HISTORY -> configure `opts.history` to see if this can be used to navigate menus?
 --      why? a good usecase of why history would be useful is for example if you inspect
