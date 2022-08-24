@@ -378,66 +378,55 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- todo: add counters that keep track of all kinds of relevan data for a table
+-- todos:
+--  - move recurse into traversal.
+--  - add counters that keep track of all kinds of relevan data for a table
+--  - increment `counter_leaf`
+--  - increment `counter_branch`
+--  - increment `counter_entry`
+--  - assert tree == table or return and run logger on the previous entry
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
-
-  -- TODO: assert tree == table or return and run logger on the previous entry
-
   for k, v in pairs(tree) do
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
     local is_node = opts.filter(opts, left, right)
-
     logger(is_node, opts, stack, left, right)
-
-    -- TODO: increment `counter_entry`
-
     if not is_node then
-      -- TODO: increment `counter_branch`
-      stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
-      -- opts.branch(stack, k, v)
-      -- -- table.insert(accumulator, ret)
-      -- table.insert(stack, k)
-      -- M.recurse(opts, v, stack, accumulator)
-      -- return stack, accumulator
-    else
-      -- TODO: increment `counter_leaf`
-      stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
-      -- local ret = opts.node(stack, k, v)
+      opts.branch(stack, k, v)
       -- table.insert(accumulator, ret)
-      -- return stack, accumulator
+      table.insert(stack, k)
+      M.recurse(opts, opts.branch_next(v), stack, accumulator)
+    else
+      local ret = opts.node(stack, k, v)
+      table.insert(accumulator, ret)
     end
   end
-
   table.remove(stack, #stack)
   return accumulator
 end
 
-M.process_branch = function(opts, k, v, stack, accumulator)
-  opts.branch(stack, k, v)
-  -- table.insert(accumulator, ret)
-  table.insert(stack, k)
-
-  -- TODO: need to be able to determine which prop to recurse down!!!
-  --
-  -- a. select which prop to recurse down.
-  -- b. should this be the same table as the one we return?
-
-  -- M.recurse(opts, v, stack, accumulator)
-  M.recurse(opts, opts.branch_next(v), stack, accumulator)
-
-  return stack, accumulator
-end
-
--- todo: maybe default should be to return `v`,
--- eg. if opts.node ... else insert v
-M.process_leaf = function(opts, k, v, stack, accumulator)
-  local ret = opts.node(stack, k, v)
-  table.insert(accumulator, ret)
-  return stack, accumulator
-end
+-- M.process_branch = function(opts, k, v, stack, accumulator)
+--   opts.branch(stack, k, v)
+--   -- table.insert(accumulator, ret)
+--   table.insert(stack, k)
+--
+--   -- TODO: need to be able to determine which prop to recurse down!!!
+--   --
+--   -- a. select which prop to recurse down.
+--   -- b. should this be the same table as the one we return?
+--
+--   -- M.recurse(opts, v, stack, accumulator)
+--   M.recurse(opts, opts.branch_next(v), stack, accumulator)
+--
+--   return stack, accumulator
+-- end
+-- M.process_leaf = function(opts, k, v, stack, accumulator)
+--   local ret = opts.node(stack, k, v)
+--   table.insert(accumulator, ret)
+--   return stack, accumulator
+-- end
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -515,6 +504,7 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
+  -- determines how to access the next entry that should be analyzed for edge/node
   if not opts.branch_next then
     opts.branch_next = function(v)
       return v
