@@ -1,1 +1,4 @@
 -- https://github.com/anuvyklack/hydra.nvim
+--
+--
+-- https://github.com/vsedov/nvim has very nice `hydra` setup.

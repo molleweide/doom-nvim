@@ -365,6 +365,13 @@ end
 -- MODULES --------------------------------------------------------------------
 --
 
+-- todos:
+--    - move `enabled` to right of section
+--    - rm `MODULE` prefix
+--    - custom border colors
+--    - custom separator highlight
+--    - module file preview (optional)
+--    - why aren't user modules listed?!
 result_nodes.modules = function()
   local modules_component = {
     displayer = function(entry)
