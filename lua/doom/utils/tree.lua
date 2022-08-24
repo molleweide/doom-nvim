@@ -4,7 +4,7 @@
 -- TODO
 --
 --------------------------------------
--- RENAME: LEAF > NODE; BRANCH > EDGE; EDGE > FILTER; leaf_ids > node_ids
+-- RENAME: LEAF > NODE; BRANCH > EDGE; EDGE > FILTER; filter_ids > node_ids
 --
 --------------------------------------
 -- logger > print each inspect entry on new line \n
@@ -121,7 +121,7 @@
 --      STRING
 --        special keyword  := string|list
 --
---  ::: leaf_ids -> node_ids (filter_props|node_ids|filter_ids) :::
+--  ::: filter_ids -> node_ids (filter_props|node_ids|filter_ids) :::
 --
 --      IS THIS A SPECIAL CASE OF `FILTER` BELOW WHERE THE TYPE(ARG) == "TABLE"???.
 --      THIS WOULD SIMPLIFY THINGS QUITE A LOT...
@@ -141,10 +141,11 @@
 local M = {}
 
 --
--- A couple of helper functions that should be considered moval into some other location maybe.
+-- A COUPLE OF HELPER FUNCTIONS THAT SHOULD BE CONSIDERED MOVAL INTO SOME OTHER LOCATION MAYBE.
 --
 
---- Concatenates the stack with the leaf node.
+--- conatenate path stack with node
+--- rename: flatten_stack is a non descriptive name -> concat_node_path()
 local function flatten_stack(stack, v)
   local pc = { v }
   if #stack > 0 then
@@ -156,6 +157,8 @@ end
 
 -- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
 -- could be a head if you want to append all modules upon loading doom.
+--
+-- @param table list of path components
 M.attach_table_path = function(head, tp, data)
   local last = #tp
   for i, p in ipairs(tp) do
@@ -198,16 +201,16 @@ end
 -- iii. print colors
 --
 -- eg.
-            -- log = {
-            --   use = true,
-            --   mult = 8,
-            --   name_string = "test list modules",
-            --   cat = 1,
-            --   inspect = true,
-            --   new_line = true,
-            --   frame = true,
-            --   separate = true,
-            -- },
+-- log = {
+--   use = true,
+--   mult = 8,
+--   name_string = "test list modules",
+--   cat = 1,
+--   inspect = true,
+--   new_line = true,
+--   frame = true,
+--   separate = true,
+-- },
 
 -- 1 = log all
 -- 2 = log only branch and leaf
@@ -359,8 +362,8 @@ local function check_rhs(r, opts)
     local num_keys = 0
     for k, _ in pairs(r) do
       num_keys = num_keys + 1
-      if opts.leaf_ids then
-        if vim.tbl_contains(opts.leaf_ids, k) then
+      if opts.filter_ids then
+        if vim.tbl_contains(opts.filter_ids, k) then
           ret.id_match = true
         end
       end
@@ -421,7 +424,6 @@ M.process_branch = function(opts, k, v, stack, accumulator)
   --
   -- a. select which prop to recurse down.
   -- b. should this be the same table as the one we return?
-
 
   -- M.recurse(opts, v, stack, accumulator)
   M.recurse(opts, opts.branch_next(v), stack, accumulator)
@@ -526,7 +528,7 @@ M.traverse_table = function(opts, tree, acc)
   --
   -- pass a list of specific attributes that you know constitutes a node node
   -- and filter on this
-  opts.leaf_ids = opts.leaf_ids or false
+  opts.filter_ids = opts.filter_ids or false
 
   -- OPTS.EDGE -----------------------------------------------------------------------------
   --

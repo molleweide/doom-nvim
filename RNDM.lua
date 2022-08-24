@@ -1,6 +1,6 @@
 --[[
 
-tree rename (tree/branch/edge/leaf_ids)
+tree rename edge -> branch?
 add dui to current pull request
 luasnip
   -> fix support for doom user snippets > add support for config.
