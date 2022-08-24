@@ -11,6 +11,9 @@ plenary
   -> It comes especially in handy for flattening out tables for displayning them in telescope.
   -> Used in `doom-nvim` for browsing and managing modules.
 
+this is one of the most interesting things that I could ever fuckig do. you know and so therefore this is something
+that could be quite fucking cool.
+
 infront of the domestic so that you can actually fucking do this shit and really try to make sense of the thing.
 that is quite fucking insane. you know.
 

@@ -4,7 +4,7 @@
 -- TODO
 --
 --------------------------------------
--- RENAME: LEAF > NODE; BRANCH > EDGE; EDGE > FILTER
+-- RENAME: LEAF > NODE; BRANCH > EDGE; EDGE > FILTER; leaf_ids > node_ids
 --
 --------------------------------------
 -- logger > print each inspect entry on new line \n
@@ -230,7 +230,7 @@ end
 --
 --  create a frame around the tree so that you can make very descriptive logs on large screens
 --
-local function logger(is_leaf, opts, stack, k, v)
+local function logger(is_node, opts, stack, k, v)
   -- use table pattern to make the messages more variable and dynamic.
   --
   -- NOTE: FRAME -> LOOK AT HOW VENN.NVIM IS WRITTEN
@@ -261,10 +261,10 @@ local function logger(is_leaf, opts, stack, k, v)
 
   local post_sep = opts.log.new_line and ("\n     " .. pre) or " / "
 
-  -- local ind_str = "+" and is_leaf or "-"
+  -- local ind_str = "+" and is_node or "-"
 
   -- todo: LEAF / BRANCH merge into one statement!!!
-  if is_leaf and (all or full or cat == 3) then
+  if is_node and (all or full or cat == 3) then
     msg.entry = string.format(
       [[%s %s > (%s) %s %s]],
       "+",
@@ -275,7 +275,7 @@ local function logger(is_leaf, opts, stack, k, v)
     )
   end
 
-  if not is_leaf and (all or full or cat == 4) then
+  if not is_node and (all or full or cat == 4) then
     msg.entry = string.format(
       [[%s %s > (%s) %s %s]],
       "-",
@@ -375,6 +375,7 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
+-- todo: add counters that keep track of all kinds of relevan data for a table
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
@@ -384,13 +385,13 @@ M.recurse = function(opts, tree, stack, accumulator)
   for k, v in pairs(tree) do
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
-    local is_leaf = opts.edge(opts, left, right)
+    local is_node = opts.filter(opts, left, right)
 
-    logger(is_leaf, opts, stack, left, right)
+    logger(is_node, opts, stack, left, right)
 
     -- TODO: increment `counter_entry`
 
-    if not is_leaf then
+    if not is_node then
       -- TODO: increment `counter_branch`
       stack, accumulator = M.process_branch(opts, k, v, stack, accumulator)
       -- opts.branch(stack, k, v)
@@ -401,7 +402,7 @@ M.recurse = function(opts, tree, stack, accumulator)
     else
       -- TODO: increment `counter_leaf`
       stack, accumulator = M.process_leaf(opts, k, v, stack, accumulator)
-      -- local ret = opts.leaf(stack, k, v)
+      -- local ret = opts.node(stack, k, v)
       -- table.insert(accumulator, ret)
       -- return stack, accumulator
     end
@@ -429,9 +430,9 @@ M.process_branch = function(opts, k, v, stack, accumulator)
 end
 
 -- todo: maybe default should be to return `v`,
--- eg. if opts.leaf ... else insert v
+-- eg. if opts.node ... else insert v
 M.process_leaf = function(opts, k, v, stack, accumulator)
-  local ret = opts.leaf(stack, k, v)
+  local ret = opts.node(stack, k, v)
   table.insert(accumulator, ret)
   return stack, accumulator
 end
@@ -494,10 +495,10 @@ M.traverse_table = function(opts, tree, acc)
 
   -- LEAF DEFAULT CALLBACK -----------------------------------------------------------------------------
   --
-  ---     how to process each leaf node
+  ---     how to process each node node
   ---     return appens to accumulator
-  if not opts.leaf then
-    opts.leaf = function(_, _, v)
+  if not opts.node then
+    opts.node = function(_, _, v)
       return v
     end
   end
@@ -520,39 +521,39 @@ M.traverse_table = function(opts, tree, acc)
 
   -- LEAF IDS -----------------------------------------------------------------------------
   --
-  --      table array containing predefined properties that you know identifies a leaf.
+  --      table array containing predefined properties that you know identifies a node.
   --      Eg. doom module parts. See `core/spec.module_parts`
   --
-  -- pass a list of specific attributes that you know constitutes a leaf node
+  -- pass a list of specific attributes that you know constitutes a node node
   -- and filter on this
   opts.leaf_ids = opts.leaf_ids or false
 
   -- OPTS.EDGE -----------------------------------------------------------------------------
   --
-  -- callback function used to identify a leaf
+  -- callback function used to identify a node
   --
   -- special keywords: (string, list)
   --
-  if type(opts.edge) == "string" then
-    if opts.edge == "list" then
-      opts.edge = function()
+  if type(opts.filter) == "string" then
+    if opts.filter == "list" then
+      opts.filter = function()
         return true
       end
-    elseif opts.edge == "settings" then
-      opts.edge = function(_, l, r)
+    elseif opts.filter == "settings" then
+      opts.filter = function(_, l, r)
         return l.is_num or not r.is_tbl or r.numeric_keys or r.tbl_empty
       end
     else
-      local flt_str = opts.edge
-      opts.edge = function(_, _, r)
+      local flt_str = opts.filter
+      opts.filter = function(_, _, r)
         return r.val.type == flt_str
       end
     end
   end
 
-  -- default case if you leave edge empty.
-  if not opts.edge then
-    opts.edge = function(_, _, r)
+  -- default case if you leave filter empty.
+  if not opts.filter then
+    opts.filter = function(_, _, r)
       return not r.is_tbl
     end
   end

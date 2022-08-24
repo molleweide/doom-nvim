@@ -105,35 +105,35 @@ local function make_results()
   if DOOM_UI_STATE.query.type == "MAIN_MENU" then
     results = crawl({
       tree = require("doom.modules.features.dui.results").main_menu().entries,
-      edge = "list",
+      filter = "list",
     })
   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
     results = crawl({
       tree = doom.settings,
-      leaf = (require("doom.modules.features.dui.results").settings)().entry_template,
-      edge = "settings",
+      node = (require("doom.modules.features.dui.results").settings)().entry_template,
+      filter = "settings",
     })
   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     results = crawl({
       tree = require("doom.modules.utils").extend(),
-      leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
-      edge = "doom_module_single",
+      node = (require("doom.modules.features.dui.results").modules)().entry_template,
+      filter = "doom_module_single",
     })
 
     -- todo: rename "SINGLE_MODULE"
   elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
     crawl({
       tree = DOOM_UI_STATE.selected_module,
-      edge = "list",
-      leaf = function(_, k, v)
+      filter = "list",
+      node = function(_, k, v)
         -- TODO: use
         -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
         -- end
         if k == "settings" then
           results = crawl({
             tree = v,
-            edge = "settings",
-            leaf = require("doom.modules.features.dui.results")[k]().entry_template,
+            filter = "settings",
+            node = require("doom.modules.features.dui.results")[k]().entry_template,
             acc = results,
           })
         elseif k == "binds" then
@@ -143,17 +143,17 @@ local function make_results()
             branch_next = function(v)
               return v.rhs
             end,
-            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
+            node = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
-            edge = function(_, l, r)
+            filter = function(_, l, r)
               return type(r.val.rhs) ~= "table"
             end,
           })
         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
           results = crawl({
             tree = v,
-            edge = "list",
-            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
+            filter = "list",
+            node = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
           })
         end
@@ -173,16 +173,16 @@ local function make_results()
         names = { "git", "lsp", "dap" },
         enabled = true,
       }),
-      edge = "doom_module_single",
-      leaf = function(_, k, v)
+      filter = "doom_module_single",
+      node = function(_, k, v)
         -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
-        -- I can assign results here inside of `leaf` or I could return entry if package.
+        -- I can assign results here inside of `node` or I could return entry if package.
         -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
         if k == "packages" then
           results = crawl({
             tree = v,
-            edge = "list",
-            leaf = require("doom.modules.features.dui.results")[k],
+            filter = "list",
+            node = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         end
@@ -243,115 +243,6 @@ local function doom_picker()
     -------------------------------------------------------
     finder = require("telescope.finders").new_table({
       results = results,
-
-      -- TODO: move results make into picker here
-      -- results = (
-      --
-      --
-      --
-      -- local function make_results()
-      --   local results = {}
-      --
-      --   if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-      --     results = crawl({
-      --       tree = require("doom.modules.features.dui.results").main_menu().entries,
-      --       edge = "list",
-      --     })
-      --
-      --   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-      --     results = crawl({
-      --       tree = doom.settings,
-      --       leaf = require("doom.modules.features.dui.results").settings,
-      --       edge = "settings",
-      --     })
-      --   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-      --     results = crawl({
-      --       tree = require("doom.modules.utils").extend(),
-      --       leaf = require("doom.modules.features.dui.results").modules,
-      --       edge = "doom_module_single",
-      --     })
-      --
-      --     -- todo: rename "SINGLE_MODULE"
-      --   elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-      --     crawl({
-      --       tree = DOOM_UI_STATE.selected_module,
-      --       edge = "list",
-      --       leaf = function(_, k, v)
-      --         -- TODO: use
-      --         -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
-      --         -- end
-      --         if k == "settings" then
-      --           results = crawl({
-      --             tree = v,
-      --             edge = "settings",
-      --             leaf = require("doom.modules.features.dui.results")[k],
-      --             acc = results,
-      --           })
-      --         elseif k == "binds" then
-      --           results = crawl({
-      --             tree = v,
-      --             -- TODO: simplify this by just adding the string name for the subtable
-      --             branch_next = function(v)
-      --               return v.rhs
-      --             end,
-      --             leaf = require("doom.modules.features.dui.results")[k],
-      --             acc = results,
-      --             edge = function(_, l, r)
-      --               return type(r.val.rhs) ~= "table"
-      --             end,
-      --           })
-      --         elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
-      --           results = crawl({
-      --             tree = v,
-      --             edge = "list",
-      --             leaf = require("doom.modules.features.dui.results")[k],
-      --             acc = results,
-      --           })
-      --         end
-      --       end,
-      --     })
-      --
-      --     -----------------------------------------------------------------------------
-      --     -----------------------------------------------------------------------------
-      --   elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
-      --     -- 1. select components set
-      --     -- 2. how do I attach the corresponding `module` into each component entry?
-      --     crawl({
-      --       tree = require("doom.modules.utils").extend({
-      --         origins = { "doom" },
-      --         sections = { "features" },
-      --         names = { "git", "lsp", "dap" },
-      --         enabled = true,
-      --       }),
-      --       edge = "doom_module_single",
-      --       leaf = function(_, k, v)
-      --         -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
-      --         -- I can assign results here inside of `leaf` or I could return entry if package.
-      --         -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
-      --         if k == "packages" then
-      --           results = crawl({
-      --             tree = v,
-      --             edge = "list",
-      --             leaf = require("doom.modules.features.dui.results")[k],
-      --             acc = results,
-      --           })
-      --         end
-      --       end,
-      --     })
-      --
-      --     -----------------------------------------------------------------------------
-      --     -----------------------------------------------------------------------------
-      --     -- feels like this should be a special case of the above "MULT/SINGLE"
-      --   elseif DOOM_UI_STATE.query.type == "all" then
-      --     -- todo: list everything!
-      --   end
-      --
-      --   return results
-      -- end
-      --
-      --
-      --
-      -- )(),
       entry_maker = function(entry)
         local entry_display = require("telescope.pickers.entry_display")
         -- print(vim.inspect(entry))
@@ -444,7 +335,7 @@ doom_ui.cmds = {
           -- NOTE: IS IT POSSIBLE TO SET THE MATCH_CHAR_COLOR???
           -- theme = require("telescope.themes").get_cursor(),
           layout_stategy = "center",
-          winblend = .25,
+          winblend = 25,
           layout_config = { width = 0.4, center = {
             width = 0.4,
           } },

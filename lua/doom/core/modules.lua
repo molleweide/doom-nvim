@@ -121,8 +121,8 @@ modules.load_modules = function()
   -- default > traverse `doom.modules` if nothing specified
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
-    edge = "doom_module_single",
-    leaf = function(_, module_name, module)
+    filter = "doom_module_single",
+    node = function(_, module_name, module)
       -- print(module_name, module)
 
       -- Import dependencies with packer from module.packages
