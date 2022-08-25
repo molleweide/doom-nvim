@@ -5,6 +5,11 @@ local system = require("doom.core.system")
 -- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
 
+-- FIX: THIS FIRST!!!
+--
+-- IN ORDER TO USE THES ACTIONS WE FIRST NEED TO SETUP THE MULTI MAPPINGS
+-- FUNCTIONALITY SO THAT WE CAN JUST CUSTOM MAPPIGS ON A PER ENTRY BASIS.
+
 -- TODO: MODULES CRUD
 --
 --  - play around with nui.
@@ -176,9 +181,7 @@ actions.m_move = function(buf, config)
 end
 
 actions.m_merge = function(buf, config)
-  --   -- 1. new prompt for B
-  --   -- 2. select which module to pull into A
-  --   -- 3. do...
+  -- select module A to merge into module B.
 end
 
 actions.m_submit_module_to_upstream = function(buf, config)
@@ -190,6 +193,7 @@ end
 -- COMPONENT ACTIONS
 --
 
+-- SETTINGS
 actions.c_edit_setting = function(buf, config)
   -- find settings prop in settings file
   -- enter insert at last position.
@@ -198,7 +202,28 @@ actions.c_add_new_setting = function(buf, config)
   -- find settings prop in settings file
   -- enter table snippet at last position in settings file.
 end
+actions.c_add_new_setting_to_mod = function(buf, config)
+  -- same but for a single module.
+end
 
+-- ADD PACKAGES
+actions.c_add_new_pkg_to_module = function(buf, config) end
+actions.c_add_new_pkg_to_new_module = function(buf, config) end
+actions.c_pkg_fork = function(buf, config) end
+actions.c_pkg_clone = function(buf, config) end
+
+-- ADD CONFIGS
+
+-- ADD CMD
+actions.c_cmd_add_new_to_sel_mod = function(buf, config) end
+actions.c_cmd_add_to_new = function(buf, config) end
+actions.c_cmd_add_to_existing = function(buf, config) end
+
+-- ADD AUTOCMDS
+actions.c_autocmd_add_to_exising = function(buf, config) end
+actions.c_autocmd_add_to_new_mod = function(buf, config) end
+
+-- BINDS
 actions.c_edit_bind = function(buf, config)
   -- 1. find binds table.
   -- 2. find selected bind in table

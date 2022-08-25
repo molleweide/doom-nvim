@@ -263,6 +263,17 @@ local function doom_picker()
     -------------------------------------------------------
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
+
+      -- QUESTION: CAN YOU RECIEVE THE PRESSED BUTTON HERE AND PASS IT DOWN TO THE ENTRY CALLBACK??
+      --
+      -- otherwise we most likely have to do some kind of custom mapping thingy.
+
+      -- TODO: refactor into a util func that allows mapping entry based mappings back
+      -- to this
+      --
+      -- if fuzzy.value.mappings[]
+
+
       actions_set.select:replace(function()
         local fuzzy, line = picker_get_state(prompt_bufnr)
         require("telescope.actions").close(prompt_bufnr)
