@@ -203,6 +203,17 @@ return {
     tab = "<Tab>",
     stab = "<S-Tab>",
   },
+  -- cmp_binds = {
+  --   select_prev_item = "<C-p>",
+  --   select_next_item = "<C-n>",
+  --   scroll_docs_fwd = "<C-d>",
+  --   scroll_docs_bkw = "<C-f>",
+  --   complete = "<C-Space>",
+  --   close = "<C-e>",
+  --   confirm = "<C-l>",
+  --   tab = "<C-k>",
+  --   stab = "<C-j>",
+  -- },
 
   -- TODO: PUT MAPPINGS IN MAPPINGS TABLE??
   mappings = {

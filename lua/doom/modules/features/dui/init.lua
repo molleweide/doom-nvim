@@ -6,6 +6,7 @@ local doom_ui = {}
 --
 -- TODO:
 --
+--    - log each selection in attach mappings.
 --    - center picker entries text
 --    - list packages across all modules
 --    - default telescope UI options.
@@ -56,7 +57,8 @@ local doom_ui = {}
 --    So that eg. <C-a> would execute a different mapping for each component entry.
 
 doom_ui.settings = {
-  opts = {
+  inspect_entries_on_keypress = true,
+  topts = {
     default = {
       initial_mode = "insert",
     },
@@ -263,6 +265,11 @@ local function doom_picker()
     -------------------------------------------------------
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
+
+      -- -- TODO allow easy toggle logging.
+      -- if doom_ui.settings.inspect_entries_on_keypress then
+      --   print(vim.inspect(fuzzy))
+      -- end
 
       -- QUESTION: CAN YOU RECIEVE THE PRESSED BUTTON HERE AND PASS IT DOWN TO THE ENTRY CALLBACK??
       --
