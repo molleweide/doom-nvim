@@ -433,8 +433,8 @@ result_nodes.modules = function()
           -- DOOM_UI_STATE.selected_component = fuzzy.value
           -- DOOM_UI_STATE.next()
         end,
-        ["<C-e>"] = function(fuzzy, line)
-          ax.m_create()
+        ["<C-e>"] = function(sel, line)
+          ax.m_create(sel,line)
         end,
         ["<C-r>"] = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
           ax.m_rename(fuzzy.value)
@@ -451,7 +451,7 @@ result_nodes.modules = function()
         ["<C-q>"] = function(fuzzy, _)
           ax.m_submit_module_to_upstream()
         end,
-        ["<C-t>"] = function(fuzzy, _)
+        ["<C-l>"] = function(fuzzy, _)
           ax.m_toggle(fuzzy.value)
         end,
       }

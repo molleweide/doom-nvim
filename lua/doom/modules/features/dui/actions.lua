@@ -20,14 +20,73 @@ local nui = require("doom.modules.features.dui.nui")
 --  - open/edit (new) module in split / same win is default on <CR>
 
 local actions = {}
+local conf_ui = {}
 
+conf_ui.settings = {
+  confirm_alternatives = { "yes", "no" },
+  section_alternatives = { "user", "features", "langs", "core" },
+  popup = {
+    relative = "cursor",
+    position = {
+      row = 1,
+      col = 0,
+    },
+    size = 20,
+    border = {
+      style = "rounded",
+      text = {
+        top = "[Input]",
+        top_align = "left",
+      },
+    },
+    win_options = {
+      winhighlight = "Normal:Normal",
+    },
+  },
+  menu = {
+    position = "20%",
+    size = {
+      width = 20,
+      height = 2,
+    },
+    relative = "editor",
+    border = {
+      style = "single",
+      text = {
+        top = "Choose Something",
+        top_align = "center",
+      },
+    },
+    win_options = {
+      winblend = 10,
+      winhighlight = "Normal:Normal",
+    },
+  },
+}
 local confirm_alternatives = { "yes", "no" }
 
+-- -- c, m, new_name
+-- local function check_if_module_name_exists(c, m, new_name)
+--   local already_exists = false
+--   for _, v in pairs(c.entries_mapped) do
+--     if v.section == m.section and v.name == new_name then
+--       already_exists = true
+--     end
+--   end
+--   return already_exists
+-- end
+
 local function check_if_module_name_exists(m, new_name)
+  -- TODO: need to account for origin.
+  -- local orig = type(m) == "string" and m or m.section
+  local sec = type(m) == "string" and m or m.section
   results = tscan({
     tree = require("doom.modules.utils").extend(),
     filter = "doom_module_single", -- what makes a node in the tree
     node = function(_, _, v)
+      -- todo: if m == string then do
+      --
+
       if m.section == v.section and v.name == new_name then
         log.debug("dui/actions check_if_module_exists: true")
         return true
@@ -48,6 +107,8 @@ local get_root = function(bufnr)
   local tree = parser:parse()[1]
   return tree:root()
 end
+
+-- M.ntext = function(n,b) return tsq.get_node_text(n, b) end
 
 --
 -- MODULE ACTIONS
@@ -184,24 +245,34 @@ actions.m_rename = function(m)
   end)
 end
 
-actions.m_create = function(m)
-  local new_name
-  local for_section
+-- todo: pass fuzzy, line
+actions.m_create = function(sel, line)
+  if string.len(line) < 2 then
+    log.info("Module names require at least two characters!")
+    return
+  end
 
+  log.debug("m_create()")
+
+  local function create_module(new_name, for_section)
+    -- need
+    if not check_if_module_name_exists(for_section, new_name) then
+      --   local buf, smll = transform_root_mod_file({ section = value.text })
+      --   -- print("smll: ", smll)
+      --   new_name = vim.trim(new_name, " ")
+      --   vim.api.nvim_buf_set_lines(buf, smll, smll, true, { '"' .. new_name .. '",' })
+      --   write_to_root_modules_file(buf)
+      --   shell_mod_new(for_section, new_name)
+    end
+  end
+
+  -- TODO: ACCOUNT FOR `ORIGIN` or always create under user and then move modules to core with `m_move`
+  --
+  -- alternatively ONLY show doom origin if `development` mode is set under settings?
   nui.nui_menu("CONFIRM CREATE", confirm_alternatives, function(value)
     if value.text == "yes" then
-      new_name = c.new_module_name
       nui.nui_menu("FOR SECTION:", conf_ui.settings.section_alternatives, function(value)
-        for_section = value.text
-        print("create mod >> new name:", for_section .. " > " .. new_name)
-        --         if not check_if_module_name_exists(c, { section = nil }, value) then
-        --           local buf, smll = transform_root_mod_file({ section = value.text })
-        --           -- print("smll: ", smll)
-        --           new_name = vim.trim(new_name, " ")
-        --           vim.api.nvim_buf_set_lines(buf, smll, smll, true, { '"' .. new_name .. '",' })
-        --           write_to_root_modules_file(buf)
-        --           shell_mod_new(for_section, new_name)
-        -- end
+        create_module(line, value.text)
       end)
     end
   end)
@@ -214,7 +285,38 @@ end
 actions.m_delete = function(m)
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
     if value.text == "yes" then
-      print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
+      -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
+      log.info("Deleting module: " .. m.origin .. " > " .. m.section .. " > " .. m.name)
+
+      local root_modules = utils.find_config("modules.lua")
+      local buf = utils.get_buf_handle(root_modules)
+
+      -- TODO: make sure this work -> get single mod string AND all comment
+      local delete_module_query = string.format(
+        [[
+(return_statement
+  (expression_list
+    (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+          (comment) @section_comment
+          (field value: (string) @module_string)
+            (#eq? @module_string "%s")
+        ) @section_table
+      )
+    ) (#eq? @section_key "%s")
+))]],
+        m.name,
+        m.section
+      )
+
+      print(delete_module_query)
+      local root = get_root(buf)
+      local parsed = vim.treesitter.parse_query("lua", delete_module_query)
+
+      -- TODO: finnish rename module first since this is the same code
+
       --       local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
       --         local sr, sc, er, ec = node:range()
       --         if capt == "modules.enabled" then
@@ -243,7 +345,10 @@ end
 -- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
 -- the code to here. I think this is the best way of learning how to do this properly.
 actions.m_toggle = function(m)
-  print("toggle: ", c.selected_module.name)
+
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+
   --   local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
   --     local sr, sc, er, ec = node:range()
   --     if string.match(node_text, m.name) then
@@ -255,6 +360,7 @@ actions.m_toggle = function(m)
   --     end
   --   end)
   --   write_to_root_modules_file(buf)
+  log.info("Toggling module: " .. m.origin .. " > " .. m.section .. " > " .. m.name .. " = " .. tostring(not m.enabled))
 end
 
 -- this one requires that all of the above works since this is a compound of all of the above.
@@ -262,7 +368,7 @@ actions.m_move = function(m)
   --   -- move module into into (features/langs)
   --   -- 1. nui menu select ( other sections than self)
   --   -- 2. move module dir
-  --   -- 3. transform `modules.lua`
+  --   -- 3. transform `modules.lua` -> call `root_sync_modules` command??
 end
 
 -- this one is whacky but a fun experiment
