@@ -21,13 +21,11 @@ local ax = require("doom.modules.features.dui.actions")
 --  - improve ordinals by making a smarter expression or function that computes something nice
 --      >>> maybe come up with a few special begin chars for `origins/sections/etc`. Things that make sense to codify.
 --
---
---
 --  - default separator highlighting ???
 --
 --   try highlighting with hex colors.
 --
--- NOTE: would entry.displayer = self.packages.displayer work?!?!
+-- note: would entry.displayer = self.packages.displayer work?!?!
 
 --
 -- HELPERS
@@ -439,13 +437,13 @@ result_nodes.modules = function()
           ax.m_create()
         end,
         ["<C-r>"] = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
-          ax.m_rename()
+          ax.m_rename(fuzzy.value)
         end,
         ["<C-x>"] = function(fuzzy, _)
-          ax.m_delete()
+          ax.m_delete(fuzzy.value)
         end,
         ["<C-y>"] = function(fuzzy, _)
-          ax.m_move()
+          ax.m_move(fuzzy.value)
         end,
         ["<C-h>"] = function(fuzzy, _)
           ax.m_merge()
@@ -454,7 +452,7 @@ result_nodes.modules = function()
           ax.m_submit_module_to_upstream()
         end,
         ["<C-t>"] = function(fuzzy, _)
-          ax.m_toggle()
+          ax.m_toggle(fuzzy.value)
         end,
       }
       return module

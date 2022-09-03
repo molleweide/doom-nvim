@@ -262,7 +262,7 @@ return {
     -- "ts_testing",
     -- "ts_testing_locals",
     -- "ts_treehopper",
-    -- "ui",
+    "ui",
     -- "ui_pipeline",
     -- "ui_toggle_components",
     -- "vigoux_templar",

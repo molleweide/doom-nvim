@@ -54,8 +54,9 @@ local actions = {}
 local confirm_alternatives = { "yes", "no" }
 
 local function check_if_module_name_exists(c, new_name)
-  print(vim.inspect(c.selected_module))
+  -- print(vim.inspect(c.selected_module))
   local already_exists = false
+  -- TODO: use `modules.utils` extend()
   for _, v in pairs(c.all_modules_data) do
     if v.section == c.selected_module.section and v.name == new_name then
       print("module already exists!!!")
@@ -189,7 +190,7 @@ end
 -- - TODO: find name or comments in modules.lua and remove the line
 -- - remove module that is disabled
 --
-actions.m_delete = function(c)
+actions.m_delete = function(m)
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
     if value.text == "yes" then
       print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
@@ -220,7 +221,7 @@ end
 --
 -- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
 -- the code to here. I think this is the best way of learning how to do this properly.
-actions.m_toggle = function(c)
+actions.m_toggle = function(m)
   print("toggle: ", c.selected_module.name)
   --   local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
   --     local sr, sc, er, ec = node:range()
@@ -236,7 +237,7 @@ actions.m_toggle = function(c)
 end
 
 -- this one requires that all of the above works since this is a compound of all of the above.
-actions.m_move = function(buf, config)
+actions.m_move = function(m)
   --   -- move module into into (features/langs)
   --   -- 1. nui menu select ( other sections than self)
   --   -- 2. move module dir
@@ -244,12 +245,12 @@ actions.m_move = function(buf, config)
 end
 
 -- this one is whacky but a fun experiment
-actions.m_merge = function(buf, config)
+actions.m_merge = function(m)
   -- select module A to merge into module B.
   log.debug("M MERGE")
 end
 
-actions.m_submit_module_to_upstream = function(buf, config)
+actions.m_submit_module_to_upstream = function(m)
   --   TODO: EXPLICIT PROMPT ON WHAT IS GONNA HAPPEN HERE.
 
   -- create a PR onto `main` for selected module and submit PR.

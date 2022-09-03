@@ -94,6 +94,12 @@ local function picker_get_state(prompt_bufnr)
   return fuzzy, line
 end
 
+local function picker_select_cr(prompt_bufnr)
+  local fuzzy, line = picker_get_state(prompt_bufnr)
+  require("telescope.actions").close(prompt_bufnr)
+  fuzzy.value.mappings["<CR>"](fuzzy, line)
+end
+
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
