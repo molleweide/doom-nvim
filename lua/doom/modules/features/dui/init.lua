@@ -8,7 +8,6 @@ local doom_ui = {}
 --
 -- TODO:
 --
---    - log each selection in attach mappings.
 --    - center picker entries text
 --    - list packages across all modules
 --    - default telescope UI options.
@@ -32,10 +31,6 @@ local doom_ui = {}
 --
 --    - FIX: make sure `user` modules are listed.
 --
---    MAPPINGS: write a cb that facilitates per entry mappings.
---    i. create an issue and ask about this feature, if this is already impl.
---    ii. show my use case and see what response I'll get.
---
 --    - 1. CRUD
 --    - 2. visually select the node inside of corresponding module file
 --    - 3. custom legend depending on what entry is under cursor
@@ -43,20 +38,6 @@ local doom_ui = {}
 --    -> CHECK OUT `LEGENDARY` SOURCE AND SEE HOW THE DISPLAYER IS CONFIGURED.
 --
 --  NOTE: SCREEN RECORD GIF AND POST MY PROGRESS UNDER DOOM-NVIM
---
---
--- QUESTIONS:
---
--- @max397
---
---
---    show multiple types of data -> dynamic mappings per entry.
---
---    Do you have any suggestions on how to attach
---    custom mappings on a `per results entry` basis in a slim and nice way?
---    Eg if you list all module components. how do I pass each results mapping
---    to each entry mapping?
---    So that eg. <C-a> would execute a different mapping for each component entry.
 
 doom_ui.settings = {
   inspect_entries_on_keypress = true,
@@ -93,17 +74,18 @@ doom_ui.settings = {
     "<C-v>",
     "<C-x>",
     "<C-z>", -- closes prompt??
+    "<CR>",
     -- ,./
   },
 }
 
-local function goback(prompt_bufnr, map)
-  return map("i", "<C-z>", function(prompt_bufnr)
-    require("telescope.actions").close(prompt_bufnr)
-    -- print(DOOM_UI_STATE.history[1].title)
-    -- us.prev_hist()
-  end)
-end
+-- local function goback(prompt_bufnr, map)
+--   return map("i", "<C-z>", function(prompt_bufnr)
+--     require("telescope.actions").close(prompt_bufnr)
+--     -- print(DOOM_UI_STATE.history[1].title)
+--     -- us.prev_hist()
+--   end)
+-- end
 
 local function picker_get_state(prompt_bufnr)
   local state = require("telescope.actions.state")
@@ -284,44 +266,24 @@ local function doom_picker()
     -------------------------------------------------------
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-      -- -- TODO allow easy toggle logging.
-      -- if doom_ui.settings.inspect_entries_on_keypress then
-      --   print(vim.inspect(fuzzy))
-      -- end
-
-      -- QUESTION: CAN YOU RECIEVE THE PRESSED BUTTON HERE AND PASS IT DOWN TO THE ENTRY CALLBACK??
-      --
-      -- otherwise we most likely have to do some kind of custom mapping thingy.
-
-      -- TODO: refactor into a util func that allows mapping entry based mappings back
-      -- to this
-      --
-      -- if fuzzy.value.mappings[]
-
+      -- select entry w/<CR>
       actions_set.select:replace(function()
         local fuzzy, line = picker_get_state(prompt_bufnr)
         require("telescope.actions").close(prompt_bufnr)
         fuzzy.value.mappings["<CR>"](fuzzy, line)
       end)
-
-      -- TODO: custom entry mappings AND function that maps entries to keys here.
-      --
-      --
-      -- 1. create table of all doom ui mappings `<C-??>`
-      -- 2. create loop that generates all the mappings.
-      -- 3. create a check for each mapping to the entry.
-      -- 4. try on `dui/actions`
-      --
-      map("i", "<C-a>", function()
-        local fuzzy, line = picker_get_state(prompt_bufnr)
-        require("telescope.actions").close(prompt_bufnr)
-        if fuzzy.value.mappings["<C-a>"] ~= nil then
-          fuzzy.value.mappings["<C-a>"](fuzzy, line)
-        end
-      end)
-
-      goback(prompt_bufnr, map)
-
+      -- create `insert` mode mappings to each entries repective custom mappings
+      for _, map_str in ipairs(doom_ui.settings.picker_insert_mode_mappings) do
+        map("i", map_str, function()
+          local fuzzy, line = picker_get_state(prompt_bufnr)
+          require("telescope.actions").close(prompt_bufnr)
+          if fuzzy.value.mappings[map_str] ~= nil then
+            print("dui mappings")
+            fuzzy.value.mappings[map_str](fuzzy, line)
+          end
+        end)
+      end
+      -- goback(prompt_bufnr, map)
       return true
     end,
     initial_mode = "insert",

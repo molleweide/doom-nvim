@@ -1,5 +1,6 @@
 local utils = require("doom.utils")
 -- local fs = require("doom.utils.fs")
+local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 
 -- local sh = require("user.modules.features.dui2.shell")
@@ -73,7 +74,7 @@ local query_module_rename = [[
 local get_root = function(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, "lua", {})
   local tree = parser:parse() -- [1] ??/
-    return tree:root()
+  return tree:root()
 end
 
 --
@@ -215,7 +216,6 @@ actions.m_delete = function(c)
   end)
 end
 
-
 -- use comment.nvim plugin or perform custom operation.
 --
 -- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
@@ -246,9 +246,12 @@ end
 -- this one is whacky but a fun experiment
 actions.m_merge = function(buf, config)
   -- select module A to merge into module B.
+  log.debug("M MERGE")
 end
 
 actions.m_submit_module_to_upstream = function(buf, config)
+  --   TODO: EXPLICIT PROMPT ON WHAT IS GONNA HAPPEN HERE.
+
   -- create a PR onto `main` for selected module and submit PR.
   -- cherry pick relevant co mmits onto `main`
 end

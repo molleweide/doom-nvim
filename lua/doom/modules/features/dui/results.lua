@@ -1,4 +1,5 @@
 local utils = require("doom.utils")
+local log = require("doom.utils.logging")
 local ax = require("doom.modules.features.dui.actions")
 
 -- TODO:
@@ -415,6 +416,7 @@ result_nodes.modules = function()
           DOOM_UI_STATE.selected_module = fuzzy.value
           ax.m_edit(fuzzy.value)
         end,
+        -- INSPECT MODULE
         ["<C-a>"] = function(fuzzy, _)
           DOOM_UI_STATE.query = {
             type = "SHOW_SINGLE_MODULE",
@@ -424,10 +426,8 @@ result_nodes.modules = function()
           DOOM_UI_STATE.next()
         end,
 
-        -- NOTE: CREATE IS NOT CALLED ON A `MODULE` ENTRY BUT AS A STANDALONE FUNCTION.
-
-        -- ????
         ["<C-b>"] = function(fuzzy, _)
+          -- NOTE: WTF?
           -- DOOM_UI_STATE.query = {
           --   type = "MODULE_COMPONENT",
           --   -- components = {}
@@ -435,41 +435,27 @@ result_nodes.modules = function()
           -- DOOM_UI_STATE.selected_component = fuzzy.value
           -- DOOM_UI_STATE.next()
         end,
-        -- ["<C-e>"] = function(fuzzy, _)
-        --   -- CREATE: get line and pass it to the create function
-        -- 	local c, fuzzy, line = picker_get_state(prompt_bufnr,c)
-        -- 	c["new_module_name"] = line
-        -- 	m_create(c)
-        --
-        --
-        --
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- RENAME
-        -- ax.m_rename()
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- DELETE
-        -- ax.m_delete()
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- MOVE
-        -- ax.m_move()
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- MERGE
-        -- ax.m_merge()
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- SUBMIT
-        --
-        --   todo: explicit prompt on what is gonna happen here.
-        -- ax.m_submit_module_to_upstream()
-        -- end,
-        -- ["<C-XXX>"] = function(fuzzy, _)
-        --   -- TOGGLE
-        -- ax.m_toggle()
-        -- end,
+        ["<C-e>"] = function(fuzzy, line)
+          ax.m_create()
+        end,
+        ["<C-r>"] = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
+          ax.m_rename()
+        end,
+        ["<C-x>"] = function(fuzzy, _)
+          ax.m_delete()
+        end,
+        ["<C-y>"] = function(fuzzy, _)
+          ax.m_move()
+        end,
+        ["<C-h>"] = function(fuzzy, _)
+          ax.m_merge()
+        end,
+        ["<C-q>"] = function(fuzzy, _)
+          ax.m_submit_module_to_upstream()
+        end,
+        ["<C-t>"] = function(fuzzy, _)
+          ax.m_toggle()
+        end,
       }
       return module
     end,
