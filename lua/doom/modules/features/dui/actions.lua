@@ -5,7 +5,7 @@ local system = require("doom.core.system")
 -- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
 
--- WIP: NEW `MODULES.LUA` QUERY. This one captures all relevant components.
+-- wip: NEW `MODULES.LUA` QUERY. This one captures all relevant components.
 -- (return_statement
 --   (expression_list
 --     (table_constructor
@@ -20,33 +20,18 @@ local nui = require("doom.modules.features.dui.nui")
 --   )
 -- )
 
--- VIDEO:
+-- video:
 --
 -- tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
 -- tj execute anything:       https://www.youtube.com/watch?v=9gUatBHuXE0
 --
 -- tj and vigoux:             https://www.youtube.com/watch?v=SMt-L2xf-10
 
--- TODO: MODULES CRUD
---
---  - FIX: add all mappings and make sure each action is calleable from modules menu
---
---
---  - play around with nui.
---
---  - RENAME module
---
---  - DELETE module
---
---  - CREATE module
---
---
+--  - TODO: rename module
 --
 --
 --  - open new module in split
 --  - edit module in split.
---
---  TODO: COMPONENTS CRUD
 --
 --  - settings
 --
@@ -83,11 +68,6 @@ local query_module_rename = [[
 
 ]]
 
-
-
--- TODO: copy the functions from tjs video on treesitter and captures.
-
-
 -- look at `lua/user/utils/ts.lua` for my old ts utils.
 --
 local get_root = function(bufnr)
@@ -95,8 +75,6 @@ local get_root = function(bufnr)
   local tree = parser:parse() -- [1] ??/
     return tree:root()
 end
-
-
 
 --
 -- MODULE ACTIONS
@@ -110,13 +88,32 @@ actions.m_edit = function(m)
   end
 end
 
--- TODO: architext should be used here!!
+--  - add module mappings to picker
+--  - print passed data and verify I get correct data
+--  - load `modules.lua` into buf
+--  - make query based on selection
+--    use string format to populate the query with correct match and identifiers
+--  - print query to see how it looks
+--  - iterate capture: `@module_string`
+--      first check if the capture exists as a regular string.
+--
+--  - iterate capture: `@module_comment`
+--      pass comment to function that checks if there is a `^beginning` match for the module.
 --
 --
--- 1. load modules.lua
--- 2. architext transform file.
--- 4. for all files in module transform module internal require statements.
--- 3. write new module dir name.
+--  - create `local module_found = false`
+--    set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
+--
+--  - keep indentation
+--
+--  - reverse update line
+--
+--  - refactor everything into helpers.
+--
+--  - redo treesitter transforms with `Architext` when I understand how everything is done
+--      with raw treesitter first.
+--
+
 actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(c, value) then

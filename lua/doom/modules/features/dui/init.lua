@@ -1,5 +1,7 @@
 local crawl = require("doom.utils.tree").traverse_table
 local components = require("doom.modules.features.dui.results")
+local ax = require("doom.modules.features.dui.actions")
+
 local doom_ui = {}
 
 -- is default mode -> insert working properly now?
@@ -348,6 +350,9 @@ local function reset()
 end
 
 doom_ui.cmds = {
+  { "DoomCreateNewModule", function ()
+    ax.m_create()
+  end},
   {
     "DoomPickerMain",
     function()

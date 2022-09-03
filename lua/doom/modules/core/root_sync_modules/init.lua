@@ -14,6 +14,10 @@ local function root_sync_modules()
   --
   --
   --
+  --    encourage descriptive module names `git_mod_that_does_x`
+  --
+  --    if comment == `-- NOTE: `
+  --
 end
 
 root_sync_mods.cmds = {

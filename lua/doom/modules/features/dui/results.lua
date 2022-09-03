@@ -410,6 +410,7 @@ result_nodes.modules = function()
       -- TODO: add all potential modules mappings
 
       module["mappings"] = {
+        -- EDIT
         ["<CR>"] = function(fuzzy, _)
           DOOM_UI_STATE.selected_module = fuzzy.value
           ax.m_edit(fuzzy.value)
@@ -422,15 +423,53 @@ result_nodes.modules = function()
           DOOM_UI_STATE.selected_module = fuzzy.value
           DOOM_UI_STATE.next()
         end,
+
+        -- NOTE: CREATE IS NOT CALLED ON A `MODULE` ENTRY BUT AS A STANDALONE FUNCTION.
+
+        -- ????
         ["<C-b>"] = function(fuzzy, _)
-          DOOM_UI_STATE.query = {
-            type = "MODULE_COMPONENT",
-            -- components = {}
-          }
-          -- TODO: FUZZY.VALUE.???
-          DOOM_UI_STATE.selected_component = fuzzy.value
-          DOOM_UI_STATE.next()
+          -- DOOM_UI_STATE.query = {
+          --   type = "MODULE_COMPONENT",
+          --   -- components = {}
+          -- }
+          -- DOOM_UI_STATE.selected_component = fuzzy.value
+          -- DOOM_UI_STATE.next()
         end,
+        -- ["<C-e>"] = function(fuzzy, _)
+        --   -- CREATE: get line and pass it to the create function
+        -- 	local c, fuzzy, line = picker_get_state(prompt_bufnr,c)
+        -- 	c["new_module_name"] = line
+        -- 	m_create(c)
+        --
+        --
+        --
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- RENAME
+        -- ax.m_rename()
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- DELETE
+        -- ax.m_delete()
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- MOVE
+        -- ax.m_move()
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- MERGE
+        -- ax.m_merge()
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- SUBMIT
+        --
+        --   todo: explicit prompt on what is gonna happen here.
+        -- ax.m_submit_module_to_upstream()
+        -- end,
+        -- ["<C-XXX>"] = function(fuzzy, _)
+        --   -- TOGGLE
+        -- ax.m_toggle()
+        -- end,
       }
       return module
     end,
