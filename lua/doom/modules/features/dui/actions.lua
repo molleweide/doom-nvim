@@ -1,5 +1,4 @@
 local utils = require("doom.utils")
--- local fs = require("doom.utils.fs")
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 
@@ -22,32 +21,17 @@ local nui = require("doom.modules.features.dui.nui")
 -- )
 
 -- video:
---
--- tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
--- tj execute anything:       https://www.youtube.com/watch?v=9gUatBHuXE0
---
--- tj and vigoux:             https://www.youtube.com/watch?v=SMt-L2xf-10
+--    tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
+--    tj execute anything:       https://www.youtube.com/watch?v=9gUatBHuXE0
+--    tj and vigoux:             https://www.youtube.com/watch?v=SMt-L2xf-10
 
---  - TODO: rename module
+-- TODO:
 --
---
---  - open new module in split
---  - edit module in split.
---
---  - settings
---
---  - packages
---
---  - configs
---
---  - cmds
---
---  - autocmds
---
---  - binds
---
---
---
+--    - fix `check_if_module_name_exists` with `extend()`
+--    - make sure I have access to all necessary data in each method
+--    - play around with nui dimensions
+
+--  - open/edit (new) module in split / same win is default on <CR>
 
 local actions = {}
 
@@ -56,7 +40,6 @@ local confirm_alternatives = { "yes", "no" }
 local function check_if_module_name_exists(c, new_name)
   -- print(vim.inspect(c.selected_module))
   local already_exists = false
-  -- TODO: use `modules.utils` extend()
   for _, v in pairs(c.all_modules_data) do
     if v.section == c.selected_module.section and v.name == new_name then
       print("module already exists!!!")
@@ -90,21 +73,25 @@ actions.m_edit = function(m)
   end
 end
 
---  - add module mappings to picker
---  - print passed data and verify I get correct data
+--  TODO:
+--
+--  - is required args passed to method??
+--
 --  - load `modules.lua` into buf
---  - make query based on selection
---    use string format to populate the query with correct match and identifiers
+--
+--  - make conditional query based on selection
+--          use string format to populate the query with correct match and identifiers
+--
 --  - print query to see how it looks
+--
 --  - iterate capture: `@module_string`
---      first check if the capture exists as a regular string.
+--          first check if the capture exists as a regular string.
 --
 --  - iterate capture: `@module_comment`
---      pass comment to function that checks if there is a `^beginning` match for the module.
---
+--          pass comment to function that checks if there is a `^beginning` match for the module.
 --
 --  - create `local module_found = false`
---    set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
+--          set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
 --
 --  - keep indentation
 --
@@ -113,7 +100,7 @@ end
 --  - refactor everything into helpers.
 --
 --  - redo treesitter transforms with `Architext` when I understand how everything is done
---      with raw treesitter first.
+--          with raw treesitter first.
 --
 
 actions.m_rename = function(m)
