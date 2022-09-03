@@ -1,6 +1,6 @@
 local M = {}
 
--- REFACTOR: SHOULDN'T THIS GO INTO A MORE GENERALIZED UI OR UTIL LOCATION??
+-- REFACTOR: all of this should go into nui. and nui should probably go into the core as well,
 
 local nui_settings = {
   confirm_alternatives = { "yes", "no" },

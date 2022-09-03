@@ -1,5 +1,6 @@
 --[[
 
+mod dependence -> module.requires_modules({ "lsp" })
 
 pitch machine -> deno alephjs typescript react
 
@@ -353,7 +354,9 @@ People show of their favorite vim binds.
 https://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim?rq=1
 
 lhhhllllhlhhhhhhbBljwkjbkwwjlhkjlwEwlhwWSacsiffzzztkwkkjzzSaskkkjjjsiffztjwjwwwbjwwjwjjjBBjjjjjwwjwjhwwjbjwjwwjbww
-vpSno{jjkkkoýS(cmp.u.k.fallback_expr:)-- print root root to
+vpSno{jjkkko
+ýS(cmp.u.k.fallback_expr:
+)-- print root root to
 nodezm v
 
 k
@@ -478,7 +481,6 @@ bbb
 
 --]]
 
-
 -- leap / surround / git-bufferm stage binds
 
 -- need to setup sponsorship for myself asap. buycoffe/github/cryptowallets/paypal/
@@ -490,14 +492,12 @@ bbb
 
 -- arst
 
-
 --  soka jobb pao Boss Sweden.
 -- https://opencollective.com/neovim
 
 -- follow Markus and David @ github, and also cousin Daniel's github.
 
 -- https://github.com/MordechaiHadad/bob
-
 
 -- https://github.com/ReaTeam/ReaScripts/wiki/RPP-Parser
 --
@@ -514,4 +514,3 @@ bbb
 --
 --
 --
-

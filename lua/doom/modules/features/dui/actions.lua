@@ -1,24 +1,10 @@
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
+local tscan = require("doom.utils.tree").traverse_table
 
 -- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
-
--- wip: NEW `MODULES.LUA` QUERY. This one captures all relevant components.
--- (return_statement
---   (expression_list
---     (table_constructor
---       (field
---         name: (identifier) @section_key
---         value: (table_constructor
---           (comment) @section_comment ;; analyze if is -- "name", ...
---           (field value: (string) @section_string)
---         ) @section_table
---       )
---     ) ;;(#eq? @section_key "langs")
---   )
--- )
 
 -- video:
 --    tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
@@ -37,16 +23,18 @@ local actions = {}
 
 local confirm_alternatives = { "yes", "no" }
 
-local function check_if_module_name_exists(c, new_name)
-  -- print(vim.inspect(c.selected_module))
-  local already_exists = false
-  for _, v in pairs(c.all_modules_data) do
-    if v.section == c.selected_module.section and v.name == new_name then
-      print("module already exists!!!")
-      already_exists = true
-    end
-  end
-  return already_exists
+local function check_if_module_name_exists(m, new_name)
+  results = tscan({
+    tree = require("doom.modules.utils").extend(),
+    filter = "doom_module_single", -- what makes a node in the tree
+    node = function(_, _, v)
+      if m.section == v.section and v.name == new_name then
+        log.debug("dui/actions check_if_module_exists: true")
+        return true
+      end
+    end,
+  })
+  return false
 end
 
 local query_module_rename = [[
@@ -57,7 +45,7 @@ local query_module_rename = [[
 --
 local get_root = function(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, "lua", {})
-  local tree = parser:parse() -- [1] ??/
+  local tree = parser:parse()[1]
   return tree:root()
 end
 
@@ -73,42 +61,88 @@ actions.m_edit = function(m)
   end
 end
 
---  TODO:
---
---  - is required args passed to method??
---
---  - load `modules.lua` into buf
---
---  - make conditional query based on selection
---          use string format to populate the query with correct match and identifiers
---
---  - print query to see how it looks
---
---  - iterate capture: `@module_string`
---          first check if the capture exists as a regular string.
---
---  - iterate capture: `@module_comment`
---          pass comment to function that checks if there is a `^beginning` match for the module.
---
---  - create `local module_found = false`
---          set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
---
---  - keep indentation
---
---  - reverse update line
---
---  - refactor everything into helpers.
---
---  - redo treesitter transforms with `Architext` when I understand how everything is done
---          with raw treesitter first.
---
-
 actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
-    if not check_if_module_name_exists(c, value) then
-      print("old name: ", m.name, ", new name:", value)
+    if not check_if_module_name_exists(m, value) then
+      log.debug("old name: ", m.name, ", new name:", value)
 
-      -- TODO: watch some videos on treesitter to understand how this can be done more easilly
+      -- note: if we know that the module is enabled/disabled then I shouldn't have to perform both check with ts
+
+      local root_modules = utils.find_config("modules.lua")
+      local buf = utils.get_buf_handle(root_modules)
+
+      -- TODO: make sure this work -> get single mod string AND all comment
+      local root_modules_query = string.format(
+        [[
+(return_statement
+  (expression_list
+    (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+          (comment) @section_comment
+          (field value: (string) @module_string)
+            (#eq? @module_string "%s")
+        ) @section_table
+      )
+    ) (#eq? @section_key "%s")
+))]],
+        m.name,
+        m.section
+      )
+
+      print(root_modules_query)
+
+      local root = get_root(buf)
+
+      local parsed = vim.treesitter.parse_query("lua", root_modules_query)
+
+      local mod_str_node
+      local comment_nodes
+
+      for id, node, _ in parsed:iter_captures(root, buf, root:start(), root:end_()) do
+        local name = qp.captures[id]
+        local node_text = ntext(node, buf)
+
+        -- TODO: which captures is it that we want to look for?
+
+        if name == string then
+          -- collect the node
+        elseif name == comment then
+          -- collect all comment nodes
+          --
+        end
+
+        -- if name == doom_capture_name then
+        --   table.insert(t_matched_captures, node)
+        -- end
+      end
+
+      if mod_str_node then
+      end
+      -- if a mod string is found then we can ignore analyzing comment nodes
+      if
+        comment_nodes --[[and m.disabled--]]
+      then
+      end
+
+      -- MAKE SURE WE HAVE TO REQUIRED NODE (STRING|COMMENT) HERE
+      --
+      --  - create `local module_found = false`
+      --          set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
+      --
+
+      --  TODO: how did tj keep indentation here???
+
+      --  - reverse update line
+
+      --  - refactor everything into helpers.
+
+      --  - redo treesitter transforms with `Architext` when I understand how everything is done
+      --          with raw treesitter first.
+      --
+
+      -- OLD: watch some videos on treesitter to understand how this can be done more easilly
       -- for transforming a file
 
       --       local new_name = value

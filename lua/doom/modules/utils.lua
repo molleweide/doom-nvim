@@ -6,7 +6,6 @@ local M = {}
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
 M.extend = function(filter)
-  filter = filter or {}
   local config_path = vim.fn.stdpath("config")
 
   local function glob_modules(cat)
@@ -79,7 +78,8 @@ M.extend = function(filter)
   end
 
   local function apply_filters(mods)
-    if filter then
+    -- AND type(filter) == "table"
+    if filter and type(filter) == "table" then
       if filter.origins then
         for o, origin in pairs(mods) do
           if vim.tbl_contains(filter.origins, o) then

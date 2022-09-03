@@ -4,6 +4,9 @@
 -- TODO
 --
 --------------------------------------
+-- it would be nice if callbacks only recieve a single table and not mult
+-- params so that it looks nicer.
+--------------------------------------
 -- logger > print each inspect entry on new line \n
 --    so that it becomes extra easy to compare
 --
