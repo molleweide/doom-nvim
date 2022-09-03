@@ -143,11 +143,11 @@ return {
   --   · error
   --   · fatal
   -- @default = 'info'
-  logging = "warn",
+  logging = "trace",
 
   -- Default colorscheme
   -- @default = doom-one
-  colorscheme = "moonfly",
+  colorscheme = "tokyonight",
 
   -- TODO: this one is used but hasn't been defined yet.
   -- complete_transparency = ??,

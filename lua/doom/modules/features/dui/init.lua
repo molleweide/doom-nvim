@@ -15,7 +15,7 @@ local doom_ui = {}
 --    - config > add optional file preview to L/R
 --        >>> look at how `litee` is configured to learn a smart config pattern.
 --
---    -
+--    - ADD SNIPPETS!!
 --
 --    - HISTORY -> configure `opts.history` to see if this can be used to navigate menus?
 --      why? a good usecase of why history would be useful is for example if you inspect

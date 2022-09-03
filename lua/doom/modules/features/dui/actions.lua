@@ -5,12 +5,32 @@ local system = require("doom.core.system")
 -- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
 
--- FIX: THIS FIRST!!!
+-- WIP: NEW `MODULES.LUA` QUERY. This one captures all relevant components.
+-- (return_statement
+--   (expression_list
+--     (table_constructor
+--       (field
+--         name: (identifier) @section_key
+--         value: (table_constructor
+--           (comment) @section_comment ;; analyze if is -- "name", ...
+--           (field value: (string) @section_string)
+--         ) @section_table
+--       )
+--     ) ;;(#eq? @section_key "langs")
+--   )
+-- )
+
+-- VIDEO:
 --
--- IN ORDER TO USE THES ACTIONS WE FIRST NEED TO SETUP THE MULTI MAPPINGS
--- FUNCTIONALITY SO THAT WE CAN JUST CUSTOM MAPPIGS ON A PER ENTRY BASIS.
+-- tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
+-- tj execute anything:       https://www.youtube.com/watch?v=9gUatBHuXE0
+--
+-- tj and vigoux:             https://www.youtube.com/watch?v=SMt-L2xf-10
 
 -- TODO: MODULES CRUD
+--
+--  - FIX: add all mappings and make sure each action is calleable from modules menu
+--
 --
 --  - play around with nui.
 --
@@ -47,6 +67,37 @@ local actions = {}
 
 local confirm_alternatives = { "yes", "no" }
 
+local function check_if_module_name_exists(c, new_name)
+  print(vim.inspect(c.selected_module))
+  local already_exists = false
+  for _, v in pairs(c.all_modules_data) do
+    if v.section == c.selected_module.section and v.name == new_name then
+      print("module already exists!!!")
+      already_exists = true
+    end
+  end
+  return already_exists
+end
+
+local query_module_rename = [[
+
+]]
+
+
+
+-- TODO: copy the functions from tjs video on treesitter and captures.
+
+
+-- look at `lua/user/utils/ts.lua` for my old ts utils.
+--
+local get_root = function(bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "lua", {})
+  local tree = parser:parse() -- [1] ??/
+    return tree:root()
+end
+
+
+
 --
 -- MODULE ACTIONS
 --
@@ -59,14 +110,21 @@ actions.m_edit = function(m)
   end
 end
 
--- requires
---    - replace internal require statements
---    - rename module dir
---    - rename module in ./modules.lua
+-- TODO: architext should be used here!!
+--
+--
+-- 1. load modules.lua
+-- 2. architext transform file.
+-- 4. for all files in module transform module internal require statements.
+-- 3. write new module dir name.
 actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(c, value) then
       print("old name: ", m.name, ", new name:", value)
+
+      -- TODO: watch some videos on treesitter to understand how this can be done more easilly
+      -- for transforming a file
+
       --       local new_name = value
       --
       --       local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
@@ -129,7 +187,9 @@ actions.m_create = function(m)
   end)
 end
 
--- TODO: what happens if you try to remove a module that has been disabled ?? account for disabled in modules.lua
+--
+-- - TODO: find name or comments in modules.lua and remove the line
+-- - remove module that is disabled
 --
 actions.m_delete = function(c)
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
@@ -158,6 +218,11 @@ actions.m_delete = function(c)
   end)
 end
 
+
+-- use comment.nvim plugin or perform custom operation.
+--
+-- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
+-- the code to here. I think this is the best way of learning how to do this properly.
 actions.m_toggle = function(c)
   print("toggle: ", c.selected_module.name)
   --   local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
@@ -173,6 +238,7 @@ actions.m_toggle = function(c)
   --   write_to_root_modules_file(buf)
 end
 
+-- this one requires that all of the above works since this is a compound of all of the above.
 actions.m_move = function(buf, config)
   --   -- move module into into (features/langs)
   --   -- 1. nui menu select ( other sections than self)
@@ -180,6 +246,7 @@ actions.m_move = function(buf, config)
   --   -- 3. transform `modules.lua`
 end
 
+-- this one is whacky but a fun experiment
 actions.m_merge = function(buf, config)
   -- select module A to merge into module B.
 end
@@ -192,6 +259,13 @@ end
 --
 -- COMPONENT ACTIONS
 --
+
+-- NOTE: LESS FUNCS WITH VARIABLE ARGS.
+--
+-- okay so I am thinking that it would probably make sense to have fewer functions with
+-- more finegrained args management so that we can just have a single bind per component?
+-- i am not sure if this is the best idea yet but at least it is a nice learning
+-- experiment.
 
 -- SETTINGS
 actions.c_edit_setting = function(buf, config)

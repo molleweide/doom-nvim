@@ -50,6 +50,8 @@ local function spawn_autocmds(name, repo_path)
           end, t_lua_module_paths)
           for _, mname in ipairs(t_lua_module_names) do
             print("reload module name:", mname)
+            print("reload module name:", mname)
+            print("reload module name:", mname)
             reload_module(mname)
           end
         end

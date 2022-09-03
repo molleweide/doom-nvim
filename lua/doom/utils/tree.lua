@@ -186,13 +186,12 @@ local function check_lhs(l)
 end
 
 local function check_rhs(r, opts)
-  local t = type(r)
   local ret = {
     val = r,
-    is_fun = t == "function",
-    is_tbl = t == "table",
-    is_str = t == "string",
-    is_num = t == "number",
+    is_fun = type(r) == "function",
+    is_tbl = type(r) == "table",
+    is_str = type(r) == "string",
+    is_num = type(r) == "number",
     str_empty = r == "",
     id_match = false,
     numeric_keys = false,
@@ -203,11 +202,9 @@ local function check_rhs(r, opts)
     for k, _ in pairs(r) do
       num_keys = num_keys + 1
       if opts.filter_ids then
-        if vim.tbl_contains(opts.filter_ids, k) then
-          ret.id_match = true
-        end
+        ret.id_match = vim.tbl_contains(opts.filter_ids, k) and true or false
       end
-      ret.numeric_keys = type(k) == "number"
+      ret.numeric_keys = type(k) == "number" -- FIX: becomes false for non numbers even if one number exists..
     end
     ret.num_keys = num_keys
     ret.tbl_empty = num_keys == 0

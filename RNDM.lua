@@ -1,5 +1,8 @@
 --[[
 
+
+pitch machine -> deno alephjs typescript react
+
 tree rename edge -> branch?
 add dui to current pull request
 luasnip
@@ -10,6 +13,25 @@ plenary
   -> ask about `table_resursive` >> this is definitely a function that I would never want to write twice.
   -> It comes especially in handy for flattening out tables for displayning them in telescope.
   -> Used in `doom-nvim` for browsing and managing modules.
+
+treesitter playground use query editor.
+
+TODO: screen capture and gif programs.
+
+TODO: https://github.com/flameshot-org/flameshot ?????
+
+and full shows always on srius xm. which is a satelite radio network. but I dunno what they do nowadays
+because they have been existing for like a while now.
+
+
+scanning for the critical things that you cannot really fucking see out in the world and so we have
+made quite a bit of progress and so lets dream a little and the way it could work.
+
+
+so and so that is why they i have been inspired by his work so that has been sommething that is actually quite fucing insane.
+but why the fuck would they ever fucking do that shit you know I just don't understand whynnnneenn
+
+git@github.com:pianocomposer321/project-templates.nvim.git
 
 you can answer that question without asking an expert which i fucking stupid you dumb motherfucker all right.
 so why the fucki would they hav that shit you know.
@@ -493,4 +515,3 @@ bbb
 --
 --
 
---
