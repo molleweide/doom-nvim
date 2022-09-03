@@ -78,6 +78,23 @@ doom_ui.settings = {
       { remaining = true },
     },
   },
+  picker_insert_mode_mappings = {
+    "<C-;>",
+    "<C-a>",
+    "<C-d>",
+    "<C-e>",
+    "<C-f>",
+    "<C-h>",
+    "<C-i>", -- does something.... duno what.
+    "<C-l>",
+    "<C-m>", -- enter linked
+    "<C-r>", -- tries to access registers or something and this breaks telescope?!
+    "<C-s>",
+    "<C-v>",
+    "<C-x>",
+    "<C-z>", -- closes prompt??
+    -- ,./
+  },
 }
 
 local function goback(prompt_bufnr, map)
@@ -267,7 +284,6 @@ local function doom_picker()
     -------------------------------------------------------
     sorter = require("telescope.config").values.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-
       -- -- TODO allow easy toggle logging.
       -- if doom_ui.settings.inspect_entries_on_keypress then
       --   print(vim.inspect(fuzzy))
@@ -281,7 +297,6 @@ local function doom_picker()
       -- to this
       --
       -- if fuzzy.value.mappings[]
-
 
       actions_set.select:replace(function()
         local fuzzy, line = picker_get_state(prompt_bufnr)
@@ -350,9 +365,12 @@ local function reset()
 end
 
 doom_ui.cmds = {
-  { "DoomCreateNewModule", function ()
-    ax.m_create()
-  end},
+  {
+    "DoomCreateNewModule",
+    function()
+      ax.m_create()
+    end,
+  },
   {
     "DoomPickerMain",
     function()
