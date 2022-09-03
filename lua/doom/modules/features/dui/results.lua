@@ -407,6 +407,8 @@ result_nodes.modules = function()
 
       extend_entries_list(module.items, { hl = "TSFunction" })
 
+      -- TODO: add all potential modules mappings
+
       module["mappings"] = {
         ["<CR>"] = function(fuzzy, _)
           DOOM_UI_STATE.selected_module = fuzzy.value

@@ -288,6 +288,13 @@ local function doom_picker()
       end)
 
       -- TODO: custom entry mappings AND function that maps entries to keys here.
+      --
+      --
+      -- 1. create table of all doom ui mappings `<C-??>`
+      -- 2. create loop that generates all the mappings.
+      -- 3. create a check for each mapping to the entry.
+      -- 4. try on `dui/actions`
+      --
       map("i", "<C-a>", function()
         local fuzzy, line = picker_get_state(prompt_bufnr)
         require("telescope.actions").close(prompt_bufnr)
