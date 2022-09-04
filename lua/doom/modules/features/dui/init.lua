@@ -10,6 +10,8 @@ local doom_ui = {}
 --
 -- TODO:
 --
+--    - MOVE RESULTS INTO `DUI/INIT.LUA`
+--
 --    - center picker entries text
 --    - list packages across all modules
 --    - default telescope UI options.

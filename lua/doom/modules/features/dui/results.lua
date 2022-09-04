@@ -434,7 +434,7 @@ result_nodes.modules = function()
           -- DOOM_UI_STATE.next()
         end,
         ["<C-e>"] = function(sel, line)
-          ax.m_create(sel,line)
+          ax.m_create(sel, line)
         end,
         ["<C-r>"] = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
           ax.m_rename(fuzzy.value)
@@ -532,6 +532,12 @@ result_nodes.settings = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          ["<C-a>"] = function(sel, line)
+            ax.c_edit_setting(sel)
+          end,
+          ["<C-e>"] = function(sel, line)
+            ax.c_add_new_setting(sel)
+          end,
         },
       }
     end,
@@ -597,6 +603,24 @@ result_nodes.packages = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          ["<C-XX"] = function()
+            ax.c_add_new_pkg_to_module()
+          end,
+          ["<C-XX"] = function()
+            ax.c_config_add_for_pkg()
+          end,
+          ["<C-XX"] = function()
+            ax.c_add_new_pkg_to_module_new_mod()
+          end,
+          ["<C-XX"] = function()
+            ax.c_pkg_fork()
+          end,
+          ["<C-XX"] = function()
+            ax.c_pkg_clone()
+          end,
+          ["<C-XX"] = function()
+            ax.c_remove_package()
+          end,
         },
       }
     end,
@@ -649,6 +673,9 @@ result_nodes.configs = function()
             --   type = "settings",
             -- }
             -- DOOM_UI_STATE.next()
+          end,
+          ["<C-XX"] = function()
+            ax.c_remove_sel_config()
           end,
         },
       }
@@ -705,6 +732,15 @@ result_nodes.cmds = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          ["<C-XX"] = function()
+            ax.c_cmd_add_new_to_sel_mod()
+          end,
+          ["<C-XX"] = function()
+            ax.c_cmd_add_to_new_create_new_mod()
+          end,
+          ["<C-XX"] = function()
+            ax.c_cmd_delete()
+          end,
         },
       }
     end,
@@ -759,6 +795,12 @@ result_nodes.autocmds = function()
             --   type = "settings",
             -- }
             -- DOOM_UI_STATE.next()
+          end,
+          ["<C-XX"] = function()
+            ax.c_autocmd_add()
+          end,
+          ["<C-XX"] = function()
+            ax.c_autocmd_add_to_new_mod()
           end,
         },
       }

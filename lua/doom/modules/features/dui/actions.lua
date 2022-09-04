@@ -345,7 +345,6 @@ end
 -- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
 -- the code to here. I think this is the best way of learning how to do this properly.
 actions.m_toggle = function(m)
-
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
 
@@ -360,7 +359,16 @@ actions.m_toggle = function(m)
   --     end
   --   end)
   --   write_to_root_modules_file(buf)
-  log.info("Toggling module: " .. m.origin .. " > " .. m.section .. " > " .. m.name .. " = " .. tostring(not m.enabled))
+  log.info(
+    "Toggling module: "
+      .. m.origin
+      .. " > "
+      .. m.section
+      .. " > "
+      .. m.name
+      .. " = "
+      .. tostring(not m.enabled)
+  )
 end
 
 -- this one requires that all of the above works since this is a compound of all of the above.
@@ -388,37 +396,48 @@ end
 -- COMPONENT ACTIONS
 --
 
--- NOTE: LESS FUNCS WITH VARIABLE ARGS.
---
--- okay so I am thinking that it would probably make sense to have fewer functions with
--- more finegrained args management so that we can just have a single bind per component?
--- i am not sure if this is the best idea yet but at least it is a nice learning
--- experiment.
+-- TODO: rename each func to `manage_ <component>(opts)`
+--  so that I can use the same func every where but only change the
+--  args when necessary.
+
+-- NOTE: how do I distinguish between DOOM and MOD here
 
 -- SETTINGS
-actions.c_edit_setting = function(buf, config)
+actions.c_edit_setting = function(sel, line)
+  log.info("Edit single doom setting.")
+  print(vim.inspect(sel))
   -- find settings prop in settings file
   -- enter insert at last position.
+
+  -- if no module is selected then do root settings
 end
 actions.c_add_new_setting = function(buf, config)
+  log.info("Add new doom setting.")
   -- find settings prop in settings file
   -- enter table snippet at last position in settings file.
 end
 actions.c_add_new_setting_to_mod = function(buf, config)
   -- same but for a single module.
+  -- if mod selected > then do...
 end
 
 -- ADD PACKAGES
-actions.c_add_new_pkg_to_module = function(buf, config) end
-actions.c_add_new_pkg_to_new_module = function(buf, config) end
-actions.c_pkg_fork = function(buf, config) end
-actions.c_pkg_clone = function(buf, config) end
+actions.c_add_new_pkg_to_module = function() end
+actions.c_add_config_to_pkg = function() end
+actions.c_add_new_pkg_to_new_module = function() end
+actions.c_pkg_fork = function() end
+actions.c_pkg_clone = function() end
+actions.c_remove_pkg = function() end
 
 -- ADD CONFIGS
+actions.c_remove_sel_config = function() end
+
 
 -- ADD CMD
-actions.c_cmd_add_new_to_sel_mod = function(buf, config) end
-actions.c_cmd_add_to_new = function(buf, config) end
+actions.c_cmd_add_new_to_sel_mod = function(buf, config)
+  -- requires module to have been selected.
+end
+actions.c_cmd_add_to_new_create_new_mod = function(buf, config) end
 actions.c_cmd_add_to_existing = function(buf, config) end
 
 -- ADD AUTOCMDS
@@ -451,5 +470,16 @@ actions.c_edit_add_new_bind = function(buf, config) end
 actions.c_add_new_bind_with_compose_ui = function(buf, config)
   -- use NUI to create a UI pipeline for creating a new bind
 end
+
+--
+-- USER CONFIG
+--
+
+-- todo: play around with functions for inserting templates and shit into
+-- `./config.lua` which is a big playground.
+--
+-- config test add setting
+-- config test add function ..
+
 
 return actions
