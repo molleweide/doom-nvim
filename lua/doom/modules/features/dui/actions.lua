@@ -123,10 +123,19 @@ actions.m_rename = function(m)
       if not rename_target_range then
         log.info("Renaming was unsuccessful - perhaps no captures were found in `modules.lua`.")
       else
-        -- rename module dir
-        -- write_to_root_modules_file(buf)
+        -- WRITE TO MODULES.LUA
+        local root_modules = utils.find_config("modules.lua")
+        local buf = utils.get_buf_handle(root_modules)
+        vim.api.nvim_buf_set_text(
+          buf,
+          rename_target_range[1],
+          rename_target_range[2],
+          rename_target_range[3],
+          rename_target_range[4],
+          { value }
+        )
 
-        -- rename module inside of `modules.lua`
+        -- RENAME DIR
         -- shell_mod_rename_dir(m.section, m.path, new_name)
 
         -- advanced: rename module internal require statements?

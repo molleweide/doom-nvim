@@ -18,12 +18,7 @@
 
 return {
   features = {
-    --      "mouse",           -- ???
-
-    ------------------------------------------------------------------
-    -- ::: LANGUAGE FEATURES ::: --
-    ------------------------------------------------------------------
-
+    -- "mouse", r r r r
     "annotations",        -- Code annotation generator
     "auto_install",       -- Auto install LSP providers
     "autopairs",          -- Automatically close character pairs

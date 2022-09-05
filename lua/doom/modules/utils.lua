@@ -20,16 +20,28 @@ end
 
 local M = {}
 
--- return ranges for the module, or false -> not found
+-- Description:
+--
+--    Analyzes `modules.lua` file to find the ranges where a module is located
+--    even if the module is disabled (commented out).
+--
+--
+-- Return:
+--
+--    return ranges for the module, or false -> not found
 M.get_ranges_in_root_modules = function(section, module_name)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
+
+  -- NOTE: I split the query for `string` and `comments` in two since using a single query gave me confusing results, even though I think this should be possible with a single query?!
 
   -- TODO: split this into two queries?
   local ts_query_module_str = string.format([[]], module_name, section)
 
   local ts_query_comment = [[]]
 
+  -- this query works perfectly with `TSPlayground` but it does not return captures as I expect when
+  -- used below.
   local ts_query = string.format(
     [[
 (return_statement (expression_list
@@ -38,7 +50,7 @@ M.get_ranges_in_root_modules = function(section, module_name)
         name: (identifier) @section_key
         value: (table_constructor
               (comment) @section_comment
-              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
         )
       )
   ) (#eq? @section_key "%s")
@@ -70,26 +82,25 @@ M.get_ranges_in_root_modules = function(section, module_name)
   if mod_str_node then
     local t = tsq.get_node_text(mod_str_node, buf)
     print("found string: ", t)
-    module_name_range = { mod_str_node:range() }
+    local rs, cs, re, ce = mod_str_node:range()
+    module_name_range = { rs, cs + 1, re, ce - 1 }
   elseif #comment_nodes > 0 then
     for _, node in ipairs(comment_nodes) do
       local t = tsq.get_node_text(node, buf)
       local match_str = '--%s-"' .. module_name .. '",'
 
+      -- find position of module name in the comment
       if string.match(t, match_str) then
         local start_pos = string.find(t, module_name)
-        local end_pos = start_pos + string.len(module_name) - 1
+        local end_pos = start_pos + string.len(module_name)
+        local rs, cs, re, ce = node:range()
+        local indentation = cs - 1
+        local name_real_start = indentation + start_pos
+        local name_real_end = indentation + end_pos
+        module_name_range = { rs, name_real_start, re, name_real_end }
 
-        print(string.sub(t, start_pos, end_pos))
+        break
       end
-
-      local cs, rs, ce, re = node:range()
-
-
-      -- TODO: PRINT THE MODULE NAME HERE BUT EXTRACT IT FROM THE LINE INSTEAD OF THE STRING NOW
-
-
-
     end
   end
 
