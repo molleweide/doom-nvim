@@ -116,7 +116,6 @@ actions.m_edit = function(m)
 end
 
 actions.m_rename = function(m)
-
   -- TODO: WRAP THIS IN A TINY FUNC
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
@@ -269,7 +268,7 @@ actions.c_edit_setting = function(sel, line)
 
   -- if no module is selected then do root settings
 end
-actions.c_add_new_setting = function(buf, config)
+actions.c_setting_add = function(buf, config)
   log.info("Add new doom setting.")
   -- find settings prop in settings file
   -- enter table snippet at last position in settings file.
@@ -277,64 +276,104 @@ actions.c_add_new_setting = function(buf, config)
     action = "add_new_setting",
   })
 end
-actions.c_add_new_setting_to_mod = function(buf, config)
-  -- same but for a single module.
-  -- if mod selected > then do...
-  local ret = mod.module_apply({
-    action = "add_new_setting",
-  })
-end
+actions.c_setting_remove = function(buf, config) end
 
 -- ADD PACKAGES
-actions.c_add_new_pkg_to_module = function()
+actions.c_pkg_add = function()
   local ret = mod.module_apply({
-    action = "add_new_setting",
+    action = "add_package",
   })
 end
-actions.c_add_config_to_pkg = function() end
-actions.c_add_new_pkg_to_new_module = function() end
-actions.c_pkg_fork = function() end
-actions.c_pkg_clone = function() end
-actions.c_remove_pkg = function() end
+actions.c_pkg_fork = function()
+  local ret = mod.module_apply({
+    action = "fork_package",
+  })
+end
+actions.c_pkg_clone = function()
+  local ret = mod.module_apply({
+    action = "clone_package",
+  })
+end
+actions.c_pkg_remove = function()
+  local ret = mod.module_apply({
+    action = "remove_package",
+  })
+end
 
 -- ADD CONFIGS
-actions.c_remove_sel_config = function() end
+actions.c_pkg_cfg_add = function()
+  local ret = mod.module_apply({
+    action = "add_config_to_package",
+  })
+end
+actions.c_pkg_cfg_remove = function()
+  local ret = mod.module_apply({
+    action = "remove_package_config",
+  })
+end
+actions.c_pkg_ckg_edit = function()
+  -- now that I know how to manage stuff with ts queries
+  -- I can do this some how and play around.
+end
 
 -- ADD CMD
-actions.c_cmd_add_new_to_sel_mod = function(buf, config)
+actions.c_cmd_add = function(buf, config)
   -- requires module to have been selected.
+  local ret = mod.module_apply({
+    action = "add_cmd",
+  })
 end
-actions.c_cmd_add_to_new_create_new_mod = function(buf, config) end
-actions.c_cmd_add_to_existing = function(buf, config) end
 
 -- ADD AUTOCMDS
-actions.c_autocmd_add_to_exising = function(buf, config) end
-actions.c_autocmd_add_to_new_mod = function(buf, config) end
+actions.c_autocmd_add = function(buf, config)
+  local ret = mod.module_apply({
+    action = "add_autocmd",
+  })
+end
+actions.c_autocmd_remove = function(buf, config)
+  local ret = mod.module_apply({
+    action = "remove_autocmd",
+  })
+end
 
 -- BINDS
-actions.c_edit_bind = function(buf, config)
+actions.c_bind_replace = function(buf, config) end
+actions.c_bind_edit = function(buf, config)
   -- 1. find binds table.
   -- 2. find selected bind in table
   -- 3. find selected prop
   -- 4. put cursor in position.
   -- 5. enter insert mode.
+  local ret = mod.module_apply({
+    action = "edit_bind",
+  })
 end
-actions.c_add_new_bind = function(buf, config)
+actions.c_bind_add = function(buf, config)
   -- 1. check if module has binds table
   -- 2. check for regular binds AND leader table
   -- 3. enter new binds snippet before leader.
+  local ret = mod.module_apply({
+    action = "add_bind",
+  })
 end
-actions.c_add_new_leader = function(buf, config)
+actions.c_bind_leader_add = function(buf, config)
   -- 1. check if module has binds table
   -- 2. check for leader table
   -- 3. add to last
+  local ret = mod.module_apply({
+    action = "add_leader",
+  })
 end
-actions.c_add_to_selected_leader = function(buf, config)
+actions.c_bind_leader_add_to_sel = function(buf, config)
   -- find selected leader bind in module file.
   -- enter new binds snippet in the correct selected leader node.
+  local ret = mod.module_apply({
+    action = "add_leader_to_selected",
+  })
 end
-actions.c_edit_add_new_bind = function(buf, config) end
-actions.c_add_new_bind_with_compose_ui = function(buf, config)
+
+-- TODO: FOR FUN IN THE FUTURE
+actions.c_bind_add_ui = function(buf, config)
   -- use NUI to create a UI pipeline for creating a new bind
 end
 
