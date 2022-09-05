@@ -119,22 +119,20 @@ actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
-
-      local ret = mod.root_modules_rename(m.section, m.name, value)
-
+      local ret = mod.root_apply({
+        action = "rename",
+        section = m.section,
+        module_name = m.name,
+        new_name = value,
+      })
       if not ret then
         log.info("Renaming was unsuccessful - perhaps no captures were found in `modules.lua`.")
       else
 
-        -- RENAME DIR
-        --
         -- shell_mod_rename_dir(m.section, m.path, new_name)
-
         -- write modules.lua here? with vim or libuv??
-
         -- advanced: rename module internal require statements?
       end
-
     end
   end)
 end
@@ -149,7 +147,7 @@ actions.m_create = function(sel, line)
   log.debug("m_create()")
 
   local function create_module(new_name, for_section)
-    local ret = mod.root_modules_new(for_section, new_name)
+    local ret = mod.root_apply({ action = "new", section = for_section, new_name = new_name })
     if not ret then
       log.info("Adding new module to `modules.lua` was unsuccessful.")
     else

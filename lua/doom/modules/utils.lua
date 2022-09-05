@@ -50,8 +50,7 @@ local ts_query_template_section_table = [[
   (table_constructor
       (field
         name: (identifier) @section_key
-        value: (table_constructor) @section_table; i want to get position of closing `}` and insert on line above.
-      )
+        value: (table_constructor) @section_table)
   ) (#eq? @section_key "%s")
 ))
 ]]
@@ -89,16 +88,30 @@ local get_query_capture = function(query, cname)
   return t, buf
 end
 
-local function get_comments_and_strings(msection, mname)
-  local strings = get_query_capture(
-    string.format(ts_query_template_mod_string, mname, msection),
-    "module_string"
-  )
-  local comments, buf = get_query_capture(
+local function get_ts_data(msection, mname)
+  local strings = {}
+  if mname then
+    local strings = get_query_capture(
+      string.format(ts_query_template_mod_string, mname, msection),
+      "module_string"
+    )
+  end
+  local comments = get_query_capture(
     string.format(ts_query_template_mod_comment, msection),
     "section_comment"
   )
-  return strings, comments, buf
+  local tables, buf = get_query_capture(
+    string.format(ts_query_template_section_table, msection),
+    "section_table"
+  )
+  return {
+    ts = {
+      strings = strings,
+      comments = comments,
+      tables = tables,
+    },
+    buf = buf,
+  }
 end
 
 local function insert_line(buf, line, value)
@@ -111,12 +124,22 @@ local function set_text(buf, range, value)
   vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
 end
 
+local function insert_text_at(buf, row, col, value)
+  vim.api.nvim_buf_set_text(buf, row, col, row, col, { value })
+end
+
 --
 -- merge below into get replace range.
 
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
-    return { strings[1].range[1], strings[1].range[2] + 1, strings[1].range[3], strings[1].range[4] - 1 }
+    return {
+      strings[1].range[1],
+      strings[1].range[2] + 1,
+      strings[1].range[3],
+      strings[1].range[4] - 1,
+    },
+      true
   else
     for _, node in ipairs(comments) do
       local match_str = '--%s-"' .. module_name .. '",'
@@ -128,10 +151,11 @@ local function get_replacement_range(strings, comments, module_name, buf)
         local indentation = node.range[2] - 1
         local name_real_start = indentation + start_pos
         local name_real_end = indentation + end_pos
-        return { node.range[1], name_real_start, node.range[3], name_real_end }, true
+        return { node.range[1], name_real_start, node.range[3], name_real_end },
+          false,
+          node.range[2]
       end
     end
-    return nil, false
   end
 end
 
@@ -165,75 +189,81 @@ local M = {}
 -- ROOT MODULES TS FUNCTIONS
 --
 
-M.root_modules_rename = function(section, module_name, new_name)
-  local strings, comments, buf = get_comments_and_strings(section, module_name)
-  if not strings[1] and not comments[1] then
+M.root_apply = function(opts)
+  local selected_mod
+  if opts.module_name ~= nil then
+    selected_mod = opts.module_name
+  end
+
+  local ts_state = get_ts_data(opts.section, opts.module_name or nil)
+  if not ts_state.ts.strings[1] and not ts_state.ts.comments[1] then
     return false
   end
-  local range = get_replacement_range(strings, comments, module_name, buf)
-  return range
+  local range, enabled, comment_start = get_replacement_range(
+    ts_state.ts.strings,
+    ts_state.ts.comments,
+    opts.module_name,
+    ts_state.ts.buf
+  )
+  if opts.action == "rename" then
+    set_text(ts_state.buf, range, opts.new_name)
+  elseif opts.action == "new" then
+    local pre = '    "'
+    local post = '",'
+    insert_line(ts_state.buf, ts_state.ts.tables[1].range[3], pre .. opts.new_name .. post)
+  elseif opts.action == "delete" then
+    vim.api.nvim_buf_set_lines(buf, range[1], range[1] + 1, 0, {})
+  elseif opts.action == "toggle" then
+    if enabled then
+      insert_text_at(buf, range[1], range[2] - 1, "-- ")
+    else
+      range[2] = comment_start
+      set_text(buf, range, '"' .. module_name)
+    end
+  end
 end
 
-M.root_modules_new = function(section, module_name)
-  local ts_query = string.format(ts_query_template_section_table, section)
-  local section_table_node = get_query_capture(ts_query, "section_comment")
-  local _, _, re, _ = section_table_node[1]:range()
-  insert_line(buf, re, '    "' .. module_name .. '",')
-end
+-- M.root_modules_rename = function(section, module_name, new_name)
+--   local strings, comments, buf = get_ts_data(section, module_name)
+--   if not strings[1] and not comments[1] then
+--     return false
+--   end
+--   local range = get_replacement_range(strings, comments, module_name, buf)
+--   set_text(buf, range, new_name)
+-- end
 
-M.root_modules_delete = function(section, module_name)
-  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
-  local mod_str_node = get_query_capture(ts_query, "module_string")
-  local comment_nodes = get_query_capture(ts_query, "section_comment")
-  if mod_str_node == nil and #comment_nodes == 0 then
-    return false
-  end
-  local delete_line
-  if mod_str_node then
-    range = get_replacement_range(mod_str_node[1])
-    delete_line = range[1]
-  elseif #comment_nodes > 0 then
-    range = get_comment_name_range(module_name, comment_nodes, buf)
-    delete_line = range[1]
-  end
+-- M.root_modules_new = function(section, module_name)
+--   local ts_query = string.format(ts_query_template_section_table, section)
+--   local sections, buf = get_query_capture(ts_query, "section_table")
+--   local pre = '    "'
+--   local post = '",'
+--   insert_line(buf, sections[1].range[3], pre .. module_name .. post)
+-- end
 
-  if delete_line then
-    vim.api.nvim_buf_set_lines(buf, delete_line, delete_line, 0, {})
-  end
-
-  return delete_line
-end
-
-M.root_modules_toggle = function(section, module_name)
-  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
-  local mod_str_node = get_query_capture(ts_query, "module_string")
-  local comment_nodes = get_query_capture(ts_query, "section_comment")
-  if mod_str_node == nil and #comment_nodes == 0 then
-    return false
-  end
-  local new_line, is_enabled
-  if mod_str_node then
-    range = get_replacement_range(mod_str_node[1])
-    new_line = range[1]
-    is_enabled = true
-  elseif #comment_nodes > 0 then
-    range, is_enabled = get_comment_name_range(module_name, comment_nodes, buf)
-    new_line = range[1]
-  end
-
-  local new_str
-  if is_enabled then
-    new_str = string.format('    -- "%s",', module_name)
-  else
-    new_str = string.format('    "%s",', module_name)
-  end
-
-  if new_line then
-    vim.api.nvim_buf_set_lines(buf, new_line, new_line, true, { new_str })
-  end
-
-  return new_line
-end
+-- M.root_modules_delete = function(section, module_name)
+--   local strings, comments, buf = get_ts_data(section, module_name)
+--   if not strings[1] and not comments[1] then
+--     return false
+--   end
+--   local range = get_replacement_range(strings, comments, module_name, buf)
+--   if range[1] then
+--     vim.api.nvim_buf_set_lines(buf, range[1], range[1] + 1, 0, {})
+--   end
+-- end
+--
+-- M.root_modules_toggle = function(section, module_name)
+--   local strings, comments, buf = get_ts_data(section, module_name)
+--   if not strings[1] and not comments[1] then
+--     return false
+--   end
+--   local range, enabled, comment_start = get_replacement_range(strings, comments, module_name, buf)
+--   if enabled then
+--     insert_text_at(buf, range[1], range[2] - 1, "-- ")
+--   else
+--     range[2] = comment_start
+--     set_text(buf, range, '"' .. module_name)
+--   end
+-- end
 
 --
 -- GET FULL/EXTENDED TABLE OF ALL MODULES
