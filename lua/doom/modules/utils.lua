@@ -1,7 +1,35 @@
 local utils = require("doom.utils")
 local tsq = require("vim.treesitter.query")
 
--- TODO: refactor everything
+-- TODO:
+--
+--    - split queries
+--    - merge root module funcs into one
+--    - sketch out component funcs.
+
+local ts_query_template_mod_string = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
+
+local ts_query_template_mod_comment = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor (comment) @section_comment)
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
 
 local ts_query_template_s_and_c = [[
 (return_statement (expression_list
@@ -50,10 +78,18 @@ local get_query_capture = function(query, cname)
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
     if name == cname then
-      table.insert(t, node)
+      table.insert(t, {
+        node = node,
+        text = tsq.get_node_text(node, buf),
+        range = { node:range() },
+      })
     end
   end
-  return t
+
+  -- TODO:
+  --
+  --    return a table with
+  return t, buf
 end
 
 local function insert_line(buf, line, value)
@@ -63,28 +99,25 @@ end
 -- local function replace_line(buf, line, value) end
 
 local function set_text(buf, range, value)
-  vim.api.nvim_buf_set_text(buf, nrange[1], nrange[2], nrange[3], nrange[4], { value })
+  vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
 end
 
 local function get_string_name_range(node)
-  local rs, cs, re, ce = node[1]:range()
-  return { rs, cs + 1, re, ce - 1 }
+  return { node.range[1], node.range[2] + 1, node.range[3], node.range[4] - 1 }
 end
 
 local function get_comment_name_range(module_name, nodes, buf)
   for _, node in ipairs(nodes) do
-    local t = tsq.get_node_text(node, buf)
     local match_str = '--%s-"' .. module_name .. '",'
 
     -- find position of module name in the comment
-    if string.match(t, match_str) then
-      local start_pos = string.find(t, module_name)
+    if string.match(node.text, match_str) then
+      local start_pos = string.find(node.text, module_name)
       local end_pos = start_pos + string.len(module_name)
-      local rs, cs, re, ce = node:range()
-      local indentation = cs - 1
+      local indentation = node.range[2] - 1
       local name_real_start = indentation + start_pos
       local name_real_end = indentation + end_pos
-      return { rs, name_real_start, re, name_real_end }, true
+      return { node.range[1], name_real_start, node.range[3], name_real_end }, true
     end
   end
   return nil, false
@@ -104,9 +137,21 @@ local M = {}
 --
 
 M.root_modules_rename = function(section, module_name, new_name)
-  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
-  local mod_str_node = get_query_capture(ts_query, "module_string")
-  local comment_nodes = get_query_capture(ts_query, "section_comment")
+  local mod_str_node = get_query_capture(
+    string.format(ts_query_template_mod_string, module_name, section),
+    "module_string"
+  )
+  local comment_nodes, buf = get_query_capture(
+    string.format(ts_query_template_mod_comment, section),
+    "section_comment"
+  )
+
+  print("cn:", #comment_nodes)
+
+  for _, v in pairs(comment_nodes) do
+    print(v.text)
+  end
+
   if mod_str_node[1] == nil and #comment_nodes == 0 then
     return false
   end

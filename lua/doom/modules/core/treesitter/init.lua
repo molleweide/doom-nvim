@@ -1,5 +1,9 @@
 local treesitter = {}
 
+-- TODO:
+--
+--  - query monitor -> append current query to injections.
+
 treesitter.settings = {
   treesitter = {
     highlight = {
