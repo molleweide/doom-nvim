@@ -120,25 +120,11 @@ actions.m_rename = function(m)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
 
-      local ret = mod.root_modules_rename(m.section, m.name)
+      local ret = mod.root_modules_rename(m.section, m.name, value)
 
       if not ret then
         log.info("Renaming was unsuccessful - perhaps no captures were found in `modules.lua`.")
       else
-
-        -- PUT ALL THIS IN MOD UTILS
-
-        -- WRITE TO MODULES.LUA
-        -- local root_modules = utils.find_config("modules.lua")
-        -- local buf = utils.get_buf_handle(root_modules)
-        -- vim.api.nvim_buf_set_text(
-        --   buf,
-        --   rename_target_range[1],
-        --   rename_target_range[2],
-        --   rename_target_range[3],
-        --   rename_target_range[4],
-        --   { value }
-        -- )
 
         -- RENAME DIR
         --
@@ -149,38 +135,6 @@ actions.m_rename = function(m)
         -- advanced: rename module internal require statements?
       end
 
-      --       local new_name = value
-      --
-      --       local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
-      --         local sr, sc, er, ec = node:range()
-      --         if capt == "modules.enabled" then
-      --           local offset = 1
-      --           local exact_match = string.match(node_text, m.name)
-      --           if exact_match then
-      --             vim.api.nvim_buf_set_text(
-      --               buf,
-      --               sr,
-      --               sc + offset,
-      --               sr,
-      --               sc + offset + string.len(m.name),
-      --               { value }
-      --             )
-      --           end
-      --         elseif capt == "modules.disabled" then
-      --           local offset = 4
-      --           local exact_match = string.match(node_text, m.name)
-      --           if exact_match then
-      --             vim.api.nvim_buf_set_text(
-      --               buf,
-      --               sr,
-      --               sc + offset,
-      --               sr,
-      --               sc + offset + string.len(m.name),
-      --               { value }
-      --             )
-      --           end
-      --         end
-      --       end)
     end
   end)
 end
