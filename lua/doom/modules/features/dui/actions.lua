@@ -222,56 +222,16 @@ actions.m_delete = function(m)
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
     if value.text == "yes" then
       -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
-      log.info("Deleting module: " .. m.origin .. " > " .. m.section .. " > " .. m.name)
+      log.info("Trying to DELETE module: " .. m.origin .. " > " .. m.section .. " > " .. m.name)
 
-      local root_modules = utils.find_config("modules.lua")
-      local buf = utils.get_buf_handle(root_modules)
+      local ret = mod.root_modules_delete(for_section, name)
+      if not ret then
+        log.info("Deletion was unsuccessful.")
+      else
+      end
 
-      -- TODO: make sure this work -> get single mod string AND all comment
-      local delete_module_query = string.format(
-        [[
-(return_statement
-  (expression_list
-    (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-          (comment) @section_comment
-          (field value: (string) @module_string)
-            (#eq? @module_string "%s")
-        ) @section_table
-      )
-    ) (#eq? @section_key "%s")
-))]],
-        m.name,
-        m.section
-      )
-
-      print(delete_module_query)
-      local root = get_root(buf)
-      local parsed = vim.treesitter.parse_query("lua", delete_module_query)
-
-      -- TODO: finnish rename module first since this is the same code
-
-      --       local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
-      --         local sr, sc, er, ec = node:range()
-      --         if capt == "modules.enabled" then
-      --           -- local offset = 1
-      --           local exact_match = string.match(node_text, m.name)
-      --           if exact_match then
-      --             vim.api.nvim_buf_set_text(buf, sr, sc, er, ec + 1, { "" })
-      --           end
-      --         elseif capt == "modules.disabled" then
-      --           -- local offset = 4
-      --           local exact_match = string.match(node_text, m.name)
-      --           if exact_match then
-      --             vim.api.nvim_buf_set_text(buf, sr, sc, er, ec + 1, { "" })
-      --           end
-      --         end
-      --       end)
-      --
-      --       write_to_root_modules_file(buf)
-      --       shell_mod_remove_dir(m.path) -- shell: rm m.path
+      -- write_to_root_modules_file(buf)
+      -- shell_mod_remove_dir(m.path) -- shell: rm m.path
     end
   end)
 end
@@ -284,17 +244,6 @@ actions.m_toggle = function(m)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
 
-  --   local buf, _ = transform_root_mod_file(m, function(buf, node, capt, node_text)
-  --     local sr, sc, er, ec = node:range()
-  --     if string.match(node_text, m.name) then
-  --       if capt == "modules.enabled" then
-  --         vim.api.nvim_buf_set_text(buf, sr, sc, er, ec, { "-- " .. node_text })
-  --       elseif capt == "modules.disabled" then
-  --         vim.api.nvim_buf_set_text(buf, sr, sc, er, ec, { node_text:sub(4) })
-  --       end
-  --     end
-  --   end)
-  --   write_to_root_modules_file(buf)
   log.info(
     "Toggling module: "
       .. m.origin
@@ -303,8 +252,13 @@ actions.m_toggle = function(m)
       .. " > "
       .. m.name
       .. " = "
-      .. tostring(not m.enabled)
+      .. m.enabled
   )
+  local ret = mod.root_modules_toggle(for_section, name)
+  if not ret then
+    log.info("Toggling module was unsuccessful.")
+  else
+  end
 end
 
 -- this one requires that all of the above works since this is a compound of all of the above.

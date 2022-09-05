@@ -144,6 +144,83 @@ M.root_modules_new = function(section, module_name)
   end
 end
 
+M.root_modules_delete = function(section, module_name)
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+
+  local ts_query = string.format(
+    [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (comment) @section_comment
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]],
+    module_name,
+    section
+  )
+
+  local parsed = vim.treesitter.parse_query("lua", ts_query)
+  local root = get_root(buf)
+  local mod_str_node
+  local comment_nodes = {}
+  local mname_range
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    if name == "module_string" then
+      mod_str_node = node
+    elseif name == "section_comment" then
+      table.insert(comment_nodes, node)
+    end
+  end
+
+  -- if mod_str_node == nil and #comment_nodes == 0 then
+  --   return false
+  -- end
+  --
+  -- if mod_str_node then
+  --   local t = tsq.get_node_text(mod_str_node, buf)
+  --   print("found string: ", t)
+  --   local rs, cs, re, ce = mod_str_node:range()
+  --   mname_range = { rs, cs + 1, re, ce - 1 }
+  -- elseif #comment_nodes > 0 then
+  --   for _, node in ipairs(comment_nodes) do
+  --     local t = tsq.get_node_text(node, buf)
+  --     local match_str = '--%s-"' .. module_name .. '",'
+  --
+  --     -- find position of module name in the comment
+  --     if string.match(t, match_str) then
+  --       local start_pos = string.find(t, module_name)
+  --       local end_pos = start_pos + string.len(module_name)
+  --       local rs, cs, re, ce = node:range()
+  --       local indentation = cs - 1
+  --       local name_real_start = indentation + start_pos
+  --       local name_real_end = indentation + end_pos
+  --       mname_range = { rs, name_real_start, re, name_real_end }
+  --
+  --       break
+  --     end
+  --   end
+  -- end
+  --
+  -- vim.api.nvim_buf_set_text(
+  --   buf,
+  --   mname_range[1],
+  --   mname_range[2],
+  --   mname_range[3],
+  --   mname_range[4],
+  --   { value }
+  -- )
+  -- return mname_range
+end
+
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 --    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.
 
