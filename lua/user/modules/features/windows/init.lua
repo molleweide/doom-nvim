@@ -2,6 +2,11 @@ local windows = {}
 
 -- https://github.com/declancm/windex.nvim
 
+-- TODO: left hand  `<leader>w(nav|extend)` right hand `(amounts|special)`
+--
+--    so that one can manage and extend windows and manage windows super fast with a set
+--    of interesting functions
+
 windows.packages = {
   ["focus.nvim"] = {
     "beauwilliams/focus.nvim",

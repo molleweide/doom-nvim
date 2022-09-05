@@ -180,6 +180,8 @@ reloader.cmds = {
 reloader.autocmds = function()
   local autocmds = {}
 
+  -- TODO: need to improve this for core,utils, etc. so that you can develop on the core
+
   -- RELOAD DOOM ON SAVE
   if reloader.settings.reload_on_save then
     table.insert(autocmds, { "BufWritePost", "*/doom/**/*.lua,*/user/**/*.lua", reloader.reload })

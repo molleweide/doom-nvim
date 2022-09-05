@@ -1,4 +1,66 @@
+local utils = require("doom.utils")
+local tsq = require("vim.treesitter.query")
+
+--
+-- UTILS
+--
+
+local get_root = function(bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "lua", {})
+  local tree = parser:parse()[1]
+  return tree:root()
+end
+
+-- local get_text = function(node, bufnr)
+-- end
+
+--
+-- MODULES UTIL
+--
+
 local M = {}
+
+-- return ranges for the module, or false -> not found
+M.get_ranges_in_root_modules = function(section, module_name)
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+
+  local ts_query = string.format(
+    [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (comment) @section_comment
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]],
+    module_name,
+    section
+  )
+
+  print(ts_query)
+
+  local parsed = vim.treesitter.parse_query("lua", ts_query)
+  local root = get_root(buf)
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    local t = tsq.get_node_text(node, buf)
+
+    if name == "module_string" then
+      print("string:", t)
+      -- collect the node
+    elseif name == "section_comment" then
+      print("comment:", t)
+      -- collect all comment nodes
+    end
+  end
+end
 
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 --    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.

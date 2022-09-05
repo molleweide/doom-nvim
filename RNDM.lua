@@ -14,6 +14,8 @@ plenary
   -> ask about `table_resursive` >> this is definitely a function that I would never want to write twice.
   -> It comes especially in handy for flattening out tables for displayning them in telescope.
   -> Used in `doom-nvim` for browsing and managing modules.
+injections
+  -> add my.
 
 treesitter playground use query editor.
 

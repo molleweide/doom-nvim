@@ -853,6 +853,9 @@ result_nodes.binds = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          ["<C-XX"] = function()
+            ax.c_autocmd_add_to_new_mod()
+          end,
         },
       }
     end,

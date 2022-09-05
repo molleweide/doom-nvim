@@ -1,5 +1,5 @@
 local utils = require("doom.utils")
-local ts = require("doom.utils.ts")
+local mod = require("doom.modules.utils")
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 local tscan = require("doom.utils.tree").traverse_table
@@ -101,14 +101,6 @@ local query_module_rename = [[
 
 ]]
 
--- look at `lua/user/utils/ts.lua` for my old ts utils.
---
-local get_root = function(bufnr)
-  local parser = vim.treesitter.get_parser(bufnr, "lua", {})
-  local tree = parser:parse()[1]
-  return tree:root()
-end
-
 -- M.ntext = function(n,b) return tsq.get_node_text(n, b) end
 
 --
@@ -127,39 +119,9 @@ actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
-
       -- note: if we know that the module is enabled/disabled then I shouldn't have to perform both check with ts
 
-      local root_modules = utils.find_config("modules.lua")
-      local buf = utils.get_buf_handle(root_modules)
-      local rename_target_ranges = ts.root_modules_get_mod_state(m.section, m.name)
-
-      print(root_modules_query)
-
-      local root = get_root(buf)
-
-      local parsed = vim.treesitter.parse_query("lua", root_modules_query)
-
-      local mod_str_node
-      local comment_nodes
-
-      for id, node, _ in parsed:iter_captures(root, buf, root:start(), root:end_()) do
-        local name = qp.captures[id]
-        local node_text = ntext(node, buf)
-
-        -- TODO: which captures is it that we want to look for?
-
-        if name == string then
-          -- collect the node
-        elseif name == comment then
-          -- collect all comment nodes
-          --
-        end
-
-        -- if name == doom_capture_name then
-        --   table.insert(t_matched_captures, node)
-        -- end
-      end
+      local rename_target_ranges = mod.get_ranges_in_root_modules(m.section, m.name)
 
       if mod_str_node then
       end
@@ -416,7 +378,6 @@ actions.c_remove_pkg = function() end
 -- ADD CONFIGS
 actions.c_remove_sel_config = function() end
 
-
 -- ADD CMD
 actions.c_cmd_add_new_to_sel_mod = function(buf, config)
   -- requires module to have been selected.
@@ -464,6 +425,5 @@ end
 --
 -- config test add setting
 -- config test add function ..
-
 
 return actions

@@ -1,17 +1,17 @@
-;highlight ts queries with `lisp`
 (variable_declaration
   (assignment_statement
-    (variable_list)
+    ; ts_query|tsq|query|q
+    (variable_list) @vl (#match? @vl "^ts_query")
     (expression_list
       value: [
               (function_call
                 name: (dot_index_expression
                   )
                 arguments: (arguments
-                    (string) @lisp
+                    (string) @query
                   )
              )
-            (string) @lisp
+            (string) @query
       ]
     )
   )
