@@ -86,10 +86,19 @@ local get_query_capture = function(query, cname)
     end
   end
 
-  -- TODO:
-  --
-  --    return a table with
   return t, buf
+end
+
+local function get_comments_and_strings(msection, mname)
+  local strings = get_query_capture(
+    string.format(ts_query_template_mod_string, mname, msection),
+    "module_string"
+  )
+  local comments, buf = get_query_capture(
+    string.format(ts_query_template_mod_comment, msection),
+    "section_comment"
+  )
+  return strings, comments, buf
 end
 
 local function insert_line(buf, line, value)
@@ -102,8 +111,28 @@ local function set_text(buf, range, value)
   vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
 end
 
-local function get_string_name_range(node)
-  return { node.range[1], node.range[2] + 1, node.range[3], node.range[4] - 1 }
+--
+-- merge below into get replace range.
+
+local function get_replacement_range(strings, comments, module_name, buf)
+  if strings[1] then
+    return { strings[1].range[1], strings[1].range[2] + 1, strings[1].range[3], strings[1].range[4] - 1 }
+  else
+    for _, node in ipairs(comments) do
+      local match_str = '--%s-"' .. module_name .. '",'
+
+      -- find position of module name in the comment
+      if string.match(node.text, match_str) then
+        local start_pos = string.find(node.text, module_name)
+        local end_pos = start_pos + string.len(module_name)
+        local indentation = node.range[2] - 1
+        local name_real_start = indentation + start_pos
+        local name_real_end = indentation + end_pos
+        return { node.range[1], name_real_start, node.range[3], name_real_end }, true
+      end
+    end
+    return nil, false
+  end
 end
 
 local function get_comment_name_range(module_name, nodes, buf)
@@ -137,31 +166,11 @@ local M = {}
 --
 
 M.root_modules_rename = function(section, module_name, new_name)
-  local mod_str_node = get_query_capture(
-    string.format(ts_query_template_mod_string, module_name, section),
-    "module_string"
-  )
-  local comment_nodes, buf = get_query_capture(
-    string.format(ts_query_template_mod_comment, section),
-    "section_comment"
-  )
-
-  print("cn:", #comment_nodes)
-
-  for _, v in pairs(comment_nodes) do
-    print(v.text)
-  end
-
-  if mod_str_node[1] == nil and #comment_nodes == 0 then
+  local strings, comments, buf = get_comments_and_strings(section, module_name)
+  if not strings[1] and not comments[1] then
     return false
   end
-  local range
-  if mod_str_node[1] then
-    range = get_string_name_range(mod_str_node[1])
-  elseif #comment_nodes > 0 then
-    range = get_comment_name_range(module_name, comment_nodes, buf)
-  end
-  set_text(buf, range, new_name)
+  local range = get_replacement_range(strings, comments, module_name, buf)
   return range
 end
 
@@ -181,7 +190,7 @@ M.root_modules_delete = function(section, module_name)
   end
   local delete_line
   if mod_str_node then
-    range = get_string_name_range(mod_str_node[1])
+    range = get_replacement_range(mod_str_node[1])
     delete_line = range[1]
   elseif #comment_nodes > 0 then
     range = get_comment_name_range(module_name, comment_nodes, buf)
@@ -204,7 +213,7 @@ M.root_modules_toggle = function(section, module_name)
   end
   local new_line, is_enabled
   if mod_str_node then
-    range = get_string_name_range(mod_str_node[1])
+    range = get_replacement_range(mod_str_node[1])
     new_line = range[1]
     is_enabled = true
   elseif #comment_nodes > 0 then
