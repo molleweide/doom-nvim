@@ -18,6 +18,7 @@
 
 return {
   features = {
+    --      "mouse",           -- ???
 
     ------------------------------------------------------------------
     -- ::: LANGUAGE FEATURES ::: --
@@ -53,7 +54,6 @@ return {
     "leap",               -- Replace `s` with advanced leap.nvim motion plugin.
     "surround",           -- Surround text objects, eg. {([])}
     "cursor",
-    -- "mouse",           -- ???
     -- "gestures",        -- Mouse gestures
     -- "tabs",            -- ???
     "scroll",
@@ -268,7 +268,6 @@ return {
     -- "vigoux_templar",
   },
   langs = {
-    -- Scripts
     "lua",
     "python",
     "bash",
@@ -303,7 +302,6 @@ return {
     -- "solidity",          -- ethereum lang
   },
   themes = {
-
     -- "apprentice",
     -- "aquarium",
     -- "ariake",

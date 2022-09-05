@@ -25,6 +25,11 @@ M.get_ranges_in_root_modules = function(section, module_name)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
 
+  -- TODO: split this into two queries?
+  local ts_query_module_str = string.format([[]], module_name, section)
+
+  local ts_query_comment = [[]]
+
   local ts_query = string.format(
     [[
 (return_statement (expression_list
@@ -33,7 +38,7 @@ M.get_ranges_in_root_modules = function(section, module_name)
         name: (identifier) @section_key
         value: (table_constructor
               (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
         )
       )
   ) (#eq? @section_key "%s")
@@ -43,23 +48,52 @@ M.get_ranges_in_root_modules = function(section, module_name)
     section
   )
 
-  print(ts_query)
-
   local parsed = vim.treesitter.parse_query("lua", ts_query)
   local root = get_root(buf)
+  local mod_str_node
+  local comment_nodes = {}
+  local module_name_range
 
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
-    local t = tsq.get_node_text(node, buf)
-
     if name == "module_string" then
-      print("string:", t)
-      -- collect the node
+      mod_str_node = node
     elseif name == "section_comment" then
-      print("comment:", t)
-      -- collect all comment nodes
+      table.insert(comment_nodes, node)
     end
   end
+
+  if mod_str_node == nil and #comment_nodes == 0 then
+    return false
+  end
+
+  if mod_str_node then
+    local t = tsq.get_node_text(mod_str_node, buf)
+    print("found string: ", t)
+    module_name_range = { mod_str_node:range() }
+  elseif #comment_nodes > 0 then
+    for _, node in ipairs(comment_nodes) do
+      local t = tsq.get_node_text(node, buf)
+      local match_str = '--%s-"' .. module_name .. '",'
+
+      if string.match(t, match_str) then
+        local start_pos = string.find(t, module_name)
+        local end_pos = start_pos + string.len(module_name) - 1
+
+        print(string.sub(t, start_pos, end_pos))
+      end
+
+      local cs, rs, ce, re = node:range()
+
+
+      -- TODO: PRINT THE MODULE NAME HERE BUT EXTRACT IT FROM THE LINE INSTEAD OF THE STRING NOW
+
+
+
+    end
+  end
+
+  return module_name_range, buf
 end
 
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?

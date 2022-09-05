@@ -119,38 +119,18 @@ actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
-      -- note: if we know that the module is enabled/disabled then I shouldn't have to perform both check with ts
+      local rename_target_range, buf = mod.get_ranges_in_root_modules(m.section, m.name)
+      if not rename_target_range then
+        log.info("Renaming was unsuccessful - perhaps no captures were found in `modules.lua`.")
+      else
+        -- rename module dir
+        -- write_to_root_modules_file(buf)
 
-      local rename_target_ranges = mod.get_ranges_in_root_modules(m.section, m.name)
+        -- rename module inside of `modules.lua`
+        -- shell_mod_rename_dir(m.section, m.path, new_name)
 
-      if mod_str_node then
+        -- advanced: rename module internal require statements?
       end
-      -- if a mod string is found then we can ignore analyzing comment nodes
-      if
-        comment_nodes --[[and m.disabled--]]
-      then
-      end
-
-      -- FIX: EVERYTHING UP UNTIL HERE SHOULD BE HANDLED IN `UTILS/TS`
-
-      -- MAKE SURE WE HAVE TO REQUIRED NODE (STRING|COMMENT) HERE
-      --
-      --  - create `local module_found = false`
-      --          set it to module_found = { is_lua_string = true, ts_node = <the captured node>, ranges }
-      --
-
-      --  TODO: how did tj keep indentation here???
-
-      --  - reverse update line
-
-      --  - refactor everything into helpers.
-
-      --  - redo treesitter transforms with `Architext` when I understand how everything is done
-      --          with raw treesitter first.
-      --
-
-      -- OLD: watch some videos on treesitter to understand how this can be done more easilly
-      -- for transforming a file
 
       --       local new_name = value
       --
@@ -184,9 +164,6 @@ actions.m_rename = function(m)
       --           end
       --         end
       --       end)
-      --
-      --       write_to_root_modules_file(buf)
-      --       shell_mod_rename_dir(m.section, m.path, new_name)
     end
   end)
 end
