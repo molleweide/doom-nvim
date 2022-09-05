@@ -1,6 +1,17 @@
 local utils = require("doom.utils")
 local tsq = require("vim.treesitter.query")
 
+-- TODO:
+--
+--    - refactor string/comment analysis into utils below
+--
+--    - move all queries into a queries table.
+--
+--    - refactor as much as possible into
+--      ts utils?
+--
+--      iterate captures for query on path/buf
+
 --
 -- UTILS
 --
@@ -11,6 +22,12 @@ local get_root = function(bufnr)
   return tree:root()
 end
 
+local iter_captures_on_config_modules = function(buf, query, iter_cb)
+
+end
+
+
+
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -19,6 +36,12 @@ end
 --
 
 local M = {}
+
+
+--
+-- ROOT MODULES TS FUNCTIONS
+--
+
 
 -- Description:
 --
@@ -181,35 +204,37 @@ M.root_modules_delete = function(section, module_name)
     end
   end
 
-  -- if mod_str_node == nil and #comment_nodes == 0 then
-  --   return false
-  -- end
-  --
-  -- if mod_str_node then
-  --   local t = tsq.get_node_text(mod_str_node, buf)
-  --   print("found string: ", t)
-  --   local rs, cs, re, ce = mod_str_node:range()
-  --   mname_range = { rs, cs + 1, re, ce - 1 }
-  -- elseif #comment_nodes > 0 then
-  --   for _, node in ipairs(comment_nodes) do
-  --     local t = tsq.get_node_text(node, buf)
-  --     local match_str = '--%s-"' .. module_name .. '",'
-  --
-  --     -- find position of module name in the comment
-  --     if string.match(t, match_str) then
-  --       local start_pos = string.find(t, module_name)
-  --       local end_pos = start_pos + string.len(module_name)
-  --       local rs, cs, re, ce = node:range()
-  --       local indentation = cs - 1
-  --       local name_real_start = indentation + start_pos
-  --       local name_real_end = indentation + end_pos
-  --       mname_range = { rs, name_real_start, re, name_real_end }
-  --
-  --       break
-  --     end
-  --   end
-  -- end
-  --
+  if mod_str_node == nil and #comment_nodes == 0 then
+    return false
+  end
+
+  -- TODO: find line and remove it
+
+  if mod_str_node then
+    local t = tsq.get_node_text(mod_str_node, buf)
+    print("found string: ", t)
+    local rs, cs, re, ce = mod_str_node:range()
+    mname_range = { rs, cs + 1, re, ce - 1 }
+  elseif #comment_nodes > 0 then
+    for _, node in ipairs(comment_nodes) do
+      local t = tsq.get_node_text(node, buf)
+      local match_str = '--%s-"' .. module_name .. '",'
+
+      -- find position of module name in the comment
+      if string.match(t, match_str) then
+        local start_pos = string.find(t, module_name)
+        local end_pos = start_pos + string.len(module_name)
+        local rs, cs, re, ce = node:range()
+        local indentation = cs - 1
+        local name_real_start = indentation + start_pos
+        local name_real_end = indentation + end_pos
+        mname_range = { rs, name_real_start, re, name_real_end }
+
+        break
+      end
+    end
+  end
+
   -- vim.api.nvim_buf_set_text(
   --   buf,
   --   mname_range[1],
@@ -218,8 +243,17 @@ M.root_modules_delete = function(section, module_name)
   --   mname_range[4],
   --   { value }
   -- )
-  -- return mname_range
+  return mname_range
 end
+
+M.root_modules_toggle = function(section, module_name)
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+end
+
+--
+-- GET FULL/EXTENDED TABLE OF ALL MODULES
+--
 
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
 --    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.
