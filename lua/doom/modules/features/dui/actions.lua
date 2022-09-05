@@ -119,24 +119,32 @@ actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
-      local rename_target_range, buf = mod.get_ranges_in_root_modules(m.section, m.name)
-      if not rename_target_range then
+
+      local ret = mod.root_modules_rename(m.section, m.name)
+
+      if not ret then
         log.info("Renaming was unsuccessful - perhaps no captures were found in `modules.lua`.")
       else
+
+        -- PUT ALL THIS IN MOD UTILS
+
         -- WRITE TO MODULES.LUA
-        local root_modules = utils.find_config("modules.lua")
-        local buf = utils.get_buf_handle(root_modules)
-        vim.api.nvim_buf_set_text(
-          buf,
-          rename_target_range[1],
-          rename_target_range[2],
-          rename_target_range[3],
-          rename_target_range[4],
-          { value }
-        )
+        -- local root_modules = utils.find_config("modules.lua")
+        -- local buf = utils.get_buf_handle(root_modules)
+        -- vim.api.nvim_buf_set_text(
+        --   buf,
+        --   rename_target_range[1],
+        --   rename_target_range[2],
+        --   rename_target_range[3],
+        --   rename_target_range[4],
+        --   { value }
+        -- )
 
         -- RENAME DIR
+        --
         -- shell_mod_rename_dir(m.section, m.path, new_name)
+
+        -- write modules.lua here? with vim or libuv??
 
         -- advanced: rename module internal require statements?
       end
@@ -187,14 +195,10 @@ actions.m_create = function(sel, line)
   log.debug("m_create()")
 
   local function create_module(new_name, for_section)
-    -- need
-    if not check_if_module_name_exists(for_section, new_name) then
-      --   local buf, smll = transform_root_mod_file({ section = value.text })
-      --   -- print("smll: ", smll)
-      --   new_name = vim.trim(new_name, " ")
-      --   vim.api.nvim_buf_set_lines(buf, smll, smll, true, { '"' .. new_name .. '",' })
-      --   write_to_root_modules_file(buf)
-      --   shell_mod_new(for_section, new_name)
+    local ret = mod.root_modules_new(for_section, new_name)
+    if not ret then
+      log.info("Adding new module to `modules.lua` was unsuccessful.")
+    else
     end
   end
 

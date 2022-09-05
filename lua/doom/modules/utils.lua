@@ -29,7 +29,7 @@ local M = {}
 -- Return:
 --
 --    return ranges for the module, or false -> not found
-M.get_ranges_in_root_modules = function(section, module_name)
+M.root_modules_rename = function(section, module_name)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
 
@@ -64,7 +64,7 @@ M.get_ranges_in_root_modules = function(section, module_name)
   local root = get_root(buf)
   local mod_str_node
   local comment_nodes = {}
-  local module_name_range
+  local mname_range
 
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
@@ -83,7 +83,7 @@ M.get_ranges_in_root_modules = function(section, module_name)
     local t = tsq.get_node_text(mod_str_node, buf)
     print("found string: ", t)
     local rs, cs, re, ce = mod_str_node:range()
-    module_name_range = { rs, cs + 1, re, ce - 1 }
+    mname_range = { rs, cs + 1, re, ce - 1 }
   elseif #comment_nodes > 0 then
     for _, node in ipairs(comment_nodes) do
       local t = tsq.get_node_text(node, buf)
@@ -97,14 +97,51 @@ M.get_ranges_in_root_modules = function(section, module_name)
         local indentation = cs - 1
         local name_real_start = indentation + start_pos
         local name_real_end = indentation + end_pos
-        module_name_range = { rs, name_real_start, re, name_real_end }
+        mname_range = { rs, name_real_start, re, name_real_end }
 
         break
       end
     end
   end
 
-  return module_name_range, buf
+  vim.api.nvim_buf_set_text(
+    buf,
+    mname_range[1],
+    mname_range[2],
+    mname_range[3],
+    mname_range[4],
+    { value }
+  )
+  return mname_range
+end
+
+M.root_modules_new = function(section, module_name)
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+  local ts_query = string.format(
+    [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor) @section_table; i want to get position of closing `}` and insert on line above.
+      )
+  ) (#eq? @section_key "%s")
+))
+]],
+    section
+  )
+  local parsed = vim.treesitter.parse_query("lua", ts_query)
+  local root = get_root(buf)
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    local t = tsq.get_node_text(node, buf)
+    local rs, cs, re, ce = node:range()
+    if name == "section_table" then
+      vim.api.nvim_buf_set_lines(buf, re, re, true, { '    "' .. module_name .. '",' })
+    end
+  end
 end
 
 -- FUTURE: filter levels instead -> since you might have a recursive module structure?
