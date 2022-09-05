@@ -224,7 +224,7 @@ actions.m_delete = function(m)
       -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
       log.info("Trying to DELETE module: " .. m.origin .. " > " .. m.section .. " > " .. m.name)
 
-      local ret = mod.root_modules_delete(for_section, name)
+      local ret = mod.root_modules_delete(m.section, m.name)
       if not ret then
         log.info("Deletion was unsuccessful.")
       else
@@ -252,9 +252,9 @@ actions.m_toggle = function(m)
       .. " > "
       .. m.name
       .. " = "
-      .. m.enabled
+      .. tostring(m.enabled)
   )
-  local ret = mod.root_modules_toggle(for_section, name)
+  local ret = mod.root_modules_toggle(m.section, m.name)
   if not ret then
     log.info("Toggling module was unsuccessful.")
   else

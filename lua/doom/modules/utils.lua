@@ -22,11 +22,7 @@ local get_root = function(bufnr)
   return tree:root()
 end
 
-local iter_captures_on_config_modules = function(buf, query, iter_cb)
-
-end
-
-
+local iter_captures_on_config_modules = function(buf, query, iter_cb) end
 
 -- local get_text = function(node, bufnr)
 -- end
@@ -37,11 +33,9 @@ end
 
 local M = {}
 
-
 --
 -- ROOT MODULES TS FUNCTIONS
 --
-
 
 -- Description:
 --
@@ -179,7 +173,7 @@ M.root_modules_delete = function(section, module_name)
         name: (identifier) @section_key
         value: (table_constructor
               (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
         )
       )
   ) (#eq? @section_key "%s")
@@ -193,7 +187,6 @@ M.root_modules_delete = function(section, module_name)
   local root = get_root(buf)
   local mod_str_node
   local comment_nodes = {}
-  local mname_range
 
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
@@ -204,51 +197,116 @@ M.root_modules_delete = function(section, module_name)
     end
   end
 
+  print(mod_str_node, #comment_nodes)
+
   if mod_str_node == nil and #comment_nodes == 0 then
     return false
   end
 
-  -- TODO: find line and remove it
-
+  local delete_line
   if mod_str_node then
     local t = tsq.get_node_text(mod_str_node, buf)
-    print("found string: ", t)
     local rs, cs, re, ce = mod_str_node:range()
-    mname_range = { rs, cs + 1, re, ce - 1 }
+    delete_line = rs
   elseif #comment_nodes > 0 then
     for _, node in ipairs(comment_nodes) do
       local t = tsq.get_node_text(node, buf)
       local match_str = '--%s-"' .. module_name .. '",'
 
-      -- find position of module name in the comment
       if string.match(t, match_str) then
-        local start_pos = string.find(t, module_name)
-        local end_pos = start_pos + string.len(module_name)
         local rs, cs, re, ce = node:range()
-        local indentation = cs - 1
-        local name_real_start = indentation + start_pos
-        local name_real_end = indentation + end_pos
-        mname_range = { rs, name_real_start, re, name_real_end }
-
+        delete_line = rs
         break
       end
     end
   end
 
-  -- vim.api.nvim_buf_set_text(
-  --   buf,
-  --   mname_range[1],
-  --   mname_range[2],
-  --   mname_range[3],
-  --   mname_range[4],
-  --   { value }
-  -- )
-  return mname_range
+  if delete_line then
+    -- FIX: NOTHING HAPPENS??
+    vim.api.nvim_buf_set_lines(buf, delete_line, delete_line, 0, {})
+  end
+
+  return delete_line
 end
 
 M.root_modules_toggle = function(section, module_name)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
+
+  local ts_query = string.format(
+    [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (comment) @section_comment
+              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]],
+    module_name,
+    section
+  )
+
+  local parsed = vim.treesitter.parse_query("lua", ts_query)
+  local root = get_root(buf)
+  local mod_str_node
+  local comment_nodes = {}
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    local t = tsq.get_node_text(node, buf)
+    print(">", name, t)
+    if name == "module_string" then
+      mod_str_node = node
+    elseif name == "section_comment" then
+      table.insert(comment_nodes, node)
+    end
+  end
+
+  print(mod_str_node, #comment_nodes)
+
+  if mod_str_node == nil and #comment_nodes == 0 then
+    return false
+  end
+
+  local new_line
+  local is_enabled
+  if mod_str_node then
+    local t = tsq.get_node_text(mod_str_node, buf)
+    local rs, cs, re, ce = mod_str_node:range()
+    new_line = rs
+    is_enabled = true
+  elseif #comment_nodes > 0 then
+    for _, node in ipairs(comment_nodes) do
+      local t = tsq.get_node_text(node, buf)
+      local match_str = '--%s-"' .. module_name .. '",'
+
+      if string.match(t, match_str) then
+        local rs, cs, re, ce = node:range()
+        new_line = rs
+        is_enabled = false
+        break
+      end
+    end
+  end
+
+  local new_str
+  print("is en:", is_enabled)
+  if is_enabled then
+    new_str = string.format('    -- "%s",', module_name)
+  else
+    new_str = string.format('    "%s",', module_name)
+  end
+
+  if new_line then
+    vim.api.nvim_buf_set_lines(buf, new_line, new_line, true, { new_str })
+  end
+
+  return new_line
 end
 
 --
