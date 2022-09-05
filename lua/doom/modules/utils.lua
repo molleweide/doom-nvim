@@ -207,6 +207,12 @@ M.root_apply = function(opts)
 end
 
 --
+-- MODULES TS FUNCTIONS
+
+M.module_apply = function()
+end
+
+--
 -- GET FULL/EXTENDED TABLE OF ALL MODULES
 --
 

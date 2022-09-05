@@ -116,6 +116,8 @@ actions.m_edit = function(m)
 end
 
 actions.m_rename = function(m)
+
+  -- TODO: WRAP THIS IN A TINY FUNC
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
@@ -159,6 +161,7 @@ actions.m_create = function(sel, line)
   -- alternatively ONLY show doom origin if `development` mode is set under settings?
   nui.nui_menu("CONFIRM CREATE", confirm_alternatives, function(value)
     if value.text == "yes" then
+      -- TODO: WRAP THIS IN A TINIER FUNCTION
       nui.nui_menu("FOR SECTION:", conf_ui.settings.section_alternatives, function(value)
         create_module(line, value.text)
       end)
@@ -171,6 +174,7 @@ end
 -- - remove module that is disabled
 --
 actions.m_delete = function(m)
+  -- TODO: WRAP THIS IN A TINIER FUNCTION
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
     if value.text == "yes" then
       -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
@@ -210,11 +214,11 @@ actions.m_toggle = function(m)
       .. " = "
       .. tostring(m.enabled)
   )
-      local ret = mod.root_apply({
-        action = "toggle",
-        section = m.section,
-        module_name = m.name,
-      })
+  local ret = mod.root_apply({
+    action = "toggle",
+    section = m.section,
+    module_name = m.name,
+  })
   if not ret then
     log.info("Toggling module was unsuccessful.")
   else
@@ -259,20 +263,34 @@ actions.c_edit_setting = function(sel, line)
   -- find settings prop in settings file
   -- enter insert at last position.
 
+  local ret = mod.module_apply({
+    action = "edit_setting",
+  })
+
   -- if no module is selected then do root settings
 end
 actions.c_add_new_setting = function(buf, config)
   log.info("Add new doom setting.")
   -- find settings prop in settings file
   -- enter table snippet at last position in settings file.
+  local ret = mod.module_apply({
+    action = "add_new_setting",
+  })
 end
 actions.c_add_new_setting_to_mod = function(buf, config)
   -- same but for a single module.
   -- if mod selected > then do...
+  local ret = mod.module_apply({
+    action = "add_new_setting",
+  })
 end
 
 -- ADD PACKAGES
-actions.c_add_new_pkg_to_module = function() end
+actions.c_add_new_pkg_to_module = function()
+  local ret = mod.module_apply({
+    action = "add_new_setting",
+  })
+end
 actions.c_add_config_to_pkg = function() end
 actions.c_add_new_pkg_to_new_module = function() end
 actions.c_pkg_fork = function() end
