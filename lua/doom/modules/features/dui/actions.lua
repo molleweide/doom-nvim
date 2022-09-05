@@ -135,19 +135,18 @@ actions.m_rename = function(m)
       -- TODO: make sure this work -> get single mod string AND all comment
       local root_modules_query = string.format(
         [[
-(return_statement
-  (expression_list
-    (table_constructor
+(return_statement (expression_list
+  (table_constructor
       (field
         name: (identifier) @section_key
         value: (table_constructor
-          (comment) @section_comment
-          (field value: (string) @module_string)
-            (#eq? @module_string "%s")
-        ) @section_table
+              (comment) @section_comment
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
       )
-    ) (#eq? @section_key "%s")
-))]],
+  ) (#eq? @section_key "%s")
+))
+]],
         m.name,
         m.section
       )
