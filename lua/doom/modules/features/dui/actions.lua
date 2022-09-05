@@ -1,4 +1,5 @@
 local utils = require("doom.utils")
+local ts = require("doom.utils.ts")
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 local tscan = require("doom.utils.tree").traverse_table
@@ -131,25 +132,7 @@ actions.m_rename = function(m)
 
       local root_modules = utils.find_config("modules.lua")
       local buf = utils.get_buf_handle(root_modules)
-
-      -- TODO: make sure this work -> get single mod string AND all comment
-      local root_modules_query = string.format(
-        [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]],
-        m.name,
-        m.section
-      )
+      local rename_target_ranges = ts.root_modules_get_mod_state(m.section, m.name)
 
       print(root_modules_query)
 
@@ -185,6 +168,8 @@ actions.m_rename = function(m)
         comment_nodes --[[and m.disabled--]]
       then
       end
+
+      -- FIX: EVERYTHING UP UNTIL HERE SHOULD BE HANDLED IN `UTILS/TS`
 
       -- MAKE SURE WE HAVE TO REQUIRED NODE (STRING|COMMENT) HERE
       --
