@@ -1,16 +1,32 @@
 local utils = require("doom.utils")
 local tsq = require("vim.treesitter.query")
 
--- TODO:
---
---    - refactor string/comment analysis into utils below
---
---    - move all queries into a queries table.
---
---    - refactor as much as possible into
---      ts utils?
---
---      iterate captures for query on path/buf
+-- TODO: refactor everything
+
+local ts_query_template_s_and_c = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (comment) @section_comment
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
+
+local ts_query_template_section_table = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor) @section_table; i want to get position of closing `}` and insert on line above.
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
 
 --
 -- UTILS
@@ -22,7 +38,46 @@ local get_root = function(bufnr)
   return tree:root()
 end
 
-local iter_captures_on_config_modules = function(buf, query, iter_cb) end
+local get_query_capture = function(query, cname)
+  local root_modules = utils.find_config("modules.lua")
+  local buf = utils.get_buf_handle(root_modules)
+
+  local parsed = vim.treesitter.parse_query("lua", query)
+  local root = get_root(buf)
+
+  local t = {}
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    if name == cname then
+      table.insert(t, node)
+    end
+  end
+  return t
+end
+
+local function get_string_name_range(node)
+  local rs, cs, re, ce = node[1]:range()
+  return { rs, cs + 1, re, ce - 1 }
+end
+
+local function get_comment_name_range(module_name, nodes, buf)
+  for _, node in ipairs(nodes) do
+    local t = tsq.get_node_text(node, buf)
+    local match_str = '--%s-"' .. module_name .. '",'
+
+    -- find position of module name in the comment
+    if string.match(t, match_str) then
+      local start_pos = string.find(t, module_name)
+      local end_pos = start_pos + string.len(module_name)
+      local rs, cs, re, ce = node:range()
+      local indentation = cs - 1
+      local name_real_start = indentation + start_pos
+      local name_real_end = indentation + end_pos
+      return { rs, name_real_start, re, name_real_end }
+    end
+  end
+end
 
 -- local get_text = function(node, bufnr)
 -- end
@@ -37,167 +92,40 @@ local M = {}
 -- ROOT MODULES TS FUNCTIONS
 --
 
--- Description:
---
---    Analyzes `modules.lua` file to find the ranges where a module is located
---    even if the module is disabled (commented out).
---
---
--- Return:
---
---    return ranges for the module, or false -> not found
 M.root_modules_rename = function(section, module_name)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
+  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
+  local mod_str_node = get_query_capture(ts_query, "module_string")
+  local comment_nodes = get_query_capture(ts_query, "section_comment")
 
-  -- NOTE: I split the query for `string` and `comments` in two since using a single query gave me confusing results, even though I think this should be possible with a single query?!
-
-  -- TODO: split this into two queries?
-  local ts_query_module_str = string.format([[]], module_name, section)
-
-  local ts_query_comment = [[]]
-
-  -- this query works perfectly with `TSPlayground` but it does not return captures as I expect when
-  -- used below.
-  local ts_query = string.format(
-    [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]],
-    module_name,
-    section
-  )
-
-  local parsed = vim.treesitter.parse_query("lua", ts_query)
-  local root = get_root(buf)
-  local mod_str_node
-  local comment_nodes = {}
-  local mname_range
-
-  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-    local name = parsed.captures[id]
-    if name == "module_string" then
-      mod_str_node = node
-    elseif name == "section_comment" then
-      table.insert(comment_nodes, node)
-    end
-  end
-
-  if mod_str_node == nil and #comment_nodes == 0 then
+  if mod_str_node[1] == nil and #comment_nodes == 0 then
     return false
   end
 
-  if mod_str_node then
-    local t = tsq.get_node_text(mod_str_node, buf)
-    print("found string: ", t)
-    local rs, cs, re, ce = mod_str_node:range()
-    mname_range = { rs, cs + 1, re, ce - 1 }
+  local nrange
+  if mod_str_node[1] then
+    nrange = get_string_name_range(mod_str_node[1])
   elseif #comment_nodes > 0 then
-    for _, node in ipairs(comment_nodes) do
-      local t = tsq.get_node_text(node, buf)
-      local match_str = '--%s-"' .. module_name .. '",'
-
-      -- find position of module name in the comment
-      if string.match(t, match_str) then
-        local start_pos = string.find(t, module_name)
-        local end_pos = start_pos + string.len(module_name)
-        local rs, cs, re, ce = node:range()
-        local indentation = cs - 1
-        local name_real_start = indentation + start_pos
-        local name_real_end = indentation + end_pos
-        mname_range = { rs, name_real_start, re, name_real_end }
-
-        break
-      end
-    end
+    nrange = get_comment_name_range(module_name, comment_nodes, buf)
   end
 
-  vim.api.nvim_buf_set_text(
-    buf,
-    mname_range[1],
-    mname_range[2],
-    mname_range[3],
-    mname_range[4],
-    { value }
-  )
-  return mname_range
+  vim.api.nvim_buf_set_text(buf, nrange[1], nrange[2], nrange[3], nrange[4], { value })
+  return nrange
 end
 
 M.root_modules_new = function(section, module_name)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
-  local ts_query = string.format(
-    [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor) @section_table; i want to get position of closing `}` and insert on line above.
-      )
-  ) (#eq? @section_key "%s")
-))
-]],
-    section
-  )
-  local parsed = vim.treesitter.parse_query("lua", ts_query)
-  local root = get_root(buf)
+  local ts_query = string.format(ts_query_template_section_table, section)
+  local section_table_node = get_query_capture(ts_query, "section_comment")
 
-  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-    local name = parsed.captures[id]
-    local t = tsq.get_node_text(node, buf)
-    local rs, cs, re, ce = node:range()
-    if name == "section_table" then
-      vim.api.nvim_buf_set_lines(buf, re, re, true, { '    "' .. module_name .. '",' })
-    end
-  end
+  local t = tsq.get_node_text(section_table_node[1], buf)
+  local _, _, re, _ = section_table_node[1]:range()
+  vim.api.nvim_buf_set_lines(buf, re, re, true, { '    "' .. module_name .. '",' })
 end
 
 M.root_modules_delete = function(section, module_name)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
+  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
 
-  local ts_query = string.format(
-    [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]],
-    module_name,
-    section
-  )
-
-  local parsed = vim.treesitter.parse_query("lua", ts_query)
-  local root = get_root(buf)
-  local mod_str_node
-  local comment_nodes = {}
-
-  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-    local name = parsed.captures[id]
-    if name == "module_string" then
-      mod_str_node = node
-    elseif name == "section_comment" then
-      table.insert(comment_nodes, node)
-    end
-  end
-
-  print(mod_str_node, #comment_nodes)
+  local mod_str_node = get_query_capture(ts_query, "module_string")
+  local comment_nodes = get_query_capture(ts_query, "section_comment")
 
   if mod_str_node == nil and #comment_nodes == 0 then
     return false
@@ -230,44 +158,10 @@ M.root_modules_delete = function(section, module_name)
 end
 
 M.root_modules_toggle = function(section, module_name)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
+  local ts_query = string.format(ts_query_template_s_and_c, module_name, section)
 
-  local ts_query = string.format(
-    [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              ;(field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]],
-    module_name,
-    section
-  )
-
-  local parsed = vim.treesitter.parse_query("lua", ts_query)
-  local root = get_root(buf)
-  local mod_str_node
-  local comment_nodes = {}
-
-  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-    local name = parsed.captures[id]
-    local t = tsq.get_node_text(node, buf)
-    print(">", name, t)
-    if name == "module_string" then
-      mod_str_node = node
-    elseif name == "section_comment" then
-      table.insert(comment_nodes, node)
-    end
-  end
-
-  print(mod_str_node, #comment_nodes)
+  local mod_str_node = get_query_capture(ts_query, "module_string")
+  local comment_nodes = get_query_capture(ts_query, "section_comment")
 
   if mod_str_node == nil and #comment_nodes == 0 then
     return false
