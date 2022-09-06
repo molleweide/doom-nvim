@@ -253,7 +253,8 @@ local mod_get_query_for_child_table = function(components, child_specs)
   -- use for:
   --  packages; cmds; autocmds; binds
 
-local ts_query_child_table = string.format([[(assignment_statement
+  local ts_query_child_table = string.format(
+    [[(assignment_statement
   (variable_list
       name:
         (dot_index_expression
@@ -273,16 +274,15 @@ local ts_query_child_table = string.format([[(assignment_statement
     ) @components_table
   )
 )(#eq? @i "packages")
-]],components)
-
+]],
+    components
+  )
 end
 
 local mod_get_query_for_bind = function()
   -- should work for any bind.
   -- so this one has to be flexible.
 end
-
-
 
 local ts_query_pkg_spec = [[
 ()

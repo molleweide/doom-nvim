@@ -1,5 +1,16 @@
 --[[
 
+- how to monitor autocommands easilly??
+
+TODO: stretch band clip-on grips that you can hold.
+    ball bearings clip-on grip
+      -> nunchuck grips
+
+
+now this is good because now I am really starting to get this shit to work
+fast and I will be of value on the market where you can do shit fast as fuck
+and type faster than a motherfucker.
+
 mod dependence -> module.requires_modules({ "lsp" })
 
 pitch machine -> deno alephjs typescript react
@@ -19,6 +30,8 @@ injections
 
 treesitter playground use query editor.
 
+HACK: GET_QUERY_FOR_NODE_UNDER_CURSOR() !!!!!!!
+
 TODO: screen capture and gif programs.
 
 TODO: https://github.com/flameshot-org/flameshot ?????
@@ -26,6 +39,7 @@ TODO: https://github.com/flameshot-org/flameshot ?????
 and full shows always on srius xm. which is a satelite radio network. but I dunno what they do nowadays
 because they have been existing for like a while now.
 
+LOAD INJECTIONS VIA LUA
 
 scanning for the critical things that you cannot really fucking see out in the world and so we have
 made quite a bit of progress and so lets dream a little and the way it could work.

@@ -2,6 +2,8 @@ local motion = {}
 
 -- todo: abort timeout
 -- todo: leap enter/leave disable neorg rendered
+--
+-- TODO: jump across windows would be very nice!!!!!!!
 
 motion.settings = {
   timeoutlen = 500,

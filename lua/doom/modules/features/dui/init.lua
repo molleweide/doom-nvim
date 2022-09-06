@@ -20,6 +20,8 @@ local doom_ui = {}
 --    - config > add optional file preview to L/R
 --        >>> look at how `litee` is configured to learn a smart config pattern.
 --
+--    - >>> MONITOR RUNNING AUTOCOMMANDS
+--
 --    - ADD SNIPPETS!!
 --
 --    - HISTORY -> configure `opts.history` to see if this can be used to navigate menus?
