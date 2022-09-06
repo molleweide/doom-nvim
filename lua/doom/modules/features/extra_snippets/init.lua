@@ -19,7 +19,7 @@ extra_snippets.configs["friendly-snippets"] = function()
   require("luasnip.loaders.from_vscode").lazy_load()
 end
 
--- TODO: MOVE SNIPPETS PATH TO SETTIGS.
+-- TODO: MOVE SNIPPETS PATH TO SETTINGS.
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   require("luasnip_snippets").setup({
     paths = { "doom/snippets", "user/snippets" },

@@ -219,14 +219,40 @@ end
 --    -> easy bc only relies on finding the base table
 --        and inserting a full new entry.
 
-local ts_query_template_setting = [[
-()
-;(#eq? @section_key "%s")
-]]
+-- pass (settings|packages|configs|cmds|autocmds|binds)
+-- return query for container table
+local mod_get_components_table = function(component)
+  local ts_query_components_table = string.format(
+    [[
+  (assignment_statement
+    (variable_list
+      name:
+        (dot_index_expression
+          table: (identifier)
+          field: (identifier) @i
+        )
+    )(#eq? @i "%s")
+    ( expression_list
+      value: (table_constructor) @components_table
+    )
+  )
+  ]],
+    component
+  )
 
-local ts_query_pkg_table = [[
-()
-]]
+  return ts_query_components_table
+end
+
+local mod_get_settings_leaf = function(leaf_data)
+  -- NOTE: if no module file passed ->>> operate on `./settings.lua`
+
+  -- compute query based on settings leaf type.
+end
+
+local mod_get_query_for_child_table = function()
+  -- use for:
+  --  packages; cmds; autocmds; binds
+end
 
 local ts_query_pkg_spec = [[
 ()
