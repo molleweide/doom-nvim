@@ -28,6 +28,9 @@ local type_to_ts = {
 -- UTILS
 --
 
+local validate = function(opts)
+end
+
 local get_root = function(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, "lua", {})
   local tree = parser:parse()[1]
@@ -57,7 +60,7 @@ local get_query_capture = function(query, cname)
   return t, buf
 end
 
-local function get_ts_data(msection, mname)
+local function get_ts_data_root_modules(msection, mname)
   local strings = {}
   if mname then
     strings = get_query_capture(
@@ -220,7 +223,7 @@ M.root_apply = function(opts)
   if opts.module_name ~= nil then
     selected_mod = opts.module_name
   end
-  local ts_state = get_ts_data(opts.section, selected_mod)
+  local ts_state = get_ts_data_root_modules(opts.section, selected_mod)
   if not ts_state.ts.strings[1] and not ts_state.ts.comments[1] then
     return false
   end
@@ -390,10 +393,23 @@ M.module_apply = function(opts)
   if opts.action == "component_add" then
     -- print(vim.inspect(opts.selected_component))
 
+    -- TODO: make helper if not validate(opts) then return end
+    --    which makes sure that we got everything we need
+    if not validate(opts) then
+      return
+    end
     -- tsq_get_last_component_of_type
     -- get captures for each component.
     --
     -- get range for last capture
+    local strings = get_query_capture(
+      string.format(ts_query_template_mod_string, mname, msection),
+      "module_string"
+    )
+
+    if no_captures then
+      local compute_insertion_point = get_insertion_point_for_component()
+    end
 
     -- set buf > move curser > enter insert mode.
 
@@ -410,15 +426,12 @@ M.module_apply = function(opts)
     -- put cursor at beginning of selected component
   elseif opts.action == "component_replace_sel" then
     -- put cursor at beginning of selected component
-
   elseif opts.action == "pkg_fork" then
     -- put cursor...
   elseif opts.action == "pkg_clone" then
     -- put cursor...
-
   elseif opts.action == "pkg_cfg_add" then
     -- put cursor at insertion point...
-
   elseif opts.action == "bind_leader_add" then
   elseif opts.action == "bind_leader_add_to_sel" then
   elseif opts.action == "bind_" then

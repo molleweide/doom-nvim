@@ -216,6 +216,10 @@ actions.m_submit_module_to_upstream = function(m)
   -- cherry pick relevant co mmits onto `main`
 end
 
+actions.m_breakout_into_standalone_plugin = function(m)
+  -- if a plugin grows too large -> break it out into its own repo.
+end
+
 --
 -- COMPONENT ACTIONS
 --
