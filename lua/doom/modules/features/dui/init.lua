@@ -53,6 +53,9 @@ local doom_ui = {}
 -- UI: use a preview window + mappings legend window, so that each item
 --        mappings per entry are shown properly.
 --
+--  each entry has different mappings so you need to have a nice
+--  legend window.
+--
 --  I dunno how to achieve this layout
 --   _______________________________
 --  [_prompt_______________________]
@@ -68,6 +71,8 @@ local doom_ui = {}
 --  |...            | |            |
 --  |...            | |            |
 --  ^---------------^ ^------------^
+--
+--  toggle binds legend window.
 
 doom_ui.settings = {
   inspect_entries_on_keypress = true,

@@ -137,7 +137,7 @@ local function insert_lines(buf, line, value)
   -- string or #table == 1 / else loop mult lines
 end
 
-local function set_lines(buf, line, start, end_, value)end
+local function set_lines(buf, line, start, end_, value) end
 
 local function insert_line(buf, line, value)
   vim.api.nvim_buf_set_lines(buf, line, line, true, { value })
@@ -220,7 +220,6 @@ M.root_apply = function(opts)
   if opts.module_name ~= nil then
     selected_mod = opts.module_name
   end
-
   local ts_state = get_ts_data(opts.section, selected_mod)
   if not ts_state.ts.strings[1] and not ts_state.ts.comments[1] then
     return false
@@ -256,7 +255,6 @@ end
 -- MODULE QUERIES
 --
 
-
 -- types of funcs
 --
 --     get_component table
@@ -265,18 +263,33 @@ end
 --          pkg spec -> by name string
 --          bind tbl -> by unique prop combo
 
-
-
-
--- TODO: ADD ALL BASIC `ADD` OPERATIONS
---    -> easy bc only relies on finding the base table
---        and inserting a full new entry.
-
 -- pass (settings|packages|configs|cmds|autocmds|binds)
 -- return query for container table
-local mod_get_components_table = function(component)
-  local ts_query_components_table = string.format(
-    [[
+local tsq_get_last_component_of_type = function(component)
+  local ts_query_components_table
+  if component == "config" then
+    ts_query_components_table = string.format(
+      [[
+(assignment_statement
+  (variable_list
+    name: (bracket_index_expression
+        table: (dot_index_expression
+          table: (identifier)
+          field: (identifier))
+        field: (string)
+    )
+  )
+  (expression_list
+    value: (function_definition
+      parameters: (parameters))
+  )
+)
+  ]],
+      component
+    )
+  else
+    ts_query_components_table = string.format(
+      [[
   (assignment_statement
     (variable_list
       name:
@@ -290,8 +303,9 @@ local mod_get_components_table = function(component)
     )
   )
   ]],
-    component
-  )
+      component
+    )
+  end
 
   return ts_query_components_table
 end
@@ -352,7 +366,6 @@ local ts_query_mod_get_pkg_spec = function(pkg_name)
 ]])
 end
 
-
 local ts_query_mod_get_pkg_config = [[
 ()
 ]]
@@ -374,58 +387,38 @@ local ts_query_bind_table = [[
 --
 
 M.module_apply = function(opts)
-  --
-  -- SETTINGS
-  --
-  if opts.action == "add_component" then
+  if opts.action == "component_add" then
     -- print(vim.inspect(opts.selected_component))
-    print("")
-    --  get setting
-    --  find ranges
-    --  shift buf
-    --  move cursor
-    --  enter insert mode
-  elseif opts.action == "setting_add" then
-  elseif opts.action == "setting_remove" then
 
+    -- tsq_get_last_component_of_type
+    -- get captures for each component.
     --
-    -- PACKAGES
+    -- get range for last capture
+
+    -- set buf > move curser > enter insert mode.
+
+    -- if component doesn't exist
+    --     then I need to have a fallback to compute where to insert
+    --     the new component.
     --
-  elseif opts.action == "pgk_add" then
-    -- TODO: EASY!!!
+    -- if whole module is empty -> insert base template.
+    --
+    --
+  elseif opts.action == "component_edit_sel" then
+    -- put cursor at beginning of selected component
+  elseif opts.action == "component_remove_sel" then
+    -- put cursor at beginning of selected component
+  elseif opts.action == "component_replace_sel" then
+    -- put cursor at beginning of selected component
+
   elseif opts.action == "pkg_fork" then
+    -- put cursor...
   elseif opts.action == "pkg_clone" then
-  elseif opts.action == "pkg_remove" then
-    -- TODO: EASY!!!
+    -- put cursor...
 
-    --
-    -- CONFIGS
-    --
   elseif opts.action == "pkg_cfg_add" then
-  elseif opts.action == "pkg_cfg_remove" then
-  elseif opts.action == "pkg_cfg_edig" then
+    -- put cursor at insertion point...
 
-    --
-    -- CMDS
-    --
-  elseif opts.action == "cmd_add" then
-  elseif opts.action == "cmd_remove" then
-  elseif opts.action == "cmd_edit" then
-
-    --
-    -- AUTOCMD
-    --
-  elseif opts.action == "autocmd_add" then
-  elseif opts.action == "autocmd_remove" then
-  elseif opts.action == "autocmd_edit" then
-
-    --
-    -- BINDS
-    --
-  elseif opts.action == "bind_replace" then
-    -- TODO: EASY!!!
-  elseif opts.action == "bind_edit" then
-  elseif opts.action == "bind_add" then
   elseif opts.action == "bind_leader_add" then
   elseif opts.action == "bind_leader_add_to_sel" then
   elseif opts.action == "bind_" then

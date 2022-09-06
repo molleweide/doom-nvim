@@ -251,7 +251,7 @@ actions.c_add = function(sel)
   log.info("Add component")
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
     local ret = mod.module_apply({
-      action = "add_component",
+      action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
     })
