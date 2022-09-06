@@ -535,6 +535,9 @@ result_nodes.settings = function()
           ["<C-g>"] = function(sel, line)
             ax.c_add_same(sel)
           end,
+          ["<C-u>"] = function(sel, line)
+            ax.c_edit_sel(sel)
+          end,
           -- ["<C-a>"] = function(sel, line)
           --   ax.c_setting_edit(sel)
           -- end,

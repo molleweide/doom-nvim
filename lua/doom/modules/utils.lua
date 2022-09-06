@@ -18,6 +18,8 @@ local tsq = require("vim.treesitter.query")
 --        kept in a nice table
 --
 --        tsq_templ_ -> highlight all containing strings
+--
+-- NOTE: if no module file passed ->>> operate on `./settings.lua`
 
 local type_to_ts = {
   -- create mapping from lua to query atoms
@@ -51,9 +53,11 @@ local get_root = function(bufnr)
   return tree:root()
 end
 
-local get_query_capture = function(query, cname)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
+local get_query_capture = function(query, cname, path)
+  -- if not path then
+  path = path or utils.find_config("modules.lua")
+  -- end
+  local buf = utils.get_buf_handle(path)
 
   local parsed = vim.treesitter.parse_query("lua", query)
   local root = get_root(buf)
@@ -282,7 +286,7 @@ end
 
 -- pass (settings|packages|configs|cmds|autocmds|binds)
 -- return query for container table
-local tsq_get_last_component_of_type = function(component)
+local tsq_get_comp_containers = function(component)
   local ts_query_components_table
   if component == "configs" then
     ts_query_components_table = string.format(
@@ -327,13 +331,13 @@ local tsq_get_last_component_of_type = function(component)
   return ts_query_components_table
 end
 
-local mod_get_settings_leaf = function(leaf_data)
-  -- NOTE: if no module file passed ->>> operate on `./settings.lua`
+local tsq_get_comp_selected = function(opts)
+    -- action = "component_edit_sel",
+    -- selected_module = DOOM_UI_STATE.selected_module,
+    -- selected_component = sel,
 
-  -- compute query based on settings leaf type.
 end
 
--- TODO: injections > string.format inside of a function = `^tsq_`
 local mod_get_query_for_child_table = function(components, child_specs)
   -- use for:
   --  packages; cmds; autocmds; binds
@@ -379,22 +383,21 @@ end
 local ts_query_mod_get_pkg_spec = function(pkg_name)
   -- get package spec query by name.
   local ts_query = string.format([[
-()
-]])
+    ()
+  ]])
 end
 
 local ts_query_mod_get_pkg_config = [[
-()
+  ()
 ]]
 
 local ts_query_mod_get_cmd = [[
-()
+  ()
 ]]
 
 local ts_query_autocmd_table = [[
-()
+  ()
 ]]
-
 local ts_query_bind_table = [[
 ()
 ]]
@@ -403,46 +406,50 @@ local ts_query_bind_table = [[
 -- MODULE APPLY ACTIONS
 --
 
+-- redo all of this with function calls instead so that it looks nicer
 M.module_apply = function(opts)
   if not validate(opts) then
     return
   end
 
-  if opts.action == "component_add" then
-    -- TODO: if module file is empty ??
+  -- TODO: if module file is empty ??
+  -- TODO: local compute_insertion_point = get_insertion_point_for_component()
 
-    local query = tsq_get_last_component_of_type(opts.add_component_sel)
-    local buf = utils.get_buf_handle(opts.selected_module.path .. "init.lua")
-    local parsed = vim.treesitter.parse_query("lua", query)
-    local root = get_root(buf)
-    local captures = {}
-    for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-      local name = parsed.captures[id]
-      if name == "comp_unit" then
-        table.insert(captures, {
-          node = node,
-          text = tsq.get_node_text(node, buf),
-          range = { node:range() },
-        })
-      end
-    end
+  if opts.action == "component_add" then
+    local captures, buf = get_query_capture(
+      tsq_get_comp_containers(opts.add_component_sel),
+      "comp_unit",
+      opts.selected_module.path .. "init.lua"
+    )
 
     if not #captures then
       return false
-      -- TODO: local compute_insertion_point = get_insertion_point_for_component()
     end
-
-    -- INSERT TEMPLATE HERE CODE HERE
-
     local insertion_line = captures[#captures].range[1]
     local insertion_col = captures[#captures].range[2]
     vim.api.nvim_win_set_buf(0, buf)
     vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
+    --
   elseif opts.action == "component_edit_sel" then
-    -- put cursor at beginning of selected component
+
+    -- TODO: fix the query function here
+    --
+    -- maybe start looking at `refactoring.nvim` for inspiration
+    local captures, buf = get_query_capture(
+      tsq_get_comp_selected(opts),
+      "comp_unit",
+      opts.selected_module.path .. "init.lua"
+    )
+
+    if not #captures then
+      return false
+    end
+
+    --
   elseif opts.action == "component_remove_sel" then
-    -- put cursor at beginning of selected component
+
+    --
   elseif opts.action == "component_replace_sel" then
     -- put cursor at beginning of selected component
   elseif opts.action == "pkg_fork" then

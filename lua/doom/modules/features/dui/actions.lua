@@ -247,12 +247,22 @@ actions.c_add = function(sel)
       action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
-      add_component_sel = value.text
+      add_component_sel = value.text,
     })
   end)
 end
 
-actions.c_add_same = function(buf, config) end
+actions.c_add_same = function(sel) end
+
+actions.c_edit_sel = function(sel)
+  log.info("Edit component")
+  local ret = mod.module_apply({
+    action = "component_edit_sel",
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel,
+  })
+end
+
 --
 -- SETTINGS
 --
