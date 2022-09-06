@@ -1,12 +1,8 @@
 local utils = require("doom.utils")
 local tsq = require("vim.treesitter.query")
 
--- TODO:
---
---    - split queries
---    - merge root module funcs into one
---    - sketch out component funcs.
---
+-- TODO: move ts utils into its own utils/ts
+-- TODO: move all buf edit helpers into utils/buf
 
 -- HACK: ARCHITEXT
 --
@@ -31,51 +27,10 @@ local type_to_ts = {
 --
 
 local validate = function(opts)
-  --   action = "rename",
-  -- section = m.section,
-  -- module_name = m.name,
-  -- new_name = value,
-
-  -- action = "component_add",
-  -- selected_module = DOOM_UI_STATE.selected_module,
-  -- selected_component = sel,
-  -- add_component_sel = value
-
   if not opts.action then
     return false
   end
   return true
-end
-
-local get_root = function(bufnr)
-  local parser = vim.treesitter.get_parser(bufnr, "lua", {})
-  local tree = parser:parse()[1]
-  return tree:root()
-end
-
-local get_query_capture = function(query, cname, path)
-  -- if not path then
-  path = path or utils.find_config("modules.lua")
-  -- end
-  local buf = utils.get_buf_handle(path)
-
-  local parsed = vim.treesitter.parse_query("lua", query)
-  local root = get_root(buf)
-
-  local t = {}
-
-  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-    local name = parsed.captures[id]
-    if name == cname then
-      table.insert(t, {
-        node = node,
-        text = tsq.get_node_text(node, buf),
-        range = { node:range() },
-      })
-    end
-  end
-
-  return t, buf
 end
 
 local function get_ts_data_root_modules(msection, mname)
@@ -132,102 +87,10 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
---
--- NVIM BUF HELPERS
---
-
-local function replace_lines(buf, line, value)
-  if type(value) == "string" then
-    -- replace single line
-  elseif type(value) == "table" then
-    -- replace mult lines
-  end
-end
-
-local function replace_text() end
-local function delete_lines(buf, start, end_)
-  if end_ then
-  else
-    -- delete line start.
-  end
-end
-
-local function insert_lines(buf, line, value)
-  -- before/after
-  --
-  -- string or #table == 1 / else loop mult lines
-end
-
-local function set_lines(buf, line, start, end_, value) end
-
-local function insert_line(buf, line, value)
-  vim.api.nvim_buf_set_lines(buf, line, line, true, { value })
-end
-
--- local function replace_line(buf, line, value) end
-
-local function set_text(buf, range, value)
-  vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
-end
-
-local function insert_text_at(buf, row, col, value)
-  vim.api.nvim_buf_set_text(buf, row, col, row, col, { value })
-end
 
 -- local get_text = function(node, bufnr)
 -- end
 
---
--- ROOT MODULES QUERIES
---
-
-local ts_query_template_mod_string = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_mod_comment = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor (comment) @section_comment)
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_s_and_c = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_section_table = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor) @section_table)
-  ) (#eq? @section_key "%s")
-))
-]]
 
 local M = {}
 
@@ -271,136 +134,6 @@ M.root_apply = function(opts)
     end
   end
 end
-
---
--- MODULE QUERIES
---
-
--- types of funcs
---
---     get_component table
---     get_child_table
---     get_component_entry_by_data
---          pkg spec -> by name string
---          bind tbl -> by unique prop combo
-
--- pass (settings|packages|configs|cmds|autocmds|binds)
--- return query for container table
-local tsq_get_comp_containers = function(component)
-  local ts_query_components_table
-  if component == "configs" then
-    ts_query_components_table = string.format(
-      [[
-(assignment_statement
-  (variable_list
-    name: (bracket_index_expression
-        table: (dot_index_expression
-          table: (identifier)
-          field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
-        field: (string)
-    )
-  )
-  (expression_list
-    value: (function_definition) @comp_unit
-  )
-)
-  ]],
-      component
-    )
-  else
-    ts_query_components_table = string.format(
-      [[
-  (assignment_statement
-    (variable_list
-      name:
-        (dot_index_expression
-          table: (identifier)
-          field: (identifier) @comp_tbl_name
-          (#eq? @comp_tbl_name "%s")
-        )
-    )
-    (expression_list
-      value: (table_constructor) @comp_unit
-    )
-  )
-  ]],
-      component
-    )
-  end
-
-  return ts_query_components_table
-end
-
-local tsq_get_comp_selected = function(opts)
-    -- action = "component_edit_sel",
-    -- selected_module = DOOM_UI_STATE.selected_module,
-    -- selected_component = sel,
-
-end
-
-local mod_get_query_for_child_table = function(components, child_specs)
-  -- use for:
-  --  packages; cmds; autocmds; binds
-  local ts_query_child_table = string.format(
-    [[
-(assignment_statement
-  (variable_list
-      name:
-        (dot_index_expression
-          table: (identifier)
-          field: (identifier) @i
-        )
-  )
-  ( expression_list
-    value: (table_constructor
-      (field
-        name: ( string ) @s2
-        value: ( table_constructor ) @t2
-      )
-    ) @components_table
-  )
-)(#eq? @i "packages")
-]],
-    components
-  )
-end
-
-local mod_get_query_for_bind = function()
-
-  -- I assume that all binds are unique so it should be possible
-  -- to make a single query quite easy to get explicit ranges
-  -- for a single table.
-
-  -- HACK: THIS IS ACTUALLY GOING TO BE SO MUCH FUN TO FIX THIS.
-
-  -- recieve data here and inspect what I need in order to
-  -- see what kinds of queries I can make.
-
-  -- should work for any bind.
-  -- so this one has to be flexible.
-end
-
-local ts_query_mod_get_pkg_spec = function(pkg_name)
-  -- get package spec query by name.
-  local ts_query = string.format([[
-    ()
-  ]])
-end
-
-local ts_query_mod_get_pkg_config = [[
-  ()
-]]
-
-local ts_query_mod_get_cmd = [[
-  ()
-]]
-
-local ts_query_autocmd_table = [[
-  ()
-]]
-local ts_query_bind_table = [[
-()
-]]
 
 --
 -- MODULE APPLY ACTIONS

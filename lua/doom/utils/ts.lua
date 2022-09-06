@@ -1,5 +1,30 @@
 local ts = {}
 
+local get_query_capture = function(query, cname, path)
+  -- if not path then
+  path = path or utils.find_config("modules.lua")
+  -- end
+  local buf = utils.get_buf_handle(path)
+
+  local parsed = vim.treesitter.parse_query("lua", query)
+  local root = get_root(buf)
+
+  local t = {}
+
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    if name == cname then
+      table.insert(t, {
+        node = node,
+        text = tsq.get_node_text(node, buf),
+        range = { node:range() },
+      })
+    end
+  end
+
+  return t, buf
+end
+
 return ts
 
 --
