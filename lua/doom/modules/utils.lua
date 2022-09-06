@@ -28,8 +28,7 @@ local type_to_ts = {
 -- UTILS
 --
 
-local validate = function(opts)
-end
+local validate = function(opts) end
 
 local get_root = function(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, "lua", {})
@@ -398,28 +397,36 @@ M.module_apply = function(opts)
     if not validate(opts) then
       return
     end
-    -- tsq_get_last_component_of_type
-    -- get captures for each component.
-    --
-    -- get range for last capture
-    local strings = get_query_capture(
-      string.format(ts_query_template_mod_string, mname, msection),
-      "module_string"
-    )
 
-    if no_captures then
-      local compute_insertion_point = get_insertion_point_for_component()
+    -- if module file is empty ??
+
+    local query =string.format(ts_query_template_mod_string, mname, msection)
+
+    local buf = utils.get_buf_handle(opts.selected_module.path)
+
+    local parsed = vim.treesitter.parse_query("lua", query)
+    local root = get_root(buf)
+
+    local t = {}
+    for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+      local name = parsed.captures[id]
+      if name == cname then
+        table.insert(t, {
+          node = node,
+          text = tsq.get_node_text(node, buf),
+          range = { node:range() },
+        })
+      end
     end
+
+    print(vim.inspect(t))
+
+    -- if not captures then
+    --   local compute_insertion_point = get_insertion_point_for_component()
+    -- end
 
     -- set buf > move curser > enter insert mode.
 
-    -- if component doesn't exist
-    --     then I need to have a fallback to compute where to insert
-    --     the new component.
-    --
-    -- if whole module is empty -> insert base template.
-    --
-    --
   elseif opts.action == "component_edit_sel" then
     -- put cursor at beginning of selected component
   elseif opts.action == "component_remove_sel" then

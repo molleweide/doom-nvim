@@ -231,17 +231,6 @@ end
 -- NOTE: how do I distinguish between DOOM and MOD here
 --        what did I mean with this note?!
 
--- HACK: SORT FUNCS PER COMPONENT IN DESCENDING ORDER OF COMPLEXITY.
---      impl all `add` actions first since the ts queries are quite
---      easy form them. Then refactor and continue on to next one
-
---      1 not extend. just make sure each one has
---      2 fire up select menu.
---      3 pass selection to mod utils
---      4 print ts query in mod utils
---      5 impl module operations with new buf text helpers.
---      6. prepare new PR
---
 --      NOTE: REMEMBER THAT FOR `SETTINGS`, IF NO MODULE IS SELETED,
 --      then operate on `./settings.lua`. Redo this later when
 --      looking over ui query pattern. It is a bit hacky so it could
