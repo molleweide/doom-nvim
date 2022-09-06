@@ -28,7 +28,22 @@ local type_to_ts = {
 -- UTILS
 --
 
-local validate = function(opts) end
+local validate = function(opts)
+  --   action = "rename",
+  -- section = m.section,
+  -- module_name = m.name,
+  -- new_name = value,
+
+  -- action = "component_add",
+  -- selected_module = DOOM_UI_STATE.selected_module,
+  -- selected_component = sel,
+  -- add_component_sel = value
+
+  if not opts.action then
+    return false
+  end
+  return true
+end
 
 local get_root = function(bufnr)
   local parser = vim.treesitter.get_parser(bufnr, "lua", {})
@@ -269,7 +284,7 @@ end
 -- return query for container table
 local tsq_get_last_component_of_type = function(component)
   local ts_query_components_table
-  if component == "config" then
+  if component == "configs" then
     ts_query_components_table = string.format(
       [[
 (assignment_statement
@@ -277,13 +292,12 @@ local tsq_get_last_component_of_type = function(component)
     name: (bracket_index_expression
         table: (dot_index_expression
           table: (identifier)
-          field: (identifier))
+          field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
         field: (string)
     )
   )
   (expression_list
-    value: (function_definition
-      parameters: (parameters))
+    value: (function_definition) @comp_unit
   )
 )
   ]],
@@ -297,11 +311,12 @@ local tsq_get_last_component_of_type = function(component)
       name:
         (dot_index_expression
           table: (identifier)
-          field: (identifier) @i
+          field: (identifier) @comp_tbl_name
+          (#eq? @comp_tbl_name "%s")
         )
-    )(#eq? @i "%s")
-    ( expression_list
-      value: (table_constructor) @components_table
+    )
+    (expression_list
+      value: (table_constructor) @comp_unit
     )
   )
   ]],
@@ -389,29 +404,22 @@ local ts_query_bind_table = [[
 --
 
 M.module_apply = function(opts)
+  if not validate(opts) then
+    return
+  end
+
   if opts.action == "component_add" then
-    -- print(vim.inspect(opts.selected_component))
+    -- TODO: if module file is empty ??
 
-    -- TODO: make helper if not validate(opts) then return end
-    --    which makes sure that we got everything we need
-    if not validate(opts) then
-      return
-    end
-
-    -- if module file is empty ??
-
-    local query =string.format(ts_query_template_mod_string, mname, msection)
-
-    local buf = utils.get_buf_handle(opts.selected_module.path)
-
+    local query = tsq_get_last_component_of_type(opts.add_component_sel)
+    local buf = utils.get_buf_handle(opts.selected_module.path .. "init.lua")
     local parsed = vim.treesitter.parse_query("lua", query)
     local root = get_root(buf)
-
-    local t = {}
+    local captures = {}
     for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
       local name = parsed.captures[id]
-      if name == cname then
-        table.insert(t, {
+      if name == "comp_unit" then
+        table.insert(captures, {
           node = node,
           text = tsq.get_node_text(node, buf),
           range = { node:range() },
@@ -419,13 +427,17 @@ M.module_apply = function(opts)
       end
     end
 
-    print(vim.inspect(t))
+    if not #captures then
+      return false
+      -- TODO: local compute_insertion_point = get_insertion_point_for_component()
+    end
 
-    -- if not captures then
-    --   local compute_insertion_point = get_insertion_point_for_component()
-    -- end
+    -- INSERT TEMPLATE HERE CODE HERE
 
-    -- set buf > move curser > enter insert mode.
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
   elseif opts.action == "component_edit_sel" then
     -- put cursor at beginning of selected component

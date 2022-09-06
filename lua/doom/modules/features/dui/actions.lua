@@ -17,7 +17,7 @@ local conf_ui = {}
 conf_ui.settings = {
   confirm_alternatives = { "yes", "no" },
   section_alternatives = { "user", "features", "langs", "core" },
-  component_alternatives = { "setting", "package", "config", "cmd", "autocmd", "bind" },
+  component_alternatives = { "settings", "packages", "configs", "cmds", "autocmds", "binds" },
   popup = {
     relative = "cursor",
     position = {
@@ -247,6 +247,7 @@ actions.c_add = function(sel)
       action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
+      add_component_sel = value.text
     })
   end)
 end
