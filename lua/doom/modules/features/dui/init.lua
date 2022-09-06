@@ -44,6 +44,30 @@ local doom_ui = {}
 --    -> CHECK OUT `LEGENDARY` SOURCE AND SEE HOW THE DISPLAYER IS CONFIGURED.
 --
 --  NOTE: SCREEN RECORD GIF AND POST MY PROGRESS UNDER DOOM-NVIM
+--
+--
+--
+--
+--
+
+-- UI: use a preview window + mappings legend window, so that each item
+--        mappings per entry are shown properly.
+--
+--  I dunno how to achieve this layout
+--   _______________________________
+--  [_prompt_______________________]
+--
+--  ^---------------^ ^------------^
+--  |pkg            | | preview    |
+--  |pkg            | |            |
+--  |...            | |            |
+--  |bind###########| ^------------^  ( selected )
+--  |bind           | ^------------^
+--  |bind           | | mappings   |
+--  |setting        | | legend     |
+--  |...            | |            |
+--  |...            | |            |
+--  ^---------------^ ^------------^
 
 doom_ui.settings = {
   inspect_entries_on_keypress = true,

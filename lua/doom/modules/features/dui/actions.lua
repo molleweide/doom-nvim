@@ -1,22 +1,13 @@
 local utils = require("doom.utils")
 local mod = require("doom.modules.utils")
 local log = require("doom.utils.logging")
-local system = require("doom.core.system")
 local tscan = require("doom.utils.tree").traverse_table
-
--- local sh = require("user.modules.features.dui2.shell")
 local nui = require("doom.modules.features.dui.nui")
+-- local sh = require("user.modules.features.dui2.shell")
 
--- video:
---    tj embedded formatting:    https://www.youtube.com/watch?v=v3o9YaHBM4Q
---    tj execute anything:       https://www.youtube.com/watch?v=9gUatBHuXE0
---    tj and vigoux:             https://www.youtube.com/watch?v=SMt-L2xf-10
+-- TODO: nui themeing and stylez
 
--- TODO:
---
---    - fix `check_if_module_name_exists` with `extend()`
---    - make sure I have access to all necessary data in each method
---    - play around with nui dimensions
+-- TODO: refactor everything NUI into util so that it becomes a bit nicer to handle
 
 --  - open/edit (new) module in split / same win is default on <CR>
 
@@ -26,6 +17,7 @@ local conf_ui = {}
 conf_ui.settings = {
   confirm_alternatives = { "yes", "no" },
   section_alternatives = { "user", "features", "langs", "core" },
+  component_alternatives = { "setting", "package", "config", "cmd", "autocmd", "bind" },
   popup = {
     relative = "cursor",
     position = {
@@ -77,6 +69,7 @@ local confirm_alternatives = { "yes", "no" }
 --   return already_exists
 -- end
 
+-- TODO: move this into mod utils
 local function check_if_module_name_exists(m, new_name)
   -- TODO: need to account for origin.
   -- local orig = type(m) == "string" and m or m.section
@@ -116,7 +109,6 @@ actions.m_edit = function(m)
 end
 
 actions.m_rename = function(m)
-  -- TODO: WRAP THIS IN A TINY FUNC
   nui.nui_input("NEW NAME", function(value)
     if not check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
@@ -138,7 +130,6 @@ actions.m_rename = function(m)
   end)
 end
 
--- todo: pass fuzzy, line
 actions.m_create = function(sel, line)
   if string.len(line) < 2 then
     log.info("Module names require at least two characters!")
@@ -160,7 +151,6 @@ actions.m_create = function(sel, line)
   -- alternatively ONLY show doom origin if `development` mode is set under settings?
   nui.nui_menu("CONFIRM CREATE", confirm_alternatives, function(value)
     if value.text == "yes" then
-      -- TODO: WRAP THIS IN A TINIER FUNCTION
       nui.nui_menu("FOR SECTION:", conf_ui.settings.section_alternatives, function(value)
         create_module(line, value.text)
       end)
@@ -168,12 +158,7 @@ actions.m_create = function(sel, line)
   end)
 end
 
---
--- - TODO: find name or comments in modules.lua and remove the line
--- - remove module that is disabled
---
 actions.m_delete = function(m)
-  -- TODO: WRAP THIS IN A TINIER FUNCTION
   nui.nui_menu("CONFIRM DELETE", confirm_alternatives, function(value)
     if value.text == "yes" then
       -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
@@ -195,24 +180,10 @@ actions.m_delete = function(m)
   end)
 end
 
--- use comment.nvim plugin or perform custom operation.
---
--- TODO: look into the source of comment.nvim and see how a comment is made and then just copy
--- the code to here. I think this is the best way of learning how to do this properly.
 actions.m_toggle = function(m)
   local root_modules = utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(root_modules)
-
-  log.info(
-    "Toggling module: "
-      .. m.origin
-      .. " > "
-      .. m.section
-      .. " > "
-      .. m.name
-      .. " = "
-      .. tostring(m.enabled)
-  )
+  log.info("Toggling module: ")
   local ret = mod.root_apply({
     action = "toggle",
     section = m.section,
@@ -226,7 +197,7 @@ end
 
 -- this one requires that all of the above works since this is a compound of all of the above.
 actions.m_move = function(m)
-  --   -- move module into into (features/langs)
+  --   -- move module into into another section, eg. from user to core...
   --   -- 1. nui menu select ( other sections than self)
   --   -- 2. move module dir
   --   -- 3. transform `modules.lua` -> call `root_sync_modules` command??
@@ -254,9 +225,45 @@ end
 --  args when necessary.
 
 -- NOTE: how do I distinguish between DOOM and MOD here
+--        what did I mean with this note?!
 
+-- HACK: SORT FUNCS PER COMPONENT IN DESCENDING ORDER OF COMPLEXITY.
+--      impl all `add` actions first since the ts queries are quite
+--      easy form them. Then refactor and continue on to next one
+
+--      1 not extend. just make sure each one has
+--      2 fire up select menu.
+--      3 pass selection to mod utils
+--      4 print ts query in mod utils
+--      5 impl module operations with new buf text helpers.
+--      6. prepare new PR
+--
+--      NOTE: REMEMBER THAT FOR `SETTINGS`, IF NO MODULE IS SELETED,
+--      then operate on `./settings.lua`. Redo this later when
+--      looking over ui query pattern. It is a bit hacky so it could
+--      probably be improved.
+
+-- NOTE: EACH ACTION OPERATES ON A SINGLE CONFIG UNIT.
+
+-- GLOBAL
+
+actions.c_add = function(sel)
+  log.info("Add component")
+  nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
+    local ret = mod.module_apply({
+      action = "add_component",
+      selected_module = DOOM_UI_STATE.selected_module,
+      selected_component = sel,
+    })
+  end)
+end
+
+actions.c_add_same = function(buf, config) end
+--
 -- SETTINGS
-actions.c_edit_setting = function(sel, line)
+--
+
+actions.c_setting_edit = function(sel, line)
   log.info("Edit single doom setting.")
   print(vim.inspect(sel))
   -- find settings prop in settings file
@@ -268,17 +275,13 @@ actions.c_edit_setting = function(sel, line)
 
   -- if no module is selected then do root settings
 end
-actions.c_setting_add = function(buf, config)
-  log.info("Add new doom setting.")
-  -- find settings prop in settings file
-  -- enter table snippet at last position in settings file.
-  local ret = mod.module_apply({
-    action = "add_new_setting",
-  })
-end
+actions.c_setting_replace = function(buf, config) end
 actions.c_setting_remove = function(buf, config) end
 
+--
 -- ADD PACKAGES
+--
+
 actions.c_pkg_add = function()
   local ret = mod.module_apply({
     action = "add_package",
@@ -300,8 +303,11 @@ actions.c_pkg_remove = function()
   })
 end
 
+--
 -- ADD CONFIGS
-actions.c_pkg_cfg_add = function()
+--
+
+actions.c_pkg_add_cfg = function()
   local ret = mod.module_apply({
     action = "add_config_to_package",
   })
@@ -316,7 +322,10 @@ actions.c_pkg_ckg_edit = function()
   -- I can do this some how and play around.
 end
 
+--
 -- ADD CMD
+--
+
 actions.c_cmd_add = function(buf, config)
   -- requires module to have been selected.
   local ret = mod.module_apply({
@@ -324,7 +333,10 @@ actions.c_cmd_add = function(buf, config)
   })
 end
 
+--
 -- ADD AUTOCMDS
+--
+
 actions.c_autocmd_add = function(buf, config)
   local ret = mod.module_apply({
     action = "add_autocmd",
@@ -336,7 +348,18 @@ actions.c_autocmd_remove = function(buf, config)
   })
 end
 
+--
 -- BINDS
+--
+
+actions.c_bind_add = function(buf, config)
+  -- 1. check if module has binds table
+  -- 2. check for regular binds AND leader table
+  -- 3. enter new binds snippet before leader.
+  local ret = mod.module_apply({
+    action = "add_bind",
+  })
+end
 actions.c_bind_replace = function(buf, config) end
 actions.c_bind_edit = function(buf, config)
   -- 1. find binds table.
@@ -346,14 +369,6 @@ actions.c_bind_edit = function(buf, config)
   -- 5. enter insert mode.
   local ret = mod.module_apply({
     action = "edit_bind",
-  })
-end
-actions.c_bind_add = function(buf, config)
-  -- 1. check if module has binds table
-  -- 2. check for regular binds AND leader table
-  -- 3. enter new binds snippet before leader.
-  local ret = mod.module_apply({
-    action = "add_bind",
   })
 end
 actions.c_bind_leader_add = function(buf, config)
@@ -382,7 +397,8 @@ end
 --
 
 -- todo: play around with functions for inserting templates and shit into
--- `./config.lua` which is a big playground.
+-- `./config.lua` which is a big playground just for fun to see what we
+-- can come up with.
 --
 -- config test add setting
 -- config test add function ..

@@ -1,10 +1,17 @@
 --[[
 
+-- TODO: impl each add component action in mod utils.
+
+TODO: REUPLOAD GUITAR FOR SALE BLOCKET
+
 - how to monitor autocommands easilly??
 
 TODO: stretch band clip-on grips that you can hold.
     ball bearings clip-on grip
       -> nunchuck grips
+      ->>> `SINGLE GRIP ROPE/CABLE`
+
+      those would actually be the best.
 
 
 now this is good because now I am really starting to get this shit to work

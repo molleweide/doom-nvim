@@ -527,17 +527,23 @@ result_nodes.settings = function()
         ordinal = pc_display,
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
-            -- DOOM_UI_STATE.query = {
-            --   type = "settings",
-            -- }
-            -- DOOM_UI_STATE.next()
-          end,
-          ["<C-a>"] = function(sel, line)
-            ax.c_edit_setting(sel)
+            -- TODO: helper fn `goto()` which takes `module` and `component` args
           end,
           ["<C-e>"] = function(sel, line)
-            ax.c_add_new_setting(sel)
+            ax.c_add(sel)
           end,
+          ["<C-g>"] = function(sel, line)
+            ax.c_add_same(sel)
+          end,
+          -- ["<C-a>"] = function(sel, line)
+          --   ax.c_setting_edit(sel)
+          -- end,
+          -- ["<C-r>"] = function(sel, line)
+          --   ax.c_setting_replace(sel)
+          -- end,
+          -- ["<C-x>"] = function(sel, line)
+          --   ax.c_setting_remove(sel)
+          -- end,
         },
       }
     end,
@@ -602,25 +608,23 @@ result_nodes.packages = function()
             --   type = "settings",
             -- }
             -- DOOM_UI_STATE.next()
+            -- TODO: GOTO
           end,
-          ["<C-XX"] = function()
-            ax.c_add_new_pkg_to_module()
+          ["<C-e>"] = function(sel, line)
+            ax.c_add(sel)
           end,
-          ["<C-XX"] = function()
-            ax.c_config_add_for_pkg()
-          end,
-          ["<C-XX"] = function()
-            ax.c_add_new_pkg_to_module_new_mod()
-          end,
-          ["<C-XX"] = function()
-            ax.c_pkg_fork()
-          end,
-          ["<C-XX"] = function()
-            ax.c_pkg_clone()
-          end,
-          ["<C-XX"] = function()
-            ax.c_remove_package()
-          end,
+          -- ["<C-y>"] = function()
+          --   ax.c_pkg_add_cfg()
+          -- end,
+          -- ["<C-f>"] = function()
+          --   ax.c_pkg_fork()
+          -- end,
+          -- ["<C-l>"] = function()
+          --   ax.c_pkg_clone()
+          -- end,
+          -- ["<C-x>"] = function()
+          --   ax.c_pkg_remove()
+          -- end,
         },
       }
     end,
@@ -674,8 +678,8 @@ result_nodes.configs = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
-          ["<C-XX"] = function()
-            ax.c_remove_sel_config()
+          ["<C-e>"] = function(sel, line)
+            ax.c_add(sel)
           end,
         },
       }
@@ -732,15 +736,18 @@ result_nodes.cmds = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
-          ["<C-XX"] = function()
-            ax.c_cmd_add_new_to_sel_mod()
+          ["<C-e>"] = function(sel, line)
+            ax.c_add(sel)
           end,
-          ["<C-XX"] = function()
-            ax.c_cmd_add_to_new_create_new_mod()
-          end,
-          ["<C-XX"] = function()
-            ax.c_cmd_delete()
-          end,
+          -- ["<C-XX"] = function()
+          --   ax.c_cmd_add_new_to_sel_mod()
+          -- end,
+          -- ["<C-XX"] = function()
+          --   ax.c_cmd_add_to_new_create_new_mod()
+          -- end,
+          -- ["<C-XX"] = function()
+          --   ax.c_cmd_delete()
+          -- end,
         },
       }
     end,
@@ -797,12 +804,15 @@ result_nodes.autocmds = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
-          ["<C-XX"] = function()
-            ax.c_autocmd_add()
+          ["<C-e>"] = function(sel, line)
+            ax.c_add(sel)
           end,
-          ["<C-XX"] = function()
-            ax.c_autocmd_add_to_new_mod()
-          end,
+          -- ["<C-XX"] = function()
+          --   ax.c_autocmd_add()
+          -- end,
+          -- ["<C-XX"] = function()
+          --   ax.c_autocmd_add_to_new_mod()
+          -- end,
         },
       }
     end,
@@ -854,9 +864,12 @@ result_nodes.binds = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
-          ["<C-XX"] = function()
-            ax.c_autocmd_add_to_new_mod()
+          ["<C-e>"] = function(sel, line)
+            ax.c_add(sel)
           end,
+          -- ["<C-XX"] = function()
+          --   ax.c_autocmd_add_to_new_mod()
+          -- end,
         },
       }
     end,

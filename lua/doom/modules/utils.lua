@@ -8,6 +8,22 @@ local tsq = require("vim.treesitter.query")
 --    - sketch out component funcs.
 --
 
+-- HACK: ARCHITEXT
+--
+-- now that I have gotten a little bit comfortable with
+-- queries I could look into using Architext for at least
+-- one of operations on modules.
+
+-- TODO: INJECT TSQ_TEMPL_ SO THAT ALL QUERY TEMPLATES CAN BE
+--        kept in a nice table
+--
+--        tsq_templ_ -> highlight all containing strings
+
+local type_to_ts = {
+  -- create mapping from lua to query atoms
+  -- in order to automate query generation.
+}
+
 --
 -- UTILS
 --
@@ -67,24 +83,6 @@ local function get_ts_data(msection, mname)
   }
 end
 
---
--- NVIM BUF HELPERS
---
-
-local function insert_line(buf, line, value)
-  vim.api.nvim_buf_set_lines(buf, line, line, true, { value })
-end
-
--- local function replace_line(buf, line, value) end
-
-local function set_text(buf, range, value)
-  vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
-end
-
-local function insert_text_at(buf, row, col, value)
-  vim.api.nvim_buf_set_text(buf, row, col, row, col, { value })
-end
-
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
     return {
@@ -113,11 +111,53 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
+--
+-- NVIM BUF HELPERS
+--
+
+local function replace_lines(buf, line, value)
+  if type(value) == "string" then
+    -- replace single line
+  elseif type(value) == "table" then
+    -- replace mult lines
+  end
+end
+
+local function replace_text() end
+local function delete_lines(buf, start, end_)
+  if end_ then
+  else
+    -- delete line start.
+  end
+end
+
+local function insert_lines(buf, line, value)
+  -- before/after
+  --
+  -- string or #table == 1 / else loop mult lines
+end
+
+local function set_lines(buf, line, start, end_, value)end
+
+local function insert_line(buf, line, value)
+  vim.api.nvim_buf_set_lines(buf, line, line, true, { value })
+end
+
+-- local function replace_line(buf, line, value) end
+
+local function set_text(buf, range, value)
+  vim.api.nvim_buf_set_text(buf, range[1], range[2], range[3], range[4], { value })
+end
+
+local function insert_text_at(buf, row, col, value)
+  vim.api.nvim_buf_set_text(buf, row, col, row, col, { value })
+end
+
 -- local get_text = function(node, bufnr)
 -- end
 
 --
--- MODULES UTIL
+-- ROOT MODULES QUERIES
 --
 
 local ts_query_template_mod_string = [[
@@ -174,6 +214,7 @@ local M = {}
 -- ROOT MODULES TS FUNCTIONS
 --
 
+-- RENAME: root_modules_apply
 M.root_apply = function(opts)
   local selected_mod
   if opts.module_name ~= nil then
@@ -212,8 +253,20 @@ M.root_apply = function(opts)
 end
 
 --
--- MODULES TS FUNCTIONS
+-- MODULE QUERIES
 --
+
+
+-- types of funcs
+--
+--     get_component table
+--     get_child_table
+--     get_component_entry_by_data
+--          pkg spec -> by name string
+--          bind tbl -> by unique prop combo
+
+
+
 
 -- TODO: ADD ALL BASIC `ADD` OPERATIONS
 --    -> easy bc only relies on finding the base table
@@ -231,11 +284,11 @@ local mod_get_components_table = function(component)
           table: (identifier)
           field: (identifier) @i
         )
-    )
+    )(#eq? @i "%s")
     ( expression_list
       value: (table_constructor) @components_table
     )
-  )(#eq? @i "%s")
+  )
   ]],
     component
   )
@@ -249,12 +302,13 @@ local mod_get_settings_leaf = function(leaf_data)
   -- compute query based on settings leaf type.
 end
 
+-- TODO: injections > string.format inside of a function = `^tsq_`
 local mod_get_query_for_child_table = function(components, child_specs)
   -- use for:
   --  packages; cmds; autocmds; binds
-
   local ts_query_child_table = string.format(
-    [[(assignment_statement
+    [[
+(assignment_statement
   (variable_list
       name:
         (dot_index_expression
@@ -264,13 +318,10 @@ local mod_get_query_for_child_table = function(components, child_specs)
   )
   ( expression_list
     value: (table_constructor
-
-
-      ; field
-      ;   name: string
-      ;   value: table_constructor
-
-
+      (field
+        name: ( string ) @s2
+        value: ( table_constructor ) @t2
+      )
     ) @components_table
   )
 )(#eq? @i "packages")
@@ -280,23 +331,33 @@ local mod_get_query_for_child_table = function(components, child_specs)
 end
 
 local mod_get_query_for_bind = function()
+
+  -- I assume that all binds are unique so it should be possible
+  -- to make a single query quite easy to get explicit ranges
+  -- for a single table.
+
+  -- HACK: THIS IS ACTUALLY GOING TO BE SO MUCH FUN TO FIX THIS.
+
+  -- recieve data here and inspect what I need in order to
+  -- see what kinds of queries I can make.
+
   -- should work for any bind.
   -- so this one has to be flexible.
 end
 
-local ts_query_pkg_spec = [[
+local ts_query_mod_get_pkg_spec = function(pkg_name)
+  -- get package spec query by name.
+  local ts_query = string.format([[
+()
+]])
+end
+
+
+local ts_query_mod_get_pkg_config = [[
 ()
 ]]
 
-local ts_query_pkg_cfg = [[
-()
-]]
-
-local ts_query_pkg_cfg = [[
-()
-]]
-
-local ts_query_cmd_table = [[
+local ts_query_mod_get_cmd = [[
 ()
 ]]
 
@@ -308,13 +369,17 @@ local ts_query_bind_table = [[
 ()
 ]]
 
+--
+-- MODULE APPLY ACTIONS
+--
+
 M.module_apply = function(opts)
   --
   -- SETTINGS
   --
-  if opts.action == "setting_eding" then
-    print("?")
-    -- TODO: EASY!!!
+  if opts.action == "add_component" then
+    -- print(vim.inspect(opts.selected_component))
+    print("")
     --  get setting
     --  find ranges
     --  shift buf
