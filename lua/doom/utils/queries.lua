@@ -115,6 +115,40 @@ queries.tsq_get_comp_selected = function(opts)
   -- action = "component_edit_sel",
   -- selected_module = DOOM_UI_STATE.selected_module,
   -- selected_component = sel,
+  print(vim.inspect(opts.selected_component))
+
+  local ts_query_setting = [[
+        arst
+      ]]
+  local ts_query_package = [[
+        arst
+      ]]
+  local ts_query_config = [[
+        arst
+      ]]
+  local ts_query_cmd = [[
+        arst
+      ]]
+  local ts_query_autocmd = [[
+        arst
+      ]]
+  local ts_query_bind = [[
+        arst
+      ]]
+
+  if opts.selected_component.type == "module_setting" then
+    return string.format(ts_query_setting, xxx)
+  elseif opts.selected_component.type == "module_package" then
+    return string.format(ts_query_package, xxx)
+  elseif opts.selected_component.type == "module_config" then
+    return string.format(ts_query_config, xxx)
+  elseif opts.selected_component.type == "module_cmd" then
+    return string.format(ts_query_cmd, xxx)
+  elseif opts.selected_component.type == "module_autocmd" then
+    return string.format(ts_query_autocmd, xxx)
+  elseif opts.selected_component.type == "module_bind" then
+    return string.format(ts_query_bind, xxx)
+  end
 end
 
 queries.mod_get_query_for_child_table = function(components, child_specs)
