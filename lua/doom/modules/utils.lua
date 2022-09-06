@@ -231,11 +231,11 @@ local mod_get_components_table = function(component)
           table: (identifier)
           field: (identifier) @i
         )
-    )(#eq? @i "%s")
+    )
     ( expression_list
       value: (table_constructor) @components_table
     )
-  )
+  )(#eq? @i "%s")
   ]],
     component
   )
@@ -249,10 +249,40 @@ local mod_get_settings_leaf = function(leaf_data)
   -- compute query based on settings leaf type.
 end
 
-local mod_get_query_for_child_table = function()
+local mod_get_query_for_child_table = function(components, child_specs)
   -- use for:
   --  packages; cmds; autocmds; binds
+
+local ts_query_child_table = string.format([[(assignment_statement
+  (variable_list
+      name:
+        (dot_index_expression
+          table: (identifier)
+          field: (identifier) @i
+        )
+  )
+  ( expression_list
+    value: (table_constructor
+
+
+      ; field
+      ;   name: string
+      ;   value: table_constructor
+
+
+    ) @components_table
+  )
+)(#eq? @i "packages")
+]],components)
+
 end
+
+local mod_get_query_for_bind = function()
+  -- should work for any bind.
+  -- so this one has to be flexible.
+end
+
+
 
 local ts_query_pkg_spec = [[
 ()
