@@ -6,54 +6,7 @@ local tsq = require("vim.treesitter.query")
 --    - split queries
 --    - merge root module funcs into one
 --    - sketch out component funcs.
-
-local ts_query_template_mod_string = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_mod_comment = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor (comment) @section_comment)
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_s_and_c = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor
-              (comment) @section_comment
-              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
-        )
-      )
-  ) (#eq? @section_key "%s")
-))
-]]
-
-local ts_query_template_section_table = [[
-(return_statement (expression_list
-  (table_constructor
-      (field
-        name: (identifier) @section_key
-        value: (table_constructor) @section_table)
-  ) (#eq? @section_key "%s")
-))
-]]
+--
 
 --
 -- UTILS
@@ -167,6 +120,54 @@ end
 -- MODULES UTIL
 --
 
+local ts_query_template_mod_string = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
+
+local ts_query_template_mod_comment = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor (comment) @section_comment)
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
+
+local ts_query_template_s_and_c = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor
+              (comment) @section_comment
+              (field value: (string) @module_string (#eq? @module_string "\"%s\""))
+        )
+      )
+  ) (#eq? @section_key "%s")
+))
+]]
+
+local ts_query_template_section_table = [[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor) @section_table)
+  ) (#eq? @section_key "%s")
+))
+]]
+
 local M = {}
 
 --
@@ -212,6 +213,44 @@ end
 
 --
 -- MODULES TS FUNCTIONS
+--
+
+-- TODO: ADD ALL BASIC `ADD` OPERATIONS
+--    -> easy bc only relies on finding the base table
+--        and inserting a full new entry.
+
+local ts_query_template_setting = [[
+()
+;(#eq? @section_key "%s")
+]]
+
+local ts_query_pkg_table = [[
+()
+]]
+
+local ts_query_pkg_spec = [[
+()
+]]
+
+local ts_query_pkg_cfg = [[
+()
+]]
+
+local ts_query_pkg_cfg = [[
+()
+]]
+
+local ts_query_cmd_table = [[
+()
+]]
+
+local ts_query_autocmd_table = [[
+()
+]]
+
+local ts_query_bind_table = [[
+()
+]]
 
 M.module_apply = function(opts)
   --

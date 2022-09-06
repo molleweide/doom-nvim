@@ -752,6 +752,7 @@ end
 -- AUTOCMDS
 --
 
+-- TODO: MONITOR RUNNING AUTOCMD
 result_nodes.autocmds = function()
   local autocmds_component = {
     displayer = function(entry)
