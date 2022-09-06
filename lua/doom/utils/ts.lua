@@ -1,13 +1,22 @@
+local utils = require("doom.utils")
+local tsq = require("vim.treesitter.query")
+
 local ts = {}
 
-local get_query_capture = function(query, cname, path)
+ts.get_root = function(bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "lua", {})
+  local tree = parser:parse()[1]
+  return tree:root()
+end
+
+ts.get_query_capture = function(query, cname, path)
   -- if not path then
   path = path or utils.find_config("modules.lua")
   -- end
   local buf = utils.get_buf_handle(path)
 
   local parsed = vim.treesitter.parse_query("lua", query)
-  local root = get_root(buf)
+  local root = ts.get_root(buf)
 
   local t = {}
 

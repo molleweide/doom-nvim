@@ -1,8 +1,6 @@
-local utils = require("doom.utils")
-local tsq = require("vim.treesitter.query")
-
--- TODO: move ts utils into its own utils/ts
--- TODO: move all buf edit helpers into utils/buf
+local ts = require("doom.utils.ts")
+local b = require("doom.utils.buf")
+local queries = require("doom.utils.queries")
 
 -- HACK: ARCHITEXT
 --
@@ -36,17 +34,17 @@ end
 local function get_ts_data_root_modules(msection, mname)
   local strings = {}
   if mname then
-    strings = get_query_capture(
-      string.format(ts_query_template_mod_string, mname, msection),
+    strings = ts.get_query_capture(
+      string.format(queries.ts_query_template_mod_string, mname, msection),
       "module_string"
     )
   end
-  local comments = get_query_capture(
-    string.format(ts_query_template_mod_comment, msection),
+  local comments = ts.get_query_capture(
+    string.format(queries.ts_query_template_mod_comment, msection),
     "section_comment"
   )
-  local tables, buf = get_query_capture(
-    string.format(ts_query_template_section_table, msection),
+  local tables, buf = ts.get_query_capture(
+    string.format(queries.ts_query_template_section_table, msection),
     "section_table"
   )
   return {
@@ -118,7 +116,7 @@ M.root_apply = function(opts)
     )
   end
   if opts.action == "rename" then
-    set_text(ts_state.buf, range, opts.new_name)
+    b.set_text(ts_state.buf, range, opts.new_name)
   elseif opts.action == "new" then
     local pre = '    "'
     local post = '",'
@@ -130,7 +128,7 @@ M.root_apply = function(opts)
       insert_text_at(ts_state.buf, range[1], range[2] - 1, "-- ")
     else
       range[2] = comment_start
-      set_text(ts_state.buf, range, '"' .. selected_mod)
+      b.set_text(ts_state.buf, range, '"' .. selected_mod)
     end
   end
 end
@@ -149,8 +147,8 @@ M.module_apply = function(opts)
   -- TODO: local compute_insertion_point = get_insertion_point_for_component()
 
   if opts.action == "component_add" then
-    local captures, buf = get_query_capture(
-      tsq_get_comp_containers(opts.add_component_sel),
+    local captures, buf = ts.get_query_capture(
+      queries.tsq_get_comp_containers(opts.add_component_sel),
       "comp_unit",
       opts.selected_module.path .. "init.lua"
     )
@@ -169,8 +167,8 @@ M.module_apply = function(opts)
     -- TODO: fix the query function here
     --
     -- maybe start looking at `refactoring.nvim` for inspiration
-    local captures, buf = get_query_capture(
-      tsq_get_comp_selected(opts),
+    local captures, buf = ts.get_query_capture(
+      queries.tsq_get_comp_selected(opts),
       "comp_unit",
       opts.selected_module.path .. "init.lua"
     )
