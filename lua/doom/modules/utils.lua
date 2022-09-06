@@ -114,6 +114,10 @@ local function get_ts_data(msection, mname)
   }
 end
 
+--
+-- NVIM BUF HELPERS
+--
+
 local function insert_line(buf, line, value)
   vim.api.nvim_buf_set_lines(buf, line, line, true, { value })
 end
@@ -209,7 +213,63 @@ end
 --
 -- MODULES TS FUNCTIONS
 
-M.module_apply = function()
+M.module_apply = function(opts)
+  --
+  -- SETTINGS
+  --
+  if opts.action == "setting_eding" then
+    print("?")
+    -- TODO: EASY!!!
+    --  get setting
+    --  find ranges
+    --  shift buf
+    --  move cursor
+    --  enter insert mode
+  elseif opts.action == "setting_add" then
+  elseif opts.action == "setting_remove" then
+
+    --
+    -- PACKAGES
+    --
+  elseif opts.action == "pgk_add" then
+    -- TODO: EASY!!!
+  elseif opts.action == "pkg_fork" then
+  elseif opts.action == "pkg_clone" then
+  elseif opts.action == "pkg_remove" then
+    -- TODO: EASY!!!
+
+    --
+    -- CONFIGS
+    --
+  elseif opts.action == "pkg_cfg_add" then
+  elseif opts.action == "pkg_cfg_remove" then
+  elseif opts.action == "pkg_cfg_edig" then
+
+    --
+    -- CMDS
+    --
+  elseif opts.action == "cmd_add" then
+  elseif opts.action == "cmd_remove" then
+  elseif opts.action == "cmd_edit" then
+
+    --
+    -- AUTOCMD
+    --
+  elseif opts.action == "autocmd_add" then
+  elseif opts.action == "autocmd_remove" then
+  elseif opts.action == "autocmd_edit" then
+
+    --
+    -- BINDS
+    --
+  elseif opts.action == "bind_replace" then
+    -- TODO: EASY!!!
+  elseif opts.action == "bind_edit" then
+  elseif opts.action == "bind_add" then
+  elseif opts.action == "bind_leader_add" then
+  elseif opts.action == "bind_leader_add_to_sel" then
+  elseif opts.action == "bind_" then
+  end
 end
 
 --
