@@ -220,9 +220,8 @@ M.module_apply = function(opts)
             "false",
           },
         },
-        { "eq", "c_field", "xxx"}
+        { "eq", "c_field", "xxx" },
       },
-      field_subsequent = {},
     })
 
     -- local name = prop("name", node("identifier", "c_id", sexpr("eq", "c_id", "compare_id")))

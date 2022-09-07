@@ -220,7 +220,6 @@ end
 
 -- TODO: USE BRANCH/LEAF
 
-
 -- todos:
 --  - move recurse into traversal.
 --  - add counters that keep track of all kinds of relevan data for a table
@@ -237,13 +236,26 @@ M.recurse = function(opts, tree, stack, accumulator)
     local is_node = opts.filter(opts, left, right)
     logger(is_node, opts, stack, left, right)
     if not is_node then
-      opts.branch(stack, k, v)
-      -- table.insert(accumulator, ret)
+      -- branch pre
+      local pre = opts.branch(stack, k, v)
+      if pre then
+        table.insert(accumulator, pre)
+      end
+
       table.insert(stack, k)
+      -- recurse down
       M.recurse(opts, opts.branch_next(v), stack, accumulator)
+      -- branch post
+      local post = opts.branch_post(stack, k, v)
+      if post then
+        table.insert(accumulator, post)
+      end
     else
+      -- leaf
       local ret = opts.node(stack, k, v)
-      table.insert(accumulator, ret)
+      if ret then
+        table.insert(accumulator, ret)
+      end
     end
   end
   table.remove(stack, #stack)
@@ -274,7 +286,7 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-  -- TODO: PUT ALL THESE SETUP STATEMENTS IN A METATABLE??
+-- TODO: PUT ALL THESE SETUP STATEMENTS IN A METATABLE??
 
 -- TODO: USE ... TO MANAGE VARIABLE ARGS
 --
@@ -346,6 +358,12 @@ M.traverse_table = function(opts, tree, acc)
   ---       return appens to accumulator
   if not opts.branch then
     opts.branch = function()
+      return false
+    end
+  end
+
+  if not opts.branch_post then
+    opts.branch_post = function()
       return false
     end
   end

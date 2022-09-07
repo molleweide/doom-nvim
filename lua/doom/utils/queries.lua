@@ -343,12 +343,16 @@ queries.parse = function(query)
   -- 1 branch pre / post
   -- 2. branch insert into acc.
   -- 3. make sure nothing breaks.
+  --
+  -- DO THIS BY CREATING TWO NEW TEMPORARY FUNCS THAT I USE
 
    local results =  crawl({
     tree = query,
     -- edge = function(_, k, v) end,
-    branch_next = function(v)
+    branch = function(s,k,v)
       return v
+    end,
+    branch_post = function(s,k,v)
     end,
     node = function(s, k, v)
       return v
