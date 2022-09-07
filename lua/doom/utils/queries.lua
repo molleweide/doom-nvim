@@ -7,304 +7,6 @@ local queries = {}
 -- TODO: refactoring.nvim -> query_generation/lang/lua.lua
 --        and move my helpers to there.
 
---
--- folds
---
-
-local ts_query_folds = [[
-  [
- (for_in_statement)
- (for_statement)
- (while_statement)
- (repeat_statement)
- (if_statement)
- (do_statement)
- (function_definition)
- (local_function)
- (function)
- (table)
-] @fold
-]]
-
---
--- highlights
---
---
-
-local ts_query_hl = [[
-;;; Highlighting for lua
-
-;;; Builtins
-(self) @variable.builtin
-
-;; Keywords
-
-(if_statement
-[
-  "if"
-  "then"
-  "end"
-] @conditional)
-
-[
-  "else"
-  "elseif"
-  "then"
-] @conditional
-
-(for_statement
-[
-  "for"
-  "do"
-  "end"
-] @repeat)
-
-(for_in_statement
-[
-  "for"
-  "do"
-  "end"
-] @repeat)
-
-(while_statement
-[
-  "while"
-  "do"
-  "end"
-] @repeat)
-
-(repeat_statement
-[
-  "repeat"
-  "until"
-] @repeat)
-
-(do_statement
-[
-  "do"
-  "end"
-] @keyword)
-
-[
- "in"
- "local"
- (break_statement)
- "goto"
-] @keyword
-
-"return" @keyword.return
-
-;; Operators
-
-[
- "not"
- "and"
- "or"
-] @keyword.operator
-
-[
-"="
-"~="
-"=="
-"<="
-">="
-"<"
-">"
-"+"
-"-"
-"%"
-"/"
-"//"
-"*"
-"^"
-"&"
-"~"
-"|"
-">>"
-"<<"
-".."
-"#"
- ] @operator
-
-;; Punctuation
-["," "." ":" ";"] @punctuation.delimiter
-
-;; Brackets
-[
- "("
- ")"
- "["
- "]"
- "{"
- "}"
-] @punctuation.bracket
-
-;; Variables
-(identifier) @variable
-
-;; Constants
-[
-(false)
-(true)
-] @boolean
-(nil) @constant.builtin
-(spread) @constant ;; "..."
-((identifier) @constant
- (#lua-match? @constant "^[A-Z][A-Z_0-9]*$"))
-
-;; Functions
-(function [(function_name) (identifier)] @function)
-(function ["function" "end"] @keyword.function)
-
-(local_function (identifier) @function)
-(local_function ["function" "end"] @keyword.function)
-
-(variable_declaration
- (variable_declarator (identifier) @function) (function_definition))
-(local_variable_declaration
- (variable_declarator (identifier) @function) (function_definition))
-
-(function_definition ["function" "end"] @keyword.function)
-
-(property_identifier) @property
-
-(function_call
-  [((identifier) @variable (method) @method)
-   ((_) (method) @method)
-   (identifier) @function
-   (field_expression (property_identifier) @function)]
-  . (arguments))
-
-(function_call
-  (identifier) @function.builtin
-  (#any-of? @function.builtin
-    ;; built-in functions in Lua 5.1
-    "assert" "collectgarbage" "dofile" "error" "getfenv" "getmetatable" "ipairs"
-    "load" "loadfile" "loadstring" "module" "next" "pairs" "pcall" "print"
-    "rawequal" "rawget" "rawset" "require" "select" "setfenv" "setmetatable"
-    "tonumber" "tostring" "type" "unpack" "xpcall"))
-
-;; built-in next function
-(next) @function.builtin
-
-;; Parameters
-(parameters
-  (identifier) @parameter)
-
-;; Nodes
-(table ["{" "}"] @constructor)
-(comment) @comment
-(string) @string
-(number) @number
-(label_statement) @label
-; A bit of a tricky one, this will only match field names
-(field . (identifier) @field (_))
-(shebang) @comment
-
-;; Error
-(ERROR) @error
-
-]]
-
---
--- indents
---
-
-local ts_query_indents = [[
-[
-  (function_definition)
-  (variable_declaration)
-  (local_variable_declaration)
-  (field)
-  (local_function)
-  (function)
-  (if_statement)
-  (for_statement)
-  (for_in_statement)
-  (repeat_statement)
-  (return_statement)
-  (while_statement)
-  (table)
-  (arguments)
-  (do_statement)
-] @indent
-
-[
-  "end"
-  "until"
-  "{"
-  "}"
-  "("
-  ")"
-  "then"
-  (else)
-  (elseif)
-] @branch
-
-(comment) @ignore
-
-]]
-
---
--- locals
---
-
-local ts_query_locals = [[
-;;; DECLARATIONS AND SCOPES
-
-;; Variable and field declarations
-((variable_declarator
-   (identifier) @definition.var))
-
-((variable_declarator
-   (field_expression . (_) @definition.associated (property_identifier) @definition.var)))
-
-;; Parameters
-(parameters (identifier) @definition.parameter)
-
-;; Loops
-((loop_expression
-   (identifier) @definition.var))
-
-;; Function definitions
-((function
-   (function_name
-     (function_name_field
-       (identifier) @definition.associated . (property_identifier) @definition.method)))
- (#set! definition.method.scope "parent"))
-
-((function
-   (function_name (identifier) @definition.function))
- (#set! definition.function.scope "parent"))
-
-((local_function (identifier) @definition.function)
- (#set! definition.function.scope "parent"))
-
-(local_variable_declaration
-  (variable_declarator (identifier) @definition.function) . (function_definition))
-
-;; Scopes
-[
-  (program)
-  (function)
-  (local_function)
-  (function_definition)
-  (if_statement)
-  (for_in_statement)
-  (repeat_statement)
-  (while_statement)
-  (do_statement)
-] @scope
-
-;;; REFERENCES
-[
-  (identifier)
-  (property_identifier)
-] @reference
-
-
-]]
-
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -369,24 +71,36 @@ queries.parse = function(query)
         return indentation(s) .. "("..k .. "\n"
       end
     end,
-    branch_post = function(s,k,v)
-      if string.sub(k, 1,1) == "_" then
-        return indentation(s) .. "\n"
-      else
-        return indentation(s) .. ")\n"
+    branch_post = function(s,k,v,u)
+      local str = "" .. indentation(s)
+      if not string.sub(k, 1,1) == "_" then
+        str = str .. ")"
       end
+
+      -- print(#s, vim.inspect(u[#s]))
+      print(#s, vim.inspect(u))
+
+      -- if type(u) == "string" then
+      --   str = str .. u .. " "
+      -- else
+      --   for _, p in ipairs(u) do
+      --     str = str .. u .. " "
+      --   end
+      -- end
+
+      str = str .. "\n"
+      return str
     end,
     node = function(s, k, v)
 
       -- todo: put leaves on same line.
       --
-      -- TODO: PASS TO PARENT
-      --
-      --  is it possible to do this somehow?/
-      if type(k) == "number" then
-        print(k , vim.inspect(v))
-      end
-      return indentation(s) .. tostring(v) --.. "\n"
+      -- if type(k) == "number" then
+      --   print(k , vim.inspect(v))
+      -- end
+      -- print(">>", vim.inspect(v))
+      return { pass_up = v }
+      -- return tostring(v) .. " "
     end,
     filter = function(_, l, r)
       -- k = {} is a branch

@@ -3,6 +3,9 @@
 --
 -- TODO
 --
+-- ---
+-- TODO: RENAME: NODE -> LEAF
+--
 --------------------------------------
 -- it would be nice if callbacks only recieve a single table and not mult
 -- params so that it looks nicer.
@@ -230,6 +233,7 @@ end
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
+  local pass_up = {}
   for k, v in pairs(tree) do
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
@@ -241,12 +245,13 @@ M.recurse = function(opts, tree, stack, accumulator)
       if pre then
         table.insert(accumulator, pre)
       end
-
       table.insert(stack, k)
       -- recurse down
-      M.recurse(opts, opts.branch_next(v), stack, accumulator)
+      local p
+      accumulator, p = M.recurse(opts, opts.branch_next(v), stack, accumulator)
+      table.insert(pass_up, p)
       -- branch post
-      local post = opts.branch_post(stack, k, v)
+      local post = opts.branch_post(stack, k, v, pass_up)
       if post then
         table.insert(accumulator, post)
       end
@@ -254,12 +259,28 @@ M.recurse = function(opts, tree, stack, accumulator)
       -- leaf
       local ret = opts.node(stack, k, v)
       if ret then
-        table.insert(accumulator, ret)
+        if ret.pass_up then
+          -- print(":::", tostring(ret.pass_up))
+          -- print(vim.inspect(ret.pass_up[1]))
+          --
+          --
+          -- create a table that is keyed to each stack
+          --  so that I know which props to use in
+          --  branch post.
+          --
+          pass_up[#stack+1] = {}
+          table.insert(pass_up[#stack+1], ret.pass_up)
+          --
+          -- table.insert(pass_up, ret.pass_up)
+        else
+          table.insert(accumulator, ret)
+        end
       end
     end
   end
   table.remove(stack, #stack)
-  return accumulator
+  -- print("XX:", vim.inspect(pass_up))
+  return accumulator, pass_up
 end
 
 -- M.process_branch = function(opts, k, v, stack, accumulator)
