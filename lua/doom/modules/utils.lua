@@ -1,6 +1,7 @@
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
+local rq = require("refactoring").queries
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
 
@@ -92,6 +93,25 @@ end
 
 local M = {}
 
+--[[----------------------
+--   VALIDATE MODULES
+----------------------]]
+
+-- run this to make sure that all modules are exposed in the
+-- root file.
+M.sync_modules_to_root_file = function()
+  -- reuse funcs from module CRUD here to
+  -- insert modules.
+end
+
+M.validate_and_prettify_modules = function()
+  -- A. check that components are structured in the correct order.
+  -- B. make sure that there are very clear `comment_frames` that
+  --      make it easy to follow where you are and which module you are
+  --      looking at.
+  -- C. Insert missing components if necessary.
+end
+
 --
 -- ROOT MODULES TS FUNCTIONS
 --
@@ -134,7 +154,7 @@ M.root_apply = function(opts)
 end
 
 --
--- MODULE APPLY ACTIONS
+-- SINGLE MODULE APPLY ACTIONS
 --
 
 -- redo all of this with function calls instead so that it looks nicer
@@ -163,14 +183,23 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_edit_sel" then
-    -- TODO: fix the query function here
-    --
-    -- maybe start looking at `refactoring.nvim` for inspiration
-    local captures, buf = ts.get_query_capture(
-      queries.tsq_get_comp_selected(opts),
-      "comp_unit",
-      opts.selected_module.path .. "init.lua"
-    )
+    -- TODO: how pass scope to iter captures?
+    -- TODO: use `refactoring.nvim` func here.
+    -- TODO:
+    --      1. get base table query.
+    --      2. get component query
+    --      3. pluck base table
+    --      4. pluck component
+    --      5. switch file. refactor???
+    --      6. set cursor. refactor???
+
+    -- local q_ = rq.new(opts.selected_module.path .. "init.lua")
+
+    -- local captures, buf = ts.get_query_capture(
+    --   queries.tsq_get_comp_selected(opts),
+    --   "comp_unit",
+    --   opts.selected_module.path .. "init.lua"
+    -- )
 
     if not #captures then
       return false

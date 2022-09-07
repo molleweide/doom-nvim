@@ -395,12 +395,12 @@ local function reset()
 end
 
 doom_ui.cmds = {
-  {
-    "DoomCreateNewModule",
-    function()
-      ax.m_create()
-    end,
-  },
+  -- {
+  --   "DoomCreateNewModule",
+  --   function()
+  --     ax.m_create()
+  --   end,
+  -- },
   {
     "DoomPickerMain",
     function()
@@ -444,6 +444,16 @@ doom_ui.cmds = {
       DOOM_UI_STATE.next()
     end,
   },
+
+  -- 1. if current buf == module/init.lua file do action else open module browser.
+  -- 2. `leader d a (c|a|b|p)`
+  { "DoomModuleCurrentAddCmd", },
+  { "DoomModuleCurrentAddAutocmd", },
+  { "DoomModuleCurrentAddBind", },
+  { "DoomModuleCurrentAddPackage", },
+
+
+  -- more commands???
 }
 
 doom_ui.binds = {
@@ -452,7 +462,6 @@ doom_ui.binds = {
     "<leader>",
     name = "+prefix",
     {
-      -- TODO: this should be all mods + settings, so that everything can be reached.
       {
         "k",
         [[ :DoomPickerModules<cr> ]],
