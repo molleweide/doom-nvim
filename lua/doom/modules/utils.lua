@@ -196,33 +196,33 @@ M.module_apply = function(opts)
     --      5. switch file. refactor???
     --      6. set cursor. refactor???
 
-    -- id / any
-    local ts_query_setting = [[
-    (field
-      name: (identifier) @name (#eq? @name "debug")
-      value: (false) @value (#eq? @value "false")
-    )
-  ]]
+  --   -- id / any
+  --   local ts_query_setting = [[
+  --   (field
+  --     name: (identifier) @name (#eq? @name "debug")
+  --     value: (false) @value (#eq? @value "false")
+  --   )
+  -- ]]
 
     local q_ = queries.parse({
       field = {
         _name = {
           identifier = {
-            "c_id",
-            { "eq", "c_id", "false" },
+            "@c_id",
+            { "#eq?", "@c_id", "false" },
           },
         },
         _value = {
           false_ = {
-            "c_false",
+            "@c_false",
             {
-              "eq",
-              "c_false",
+              "#eq?",
+              "@c_false",
               "false",
             },
           },
         },
-        { "eq", "c_field", "xxx" },
+        { "#eq?", "@c_field", "xxx" },
       },
     })
 

@@ -16,32 +16,31 @@ local queries = {}
 -- COMPOSE FUNCS
 --
 
-local function wrap(str, id)
-  return string.format(
-    [[(%s
-    %s
-  )]],
-    id,
-    str
-  )
-end
-
-local function make_sexpr() end
-
--- local number = function(name, value) end
--- local string = function(name, value) end
--- local string = function(name, value) end
-
--- todo: there is a generalized pattern
---  for thes syntax (x ...)
-
--- TODO: USE TREE CRAWLER TO RENDER QUERY FROM TREE.
--- !!!!!
+-- local function wrap(str, id)
+--   return string.format(
+--     [[(%s
+--     %s
+--   )]],
+--     id,
+--     str
+--   )
+-- end
 --
---      look at how
+-- local function make_sexpr() end
+--
+-- -- local number = function(name, value) end
+-- -- local string = function(name, value) end
+-- -- local string = function(name, value) end
+--
+-- -- todo: there is a generalized pattern
+-- --  for thes syntax (x ...)
+--
+-- -- TODO: USE TREE CRAWLER TO RENDER QUERY FROM TREE.
+-- -- !!!!!
+-- --
+-- --      look at how
 
 queries.parse = function(query)
-
   local function indentation(stack, sep, mult)
     local a = ""
     local b = ""
@@ -55,40 +54,31 @@ queries.parse = function(query)
     end
     return b
   end
-  -- 1 branch pre / post
-  -- 2. branch insert into acc.
-  -- 3. make sure nothing breaks.
-  --
-  -- DO THIS BY CREATING TWO NEW TEMPORARY FUNCS THAT I USE
 
-   local results =  crawl({
+  local results = crawl({
     tree = query,
-    -- edge = function(_, k, v) end,
-    branch = function(s,k,v)
-      if string.sub(k, 1,1) == "_" then
+    branch = function(s, k, v)
+      if string.sub(k, 1, 1) == "_" then
         return indentation(s) .. k .. ":\n"
       else
-        return indentation(s) .. "("..k .. "\n"
+        return indentation(s) .. "(" .. k .. "\n"
       end
     end,
-    branch_post = function(s,k,v,u)
+    node = function(_, _, v)
+      return { pass_up = v }
+    end,
+    branch_post = function(s, k, v, u)
       local str = "" .. indentation(s)
-
       local first = string.sub(k, 1, 1)
-
-      print("first", first)
 
       if first ~= "_" then
         str = str .. ")"
       end
 
-      -- print(#s, vim.inspect(u[#s]))
-      -- print(k, #s, vim.inspect(u))
-
       if u then
         for _, p in ipairs(u) do
           if type(p) == "string" then
-            str = str .. " @"..p .. " "
+            str = str .. " " .. p .. " "
           else
             str = str .. "("
             for _, q in ipairs(p) do
@@ -99,21 +89,8 @@ queries.parse = function(query)
         end
       end
 
-
       str = str .. "\n"
       return str
-    end,
-    node = function(s, k, v)
-
-      -- print(#s, "node:", k, vim.inspect(v))
-      -- todo: put leaves on same line.
-      --
-      -- if type(k) == "number" then
-      --   print(k , vim.inspect(v))
-      -- end
-      -- print(">>", vim.inspect(v))
-      return { pass_up = v }
-      -- return tostring(v) .. " "
     end,
     filter = function(_, l, r)
       -- k = {} is a branch
@@ -137,135 +114,137 @@ queries.parse = function(query)
   end
 
   return str
-
 end
 
-queries.node = function(...)
-  local args = ...
-  local str
-  local pre = "("
-  local post = ")"
-
-  if #args == 0 then
-    return false
-  end
-
-  str = pre .. args[1]
-
-  -- if not args[2] then
-  --   return str .. post
-  -- end
-
-  -- get children
-  for k,v in ipairs(args) do
-    if k < 4 then
-      ::continue::
-    end
-    -- if type func else error
-    str = str .. "\n" .. args[k]()
-  end
-
-  str = str .. "\n" .. post
-
-  -- capture
-  if args[2] then
-    str = str .. " @" .. c -- str = add_capture(str, c)
-  end
-
-  -- sexpr
-  if args[3] then
-    str = str .. args[3]()-- [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
-  end
-
-  return str
-end
-
-queries.prop = function(...)
-  local args = ...
-end
-queries.sexpr = function(...)
-  local args = ...
-end
-
--- NOTE: it is going to be a bit of a pain to do this first one,
---    but then when the pattern arises then I'll be able to
---    refactor this into a nice lib.
+-- queries.node = function(...)
+--   local args = ...
+--   local str
+--   local pre = "("
+--   local post = ")"
 --
--- HANDLE CASES
---    only value (field value: )
---    child callbacks.
+--   if #args == 0 then
+--     return false
+--   end
 --
--- q.field(
---   q._name(
---       q.identifier, -- identifier()
---       "cname",
---       q.sexpr("eq", compare_name)
---    ),
---    q._value(
---      q.false_(),  -- false_()
---      "cvalue",
---      q.sexpr("eq", compare_value)
---    )
--- )
-
-local _name = function(t, c, s)
-  local str = string.format("name: (%s)", t)
-  -- append capture
-  if c then
-    str = str .. " @" .. c -- str = add_capture(str, c)
-  end
-  -- sexpr
-  if s then
-    str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
-  end
-end
-
--- rename: t -> x
+--   str = pre .. args[1]
 --
--- false|number|string|true|nil|table_constructor|function
-local _value = function(t, c, s)
-  local str = string.format("value: (%s)", t)
-  -- append capture
-  if c then
-    str = str .. " @" .. c -- str = add_capture(str, c)
-  end
-  if s then
-    str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
-  end
-end
-
-local field = function(cname, cvalue, vtype, child_queries_cb)
-  if not cvalue then
-    return "(field)"
-  end
-
-  -- id / any
-  local ts_query_setting = [[
-    (field
-      name: (identifier) @name (#eq? @name "debug")
-      value: (false) @value (#eq? @value "false")
-    )
-  ]]
-
-  -- local name = make_name()
-  -- local value = make_value()
-  -- local field = wrap("field", name .. value)
-
-  -- str / tbl
-  local ts_query_package = [[
-    (field
-      name: (string) @name (#eq? @name "\"nvim-cmp\"")
-      value: (table_constructor
-        ;(field
-        ;  value: (string) @repo
-        ;    (#eq? @repo "\"hrsh7th/nvim-cmp\"")
-        ;)
-      )
-    )
-  ]]
-
-  return wrap(str, "field")
-end
+--   -- if not args[2] then
+--   --   return str .. post
+--   -- end
+--
+--   -- get children
+--   for k,v in ipairs(args) do
+--     if k < 4 then
+--       ::continue::
+--     end
+--     -- if type func else error
+--     str = str .. "\n" .. args[k]()
+--   end
+--
+--   str = str .. "\n" .. post
+--
+--   -- capture
+--   if args[2] then
+--     str = str .. " @" .. c -- str = add_capture(str, c)
+--   end
+--
+--   -- sexpr
+--   if args[3] then
+--     str = str .. args[3]()-- [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+--   end
+--
+--   return str
+-- end
+--
+-- queries.prop = function(...)
+--   local args = ...
+-- end
+-- queries.sexpr = function(...)
+--   local args = ...
+-- end
+--
+-- -- NOTE: it is going to be a bit of a pain to do this first one,
+-- --    but then when the pattern arises then I'll be able to
+-- --    refactor this into a nice lib.
+-- --
+-- -- HANDLE CASES
+-- --    only value (field value: )
+-- --    child callbacks.
+-- --
+-- -- q.field(
+-- --   q._name(
+-- --       q.identifier, -- identifier()
+-- --       "cname",
+-- --       q.sexpr("eq", compare_name)
+-- --    ),
+-- --    q._value(
+-- --      q.false_(),  -- false_()
+-- --      "cvalue",
+-- --      q.sexpr("eq", compare_value)
+-- --    )
+-- -- )
+--
+-- local _name = function(t, c, s)
+--   local str = string.format("name: (%s)", t)
+--   -- append capture
+--   if c then
+--     str = str .. " @" .. c -- str = add_capture(str, c)
+--   end
+--   -- sexpr
+--   if s then
+--     str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+--   end
+--
+--
+--
+-- end
+--
+-- -- rename: t -> x
+-- --
+-- -- false|number|string|true|nil|table_constructor|function
+-- local _value = function(t, c, s)
+--   local str = string.format("value: (%s)", t)
+--   -- append capture
+--   if c then
+--     str = str .. " @" .. c -- str = add_capture(str, c)
+--   end
+--   if s then
+--     str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+--   end
+-- end
+--
+-- local field = function(cname, cvalue, vtype, child_queries_cb)
+--   if not cvalue then
+--     return "(field)"
+--   end
+--
+--   -- id / any
+--   local ts_query_setting = [[
+--     (field
+--       name: (identifier) @name (#eq? @name "debug")
+--       value: (false) @value (#eq? @value "false")
+--     )
+--   ]]
+--
+--   -- local name = make_name()
+--   -- local value = make_value()
+--   -- local field = wrap("field", name .. value)
+--
+--   -- str / tbl
+--   local ts_query_package = [[
+--     (field
+--       name: (string) @name (#eq? @name "\"nvim-cmp\"")
+--       value: (table_constructor
+--         ;(field
+--         ;  value: (string) @repo
+--         ;    (#eq? @repo "\"hrsh7th/nvim-cmp\"")
+--         ;)
+--       )
+--     )
+--   ]]
+--
+--   return wrap(str, "field")
+-- end
 
 -- local assignment_statement = function()
 --   local ts_query_others = [[
