@@ -94,20 +94,6 @@ queries.tsq_get_comp_containers = function(component)
 end
 
 queries.tsq_get_comp_selected = function(opts)
-  -- action = "component_edit_sel",
-  -- selected_module = DOOM_UI_STATE.selected_module,
-  -- selected_component = sel,
-  print(vim.inspect(opts.selected_component))
-
-  -- TODO: HOW TO PERFORM SUB QUERY ON EACH COMPONENT CONTAINER SET???
-  --
-  --    can I pass node as a root to iter_captures and only iterate over
-  --    eg. `binds` table?
-  --
-  --    -- what is the root arg??????
-  --
-  --    -- what is returned of I do root()[2]????
-
   local ts_query_setting = [[
     (field
       name: (identifier) @name
@@ -194,6 +180,7 @@ queries.tsq_get_comp_selected = function(opts)
       )
     )
   ]]
+
   local ts_query_bind = [[
     (assignment_statement
       (variable_list
@@ -206,22 +193,9 @@ queries.tsq_get_comp_selected = function(opts)
         value: (table_constructor
           (field
             value: (table_constructor
-              (field
-                value: string
-              )
-              (field
-                value: dot_index_expression
-                  table: dot_index_expression
-                    table: dot_index_expression
-                      table: identifier
-                      field: identifier
-                    field: identifier
-                  field: identifier
-              )
-              (field
-                name: identifier
-                value: string
-              )
+              (field value: (string) @str)
+              (field value: (dot_index_expression field: (identifier)) @f)
+              (field name: ( identifier ) value: ( string ))
             )
           )
         )
