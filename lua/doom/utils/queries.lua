@@ -340,6 +340,19 @@ local function make_sexpr() end
 
 queries.parse = function(query)
 
+  local function indentation(stack, sep, mult)
+    local a = ""
+    local b = ""
+    sep = sep or " "
+    mult = mult or 2
+    for _ = 1, #stack do
+      a = a .. sep
+    end
+    for _ = 1, mult do
+      b = b .. a
+    end
+    return b
+  end
   -- 1 branch pre / post
   -- 2. branch insert into acc.
   -- 3. make sure nothing breaks.
@@ -350,12 +363,21 @@ queries.parse = function(query)
     tree = query,
     -- edge = function(_, k, v) end,
     branch = function(s,k,v)
-      return v
+      if string.sub(k, 1,1) == "_" then
+        return indentation(s) .. k .. ":\n"
+      else
+        return indentation(s) .. "("..k .. "\n"
+      end
     end,
     branch_post = function(s,k,v)
+      if string.sub(k, 1,1) == "_" then
+        return
+      else
+        return indentation(s) .. ")\n"
+      end
     end,
     node = function(s, k, v)
-      return v
+      return indentation(s) .. tostring(v) .. "\n"
     end,
     filter = function(_, l, r)
       -- k = {} is a branch
