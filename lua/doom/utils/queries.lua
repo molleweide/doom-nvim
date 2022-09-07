@@ -67,10 +67,7 @@ queries.ts_query_template_mod_comment = [[
 -- pass (settings|packages|configs|cmds|autocmds|binds)
 -- return query for container table
 queries.tsq_get_comp_containers = function(component)
-  local ts_query_components_table
-  if component == "configs" then
-    ts_query_components_table = string.format(
-      [[
+  local ts_query_configs = [[
 (assignment_statement
   (variable_list
     name: (bracket_index_expression
@@ -84,12 +81,8 @@ queries.tsq_get_comp_containers = function(component)
     value: (function_definition) @comp_unit
   )
 )
-  ]],
-      component
-    )
-  else
-    ts_query_components_table = string.format(
-      [[
+  ]]
+  local ts_query_others = [[
   (assignment_statement
     (variable_list
       name:
@@ -103,12 +96,9 @@ queries.tsq_get_comp_containers = function(component)
       value: (table_constructor) @comp_unit
     )
   )
-  ]],
-      component
-    )
-  end
+  ]]
 
-  return ts_query_components_table
+  return string.format(component == "configs" and ts_query_configs or ts_query_others, component)
 end
 
 queries.tsq_get_comp_selected = function(opts)
@@ -116,6 +106,8 @@ queries.tsq_get_comp_selected = function(opts)
   -- selected_module = DOOM_UI_STATE.selected_module,
   -- selected_component = sel,
   print(vim.inspect(opts.selected_component))
+
+  -- TODO: fix each query below now
 
   local ts_query_setting = [[
         arst

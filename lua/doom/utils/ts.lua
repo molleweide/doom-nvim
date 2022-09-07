@@ -36,6 +36,216 @@ end
 
 return ts
 
+-------------------------------------------------------------------------------
+-- DUI / TS_TRAVERSE
+-------------------------------------------------------------------------------
+
+-- local tsq = require("vim.treesitter.query")
+-- local parsers = require "nvim-treesitter.parsers"
+--
+-- local tst = {}
+--
+-- -- THIS IS A REWRITE OF `SERVICES/KEYMAPS` WITH TREESITTERE, IE. IT FOLLOWS THE EXACT SAME
+-- -- PATTERN BUT NODES ARE ITERATED WITH TS INSTEAD OF REGULAR LUA TABLE.
+--
+-- tst.parse_nest_tables_meta_data = function(buf, node, accumulated,level)
+--   if accumulated == nil then
+--     accumulated = {
+--       level = 0,
+--     }
+--   else
+--     accumulated.level = level + 1
+--   end
+--   accumulated["container"] = node
+--   -- print(level, "--------------------------------------------")
+--   if node:type() == nil or node:type() ~= "table_constructor" then
+--     return false
+--   end
+--   local cnt = 1 -- child counter
+--   local special_cnt = 0
+--   local second_table
+--   local second_table_idx
+--   local second_table_cnt = 0
+--   local rhs
+--   local name_found
+--   local mode_found
+--   local opts_found
+--   local desc_found
+--   for n in node:iter_children() do
+--     if n:named() then
+--     local the_node = n:named_child(0) -- table constructor
+--     local the_type = the_node:type(0)
+--     if cnt == 1 then
+--       if the_type == "table_constructor" then
+--         -- accumulated["children"] = {}
+--         local child_table = {
+-- 		type = "binds_table"
+-- 	}
+--         for child in node:iter_children() do
+--           if child:named() then
+--             if child:type() == "field" then
+--               table.insert(child_table,
+--                 tst.parse_nest_tables_meta_data(buf, child:named_child(0), {}, accumulated.level)
+--                 )
+--             end
+--           end
+--         end
+--         table.insert(accumulated, child_table)
+--         return accumulated
+--       else
+--         accumulated["prefix"] = the_node
+-- 	      accumulated["type"] = "binds_leaf"
+--         local nt = tsq.get_node_text(the_node, buf)
+-- 	      accumulated["prefix_text"] = nt
+--         special_cnt = special_cnt + 1
+--       end
+--     end
+--     if cnt ~= 1 then
+--       if the_type == "table_constructor" then
+--         second_table = the_node
+--         second_table_idx = special_cnt
+--         second_table_cnt = second_table_cnt + 1
+--       end
+--     end
+--     if cnt == 2 and (the_type == "string" or the_type == "function_definition" or the_type == "dot_index_expression")then
+--         rhs = the_node
+--     end
+--     local c2 = n:named_child(0)
+--     if c2:type() == "identifier" then
+--       local nt = tsq.get_node_text(c2, buf)
+--       if nt == "name" then
+--         accumulated["name"] = c2
+--         name_found = true
+--         special_cnt = special_cnt + 1
+--       elseif nt == "mode" then
+--         accumulated["mode"] = c2
+--         mode_found = true
+--         special_cnt = special_cnt + 1
+--       elseif nt == "description" then
+--         accumulated["description"] = c2
+--         desc_found = true
+--         special_cnt = special_cnt + 1
+--       elseif nt == "options" then
+--         accumulated["options"] = c2
+--         opts_found = true
+--         special_cnt = special_cnt + 1
+--       else
+--         rhs = the_node
+--       end
+--     end
+--     cnt = cnt + 1
+--     end
+--   end
+--   if accumulated.name == nil and special_cnt >= 3 then
+--     accumulated["name"] = node:named_child(2)
+--   end
+--   if accumulated.description == nil and special_cnt >= 4 then
+--     accumulated["description"] = node:named_child(3)
+--   end
+--   if accumulated.rhs == nil and second_table then
+--     rhs = second_table
+--     accumulated["type"] = "binds_branch"
+--   end
+--   accumulated["rhs"] = rhs
+--   if accumulated.rhs:type() == "table_constructor" then
+--     accumulated["rhs"] = tst.parse_nest_tables_meta_data(buf, accumulated.rhs, {}, level)
+--   end
+--   return accumulated
+-- end
+--
+-- return tst
+
+-------------------------------------------------------------------------------
+-- DUI / TS
+-------------------------------------------------------------------------------
+
+-- local utils = require("doom.utils")
+-- local fs = require("doom.utils.fs")
+-- local system = require("doom.core.system")
+--
+-- -- TREESITTER
+-- local tsq = require("vim.treesitter.query")
+-- local parsers = require "nvim-treesitter.parsers"
+--
+-- local M = {}
+--
+--
+-- local ROOT_MODULES = utils.find_config("modules.lua")
+--
+-- M.ntext = function(n,b) return tsq.get_node_text(n, b) end
+--
+-- -- system.sep!!! -> util?
+-- M.get_query_file = function(lang, query_name)
+--   return fs.read_file(string.format("%s/queries/%s/%s.scm", system.doom_root, lang, query_name))
+-- end
+--
+-- M.ts_get_doom_captures = function(buf, doom_capture_name)
+--   local t_matched_captures = {}
+--   local query_str = M.get_query_file("lua", "doom_conf_ui")
+--   local language_tree = vim.treesitter.get_parser(buf, "lua")
+--   local syntax_tree = language_tree:parse()
+--   local root = syntax_tree[1]:root()
+--   local qp = vim.treesitter.parse_query("lua", query_str)
+--
+--   for id, node, _ in qp:iter_captures(root, buf, root:start(), root:end_()) do
+--     local name = qp.captures[id]
+-- 	  if name == doom_capture_name then
+--         table.insert(t_matched_captures, node)
+-- 	  end
+--    end
+--    return t_matched_captures
+-- end
+-- -- I BELIEVE THAT THIS FUNCTION ALSO EXPECTS THE (TABLE_CONSTRUCTOR) NODE
+-- -- AS INPUT.
+-- M.transform_root_mod_file = function(m, cb)
+--
+--   local buf = utils.get_buf_handle(ROOT_MODULES)
+--
+--   local query_str = doom_ui.get_query_file("lua", "doom_root_modules")
+--   local language_tree = vim.treesitter.get_parser(buf, "lua")
+--   local syntax_tree = language_tree:parse()
+--   local root = syntax_tree[1]:root()
+--   local qp = vim.treesitter.parse_query("lua", query_str)
+--
+--   local sm_ll = 0 -- section module last line
+--
+--   if qp ~= nil then
+--     for id, node, metadata in qp:iter_captures(root, buf, root:start(), root:end_()) do
+--       local cname = qp.captures[id] -- name of the capture in the query
+--       local node_text = ntext(node, buf)
+--       -- local p = node:parent()
+--       local ps = (node:parent()):prev_sibling()
+--       if ps ~= nil then
+--         local pss = ps:prev_sibling()
+--         if pss ~= nil then
+--           local section_text = ntext(pss, buf)
+--           if m.section == section_text then
+--             sm_ll, _, _, _ = node:range()
+--             if cb ~= nil then
+--               cb(buf, node, cname, node_text)
+--             end
+--           end
+--         end
+--       end
+--     end
+--   end
+--   -- vim.api.nvim_win_set_buf(0, buf)
+--   return buf, sm_ll + 1
+-- end
+--
+-- M.gen_query_for_selection = function()
+--   -- helper to allow for using the already existing doom table instead of having to
+--   -- parse eg. the nest tree before initiating pickers.
+--   -- on selection -> generate a query that targets the selection.
+--   -- --> apply code actions.
+-- end
+--
+-- return M
+
+-------------------------------------------------------------------------------
+-- USER UTILS TS
+-------------------------------------------------------------------------------
+
 --
 -- local utils = require("doom.utils")
 -- local fs = require("doom.utils.fs")
