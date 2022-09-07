@@ -2,6 +2,9 @@ local queries = {}
 
 -- TODO: maintain proper indentation for queries
 
+-- TODO: refactoring.nvim -> query_generation/lang/lua.lua
+--        and move my helpers to there.
+
 --
 -- ROOT MODULES QUERIES
 --
@@ -30,34 +33,17 @@ queries.ts_query_template_mod_comment = [[
 ))
 ]]
 
--- queries.ts_query_template_s_and_c = [[
--- (return_statement (expression_list
---   (table_constructor
---       (field
---         name: (identifier) @section_key
---         value: (table_constructor
---               (comment) @section_comment
---               (field value: (string) @module_string (#eq? @module_string "\"%s\""))
---         )
---       )
---   ) (#eq? @section_key "%s")
--- ))
--- ]]
---
--- queries.ts_query_template_section_table = [[
--- (return_statement (expression_list
---   (table_constructor
---       (field
---         name: (identifier) @section_key
---         value: (table_constructor) @section_table)
---   ) (#eq? @section_key "%s")
--- ))
--- ]]
-
 --
 -- MODULE QUERIES
 --
 
+--
+-- REFACTOR:
+--    - queries below
+--    - extract patterns
+--    - build compose helpers.
+--    -
+--
 -- return query for container table
 queries.tsq_get_comp_containers = function(component)
   local ts_query_configs = [[

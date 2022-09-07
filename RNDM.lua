@@ -24,7 +24,7 @@ mod dependence -> module.requires_modules({ "lsp" })
 pitch machine -> deno alephjs typescript react
 
 tree rename edge -> branch?
-add dui to current pull request
+add dui to current pull request draft.
 luasnip
   -> fix support for doom user snippets > add support for config.
   -> make a generalized description on github

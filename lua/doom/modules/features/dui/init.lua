@@ -12,6 +12,11 @@ local doom_ui = {}
 --
 -- TODO:
 --
+--    - NOTE: A LOT OF GOOD STUFF EXISTS IN `REFACTORING.NVIM`
+--            consider migrating to using refactoring for all ts operations and
+--            extend the plugin with our helpers.
+--            Or maintain own codebase?
+--
 --    - MOVE RESULTS INTO `DUI/INIT.LUA`
 --
 --    - center picker entries text
@@ -23,6 +28,8 @@ local doom_ui = {}
 --        >>> look at how `litee` is configured to learn a smart config pattern.
 --
 --    - >>> MONITOR RUNNING AUTOCOMMANDS
+--
+--    - on module select -> browse module dir subfiles -> to make it easier to search and manage large modules.
 --
 --    - ADD SNIPPETS!!
 --

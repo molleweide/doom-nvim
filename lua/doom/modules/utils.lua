@@ -2,6 +2,8 @@ local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
 
+-- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
+
 -- HACK: ARCHITEXT
 --
 -- now that I have gotten a little bit comfortable with
@@ -85,10 +87,8 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
-
 -- local get_text = function(node, bufnr)
 -- end
-
 
 local M = {}
 
@@ -163,7 +163,6 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_edit_sel" then
-
     -- TODO: fix the query function here
     --
     -- maybe start looking at `refactoring.nvim` for inspiration
@@ -179,9 +178,12 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_remove_sel" then
+    -- reuse same query as above
 
     --
   elseif opts.action == "component_replace_sel" then
+    -- reuse same query as above
+
     -- put cursor at beginning of selected component
   elseif opts.action == "pkg_fork" then
     -- put cursor...
