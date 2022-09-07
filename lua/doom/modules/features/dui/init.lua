@@ -6,6 +6,8 @@ local ax = require("doom.modules.features.dui.actions")
 
 local doom_ui = {}
 
+-- TODO
+
 -- is default mode -> insert working properly now?
 --
 -- TODO:
@@ -451,10 +453,10 @@ doom_ui.binds = {
         options = { silent = false },
       },
       {
-        "n",
+        "d",
         name = "+test",
         {
-          { "l", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false } },
+          { "m", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false } },
         },
       },
     },

@@ -1,5 +1,7 @@
 local queries = {}
 
+-- TODO: maintain proper indentation for queries
+
 --
 -- ROOT MODULES QUERIES
 --
@@ -101,76 +103,113 @@ queries.tsq_get_comp_selected = function(opts)
   --
   --    can I pass node as a root to iter_captures and only iterate over
   --    eg. `binds` table?
+  --
+  --    -- what is the root arg??????
+  --
+  --    -- what is returned of I do root()[2]????
 
   local ts_query_setting = [[
-        field
-          name: identifier
-          value: string
-      ]]
+    (field
+      name: (identifier) @name
+        (#eq? @name "debug")
+      ;; how to capture any value below.
+      value: [
+        (false)
+        (number)
+        (string)
+    ] @value
+        (#eq? @value "false")
+    )
+  ]]
   local ts_query_package = [[
-      field
-        name: string
-        value: table_constructor
-          field
-            value: string
-          field
-            name: identifier
-            value: string
-          field
-            name: identifier
-            value: string
-      ]]
+    (field
+      name: (string) @name (#eq? @name "\"nvim-cmp\"")
+      value: (table_constructor
+        (field
+          value: (string) @repo
+            (#eq? @repo "\"hrsh7th/nvim-cmp\"")
+        )
+      )
+    )
+  ]]
   local ts_query_config = [[
-    assignment_statement
-      variable_list
-        name: bracket_index_expression
-          table: dot_index_expression
-            table: identifier
-            field: identifier
-          field: string
-      expression_list
-        value: function_definition
-          parameters: parameters
+     (assignment_statement
+      (variable_list
+        name: (bracket_index_expression
+          table: (dot_index_expression
+            table: ( identifier )
+            field: ( identifier )
+          )
+          field: (string) @name
+        )
+      )
+      (expression_list
+        value: (function_definition
+          parameters: (parameters)
+        ) @func
+      )
+    )
   ]]
   local ts_query_cmd = [[
-        value: table_constructor
-          field
-            value: string
-          field
-            value: function_definition
-              parameters: parameters
-      ]]
+    (assignment_statement
+      (variable_list
+        name: (dot_index_expression
+          table: (identifier)
+          field: (identifier) @base
+        )
+      )
+      (expression_list
+        value:  (table_constructor
+            (field value: (table_constructor
+                (field
+                  value: (string) @name (#eq? @name "\"DoomCreateNewModule\"")
+                  )
+                (field
+                  value: (function_definition
+                           parameters: (parameters)))
+              ) @cmd_tbl
+            )
+        )
+      )
+    )
+  ]]
   local ts_query_autocmd = [[
-    assignment_statement
-      variable_list
-        name: dot_index_expression
-          table: identifier
-          field: identifier
-      expression_list
-        value: table_constructor
-          field
-            value: table_constructor
-              field
-                value: string
-              field
-                value: string
-              field
-                value: function_definition
-                  parameters: parameters
-      ]]
+    (assignment_statement
+      (variable_list
+        name: (dot_index_expression
+         table: (identifier)
+         field: (identifier) @base
+        )
+      )
+      (expression_list
+        value: (table_constructor
+          (field
+            value: (table_constructor
+              (field value: (string) @event)
+              (field value: (string) @pattern)
+              (field value: (function_definition) @fn)
+            )
+          )
+        )
+      )
+    )
+  ]]
   local ts_query_bind = [[
-    assignment_statement
-      variable_list
-        name: dot_index_expression
-          table: identifier
-          field: identifier
-      expression_list
-        value: table_constructor
-          field
-            value: table_constructor
-              field
+    (assignment_statement
+      (variable_list
+        name: (dot_index_expression
+          table: (identifier)
+          field: (identifier) @base
+        )
+      )
+      (expression_list
+        value: (table_constructor
+          (field
+            value: (table_constructor
+              (field
                 value: string
-              field
+              )
+              (field
                 value: dot_index_expression
                   table: dot_index_expression
                     table: dot_index_expression
@@ -178,10 +217,17 @@ queries.tsq_get_comp_selected = function(opts)
                       field: identifier
                     field: identifier
                   field: identifier
-              field
+              )
+              (field
                 name: identifier
                 value: string
-      ]]
+              )
+            )
+          )
+        )
+      )
+    )
+  ]]
 
   if opts.selected_component.type == "module_setting" then
     return string.format(ts_query_setting, xxx)
