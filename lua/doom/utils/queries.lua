@@ -371,13 +371,22 @@ queries.parse = function(query)
     end,
     branch_post = function(s,k,v)
       if string.sub(k, 1,1) == "_" then
-        return
+        return indentation(s) .. "\n"
       else
         return indentation(s) .. ")\n"
       end
     end,
     node = function(s, k, v)
-      return indentation(s) .. tostring(v) .. "\n"
+
+      -- todo: put leaves on same line.
+      --
+      -- TODO: PASS TO PARENT
+      --
+      --  is it possible to do this somehow?/
+      if type(k) == "number" then
+        print(k , vim.inspect(v))
+      end
+      return indentation(s) .. tostring(v) --.. "\n"
     end,
     filter = function(_, l, r)
       -- k = {} is a branch

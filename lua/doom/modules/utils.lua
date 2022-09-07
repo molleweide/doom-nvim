@@ -206,13 +206,13 @@ M.module_apply = function(opts)
 
     local q_ = queries.parse({
       field = {
-        _name = {
-          "identifier",
+        name = {
+          identifier = {},
           "c_id",
           { "eq", "c_id", "false" },
         },
-        _value = {
-          "false",
+        value = {
+          false_ = {},
           "c_false",
           {
             "eq",
