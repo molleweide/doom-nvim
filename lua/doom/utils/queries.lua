@@ -56,48 +56,38 @@ queries.ts_query_template_mod_comment = [[
 -- MODULE QUERIES
 --
 
--- types of funcs
---
---     get_component table
---     get_child_table
---     get_component_entry_by_data
---          pkg spec -> by name string
---          bind tbl -> by unique prop combo
-
--- pass (settings|packages|configs|cmds|autocmds|binds)
 -- return query for container table
 queries.tsq_get_comp_containers = function(component)
   local ts_query_configs = [[
-(assignment_statement
-  (variable_list
-    name: (bracket_index_expression
-        table: (dot_index_expression
-          table: (identifier)
-          field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
-        field: (string)
+    (assignment_statement
+      (variable_list
+        name: (bracket_index_expression
+            table: (dot_index_expression
+              table: (identifier)
+              field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
+            field: (string)
+        )
+      )
+      (expression_list
+        value: (function_definition) @comp_unit
+      )
     )
-  )
-  (expression_list
-    value: (function_definition) @comp_unit
-  )
-)
   ]]
   local ts_query_others = [[
-  (assignment_statement
-    (variable_list
-      name:
-        (dot_index_expression
-          table: (identifier)
-          field: (identifier) @comp_tbl_name
-          (#eq? @comp_tbl_name "%s")
-        )
+    (assignment_statement
+      (variable_list
+        name:
+          (dot_index_expression
+            table: (identifier)
+            field: (identifier) @comp_tbl_name
+            (#eq? @comp_tbl_name "%s")
+          )
+      )
+      (expression_list
+        value: (table_constructor) @comp_unit
+      )
     )
-    (expression_list
-      value: (table_constructor) @comp_unit
-    )
-  )
   ]]
-
   return string.format(component == "configs" and ts_query_configs or ts_query_others, component)
 end
 
@@ -107,25 +97,90 @@ queries.tsq_get_comp_selected = function(opts)
   -- selected_component = sel,
   print(vim.inspect(opts.selected_component))
 
-  -- TODO: fix each query below now
+  -- TODO: HOW TO PERFORM SUB QUERY ON EACH COMPONENT CONTAINER SET???
+  --
+  --    can I pass node as a root to iter_captures and only iterate over
+  --    eg. `binds` table?
 
   local ts_query_setting = [[
-        arst
+        field
+          name: identifier
+          value: string
       ]]
   local ts_query_package = [[
-        arst
+      field
+        name: string
+        value: table_constructor
+          field
+            value: string
+          field
+            name: identifier
+            value: string
+          field
+            name: identifier
+            value: string
       ]]
   local ts_query_config = [[
-        arst
-      ]]
+    assignment_statement
+      variable_list
+        name: bracket_index_expression
+          table: dot_index_expression
+            table: identifier
+            field: identifier
+          field: string
+      expression_list
+        value: function_definition
+          parameters: parameters
+  ]]
   local ts_query_cmd = [[
-        arst
+        value: table_constructor
+          field
+            value: string
+          field
+            value: function_definition
+              parameters: parameters
       ]]
   local ts_query_autocmd = [[
-        arst
+    assignment_statement
+      variable_list
+        name: dot_index_expression
+          table: identifier
+          field: identifier
+      expression_list
+        value: table_constructor
+          field
+            value: table_constructor
+              field
+                value: string
+              field
+                value: string
+              field
+                value: function_definition
+                  parameters: parameters
       ]]
   local ts_query_bind = [[
-        arst
+    assignment_statement
+      variable_list
+        name: dot_index_expression
+          table: identifier
+          field: identifier
+      expression_list
+        value: table_constructor
+          field
+            value: table_constructor
+              field
+                value: string
+              field
+                value: dot_index_expression
+                  table: dot_index_expression
+                    table: dot_index_expression
+                      table: identifier
+                      field: identifier
+                    field: identifier
+                  field: identifier
+              field
+                name: identifier
+                value: string
       ]]
 
   if opts.selected_component.type == "module_setting" then
