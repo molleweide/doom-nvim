@@ -1,7 +1,8 @@
 --[[
 
--- TODO: impl each add component action in mod utils.
---
+this is actually quite fucking cool since it is something that is
+pretty fucking cool.
+
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 

@@ -1,6 +1,9 @@
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
+local node = queries.node
+local prop = queries.prop
+local sexpr = queries.sexpr
 local rq = require("refactoring").queries
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
@@ -193,6 +196,42 @@ M.module_apply = function(opts)
     --      5. switch file. refactor???
     --      6. set cursor. refactor???
 
+    -- id / any
+    local ts_query_setting = [[
+    (field
+      name: (identifier) @name (#eq? @name "debug")
+      value: (false) @value (#eq? @value "false")
+    )
+  ]]
+
+    queries.parse({
+      field = {
+        _name = {
+          "identifier",
+          "c_id",
+          { "eq", "c_id", "false" },
+        },
+        _value = {
+          "false",
+          "c_false",
+          {
+            "eq",
+            "c_false",
+            "false",
+          },
+        },
+        { "eq", "c_field", "xxx"}
+      },
+      field_subsequent = {},
+    })
+
+    -- local name = prop("name", node("identifier", "c_id", sexpr("eq", "c_id", "compare_id")))
+    -- local value = prop("value", node("false", "c_false", sexpr("eq", "c_false", "compare_false")))
+    --
+    -- local field = node("field", "c_field", sexpr("eq", "c_field", "compare_value"), name, value)
+
+    print(q_)
+
     -- local q_ = rq.new(opts.selected_module.path .. "init.lua")
 
     -- local captures, buf = ts.get_query_capture(
@@ -201,9 +240,9 @@ M.module_apply = function(opts)
     --   opts.selected_module.path .. "init.lua"
     -- )
 
-    if not #captures then
-      return false
-    end
+    -- if not #captures then
+    --   return false
+    -- end
 
     --
   elseif opts.action == "component_remove_sel" then

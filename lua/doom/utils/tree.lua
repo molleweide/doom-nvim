@@ -110,7 +110,7 @@
 --    within RHS if rhs == table
 --
 --
---  ::: edge -> filter (filter/separator/determine_node) :::
+--  ::: filter (filter/separator/determine_node) :::
 --
 --      callback determine if tree entry is node or branch
 --
@@ -217,6 +217,9 @@ end
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
+
+-- TODO: USE BRANCH/LEAF
+
 
 -- todos:
 --  - move recurse into traversal.

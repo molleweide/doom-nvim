@@ -447,10 +447,10 @@ doom_ui.cmds = {
 
   -- 1. if current buf == module/init.lua file do action else open module browser.
   -- 2. `leader d a (c|a|b|p)`
-  { "DoomModuleCurrentAddCmd", },
-  { "DoomModuleCurrentAddAutocmd", },
-  { "DoomModuleCurrentAddBind", },
-  { "DoomModuleCurrentAddPackage", },
+  -- { "DoomModuleCurrentAddCmd", },
+  -- { "DoomModuleCurrentAddAutocmd", },
+  -- { "DoomModuleCurrentAddBind", },
+  -- { "DoomModuleCurrentAddPackage", },
 
 
   -- more commands???

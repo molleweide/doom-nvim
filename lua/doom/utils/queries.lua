@@ -1,3 +1,5 @@
+local crawl = require("doom.utils.tree").traverse_table
+
 local queries = {}
 
 -- TODO: maintain proper indentation for queries
@@ -322,34 +324,170 @@ local function wrap(str, id)
   )
 end
 
-local function sexpr() end
+local function make_sexpr() end
 
 -- local number = function(name, value) end
 -- local string = function(name, value) end
 -- local string = function(name, value) end
 
-local field = function(cname, cvalue, vtype, child_queries_cb)
-  local function name(t, c, s)
-    local str = string.format("name: (%s)", t)
-    if c then
-      -- append capture
-    end
-    if s then
-      -- append sexpr
-    end
+-- todo: there is a generalized pattern
+--  for thes syntax (x ...)
+
+-- TODO: USE TREE CRAWLER TO RENDER QUERY FROM TREE.
+-- !!!!!
+--
+--      look at how
+
+queries.parse = function(query)
+
+  -- 1 branch pre / post
+  -- 2. branch insert into acc.
+  -- 3. make sure nothing breaks.
+
+   local results =  crawl({
+    tree = query,
+    -- edge = function(_, k, v) end,
+    branch_next = function(v)
+      return v
+    end,
+    node = function(s, k, v)
+      return v
+    end,
+    filter = function(_, l, r)
+      -- k = {} is a branch
+      return not (l.is_str and r.is_tbl)
+    end,
+    log = {
+      use = true,
+      mult = 4,
+      name_string = "query parser",
+      cat = 2,
+      inspect = true,
+      new_line = true,
+      frame = true,
+      separate = true,
+    },
+  })
+
+  local str = ""
+  for k, v in ipairs(results) do
+    str = str .. v
   end
-  local function value(type)
-    -- false|number|string|true|nil|table_constructor|function
+
+  return str
+
+end
+
+queries.node = function(...)
+  local args = ...
+  local str
+  local pre = "("
+  local post = ")"
+
+  if #args == 0 then
+    return false
+  end
+
+  str = pre .. args[1]
+
+  -- if not args[2] then
+  --   return str .. post
+  -- end
+
+  -- get children
+  for k,v in ipairs(args) do
+    if k < 4 then
+      ::continue::
+    end
+    -- if type func else error
+    str = str .. "\n" .. args[k]()
+  end
+
+  str = str .. "\n" .. post
+
+  -- capture
+  if args[2] then
+    str = str .. " @" .. c -- str = add_capture(str, c)
+  end
+
+  -- sexpr
+  if args[3] then
+    str = str .. args[3]()-- [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+  end
+
+  return str
+end
+
+queries.prop = function(...)
+  local args = ...
+end
+queries.sexpr = function(...)
+  local args = ...
+end
+
+-- NOTE: it is going to be a bit of a pain to do this first one,
+--    but then when the pattern arises then I'll be able to
+--    refactor this into a nice lib.
+--
+-- HANDLE CASES
+--    only value (field value: )
+--    child callbacks.
+--
+-- q.field(
+--   q._name(
+--       q.identifier, -- identifier()
+--       "cname",
+--       q.sexpr("eq", compare_name)
+--    ),
+--    q._value(
+--      q.false_(),  -- false_()
+--      "cvalue",
+--      q.sexpr("eq", compare_value)
+--    )
+-- )
+
+local _name = function(t, c, s)
+  local str = string.format("name: (%s)", t)
+  -- append capture
+  if c then
+    str = str .. " @" .. c -- str = add_capture(str, c)
+  end
+  -- sexpr
+  if s then
+    str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+  end
+end
+
+-- rename: t -> x
+--
+-- false|number|string|true|nil|table_constructor|function
+local _value = function(t, c, s)
+  local str = string.format("value: (%s)", t)
+  -- append capture
+  if c then
+    str = str .. " @" .. c -- str = add_capture(str, c)
+  end
+  if s then
+    str = str .. [[(#eq? @c "match_str")]] -- .. add_sexpr(str, s)
+  end
+end
+
+local field = function(cname, cvalue, vtype, child_queries_cb)
+  if not cvalue then
+    return "(field)"
   end
 
   -- id / any
   local ts_query_setting = [[
     (field
       name: (identifier) @name (#eq? @name "debug")
-      value: (false|number|string|true|nil)@value (#eq? @value "false")
+      value: (false) @value (#eq? @value "false")
     )
   ]]
-  -- wrap("field", name()..value())
+
+  -- local name = make_name()
+  -- local value = make_value()
+  -- local field = wrap("field", name .. value)
 
   -- str / tbl
   local ts_query_package = [[
