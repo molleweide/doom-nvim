@@ -206,24 +206,25 @@ M.module_apply = function(opts)
 
     local q_ = queries.parse({
       field = {
-        name = {
-          identifier = {},
-          "c_id",
-          { "eq", "c_id", "false" },
+        _name = {
+          identifier = {
+            "c_id",
+            { "eq", "c_id", "false" },
+          },
         },
-        value = {
-          false_ = {},
-          "c_false",
-          {
-            "eq",
+        _value = {
+          false_ = {
             "c_false",
-            "false",
+            {
+              "eq",
+              "c_false",
+              "false",
+            },
           },
         },
         { "eq", "c_field", "xxx" },
       },
     })
-
 
     -- local name = prop("name", node("identifier", "c_id", sexpr("eq", "c_id", "compare_id")))
     -- local value = prop("value", node("false", "c_false", sexpr("eq", "c_false", "compare_false")))

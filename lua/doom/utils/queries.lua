@@ -73,26 +73,39 @@ queries.parse = function(query)
     end,
     branch_post = function(s,k,v,u)
       local str = "" .. indentation(s)
-      if not string.sub(k, 1,1) == "_" then
+
+      local first = string.sub(k, 1, 1)
+
+      print("first", first)
+
+      if first ~= "_" then
         str = str .. ")"
       end
 
       -- print(#s, vim.inspect(u[#s]))
-      print(#s, vim.inspect(u))
+      -- print(k, #s, vim.inspect(u))
 
-      -- if type(u) == "string" then
-      --   str = str .. u .. " "
-      -- else
-      --   for _, p in ipairs(u) do
-      --     str = str .. u .. " "
-      --   end
-      -- end
+      if u then
+        for _, p in ipairs(u) do
+          if type(p) == "string" then
+            str = str .. " @"..p .. " "
+          else
+            str = str .. "("
+            for _, q in ipairs(p) do
+              str = str .. q .. " "
+            end
+            str = str .. ")"
+          end
+        end
+      end
+
 
       str = str .. "\n"
       return str
     end,
     node = function(s, k, v)
 
+      -- print(#s, "node:", k, vim.inspect(v))
       -- todo: put leaves on same line.
       --
       -- if type(k) == "number" then

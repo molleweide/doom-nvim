@@ -249,9 +249,9 @@ M.recurse = function(opts, tree, stack, accumulator)
       -- recurse down
       local p
       accumulator, p = M.recurse(opts, opts.branch_next(v), stack, accumulator)
-      table.insert(pass_up, p)
+
       -- branch post
-      local post = opts.branch_post(stack, k, v, pass_up)
+      local post = opts.branch_post(stack, k, v, p)
       if post then
         table.insert(accumulator, post)
       end
@@ -260,18 +260,7 @@ M.recurse = function(opts, tree, stack, accumulator)
       local ret = opts.node(stack, k, v)
       if ret then
         if ret.pass_up then
-          -- print(":::", tostring(ret.pass_up))
-          -- print(vim.inspect(ret.pass_up[1]))
-          --
-          --
-          -- create a table that is keyed to each stack
-          --  so that I know which props to use in
-          --  branch post.
-          --
-          pass_up[#stack+1] = {}
-          table.insert(pass_up[#stack+1], ret.pass_up)
-          --
-          -- table.insert(pass_up, ret.pass_up)
+          table.insert(pass_up, ret.pass_up)
         else
           table.insert(accumulator, ret)
         end
