@@ -1,6 +1,9 @@
 --[[
 
-- A. fix `component_edit_sel`
+-- TODO: i. fix injections.
+-- TODO: ii. replace queries with tables.
+
+-- TODO: A. fix `component_edit_sel`
 
       1. get base table query.
           local scope_comp_container = queries.get_container_scope()
@@ -17,28 +20,19 @@
       6. set cursor. refactor???
 
 
-B. fix modules extend() > `user` show up in telescope.
+-- TODO: B. fix modules extend() > `user` show up in telescope.
 
-C. delete old/unused modules
+-- TODO: C. delete old/unused modules
 
-D. move as many modules as possible into `user`.
+-- TODO: D. move as many modules as possible into `user`.
 
-E. make PR
+-- TODO: E. make PR
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 
-
-
-
-
-
-this is pretty amazing.  this is all getting together nicely so that one
-can really fucking do this shit and transform your config really fast.
-the idea is that you want the config to be optimized for refactoring itself.
-
-which is something that is quite fucking interesting. then that would make
-the project into something that is a bit insane you know and so therefore
-it can truly extend itself in a quite insane fashion. and because of
-treesitter it should be possible to do this.
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 
