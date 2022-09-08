@@ -3,6 +3,8 @@ local query_parse = require("doom.utils.queries.utils").parse
 local queries = {}
 
 --  -> convert all conditional queries into methods with
+--
+--
 --      - lua tables.
 --
 --  -> injections
@@ -36,11 +38,6 @@ queries.ts_query_template_mod_comment = [[
   ) (#eq? @section_key "%s")
 ))
 ]]
-
------------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
 
 --
 -- MODULE QUERIES
@@ -263,7 +260,6 @@ queries.mod_get_query_for_child_table = function(components, child_specs)
 end
 
 queries.mod_get_query_for_bind = function()
-
   -- I assume that all binds are unique so it should be possible
   -- to make a single query quite easy to get explicit ranges
   -- for a single table.
@@ -277,27 +273,4 @@ queries.mod_get_query_for_bind = function()
   -- so this one has to be flexible.
 end
 
-queries.ts_query_mod_get_pkg_spec = function(pkg_name)
-  -- get package spec query by name.
-  local ts_query = string.format([[
-    ()
-  ]])
-end
-
-queries.ts_query_mod_get_pkg_config = [[
-  ()
-]]
-
-queries.ts_query_mod_get_cmd = [[
-  ()
-]]
-
-queries.ts_query_autocmd_table = [[
-  ()
-]]
-queries.ts_query_bind_table = [[
-()
-]]
-
 return queries
-

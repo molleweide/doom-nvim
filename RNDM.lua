@@ -1,7 +1,13 @@
 --[[
 
+this is pretty amazing.  this is all getting together nicely so that one
+can really fucking do this shit and transform your config really fast.
+the idea is that you want the config to be optimized for refactoring itself.
 
-
+which is something that is quite fucking interesting. then that would make
+the project into something that is a bit insane you know and so therefore
+it can truly extend itself in a quite insane fashion. and because of
+treesitter it should be possible to do this.
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 
@@ -13,7 +19,6 @@ TODO: stretch band clip-on grips that you can hold.
       ->>> `SINGLE GRIP ROPE/CABLE`
 
       those would actually be the best.
-
 
 now this is good because now I am really starting to get this shit to work
 fast and I will be of value on the market where you can do shit fast as fuck
