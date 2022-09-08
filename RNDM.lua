@@ -1,11 +1,6 @@
 --[[
 
--- TODO: TEST QUERIES
-
 -- TODO: A. fix `component_edit_sel`
-
-      1. get base table query.
-          local scope_comp_container = queries.get_container_scope()
 
       2. get component query
           local scope_comp_unit = queries.get_container_scope()

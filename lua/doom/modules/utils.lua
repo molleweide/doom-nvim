@@ -5,18 +5,10 @@ local rq = require("refactoring").queries
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
 
--- HACK: ARCHITEXT
---
--- now that I have gotten a little bit comfortable with
--- queries I could look into using Architext for at least
--- one of operations on modules.
+-- note: if no module file passed ->>> operate on `./settings.lua`
 
--- TODO: INJECT TSQ_TEMPL_ SO THAT ALL QUERY TEMPLATES CAN BE
---        kept in a nice table
---
---        tsq_templ_ -> highlight all containing strings
---
--- NOTE: if no module file passed ->>> operate on `./settings.lua`
+  -- todo: if module file is empty ??
+  -- todo: local compute_insertion_point = get_insertion_point_for_component()
 
 --
 -- UTILS
@@ -115,11 +107,7 @@ M.validate_and_prettify_modules = function()
   -- C. Insert missing components if necessary.
 end
 
---
--- ROOT MODULES TS FUNCTIONS
---
-
--- RENAME: root_modules_apply
+-- refactor: i am not satisfied
 M.root_apply = function(opts)
   local selected_mod
   if opts.module_name ~= nil then
@@ -143,12 +131,12 @@ M.root_apply = function(opts)
   elseif opts.action == "new" then
     local pre = '    "'
     local post = '",'
-    insert_line(ts_state.buf, ts_state.ts.tables[1].range[3], pre .. opts.new_name .. post)
+    b.insert_line(ts_state.buf, ts_state.ts.tables[1].range[3], pre .. opts.new_name .. post)
   elseif opts.action == "delete" then
     vim.api.nvim_buf_set_lines(ts_state.buf, range[1], range[1] + 1, 0, {})
   elseif opts.action == "toggle" then
     if enabled then
-      insert_text_at(ts_state.buf, range[1], range[2] - 1, "-- ")
+      b.insert_text_at(ts_state.buf, range[1], range[2] - 1, "-- ")
     else
       range[2] = comment_start
       b.set_text(ts_state.buf, range, '"' .. selected_mod)
@@ -156,18 +144,11 @@ M.root_apply = function(opts)
   end
 end
 
---
--- SINGLE MODULE APPLY ACTIONS
---
-
 -- redo all of this with function calls instead so that it looks nicer
 M.module_apply = function(opts)
   if not validate(opts) then
     return
   end
-
-  -- TODO: if module file is empty ??
-  -- TODO: local compute_insertion_point = get_insertion_point_for_component()
 
   if opts.action == "component_add" then
     local captures, buf = ts.get_query_capture(
