@@ -23,7 +23,7 @@ queries.root_mod_name_by_section = function(name, section)
       )
   ) (#eq? @section_key "%s")
 ))
-]])
+]], name, section)
 end
 
 queries.root_all_comments_from_section = function(section)
@@ -36,7 +36,7 @@ queries.root_all_comments_from_section = function(section)
       )
   ) (#eq? @section_key "%s")
 ))
-]])
+]], section)
 end
 
 queries.root_get_section_table_by_name = function(section)
@@ -48,7 +48,7 @@ queries.root_get_section_table_by_name = function(section)
         value: (table_constructor) @section_table)
   ) (#eq? @section_key "%s")
 ))
-  ]])
+  ]], section)
 end
 
 queries.mod_get_component_table = function(component)
