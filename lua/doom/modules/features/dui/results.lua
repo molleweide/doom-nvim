@@ -8,8 +8,6 @@ local ax = require("doom.modules.features.dui.actions")
 --      - entries_static
 --      - entries_dynamic (components)
 
-
-
 -- TODO:
 --
 --  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK

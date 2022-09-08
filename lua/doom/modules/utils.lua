@@ -18,11 +18,6 @@ local rq = require("refactoring").queries
 --
 -- NOTE: if no module file passed ->>> operate on `./settings.lua`
 
-local type_to_ts = {
-  -- create mapping from lua to query atoms
-  -- in order to automate query generation.
-}
-
 --
 -- UTILS
 --
@@ -38,16 +33,16 @@ local function get_ts_data_root_modules(msection, mname)
   local strings = {}
   if mname then
     strings = ts.get_query_capture(
-      string.format(queries.ts_query_template_mod_string, mname, msection),
+      queries.root_mod_name_by_section(msection, mname),
       "module_string"
     )
   end
   local comments = ts.get_query_capture(
-    string.format(queries.ts_query_template_mod_comment, msection),
+    queries.root_all_comments_from_section(msection),
     "section_comment"
   )
   local tables, buf = ts.get_query_capture(
-    string.format(queries.ts_query_template_section_table, msection),
+    queries.root_get_section_table(msection),
     "section_table"
   )
   return {
@@ -96,6 +91,14 @@ local M = {}
 --[[----------------------
 --   VALIDATE MODULES
 ----------------------]]
+
+M.modules_refactor = function()
+  -- eg. if you have
+  -- mod_x.configs["arst"] = function() end
+  --
+  -- transform this into a regular table where all functions
+  -- are kept inside of it??
+end
 
 -- run this to make sure that all modules are exposed in the
 -- root file.
@@ -168,7 +171,7 @@ M.module_apply = function(opts)
 
   if opts.action == "component_add" then
     local captures, buf = ts.get_query_capture(
-      queries.tsq_get_comp_containers(opts.add_component_sel),
+      queries.mod_get_component_table(opts.add_component_sel),
       "comp_unit",
       opts.selected_module.path .. "init.lua"
     )
@@ -183,6 +186,7 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_edit_sel" then
+
     --      1. get base table query.
     -- local scope_comp_container = queries.get_container_scope()
     -- --      2. get component query
@@ -196,11 +200,10 @@ M.module_apply = function(opts)
     --      5. switch file. refactor???
     --      6. set cursor. refactor???
 
-
     -- local q_ = rq.new(opts.selected_module.path .. "init.lua")
 
     -- local captures, buf = ts.get_query_capture(
-    --   queries.tsq_get_comp_selected(opts),
+    --   queries.mod_get_component_unit(opts),
     --   "comp_unit",
     --   opts.selected_module.path .. "init.lua"
     -- )

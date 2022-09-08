@@ -1,11 +1,11 @@
--- utils
+-- -- utils
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local crawl = require("doom.utils.tree").traverse_table
 
--- dui
+-- -- dui
 local components = require("doom.modules.features.dui.results")
-local ax = require("doom.modules.features.dui.actions")
+-- local ax = require("doom.modules.features.dui.actions")
 
 local doom_ui = {}
 

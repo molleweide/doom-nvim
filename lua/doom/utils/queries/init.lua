@@ -2,25 +2,20 @@ local query_parse = require("doom.utils.queries.utils").parse
 
 local queries = {}
 
---  -> convert all conditional queries into methods with
+-- TODO:
 --
 --
---      - lua tables.
---
---  -> injections
---      - static query
---      - lua table query -> colorize strings / keys.
-
--- RNDM: this is a random block that is actually quite fucking cool and the reason
--- why this is is because this is a red field and so that is why the actual
--- reason for it is that. so that you can fix stuff that is just so much better
--- and the same. i need color highlight blocks.
+--  - how to handle case when configs are attached via dot expression
+--      and not by field inside of tbl???
 
 --
 -- ROOT MODULES QUERIES
 --
 
-queries.ts_query_template_mod_string = [[
+-- todo: add string.format to these static queries
+
+queries.root_mod_name_by_section = function(section, name)
+  local ts_query = [[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -32,8 +27,11 @@ queries.ts_query_template_mod_string = [[
   ) (#eq? @section_key "%s")
 ))
 ]]
+  return ts_query
+end
 
-queries.ts_query_template_mod_comment = [[
+queries.root_all_comments_from_section = function(section)
+  local ts_query = [[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -43,42 +41,32 @@ queries.ts_query_template_mod_comment = [[
   ) (#eq? @section_key "%s")
 ))
 ]]
+  return ts_query
+end
 
---
--- MODULE QUERIES
---
-
-local q_ = queries.parse({
-  field = {
-    _name = {
-      identifier = {
-        "@c_id",
-        { "#eq?", "@c_id", "false" },
-      },
-    },
-    _value = {
-      false_ = {
-        "@c_false",
-        {
-          "#eq?",
-          "@c_false",
-          "false",
+queries.mod_get_component_table = function(component)
+  local q_ = queries.parse({
+    field = {
+      _name = {
+        identifier = {
+          "@c_id",
+          { "#eq?", "@c_id", "false" },
         },
       },
+      _value = {
+        false_ = {
+          "@c_false",
+          {
+            "#eq?",
+            "@c_false",
+            "false",
+          },
+        },
+      },
+      { "#eq?", "@c_field", "xxx" },
     },
-    { "#eq?", "@c_field", "xxx" },
-  },
-})
+  })
 
---
--- REFACTOR:
---    - queries below
---    - extract patterns
---    - build compose helpers.
---    -
---
--- return query for container table
-queries.tsq_get_comp_containers = function(component)
   local ts_query_configs = [[
     (assignment_statement
       (variable_list
@@ -112,7 +100,7 @@ queries.tsq_get_comp_containers = function(component)
   return string.format(component == "configs" and ts_query_configs or ts_query_others, component)
 end
 
-queries.tsq_get_comp_selected = function(opts)
+queries.mod_get_component_unit = function(opts)
   local ts_query_setting = [[
     (field
       name: (identifier) @name
@@ -238,43 +226,29 @@ queries.tsq_get_comp_selected = function(opts)
   -- end
 end
 
-queries.mod_get_query_for_child_table = function(components, child_specs)
-  local ts_query_child_table = string.format(
-    [[
-(assignment_statement
-  (variable_list
-      name:
-        (dot_index_expression
-          table: (identifier)
-          field: (identifier) @i
-        )
-  )
-  ( expression_list
-    value: (table_constructor
-      (field
-        name: ( string ) @s2
-        value: ( table_constructor ) @t2
-      )
-    ) @components_table
-  )
-)(#eq? @i "packages")
-]],
-    components
-  )
-end
-
-queries.mod_get_query_for_bind = function()
-  -- I assume that all binds are unique so it should be possible
-  -- to make a single query quite easy to get explicit ranges
-  -- for a single table.
-
-  -- HACK: THIS IS ACTUALLY GOING TO BE SO MUCH FUN TO FIX THIS.
-
-  -- recieve data here and inspect what I need in order to
-  -- see what kinds of queries I can make.
-
-  -- should work for any bind.
-  -- so this one has to be flexible.
-end
+-- queries.mod_get_query_for_child_table = function(components, child_specs)
+--   local ts_query_child_table = string.format(
+--     [[
+-- (assignment_statement
+--   (variable_list
+--       name:
+--         (dot_index_expression
+--           table: (identifier)
+--           field: (identifier) @i
+--         )
+--   )
+--   ( expression_list
+--     value: (table_constructor
+--       (field
+--         name: ( string ) @s2
+--         value: ( table_constructor ) @t2
+--       )
+--     ) @components_table
+--   )
+-- )(#eq? @i "packages")
+-- ]],
+--     components
+--   )
+-- end
 
 return queries
