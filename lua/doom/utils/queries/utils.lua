@@ -3,7 +3,12 @@ local crawl = require("doom.utils.tree").traverse_table
 local query_utils = {}
 
 --
--- CONVERT: ( LUA TABLE -> TS QUERY )
+-- CONVERT: ( TS LUA -> TS QUERY )
+--
+
+-- NOTE: IF I WANT A SINGLE FIELD TO END UP ON A SINGLE LINE.
+--        then I need to make the accumulator accessible. so that
+--        we can crop backwards if we need to.
 --
 
 query_utils.parse = function(query)
@@ -24,8 +29,12 @@ query_utils.parse = function(query)
   local results = crawl({
     tree = query,
     branch = function(s, k, v)
+
+      -- TODO:
+      --    handle conditional case [ ... ] @ arst
+
       if string.sub(k, 1, 1) == "_" then
-        return indentation(s) .. k .. ":\n"
+        return indentation(s) .. string.sub(k, 2, -1) .. ":\n"
       else
         return indentation(s) .. "(" .. k .. "\n"
       end
@@ -42,16 +51,14 @@ query_utils.parse = function(query)
       end
 
       if u then
-        for _, p in ipairs(u) do
-          if type(p) == "string" then
-            str = str .. " " .. p .. " "
-          else
-            str = str .. "("
-            for _, q in ipairs(p) do
-              str = str .. q .. " "
-            end
-            str = str .. ")"
-          end
+        -- capture
+        if u[1] then
+          str = str .. " " .. u[1] .. " "
+        end
+
+        -- sexpr
+        if u[2] then
+            str = str .. string.format([[(#%s? %s "%s")]], u[2], u[3], u[4])
         end
       end
 
@@ -78,6 +85,8 @@ query_utils.parse = function(query)
   for k, v in ipairs(results) do
     str = str .. v
   end
+
+  -- print("parse:", str)
 
   return str
 end

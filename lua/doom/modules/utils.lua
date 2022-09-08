@@ -1,14 +1,14 @@
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
-local rq = require("refactoring").queries
+local refact = require("refactoring").queries
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
 
 -- note: if no module file passed ->>> operate on `./settings.lua`
 
-  -- todo: if module file is empty ??
-  -- todo: local compute_insertion_point = get_insertion_point_for_component()
+-- todo: if module file is empty ??
+-- todo: local compute_insertion_point = get_insertion_point_for_component()
 
 --
 -- UTILS
@@ -151,19 +151,25 @@ M.module_apply = function(opts)
   end
 
   if opts.action == "component_add" then
-    local captures, buf = ts.get_query_capture(
-      queries.mod_get_component_table(opts.add_component_sel),
-      "comp_unit",
-      opts.selected_module.path .. "init.lua"
-    )
+    local q = queries.mod_get_component_table(opts.add_component_sel)
 
-    if not #captures then
-      return false
-    end
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+    print(">>>", q)
+
+    -- use refactoring
+
+    -- local captures, buf = ts.get_query_capture(
+    --   -- queries.mod_get_component_table(opts.add_component_sel),
+    --   "comp_unit",
+    --   opts.selected_module.path .. "init.lua"
+    -- )
+
+    -- if not #captures then
+    --   return false
+    -- end
+    -- local insertion_line = captures[#captures].range[1]
+    -- local insertion_col = captures[#captures].range[2]
+    -- vim.api.nvim_win_set_buf(0, buf)
+    -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
     --
   elseif opts.action == "component_edit_sel" then
@@ -181,7 +187,7 @@ M.module_apply = function(opts)
     --      5. switch file. refactor???
     --      6. set cursor. refactor???
 
-    -- local q_ = rq.new(opts.selected_module.path .. "init.lua")
+    -- local q_ = refact.new(opts.selected_module.path .. "init.lua")
 
     -- local captures, buf = ts.get_query_capture(
     --   queries.mod_get_component_unit(opts),
