@@ -4,7 +4,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;
-; STATIC AND STRING.FORMAT [[]]
+; STATIC AND STRING.FORMAT
 ;
 ; local var`ts_query...`
 ;
@@ -32,12 +32,14 @@
 ;
 ; queries.<name> = [[...]]
 ;
-;; (
-;; assignment_statement [15, 0] - [26, 2]
-;;   variable_list [15, 0] - [15, 36]
-;;     name: dot_index_expression [15, 0] - [15, 36]
-;;       table: identifier [15, 0] - [15, 7]
-;;       field: identifier [15, 8] - [15, 36]
-;;   expression_list [15, 39] - [26, 2]
-;;     value: string [15, 39] - [26, 2]
-;; )
+(assignment_statement
+  (variable_list
+    name: (dot_index_expression
+      table: ( identifier ) @name (#eq? @name "queries")
+      field: ( identifier )
+      )
+  )
+  (expression_list
+    value: ( string ) @query
+    )
+)
