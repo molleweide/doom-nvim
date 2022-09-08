@@ -186,52 +186,19 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_edit_sel" then
-    -- TODO: how pass scope to iter captures?
-    -- TODO: use `refactoring.nvim` func here.
-    -- TODO:
     --      1. get base table query.
+    local scope_comp_container = queries.get_container_scope()
     --      2. get component query
+    local scope_comp_unit = queries.get_container_scope()
+
+    print(scope_comp_container)
+    print(scope_comp_unit)
+
     --      3. pluck base table
     --      4. pluck component
     --      5. switch file. refactor???
     --      6. set cursor. refactor???
 
-  --   -- id / any
-  --   local ts_query_setting = [[
-  --   (field
-  --     name: (identifier) @name (#eq? @name "debug")
-  --     value: (false) @value (#eq? @value "false")
-  --   )
-  -- ]]
-
-    local q_ = queries.parse({
-      field = {
-        _name = {
-          identifier = {
-            "@c_id",
-            { "#eq?", "@c_id", "false" },
-          },
-        },
-        _value = {
-          false_ = {
-            "@c_false",
-            {
-              "#eq?",
-              "@c_false",
-              "false",
-            },
-          },
-        },
-        { "#eq?", "@c_field", "xxx" },
-      },
-    })
-
-    -- local name = prop("name", node("identifier", "c_id", sexpr("eq", "c_id", "compare_id")))
-    -- local value = prop("value", node("false", "c_false", sexpr("eq", "c_false", "compare_false")))
-    --
-    -- local field = node("field", "c_field", sexpr("eq", "c_field", "compare_value"), name, value)
-
-    print(q_)
 
     -- local q_ = rq.new(opts.selected_module.path .. "init.lua")
 

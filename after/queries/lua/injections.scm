@@ -1,3 +1,9 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; INJECT TS QUERY INTO LUA STRINGS AND LUA-QUERY-TBLS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (variable_declaration
   (assignment_statement
     ; ts_query|tsq|query|q
@@ -16,3 +22,15 @@
     )
   )
 )
+
+;
+; STATIC
+;
+
+;
+; STRING.FORMAT([[]])
+;
+
+;
+; LUA TABLE QUERIES
+;
