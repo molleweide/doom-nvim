@@ -7,15 +7,12 @@ local queries = {}
 --
 --  - how to handle case when configs are attached via dot expression
 --      and not by field inside of tbl???
-
 --
--- ROOT MODULES QUERIES
---
+--      we need to build queries that capture various types of
+--      statements n stuff in modules so that.
 
--- todo: add string.format to these static queries
-
-queries.root_mod_name_by_section = function(section, name)
-  local ts_query = [[
+queries.root_mod_name_by_section = function(name, section)
+  return string.format([[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -26,12 +23,11 @@ queries.root_mod_name_by_section = function(section, name)
       )
   ) (#eq? @section_key "%s")
 ))
-]]
-  return ts_query
+]])
 end
 
 queries.root_all_comments_from_section = function(section)
-  local ts_query = [[
+  return string.format([[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -40,8 +36,19 @@ queries.root_all_comments_from_section = function(section)
       )
   ) (#eq? @section_key "%s")
 ))
-]]
-  return ts_query
+]])
+end
+
+queries.root_get_section_table_by_name = function(section)
+  return string.format([[
+(return_statement (expression_list
+  (table_constructor
+      (field
+        name: (identifier) @section_key
+        value: (table_constructor) @section_table)
+  ) (#eq? @section_key "%s")
+))
+  ]])
 end
 
 queries.mod_get_component_table = function(component)

@@ -33,7 +33,7 @@ local function get_ts_data_root_modules(msection, mname)
   local strings = {}
   if mname then
     strings = ts.get_query_capture(
-      queries.root_mod_name_by_section(msection, mname),
+      queries.root_mod_name_by_section(mname, msection),
       "module_string"
     )
   end
@@ -42,7 +42,7 @@ local function get_ts_data_root_modules(msection, mname)
     "section_comment"
   )
   local tables, buf = ts.get_query_capture(
-    queries.root_get_section_table(msection),
+    queries.root_get_section_table_by_name(msection),
     "section_table"
   )
   return {
