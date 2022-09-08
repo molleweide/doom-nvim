@@ -1,7 +1,6 @@
 --[[
 
--- TODO: i. fix injections.
--- TODO: ii. replace queries with tables.
+-- TODO: TEST QUERIES
 
 -- TODO: A. fix `component_edit_sel`
 

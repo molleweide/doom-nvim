@@ -12,7 +12,8 @@ local queries = {}
 --      statements n stuff in modules so that.
 
 queries.root_mod_name_by_section = function(name, section)
-  return string.format([[
+  return string.format(
+    [[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -23,11 +24,15 @@ queries.root_mod_name_by_section = function(name, section)
       )
   ) (#eq? @section_key "%s")
 ))
-]], name, section)
+]],
+    name,
+    section
+  )
 end
 
 queries.root_all_comments_from_section = function(section)
-  return string.format([[
+  return string.format(
+    [[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -36,11 +41,14 @@ queries.root_all_comments_from_section = function(section)
       )
   ) (#eq? @section_key "%s")
 ))
-]], section)
+]],
+    section
+  )
 end
 
 queries.root_get_section_table_by_name = function(section)
-  return string.format([[
+  return string.format(
+    [[
 (return_statement (expression_list
   (table_constructor
       (field
@@ -48,63 +56,91 @@ queries.root_get_section_table_by_name = function(section)
         value: (table_constructor) @section_table)
   ) (#eq? @section_key "%s")
 ))
-  ]], section)
+  ]],
+    section
+  )
 end
 
 queries.mod_get_component_table = function(component)
-  local q_ = queries.parse({
-    field = {
-      _name = {
-        identifier = {
-          "@c_id",
-          { "#eq?", "@c_id", "false" },
+  if component == "configs" then
+    return parse({
+      assignment_statement = {
+        variable_list = {
+          _name = {
+            bracket_index_expression = {
+              _table = {
+                dot_index_expression = {
+                  _table = { identifier = {} },
+                  _field = {
+                    identifier = {
+                      "@comp_tbl_name",
+                      "eq",
+                      "@comp_tbl_name",
+                      component_unit_name,
+                    },
+                  },
+                },
+                _field = { string = {} },
+              },
+            },
+          },
         },
-      },
-      _value = {
-        false_ = {
-          "@c_false",
-          {
-            "#eq?",
-            "@c_false",
-            "false",
+        expression_list = {
+          _value = {
+            function_definition = { "@comp_unit" },
           },
         },
       },
-      { "#eq?", "@c_field", "xxx" },
-    },
-  })
+    })
+  else
+    return parse({
+      assignment_statement = {
+        variable_list = {
+          _name = {
+            dot_index_expression = {
+              _table = { identifier = {} },
+              _field = {
+                identifier = { "@comp_tbl_name", "eq", "@comp_tbl_name", component_unit_name },
+              },
+            },
+          },
+        },
+        expression_list = { _value = { table_constructor = { "@comp_unit" } } },
+      },
+    })
+  end
 
-  local ts_query_configs = [[
-    (assignment_statement
-      (variable_list
-        name: (bracket_index_expression
-            table: (dot_index_expression
-              table: (identifier)
-              field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
-            field: (string)
-        )
-      )
-      (expression_list
-        value: (function_definition) @comp_unit
-      )
-    )
-  ]]
-  local ts_query_others = [[
-    (assignment_statement
-      (variable_list
-        name:
-          (dot_index_expression
-            table: (identifier)
-            field: (identifier) @comp_tbl_name
-            (#eq? @comp_tbl_name "%s")
-          )
-      )
-      (expression_list
-        value: (table_constructor) @comp_unit
-      )
-    )
-  ]]
-  return string.format(component == "configs" and ts_query_configs or ts_query_others, component)
+  -- local ts_query_others = [[
+  --   (assignment_statement
+  --     (variable_list
+  --       name:
+  --         (dot_index_expression
+  --           table: (identifier)
+  --           field: (identifier) @comp_tbl_name
+  --           (#eq? @comp_tbl_name "%s")
+  --         )
+  --     )
+  --     (expression_list
+  --       value: (table_constructor) @comp_unit
+  --     )
+  --   )
+  -- ]]
+  -- local ts_query_configs = [[
+  --   (assignment_statement
+  --     (variable_list
+  --       name: (bracket_index_expression
+  --           table: (dot_index_expression
+  --             table: (identifier)
+  --             field: (identifier) @comp_tbl_name (#eq? @comp_tbl_name "%s"))
+  --           field: (string)
+  --       )
+  --     )
+  --     (expression_list
+  --       value: (function_definition) @comp_unit
+  --     )
+  --   )
+  -- ]]
+  -- return string.format(component == "configs" and ts_query_configs or ts_query_others, component)
 end
 
 queries.mod_get_component_unit = function(opts)
