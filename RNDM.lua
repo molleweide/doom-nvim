@@ -1,5 +1,36 @@
 --[[
 
+- A. fix `component_edit_sel`
+
+      1. get base table query.
+          local scope_comp_container = queries.get_container_scope()
+
+      2. get component query
+          local scope_comp_unit = queries.get_container_scope()
+
+      print(scope_comp_container)
+      print(scope_comp_unit)
+
+      3. pluck base table
+      4. pluck component
+      5. switch file. refactor???
+      6. set cursor. refactor???
+
+
+B. fix modules extend() > `user` show up in telescope.
+
+C. delete old/unused modules
+
+D. move as many modules as possible into `user`.
+
+E. make PR
+
+
+
+
+
+
+
 this is pretty amazing.  this is all getting together nicely so that one
 can really fucking do this shit and transform your config really fast.
 the idea is that you want the config to be optimized for refactoring itself.
