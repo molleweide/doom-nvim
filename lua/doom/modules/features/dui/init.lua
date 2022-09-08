@@ -1,6 +1,9 @@
+-- utils
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local crawl = require("doom.utils.tree").traverse_table
+
+-- dui
 local components = require("doom.modules.features.dui.results")
 local ax = require("doom.modules.features.dui.actions")
 
@@ -159,8 +162,6 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
-
-
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -451,7 +452,6 @@ doom_ui.cmds = {
   -- { "DoomModuleCurrentAddAutocmd", },
   -- { "DoomModuleCurrentAddBind", },
   -- { "DoomModuleCurrentAddPackage", },
-
 
   -- more commands???
 }

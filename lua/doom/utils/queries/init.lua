@@ -11,6 +11,11 @@ local queries = {}
 --      - static query
 --      - lua table query -> colorize strings / keys.
 
+-- RNDM: this is a random block that is actually quite fucking cool and the reason
+-- why this is is because this is a red field and so that is why the actual
+-- reason for it is that. so that you can fix stuff that is just so much better
+-- and the same. i need color highlight blocks.
+
 --
 -- ROOT MODULES QUERIES
 --

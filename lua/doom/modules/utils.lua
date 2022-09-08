@@ -1,9 +1,6 @@
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
-local node = queries.node
-local prop = queries.prop
-local sexpr = queries.sexpr
 local rq = require("refactoring").queries
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
@@ -187,12 +184,12 @@ M.module_apply = function(opts)
     --
   elseif opts.action == "component_edit_sel" then
     --      1. get base table query.
-    local scope_comp_container = queries.get_container_scope()
-    --      2. get component query
-    local scope_comp_unit = queries.get_container_scope()
-
-    print(scope_comp_container)
-    print(scope_comp_unit)
+    -- local scope_comp_container = queries.get_container_scope()
+    -- --      2. get component query
+    -- local scope_comp_unit = queries.get_container_scope()
+    --
+    -- print(scope_comp_container)
+    -- print(scope_comp_unit)
 
     --      3. pluck base table
     --      4. pluck component
