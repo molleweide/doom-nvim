@@ -203,19 +203,26 @@ M.module_apply = function(opts)
     )
 
     print("CONT:",q_cont)
+    print("UNIT:",q_unit)
     print("captures:", #c_containers)
 
 
-    local c_unit, buf = ts.get_query_capture(
+    local captures, buf = ts.get_query_capture(
       q_unit,
-      "component_container",
+      "value",
       opts.selected_module.path .. "init.lua"
     )
 
-    print("UNIT:",q_unit)
-    print("captures:",#c_unit)
+    print("captures:",#captures)
 
 
+    if not #captures then
+      return false
+    end
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
 
     -- TODO: GET CAPTURES.

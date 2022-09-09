@@ -133,16 +133,16 @@ queries.comp_unit = function(c)
   -- {
   --   component_type = "settings",
   --   data = {
-  --     table_path = { "snippets", "history" },
-  --     table_value = true
+  --     table_path = { "gitsigns", "numhl" },
+  --     table_value = false
   --   },
-  --   items = { { "SETTING", "TSFloat" }, { "snippets.history", "TSFloat" }, { "true", "TSFloat" } },
+  --   items = { { "SETTING", "TSFloat" }, { "gitsigns.numhl", "TSFloat" }, { "false", "TSFloat" } },
   --   mappings = {
   --     ["<C-e>"] = <function 1>,
   --     ["<C-h>"] = <function 2>,
   --     ["<CR>"] = <function 3>
   --   },
-  --   ordinal = "snippets.history",
+  --   ordinal = "gitsigns.numhl",
   --   type = "module_setting"
   -- }
 
@@ -155,17 +155,16 @@ queries.comp_unit = function(c)
             "@name",
             "eq",
             "@name",
-            "debug",
+            c.data.table_path[#c.data.table_path],
           },
         },
-        _value__any = {
-          false_ = {},
-          number = {},
-          string = {},
-          "@value",
-          "eq",
-          "@value",
-          tostring( c.data.table_value ),
+        _value = {
+          [tostring(c.data.table_value)] = {
+            "@value",
+            "eq",
+            "@value",
+            tostring(c.data.table_value),
+          },
         },
       },
     })

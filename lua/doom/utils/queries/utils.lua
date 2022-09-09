@@ -19,6 +19,17 @@ local function ends_w(str, check)
 end
 
 --
+-- QUERY MAKING HELPERS
+--
+
+query_utils.get_field_from_config_unit = function()
+
+    -- examples
+  --
+  --    if we get a
+end
+
+--
 -- PARSER HELPERS
 --
 
@@ -28,6 +39,8 @@ local function b_post(s, k, v, u) end
 --
 -- CONVERT: ( TS LUA -> TS QUERY )
 --
+
+-- FIX: ESCAPE STRINGS
 
 -- NOTE: IF I WANT A SINGLE FIELD TO END UP ON A SINGLE LINE.
 --        then I need to make the accumulator accessible. so that
@@ -106,16 +119,16 @@ query_utils.parse = function(query)
       -- k = {} is a branch
       return not (l.is_str and r.is_tbl)
     end,
-    log = {
-      use = true,
-      mult = 4,
-      name_string = "query parser",
-      cat = 2,
-      inspect = true,
-      new_line = true,
-      frame = true,
-      separate = true,
-    },
+    -- log = {
+    --   use = true,
+    --   mult = 4,
+    --   name_string = "query parser",
+    --   cat = 2,
+    --   inspect = true,
+    --   new_line = true,
+    --   frame = true,
+    --   separate = true,
+    -- },
   })
 
   -- TODO: THIS COULD BE ADDED TO THE `TREE` -> CONCAT OUTPUT
