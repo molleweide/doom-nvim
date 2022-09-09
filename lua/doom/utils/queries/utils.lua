@@ -34,6 +34,10 @@ local function b_post(s, k, v, u) end
 --        we can crop backwards if we need to.
 --
 
+local und = "_"
+local any = "__any"
+local any_len = string.len(any)
+
 query_utils.parse = function(query)
   local function indentation(stack, sep, mult)
     local a = ""
@@ -53,9 +57,6 @@ query_utils.parse = function(query)
     tree = query,
     branch = function(s, k, v) -- pre
       local str = "" .. indentation(s)
-      local und = "_"
-      local any = "__any"
-      local any_len = string.len(any)
       if not starts_w(k, und) then
         -- (xxx)
         if ends_w(k, und) then
@@ -71,8 +72,6 @@ query_utils.parse = function(query)
         if ends_w(k, any) then
           str = str .. string.sub(k, 2, string.len(k) - any_len) .. ": [\n"
         end
-        -- if ends_w(k, "__any") then
-        --
       end
       return str
     end,
@@ -80,18 +79,15 @@ query_utils.parse = function(query)
       return { pass_up = v }
     end,
     branch_post = function(s, k, v, u) -- post
-      -- return branch_post(s,k,v,u)
-      -- local post = ends_w(k, "__any") and "]" or ")"
-
       local str = "" .. indentation(s)
-      -- local first = string.sub(k, 1, 1)
-
-      -- end encloser
-      if not starts_w(k, "_") then
-        str = str .. ")"
-      else
+      -- TODO: if has no children -> truncate accumulator
+      -- FIX:   add `acc` as param to branch_post cb
+      if ends_w(k, any) then
+        str = str .. "]"
       end
-
+      if not starts_w(k, und) then
+        str = str .. ")" -- .. "\n"
+      end
       if u then
         -- add capture
         if u[1] then
@@ -103,7 +99,6 @@ query_utils.parse = function(query)
           str = str .. string.format([[(#%s? %s "%s")]], u[2], u[3], u[4])
         end
       end
-
       str = str .. "\n"
       return str
     end,
