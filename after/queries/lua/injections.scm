@@ -1,3 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LUA TABLE KEY-STRING                                 ;;
+;;  make tables easier to parse. make keys in the same color always
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ["n ]c"] = { <--- this
+;;   expr = true,
+;;   "&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'",
+;; },
+;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; QUERY                                                ;;
