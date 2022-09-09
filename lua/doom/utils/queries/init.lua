@@ -73,7 +73,7 @@ end
 -- queries.bind()
 
 queries.component_container = function(type)
-  print(vim.inspect(type))
+  -- print(vim.inspect(type))
   if type == "configs" then
     return parse({
       assignment_statement = {
@@ -125,117 +125,169 @@ queries.component_container = function(type)
   end
 end
 
-queries.comp_unit = function(opts)
-  --   local ts_query_setting = [[
-  --     (field
-  --       name: (identifier) @name
-  --         (#eq? @name "debug")
-  --       ;;
-  --       value: [
-  --         (false)
-  --         (number)
-  --         (string)
-  --     ] @value
-  --         (#eq? @value "false")
-  --     )
-  --   ]]
-  --
-  --   local ts_query_package = [[
-  --     (field
-  --       name: (string) @name (#eq? @name "\"nvim-cmp\"")
-  --       value: (table_constructor
-  --         (field
-  --           value: (string) @repo
-  --             (#eq? @repo "\"hrsh7th/nvim-cmp\"")
-  --         )
-  --       )
-  --     )
-  --   ]]
-  --   local ts_query_config = [[
-  --      (assignment_statement
-  --       (variable_list
-  --         name: (bracket_index_expression
-  --           table: (dot_index_expression
-  --             table: ( identifier )
-  --             field: ( identifier )
-  --           )
-  --           field: (string) @name
-  --         )
-  --       )
-  --       (expression_list
-  --         value: (function_definition
-  --           parameters: (parameters)
-  --         ) @func
-  --       )
-  --     )
-  --   ]]
-  --   local ts_query_cmd = [[
-  --     (assignment_statement
-  --       (variable_list
-  --         name: (dot_index_expression
-  --           table: (identifier)
-  --           field: (identifier) @base
-  --         )
-  --       )
-  --       (expression_list
-  --         value:  (table_constructor
-  --             (field value: (table_constructor
-  --                 (field
-  --                   value: (string) @name (#eq? @name "\"DoomCreateNewModule\"")
-  --                   )
-  --                 (field
-  --                   value: (function_definition
-  --                            parameters: (parameters)))
-  --               ) @cmd_tbl
-  --             )
-  --         )
-  --       )
-  --     )
-  --   ]]
-  --   local ts_query_autocmd = [[
-  --     (assignment_statement
-  --       (variable_list
-  --         name: (dot_index_expression
-  --          table: (identifier)
-  --          field: (identifier) @base
-  --         )
-  --       )
-  --       (expression_list
-  --         value: (table_constructor
-  --           (field
-  --             value: (table_constructor
-  --               (field value: (string) @event)
-  --               (field value: (string) @pattern)
-  --               (field value: (function_definition) @fn)
-  --             )
-  --           )
-  --         )
-  --       )
-  --     )
-  --   ]]
-  --
-  --   local ts_query_bind = [[
-  --     (assignment_statement
-  --       (variable_list
-  --         name: (dot_index_expression
-  --           table: (identifier)
-  --           field: (identifier) @base
-  --         )
-  --       )
-  --       (expression_list
-  --         value: (table_constructor
-  --           (field
-  --             value: (table_constructor
-  --               (field value: (string) @str)
-  --               (field value: (dot_index_expression field: (identifier)) @f)
-  --               (field name: ( identifier ) value: ( string ))
-  --             )
-  --           )
-  --         )
-  --       )
-  --     )
-  --   ]]
-  --
+queries.comp_unit = function(c)
+  print(vim.inspect(c))
+
+  -- @COMPONENT
+  -- {
+  --   component_type = "settings",
+  --   data = {
+  --     table_path = { "snippets", "history" },
+  --     table_value = true
+  --   },
+  --   items = { { "SETTING", "TSFloat" }, { "snippets.history", "TSFloat" }, { "true", "TSFloat" } },
+  --   mappings = {
+  --     ["<C-e>"] = <function 1>,
+  --     ["<C-h>"] = <function 2>,
+  --     ["<CR>"] = <function 3>
+  --   },
+  --   ordinal = "snippets.history",
+  --   type = "module_setting"
+  -- }
+
+  -- TODO: ALL TYPES SHOULD BE PLURAL
+
+  if c.component_type == "settings" then
+    -- local ts_query_setting = [[
+    --   (field
+    --     name: (identifier) @name
+    --       (#eq? @name "debug")
+    --     ;;
+    --     value: [
+    --       (false)
+    --       (number)
+    --       (string)
+    --   ] @value
+    --       (#eq? @value "false")
+    --   )
+    -- ]]
+    return parse({
+      field = {
+        _name = {
+          identifier = {
+            "@name",
+            "eq",
+            "@name",
+            "debug",
+          },
+        },
+        _value__any = {
+          false_ = {},
+          number = {},
+          string = {},
+          "@value",
+          "eq",
+          "@value",
+          "false",
+        },
+      },
+    })
+  elseif c.type == "package" then
+    local ts_query_package = [[
+        (field
+          name: (string) @name (#eq? @name "\"nvim-cmp\"")
+          value: (table_constructor
+            (field
+              value: (string) @repo
+                (#eq? @repo "\"hrsh7th/nvim-cmp\"")
+            )
+          )
+        )
+      ]]
+    return parse({})
+  elseif c.type == "config" then
+    local ts_query_config = [[
+         (assignment_statement
+          (variable_list
+            name: (bracket_index_expression
+              table: (dot_index_expression
+                table: ( identifier )
+                field: ( identifier )
+              )
+              field: (string) @name
+            )
+          )
+          (expression_list
+            value: (function_definition
+              parameters: (parameters)
+            ) @func
+          )
+        )
+      ]]
+    return parse({})
+  elseif c.type == "cmd" then
+    local ts_query_cmd = [[
+        (assignment_statement
+          (variable_list
+            name: (dot_index_expression
+              table: (identifier)
+              field: (identifier) @base
+            )
+          )
+          (expression_list
+            value:  (table_constructor
+                (field value: (table_constructor
+                    (field
+                      value: (string) @name (#eq? @name "\"DoomCreateNewModule\"")
+                      )
+                    (field
+                      value: (function_definition
+                               parameters: (parameters)))
+                  ) @cmd_tbl
+                )
+            )
+          )
+        )
+      ]]
+    return parse({})
+  elseif c.type == "autocmd" then
+    local ts_query_autocmd = [[
+        (assignment_statement
+          (variable_list
+            name: (dot_index_expression
+             table: (identifier)
+             field: (identifier) @base
+            )
+          )
+          (expression_list
+            value: (table_constructor
+              (field
+                value: (table_constructor
+                  (field value: (string) @event)
+                  (field value: (string) @pattern)
+                  (field value: (function_definition) @fn)
+                )
+              )
+            )
+          )
+        )
+      ]]
+    return parse({})
+  elseif c.type == "bind" then
+    local ts_query_bind = [[
+        (assignment_statement
+          (variable_list
+            name: (dot_index_expression
+              table: (identifier)
+              field: (identifier) @base
+            )
+          )
+          (expression_list
+            value: (table_constructor
+              (field
+                value: (table_constructor
+                  (field value: (string) @str)
+                  (field value: (dot_index_expression field: (identifier)) @f)
+                  (field name: ( identifier ) value: ( string ))
+                )
+              )
+            )
+          )
+        )
+      ]]
+    return parse({})
+  end
+
   --   -- if opts.selected_component.type == "module_setting" then
   --   --   return string.format(ts_query_setting, xxx)
   --   -- elseif opts.selected_component.type == "module_package" then

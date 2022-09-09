@@ -192,7 +192,7 @@ M.module_apply = function(opts)
   elseif opts.action == "component_edit_sel" then
     -- nui menu input here
     local q_cont = queries.component_container(opts.selected_component.value.component_type)
-    local q_unit = queries.comp_unit(opts.selected_component)
+    local q_unit = queries.comp_unit(opts.selected_component.value)
 
     print("CONT:",q_cont)
     print("UNIT:",q_unit)

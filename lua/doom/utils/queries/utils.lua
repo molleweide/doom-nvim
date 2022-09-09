@@ -2,6 +2,18 @@ local crawl = require("doom.utils.tree").traverse_table
 
 local query_utils = {}
 
+local function match(string, check_str)
+  return string.match(string, check_str)
+end
+
+local function starts_w(str, check)
+  return match(str, "^" .. check)
+end
+
+local function ends_w(str, check)
+  return match(str, check .. "$")
+end
+
 --
 -- CONVERT: ( TS LUA -> TS QUERY )
 --
@@ -29,36 +41,56 @@ query_utils.parse = function(query)
   local results = crawl({
     tree = query,
     branch = function(s, k, v)
+      local str = "" .. indentation(s)
 
-      -- TODO:
-      --    handle conditional case [ ... ] @ arst
+      local und = "_"
+      local any = "__any"
+      local any_len = string.len(any)
 
-      if string.sub(k, 1, 1) == "_" then
-        return indentation(s) .. string.sub(k, 2, -1) .. ":\n"
+      if not starts_w(k, und) then
+        -- (xxx)
+        if ends_w(k, und) then
+          str = str .. "(" .. string.sub(k, 1, -2) .. "\n"
+        else
+          str = str .. "(" .. k .. "\n"
+        end
       else
-        return indentation(s) .. "(" .. k .. "\n"
+        -- xxx:
+        if ends_w(k, und) then
+          str = str .. string.sub(k, 2, -2) .. ":\n"
+        end
+        if ends_w(k, any) then
+          str = str .. string.sub(k, 2, string.len( k ) - any_len) .. ": [\n"
+        end
+        -- if ends_w(k, "__any") then
+        --
       end
+      return str
     end,
     node = function(_, _, v)
       return { pass_up = v }
     end,
     branch_post = function(s, k, v, u)
-      local str = "" .. indentation(s)
-      local first = string.sub(k, 1, 1)
+      -- local post = ends_w(k, "__any") and "]" or ")"
 
-      if first ~= "_" then
+      local str = "" .. indentation(s)
+      -- local first = string.sub(k, 1, 1)
+
+      -- end encloser
+      if not starts_w(k, "_") then
         str = str .. ")"
+      else
       end
 
       if u then
-        -- capture
+        -- add capture
         if u[1] then
           str = str .. " " .. u[1] .. " "
         end
 
-        -- sexpr
+        -- add sexpr
         if u[2] then
-            str = str .. string.format([[(#%s? %s "%s")]], u[2], u[3], u[4])
+          str = str .. string.format([[(#%s? %s "%s")]], u[2], u[3], u[4])
         end
       end
 
