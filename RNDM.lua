@@ -2,9 +2,7 @@
 
 -- MOVING BACKGROUND!!!
 
--- TODO: A. fix `component_edit_sel`
---
---
+-- TODO: A. insert template code
 
 -- TODO: B. fix modules extend() > `user` show up in telescope.
 --

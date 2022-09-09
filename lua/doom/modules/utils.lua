@@ -1,3 +1,4 @@
+local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
@@ -144,32 +145,10 @@ M.root_apply = function(opts)
   end
 end
 
--- redo all of this with function calls instead so that it looks nicer
 M.module_apply = function(opts)
   if not validate(opts) then
     return
   end
-
-  -- ts.get_query_capture = function(query, cname, path)
-  --   -- if not path then
-  --   path = path or utils.find_config("modules.lua")
-  --   -- end
-  --   local buf = utils.get_buf_handle(path)
-  --   local parsed = vim.treesitter.parse_query("lua", query)
-  --   local root = ts.get_root(buf)
-  --   local t = {}
-  --   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
-  --     local name = parsed.captures[id]
-  --     if name == cname then
-  --       table.insert(t, {
-  --         node = node,
-  --         text = tsq.get_node_text(node, buf),
-  --         range = { node:range() },
-  --       })
-  --     end
-  --   end
-  --   return t, buf
-  -- end
 
   if opts.action == "component_add" then
     -- CURRENT SOLUTION: MOVES CURSOR TO LAST CAPTURE
@@ -185,6 +164,10 @@ M.module_apply = function(opts)
     end
     local insertion_line = captures[#captures].range[1]
     local insertion_col = captures[#captures].range[2]
+
+
+    -- templ.<comp>
+
     vim.api.nvim_win_set_buf(0, buf)
     vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 

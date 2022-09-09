@@ -1,4 +1,5 @@
 local crawl = require("doom.utils.tree").traverse_table
+local utils = require("doom.utils")
 
 local query_utils = {}
 
@@ -41,12 +42,14 @@ local function b_post(s, k, v, u) end
 --
 
 -- FIX: ESCAPE STRINGS
+--  utils.escape_str(str)
 
 -- NOTE: IF I WANT A SINGLE FIELD TO END UP ON A SINGLE LINE.
 --        then I need to make the accumulator accessible. so that
 --        we can crop backwards if we need to.
 --
 
+local newline = "\n"
 local und = "_"
 local any = "__any"
 local any_len = string.len(any)

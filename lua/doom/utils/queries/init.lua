@@ -159,6 +159,14 @@ queries.comp_unit = function(c)
           },
         },
         _value = {
+          -- 100 -> "number"
+          --
+          -- ALTERNATIVES:
+          --
+          --    - inside of results when we collect entries.
+          --
+          --    - inside of parser > this would be a nice fallback
+          --
           [tostring(c.data.table_value)] = {
             "@value",
             "eq",
