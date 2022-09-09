@@ -5,6 +5,7 @@
 --
 -- ---
 -- TODO: RENAME: NODE -> LEAF
+-- TODO: PASS ACCUMULATOR TO BRANCH_POST
 --
 --------------------------------------
 -- it would be nice if callbacks only recieve a single table and not mult
@@ -251,6 +252,7 @@ M.recurse = function(opts, tree, stack, accumulator)
       accumulator, p = M.recurse(opts, opts.branch_next(v), stack, accumulator)
 
       -- branch post
+      -- TODO: PASS ACCUMULATOR TO BRANCH_POST
       local post = opts.branch_post(stack, k, v, p)
       if post then
         table.insert(accumulator, post)

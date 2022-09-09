@@ -522,7 +522,7 @@ result_nodes.settings = function()
         for _, x in pairs(v) do
           if type(x) == "table" then
             str = str .. ", " .. "subt"
-          else
+
             str = str .. ", " .. x
           end
         end
@@ -634,6 +634,9 @@ result_nodes.packages = function()
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
           end,
+          ["<C-h>"] = function(sel, line)
+            ax.c_edit_sel(sel)
+          end,
           -- ["<C-y>"] = function()
           --   ax.c_pkg_add_cfg()
           -- end,
@@ -702,6 +705,9 @@ result_nodes.configs = function()
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
           end,
+          ["<C-h>"] = function(sel, line)
+            ax.c_edit_sel(sel)
+          end,
         },
       }
     end,
@@ -759,6 +765,9 @@ result_nodes.cmds = function()
           end,
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
+          end,
+          ["<C-h>"] = function(sel, line)
+            ax.c_edit_sel(sel)
           end,
           -- ["<C-XX"] = function()
           --   ax.c_cmd_add_new_to_sel_mod()
@@ -828,6 +837,9 @@ result_nodes.autocmds = function()
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
           end,
+          ["<C-h>"] = function(sel, line)
+            ax.c_edit_sel(sel)
+          end,
           -- ["<C-XX"] = function()
           --   ax.c_autocmd_add()
           -- end,
@@ -887,6 +899,9 @@ result_nodes.binds = function()
           end,
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
+          end,
+          ["<C-h>"] = function(sel, line)
+            ax.c_edit_sel(sel)
           end,
           -- ["<C-XX"] = function()
           --   ax.c_autocmd_add_to_new_mod()

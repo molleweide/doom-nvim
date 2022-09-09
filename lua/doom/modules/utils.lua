@@ -194,8 +194,31 @@ M.module_apply = function(opts)
     local q_cont = queries.component_container(opts.selected_component.value.component_type)
     local q_unit = queries.comp_unit(opts.selected_component.value)
 
+    -- local scope_continer =
+
+    local c_containers, buf = ts.get_query_capture(
+      q_cont,
+      "component_container",
+      opts.selected_module.path .. "init.lua"
+    )
+
     print("CONT:",q_cont)
+    print("captures:", #c_containers)
+
+
+    local c_unit, buf = ts.get_query_capture(
+      q_unit,
+      "component_container",
+      opts.selected_module.path .. "init.lua"
+    )
+
     print("UNIT:",q_unit)
+    print("captures:",#c_unit)
+
+
+
+
+    -- TODO: GET CAPTURES.
 
     --      1. get base table query.
     -- local scope_comp_container = queries.get_container_scope()
