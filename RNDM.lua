@@ -1,17 +1,10 @@
 --[[
 
+-- MOVING BACKGROUND!!!
+
 -- NOTE: LEARN METATABLES
 
 -- TODO: A. fix `component_edit_sel`
-
-      - get captures
-
-
-      3. pluck base table
-      4. pluck component
-      5. switch file. refactor???
-      6. set cursor. refactor???
-
 
 -- TODO: B. fix modules extend() > `user` show up in telescope.
 

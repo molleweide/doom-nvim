@@ -172,7 +172,8 @@ M.module_apply = function(opts)
   -- end
 
   if opts.action == "component_add" then
-    local q1 = queries.component_container(opts.selected_component, opts.ui_input_comp_type)
+    -- CURRENT SOLUTION: MOVES CURSOR TO LAST CAPTURE
+    local q1 = queries.component_container(opts.ui_input_comp_type)
     local captures, buf = ts.get_query_capture(
       q1,
       "component_container",
@@ -190,11 +191,11 @@ M.module_apply = function(opts)
     --
   elseif opts.action == "component_edit_sel" then
     -- nui menu input here
-    local q_container = queries.component_container(opts.selected_module)
+    local q_cont = queries.component_container(opts.selected_component.value.component_type)
     local q_unit = queries.comp_unit(opts.selected_component)
 
-    print(q_container)
-    print(q_unit)
+    print("CONT:",q_cont)
+    print("UNIT:",q_unit)
 
     --      1. get base table query.
     -- local scope_comp_container = queries.get_container_scope()

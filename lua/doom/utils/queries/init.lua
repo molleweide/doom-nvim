@@ -72,38 +72,8 @@ end
 -- queries.autocmd()
 -- queries.bind()
 
--- >>> (assignment_statement
---   (variable_list
---     name:
---       (bracket_index_expression
---         table:
---           field:
---             (string
---             )
---
---           (dot_index_expression
---             table:
---               (identifier
---               )
---
---             field:
---               (identifier
---               ) @comp_tbl_name (#eq? @comp_tbl_name "configs")
---
---           )
---
---       )
---
---   )
---   (expression_list
---     value:
---       (function_definition
---       ) @component_container
---
---   )
--- )
-queries.component_container = function(comp, type)
-  -- print(vim.inspect(comp, type))
+queries.component_container = function(type)
+  print(vim.inspect(type))
   if type == "configs" then
     return parse({
       assignment_statement = {
