@@ -1,12 +1,11 @@
 --[[
 
+-- NOTE: LEARN METATABLES
+
 -- TODO: A. fix `component_edit_sel`
 
-      2. get component query
-          local scope_comp_unit = queries.get_container_scope()
+      - get captures
 
-      print(scope_comp_container)
-      print(scope_comp_unit)
 
       3. pluck base table
       4. pluck component

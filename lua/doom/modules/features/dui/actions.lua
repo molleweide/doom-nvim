@@ -242,12 +242,21 @@ end
 
 actions.c_add = function(sel)
   log.info("Add component")
+
+
+  -- TODO: SET STATE.SELECTED_COMPONENT AND MODULE EXPLICITLY
+  --
+  --    >>> why
+  --          1. history!!! > go back / redo last command..
+  --          2. readability.
+
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
     local ret = mod.module_apply({
       action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
-      add_component_sel = value.text,
+      ui_input_comp_type = value.text,
+      -- ui_input_module = ..
     })
   end)
 end

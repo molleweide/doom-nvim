@@ -1,5 +1,7 @@
 local tsp = {}
 
+-- TODO: SPLIT THIS UP INTO MULTIPLE MODULES.
+
 ----------------------------
 -- SETTINGS
 ----------------------------

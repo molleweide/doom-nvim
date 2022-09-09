@@ -1,7 +1,7 @@
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
-local refact = require("refactoring").queries
+-- local Query = require("refactoring").query
 
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
 
@@ -150,29 +150,51 @@ M.module_apply = function(opts)
     return
   end
 
+  -- ts.get_query_capture = function(query, cname, path)
+  --   -- if not path then
+  --   path = path or utils.find_config("modules.lua")
+  --   -- end
+  --   local buf = utils.get_buf_handle(path)
+  --   local parsed = vim.treesitter.parse_query("lua", query)
+  --   local root = ts.get_root(buf)
+  --   local t = {}
+  --   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+  --     local name = parsed.captures[id]
+  --     if name == cname then
+  --       table.insert(t, {
+  --         node = node,
+  --         text = tsq.get_node_text(node, buf),
+  --         range = { node:range() },
+  --       })
+  --     end
+  --   end
+  --   return t, buf
+  -- end
+
   if opts.action == "component_add" then
-    local q = queries.mod_get_component_table(opts.add_component_sel)
+    local q1 = queries.component_container(opts.selected_component, opts.ui_input_comp_type)
+    local captures, buf = ts.get_query_capture(
+      q1,
+      "component_container",
+      opts.selected_module.path .. "init.lua"
+    )
 
-    print(">>>", q)
-
-    -- use refactoring
-
-    -- local captures, buf = ts.get_query_capture(
-    --   -- queries.mod_get_component_table(opts.add_component_sel),
-    --   "comp_unit",
-    --   opts.selected_module.path .. "init.lua"
-    -- )
-
-    -- if not #captures then
-    --   return false
-    -- end
-    -- local insertion_line = captures[#captures].range[1]
-    -- local insertion_col = captures[#captures].range[2]
-    -- vim.api.nvim_win_set_buf(0, buf)
-    -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+    if not #captures then
+      return false
+    end
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
     --
   elseif opts.action == "component_edit_sel" then
+    -- nui menu input here
+    local q_container = queries.component_container(opts.selected_module)
+    local q_unit = queries.comp_unit(opts.selected_component)
+
+    print(q_container)
+    print(q_unit)
 
     --      1. get base table query.
     -- local scope_comp_container = queries.get_container_scope()
