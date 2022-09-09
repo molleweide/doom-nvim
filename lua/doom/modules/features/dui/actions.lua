@@ -143,6 +143,24 @@ actions.m_create = function(sel, line)
     if not ret then
       log.info("Adding new module to `modules.lua` was unsuccessful.")
     else
+
+
+  -- local path_user_modules = string.format("%s/lua/user/modules", system.doom_root)
+  -- local new_module_path = string.format("%s%s%s", path_user_modules, system.sep, new_mname)
+  -- local new_module_init_file = string.format("%s%sinit.lua", new_module_path, system.sep)
+  -- vim.cmd(string.format("!mkdir -p %s", new_module_path))
+  -- vim.cmd(string.format("!touch %s", new_module_init_file))
+  -- fs.write_file(
+  --   new_module_init_file,
+  --   user_utils_modules.get_module_template_from_name(new_mname),
+  --   "w+"
+  -- )
+  -- vim.cmd(string.format(":e %s", new_module_init_file))
+
+
+
+
+
     end
   end
 

@@ -151,7 +151,6 @@ M.module_apply = function(opts)
   end
 
   if opts.action == "component_add" then
-    -- CURRENT SOLUTION: MOVES CURSOR TO LAST CAPTURE
     local q1 = queries.component_container(opts.ui_input_comp_type)
     local captures, buf = ts.get_query_capture(
       q1,
@@ -166,18 +165,18 @@ M.module_apply = function(opts)
     local insertion_col = captures[#captures].range[2]
 
 
-    -- templ.<comp>
 
     vim.api.nvim_win_set_buf(0, buf)
     vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
+    -- TODO: INSERT COMPONENT TEMPLATE HERE
+    -- as the last thing of the same type
+    -- templ.<comp>
+
     --
   elseif opts.action == "component_edit_sel" then
-    -- nui menu input here
     local q_cont = queries.component_container(opts.selected_component.value.component_type)
     local q_unit = queries.comp_unit(opts.selected_component.value)
-
-    -- local scope_continer =
 
     local c_containers, buf = ts.get_query_capture(
       q_cont,
@@ -189,7 +188,6 @@ M.module_apply = function(opts)
     print("UNIT:",q_unit)
     print("captures:", #c_containers)
 
-
     local captures, buf = ts.get_query_capture(
       q_unit,
       "value",
@@ -197,7 +195,6 @@ M.module_apply = function(opts)
     )
 
     print("captures:",#captures)
-
 
     if not #captures then
       return false
@@ -207,41 +204,24 @@ M.module_apply = function(opts)
     vim.api.nvim_win_set_buf(0, buf)
     vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
-
-    -- TODO: GET CAPTURES.
-
-    --      1. get base table query.
-    -- local scope_comp_container = queries.get_container_scope()
-    -- --      2. get component query
-    -- local scope_comp_unit = queries.get_container_scope()
-    --
-    -- print(scope_comp_container)
-    -- print(scope_comp_unit)
-
-    --      3. pluck base table
-    --      4. pluck component
-    --      5. switch file. refactor???
-    --      6. set cursor. refactor???
-
-    -- local q_ = refact.new(opts.selected_module.path .. "init.lua")
-
-    -- local captures, buf = ts.get_query_capture(
-    --   queries.mod_get_component_unit(opts),
-    --   "comp_unit",
-    --   opts.selected_module.path .. "init.lua"
-    -- )
-
-    -- if not #captures then
-    --   return false
-    -- end
+    -- TODO: visually select option here
 
     --
   elseif opts.action == "component_remove_sel" then
-    -- reuse same query as above
+    -- REQUIRES YES/NO!!!
+
+    -- this should be easy -> just set range to empty string ""
 
     --
   elseif opts.action == "component_replace_sel" then
-    -- reuse same query as above
+
+    --
+    --  1. nui -> input entry
+    --
+    --  OR
+    --
+    --  2. move cursor and enter insert mode
+
 
     -- put cursor at beginning of selected component
   elseif opts.action == "pkg_fork" then

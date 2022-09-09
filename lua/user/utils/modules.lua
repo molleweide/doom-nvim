@@ -1,6 +1,10 @@
 local utils = require("doom.utils")
 local is_module_enabled = utils.is_module_enabled
 
+
+-- TODO: MOVE THIS INTO MODULES UTILS
+
+
 local utils_modules = {}
 
 -- @param str | table -> list of module categories

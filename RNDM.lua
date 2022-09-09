@@ -15,6 +15,9 @@
 
 -- TODO: E. make PR
 
+-> i could try to just make a huge PR of this branch and then
+    just give instructions to comment out.
+
 -- NOTE: LEARN METATABLES
 
 -----------------------------------------------------------------------------
