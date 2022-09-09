@@ -171,6 +171,7 @@ queries.comp_unit = function(c)
             "debug",
           },
         },
+        -- TODO: THIS COULD ALSO BE MADE CONDITIONALLY BY TAKING THE `C.DATA.TABLE_VALUE`
         _value__any = {
           false_ = {},
           number = {},

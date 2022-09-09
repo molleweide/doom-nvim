@@ -2,6 +2,10 @@ local crawl = require("doom.utils.tree").traverse_table
 
 local query_utils = {}
 
+--
+-- MOVE THESE TO REGEX UTILS > COMPOSABLE LIB
+--
+
 local function match(string, check_str)
   return string.match(string, check_str)
 end
@@ -13,6 +17,13 @@ end
 local function ends_w(str, check)
   return match(str, check .. "$")
 end
+
+--
+-- PARSER HELPERS
+--
+
+local function b_pre(s, k, v) end
+local function b_post(s, k, v, u) end
 
 --
 -- CONVERT: ( TS LUA -> TS QUERY )
@@ -40,13 +51,11 @@ query_utils.parse = function(query)
 
   local results = crawl({
     tree = query,
-    branch = function(s, k, v)
+    branch = function(s, k, v) -- pre
       local str = "" .. indentation(s)
-
       local und = "_"
       local any = "__any"
       local any_len = string.len(any)
-
       if not starts_w(k, und) then
         -- (xxx)
         if ends_w(k, und) then
@@ -60,7 +69,7 @@ query_utils.parse = function(query)
           str = str .. string.sub(k, 2, -2) .. ":\n"
         end
         if ends_w(k, any) then
-          str = str .. string.sub(k, 2, string.len( k ) - any_len) .. ": [\n"
+          str = str .. string.sub(k, 2, string.len(k) - any_len) .. ": [\n"
         end
         -- if ends_w(k, "__any") then
         --
@@ -70,7 +79,8 @@ query_utils.parse = function(query)
     node = function(_, _, v)
       return { pass_up = v }
     end,
-    branch_post = function(s, k, v, u)
+    branch_post = function(s, k, v, u) -- post
+      -- return branch_post(s,k,v,u)
       -- local post = ends_w(k, "__any") and "]" or ")"
 
       local str = "" .. indentation(s)
