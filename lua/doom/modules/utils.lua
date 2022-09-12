@@ -2,50 +2,23 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
--- local Query = require("refactoring").query
 
+-- local Query = require("refactoring").query
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
 
 -- note: if no module file passed ->>> operate on `./settings.lua`
 
--- todo: if module file is empty ??
--- todo: local compute_insertion_point = get_insertion_point_for_component()
-
---
--- UTILS
---
-
+-- doesn't do much at the moment. dunno if this is necessary atm.
 local validate = function(opts)
+  -- todo: check what types of components a module contain so that we
+  -- can make conditionals based on this. Eg.
   if not opts.action then
     return false
   end
   return true
 end
 
-local function get_ts_data_root_modules(msection, mname)
-  local strings = {}
-  if mname then
-    strings = ts.get_query_capture(
-      queries.root_mod_name_by_section(mname, msection),
-      "module_string"
-    )
-  end
-  local comments = ts.get_query_capture(
-    queries.root_all_comments_from_section(msection),
-    "section_comment"
-  )
-  local tables, buf = ts.get_query_capture(
-    queries.root_get_section_table_by_name(msection),
-    "section_table"
-  )
-  return {
-    ts = {
-      strings = strings,
-      comments = comments,
-      tables = tables,
-    },
-    buf = buf,
-  }
+local compute_insertion_point = function()
 end
 
 local function get_replacement_range(strings, comments, module_name, buf)
@@ -81,10 +54,6 @@ end
 
 local M = {}
 
---[[----------------------
---   VALIDATE MODULES
-----------------------]]
-
 M.modules_refactor = function()
   -- eg. if you have
   -- mod_x.configs["arst"] = function() end
@@ -108,8 +77,35 @@ M.validate_and_prettify_modules = function()
   -- C. Insert missing components if necessary.
 end
 
--- refactor: i am not satisfied
+-- crud operations for `modules.lua`
+-- REFACTOR: i am not satisfied
 M.root_apply = function(opts)
+  local function get_ts_data_root_modules(msection, mname)
+    local strings = {}
+    if mname then
+      strings = ts.get_query_capture(
+        queries.root_mod_name_by_section(mname, msection),
+        "module_string"
+      )
+    end
+    local comments = ts.get_query_capture(
+      queries.root_all_comments_from_section(msection),
+      "section_comment"
+    )
+    local tables, buf = ts.get_query_capture(
+      queries.root_get_section_table_by_name(msection),
+      "section_table"
+    )
+    return {
+      ts = {
+        strings = strings,
+        comments = comments,
+        tables = tables,
+      },
+      buf = buf,
+    }
+  end
+
   local selected_mod
   if opts.module_name ~= nil then
     selected_mod = opts.module_name
@@ -145,6 +141,7 @@ M.root_apply = function(opts)
   end
 end
 
+-- TODO: SPLIT INTO FUNCTIONS
 M.module_apply = function(opts)
   if not validate(opts) then
     return
@@ -164,8 +161,6 @@ M.module_apply = function(opts)
     local insertion_line = captures[#captures].range[1]
     local insertion_col = captures[#captures].range[2]
 
-
-
     vim.api.nvim_win_set_buf(0, buf)
     vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
@@ -184,8 +179,8 @@ M.module_apply = function(opts)
       opts.selected_module.path .. "init.lua"
     )
 
-    print("CONT:",q_cont)
-    print("UNIT:",q_unit)
+    print("CONT:", q_cont)
+    print("UNIT:", q_unit)
     print("captures:", #c_containers)
 
     local captures, buf = ts.get_query_capture(
@@ -194,7 +189,7 @@ M.module_apply = function(opts)
       opts.selected_module.path .. "init.lua"
     )
 
-    print("captures:",#captures)
+    print("captures:", #captures)
 
     if not #captures then
       return false
@@ -221,7 +216,6 @@ M.module_apply = function(opts)
     --  OR
     --
     --  2. move cursor and enter insert mode
-
 
     -- put cursor at beginning of selected component
   elseif opts.action == "pkg_fork" then

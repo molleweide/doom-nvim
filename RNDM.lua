@@ -1,28 +1,47 @@
 --[[
 
+-- WASHING MACHINE FILTER!!
+
+now I am feeling a bit tired but now pretty much everything is solved.
+now we just need to play around with this, but essentially this would
+make into something that is pretty fucking good at searching and doing shit
+you know and so that is why they never do anything that can be ran like
+the insanest shit every but why not you know.
+
+so this is something that I need to get working now so that we can do this shit.
+which is something that you can really fucking do well.
+
+-- custom fonts with treesitter.
+
 -- MOVING BACKGROUND!!!
 
--- TODO: A. insert template code
+-- TODO: `REFACTOR` MOD UTIL INTO FUNCTIONS.
+
+-- TODO: ADD FUTURE IDEAS: `C_ADD_NEW_TO_SAME_LEVEL`
+
+-- TODO: FALLBACK TO REGULAR SETTINGS.LUA
+
+-- TODO: MOVE ALL STUPID MODULES INTO USER
+
+-- TODO: A. INSERT TEMPLATE CODE
 
 -- TODO: B. fix modules extend() > `user` show up in telescope.
---
-
--- rename tree node -> tree leaf
 
 -- TODO: C. delete old/unused modules
 
--- TODO: D. move as many modules as possible into `user`.
+-- TODO: RENAME TREE NODE -> TREE LEAF
 
 -- TODO: E. make PR
-
--> i could try to just make a huge PR of this branch and then
-    just give instructions to comment out.
 
 -- NOTE: LEARN METATABLES
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
+
+i want learn how to customize anything inside of telescope and it is very
+important and something that I really want to be able to fucking do and
+make sure that it is something that you could go back to in the past.
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 

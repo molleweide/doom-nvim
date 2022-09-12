@@ -16,6 +16,9 @@
 --      you higher clarity
 --  - maintain `enabled` states, ie. check if TSComment contains `module name` pattern.
 
+-- TODO: collect sections programmatically instead of using
+--      create sync command that syncs new modules to here.
+
 return {
   features = {
     "annotations",        -- Code annotation generator

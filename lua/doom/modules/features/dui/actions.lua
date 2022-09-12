@@ -58,17 +58,6 @@ conf_ui.settings = {
 }
 local confirm_alternatives = { "yes", "no" }
 
--- -- c, m, new_name
--- local function check_if_module_name_exists(c, m, new_name)
---   local already_exists = false
---   for _, v in pairs(c.entries_mapped) do
---     if v.section == m.section and v.name == new_name then
---       already_exists = true
---     end
---   end
---   return already_exists
--- end
-
 -- TODO: move this into mod utils
 local function check_if_module_name_exists(m, new_name)
   -- TODO: need to account for origin.
@@ -94,10 +83,8 @@ local query_module_rename = [[
 
 ]]
 
--- M.ntext = function(n,b) return tsq.get_node_text(n, b) end
-
 --
--- MODULE ACTIONS
+-- MODULE ACTIONS ------------------------------------------------------------
 --
 
 actions.m_edit = function(m)
@@ -144,23 +131,17 @@ actions.m_create = function(sel, line)
       log.info("Adding new module to `modules.lua` was unsuccessful.")
     else
 
-
-  -- local path_user_modules = string.format("%s/lua/user/modules", system.doom_root)
-  -- local new_module_path = string.format("%s%s%s", path_user_modules, system.sep, new_mname)
-  -- local new_module_init_file = string.format("%s%sinit.lua", new_module_path, system.sep)
-  -- vim.cmd(string.format("!mkdir -p %s", new_module_path))
-  -- vim.cmd(string.format("!touch %s", new_module_init_file))
-  -- fs.write_file(
-  --   new_module_init_file,
-  --   user_utils_modules.get_module_template_from_name(new_mname),
-  --   "w+"
-  -- )
-  -- vim.cmd(string.format(":e %s", new_module_init_file))
-
-
-
-
-
+      -- local path_user_modules = string.format("%s/lua/user/modules", system.doom_root)
+      -- local new_module_path = string.format("%s%s%s", path_user_modules, system.sep, new_mname)
+      -- local new_module_init_file = string.format("%s%sinit.lua", new_module_path, system.sep)
+      -- vim.cmd(string.format("!mkdir -p %s", new_module_path))
+      -- vim.cmd(string.format("!touch %s", new_module_init_file))
+      -- fs.write_file(
+      --   new_module_init_file,
+      --   user_utils_modules.get_module_template_from_name(new_mname),
+      --   "w+"
+      -- )
+      -- vim.cmd(string.format(":e %s", new_module_init_file))
     end
   end
 
@@ -236,10 +217,11 @@ end
 
 actions.m_breakout_into_standalone_plugin = function(m)
   -- if a plugin grows too large -> break it out into its own repo.
+  -- create new plugin dir at path xxx
 end
 
 --
--- COMPONENT ACTIONS
+-- COMPONENT ACTIONS ---------------------------------------------------------
 --
 
 -- TODO: rename each func to `manage_ <component>(opts)`
@@ -260,7 +242,6 @@ end
 
 actions.c_add = function(sel)
   log.info("Add component")
-
 
   -- TODO: SET STATE.SELECTED_COMPONENT AND MODULE EXPLICITLY
   --
@@ -435,5 +416,3 @@ end
 -- config test add function ..
 
 return actions
-
-
