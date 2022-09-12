@@ -71,10 +71,10 @@ end
 queries.field = function(lhs_name, rhs_name)
   local rhs_tag
   if type(rhs_name) == "string" then
-    rhs_name = "\\\"" .. rhs_name .. "\\\""
+    rhs_name = '\\"' .. rhs_name .. '\\"'
     rhs_tag = "string"
-  -- else
-  --   rhs_tag = rhs_name
+    -- else
+    --   rhs_tag = rhs_name
   end
 
   return parse({
@@ -122,6 +122,72 @@ queries.pkg_table = function(table_path, spec_one)
     ]],
     table_path,
     spec_one
+  )
+end
+
+queries.cmd_table = function(name, action)
+  --   table_constructor
+  --     field [405, 4] - [405, 20]
+  --       value: string [405, 4] - [405, 20]
+  --     field [406, 4] - [427, 7]
+  --       value: function_definition [406, 4] - [427, 7]
+  return string.format(
+    [[
+      (table_constructor
+        (field value: (string) @name)
+        (field value: [(string) (function_definition)] @action)
+      )
+    ]],
+    name,
+    action
+  )
+end
+
+-- Assume first two fields are uniqe
+queries.autocmd_table = function(event, pattern)
+  return string.format(
+    [[
+      (field
+        value: (table_constructor
+          (field value: (string) @event, (todo...))
+          (field value: (string) @pattern ())
+          (field value: (function_definition) @fn)
+        )
+      )
+    ]],
+    event,
+    pattern
+  )
+end
+
+queries.binds_table = function(bind)
+
+  print(vim.inspect("BIND >>>", bind))
+
+  -- todo: capture the field nodes here instead and play around with
+  -- traversing the node and learning how that works more
+  --
+  -- NOTE: this doesn't have to be perfect. ONLY good enough to
+  --        demo it.
+
+  -- @field [1] string|table<number, NestNode>
+  -- @field [2] string|function|table<number,NestNode>
+  -- @field [3] string|nil Name
+  -- @field name string|nil Name
+  -- @field [4] string|nil Description
+  -- @field description string|nil Description
+  return string.format(
+    [[
+      (field
+        value: (table_constructor
+          (field value: (string) @str)
+          (field value: (dot_index_expression field: (identifier)) @f)
+          (field name: ( identifier ) value: ( string ))
+        )
+      )
+    ]]
+    -- event,
+    -- pattern
   )
 end
 

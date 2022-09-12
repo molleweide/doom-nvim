@@ -224,8 +224,13 @@ actions.c_add = function(sel)
   --          2. readability.
 
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
+
+
+    -- TODO: IF STATEMENT FOR EACH COMPONENT
+
+
+
     local ret = mod.add_component({
-      action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
       ui_input_comp_type = value.text,
