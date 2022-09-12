@@ -65,17 +65,70 @@ queries.root_get_section_table_by_name = function(section)
   )
 end
 
--- queries.setting()
+-----------------------------------------------------------------------------
+--
+
+queries.field = function(lhs_name, rhs_name)
+  return parse({
+    field = {
+      _name = {
+        identifier = {
+          "@name",
+          "eq",
+          "@name",
+          lhs_name,
+        },
+      },
+      _value = {
+        -- 100 -> "number"
+        --
+        -- ALTERNATIVES:
+        --
+        --    - inside of results when we collect entries.
+        --
+        --    - inside of parser > this would be a nice fallback
+        --
+        [tostring(lhs_name)] = {
+          "@value",
+          "eq",
+          "@value",
+          tostring(lhs_name),
+        },
+      },
+    },
+  })
+end
+
 -- queries.package()
 -- queries.config()
 -- queries.cmd()
 -- queries.autocmd()
 -- queries.bind()
 
+-- queries.asst_table_table = {
+--   assignment_statement = {
+--     variable_list = {
+--       _name = {
+--         dot_index_expression = {
+--           _table = { identifier = {} },
+--           _field = {
+--             identifier = { "@varl_tbl_name", "eq", "@varl_tbl_name", type },
+--           },
+--         },
+--       },
+--     },
+--     expression_list = { _value = { table_constructor = { "@expr_tbl_constr" } } },
+--   },
+-- }
+
 -- INJECT LUA TABLE QUERY HIGHLIGHTS
-queries.component_container = function(type)
+-- @param type    M.xx = <type>
+-- @param field   name M.<field>
+-- @param
+queries.assignment_statement = function(type, lhs_name, in_tbl)
   -- print(vim.inspect(type))
-  if type == "configs" then
+
+  if type == "func" then
     return parse({
       assignment_statement = {
         variable_list = {
@@ -88,10 +141,10 @@ queries.component_container = function(type)
                   },
                   _field = {
                     identifier = {
-                      "@comp_tbl_name",
+                      "@varl_name",
                       "eq",
-                      "@comp_tbl_name",
-                      type,
+                      "@varl_name",
+                      lhs_name,
                     },
                   },
                 },
@@ -102,7 +155,7 @@ queries.component_container = function(type)
         },
         expression_list = {
           _value = {
-            function_definition = { "@component_container" },
+            function_definition = { "@rhs" },
           },
         },
       },
@@ -115,12 +168,12 @@ queries.component_container = function(type)
             dot_index_expression = {
               _table = { identifier = {} },
               _field = {
-                identifier = { "@comp_tbl_name", "eq", "@comp_tbl_name", type },
+                identifier = { "@varl_name", "eq", "@varl_name", lhs_name },
               },
             },
           },
         },
-        expression_list = { _value = { table_constructor = { "@component_container" } } },
+        expression_list = { _value = { table_constructor = { "@rhs" } } },
       },
     })
   end

@@ -170,22 +170,19 @@ end
 -- SETTINGS
 --
 
-M.setting_add_base = function(opts)
+M.setting_add = function(opts)
   -- adds a new root setting to the settings table.
   -- IF no module selected -> operates on `./modules.lua`
-  local q1 = queries.component_container(opts.ui_input_comp_type)
   local captures, buf = ts.get_query_capture(
-    q1,
-    "component_container",
+    queries.assignment_statement("table", opts.ui_input_comp_type),
+    "rhs",
     opts.selected_module.path .. "init.lua"
   )
-
   if not #captures then
     return false
   end
   local insertion_line = captures[#captures].range[1]
   local insertion_col = captures[#captures].range[2]
-
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
@@ -193,12 +190,44 @@ M.setting_add_base = function(opts)
   -- as the last thing of the same type
   -- templ.<comp>
 end
+
 -- M.setting_add_to_selection_level = function()
 --   -- allows you to select a sub table entry and add a new entry to
 --   -- the same sub table
 -- end
+
 M.setting_edit = function(opts)
   -- put cursor at last pos of setting and insert
+  --
+  local sm = opts.selected_component.value
+  local mf = opts.selected_module.path .. "init.lua"
+
+  local q_comp_table_rhs = queries.assignment_statement("table", sm.component_type)
+  local q_settings_field = queries.field(data.table_path[#data.table_path], data.table_value)
+
+  local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
+
+  -- print("CONT:", q_comp_table_rhs)
+  -- print("UNIT:", q_unit)
+  -- print("captures:", #c_containers)
+
+  local captures, buf = ts.get_query_capture(
+    q_settings_field,
+    "value",
+    opts.selected_module.path .. "init.lua"
+  )
+
+  print("captures:", #captures)
+
+  if not #captures then
+    return false
+  end
+  local insertion_line = captures[#captures].range[1]
+  local insertion_col = captures[#captures].range[2]
+  vim.api.nvim_win_set_buf(0, buf)
+  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+
+  -- TODO: visually select option here
 end
 -- M.setting_move = function(opts) end
 -- M.setting_remove = function(opts) end
@@ -209,7 +238,12 @@ end
 --
 
 M.package_add = function(opts) end
--- M.package_edit = function(opts) end
+M.package_edit = function(opts)
+
+
+
+
+end
 -- M.package_move = function(opts) end
 -- M.package_remove = function(opts) end
 -- M.package_clone = function(opts) end
@@ -279,12 +313,8 @@ M.module_apply = function(opts)
   end
 
   if opts.action == "component_add" then
-    local q1 = queries.component_container(opts.ui_input_comp_type)
-    local captures, buf = ts.get_query_capture(
-      q1,
-      "component_container",
-      opts.selected_module.path .. "init.lua"
-    )
+    local q1 = queries.assignment_statement("table",opts.ui_input_comp_type)
+    local captures, buf = ts.get_query_capture(q1, "rhs", opts.selected_module.path .. "init.lua")
 
     if not #captures then
       return false
@@ -301,12 +331,12 @@ M.module_apply = function(opts)
 
     --
   elseif opts.action == "component_edit_sel" then
-    local q_cont = queries.component_container(opts.selected_component.value.component_type)
+    local q_cont = queries.assignment_statement("table", opts.selected_component.value.component_type)
     local q_unit = queries.comp_unit(opts.selected_component.value)
 
     local c_containers, buf = ts.get_query_capture(
       q_cont,
-      "component_container",
+      "rhs",
       opts.selected_module.path .. "init.lua"
     )
 
