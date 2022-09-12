@@ -15,23 +15,30 @@ which is something that you can really fucking do well.
 
 -- MOVING BACKGROUND!!!
 
--- TODO: `REFACTOR` MOD UTIL INTO FUNCTIONS.
+-- TODO: REFACTOR MOD UTILS AND QUERIES INTO SMALL UNITS
 
 -- TODO: ADD FUTURE IDEAS: `C_ADD_NEW_TO_SAME_LEVEL`
 
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 
--- TODO: MOVE ALL STUPID MODULES INTO USER
-
 -- TODO: A. INSERT TEMPLATE CODE
 
--- TODO: B. fix modules extend() > `user` show up in telescope.
+-- TODO:  DUI CONFIG
+    - prefer edit with nui
+    - insert template text during tesing
+    -
 
--- TODO: C. delete old/unused modules
+-- TODO: MOVE ALL STUPID MODULES INTO USER
+
+-- TODO: fix modules extend() > `user` show up in telescope.
+
+-- TODO: delete old/unused modules
 
 -- TODO: RENAME TREE NODE -> TREE LEAF
 
--- TODO: E. make PR
+-- TODO: NEOGEN EVERYTHING
+
+-- TODO: merge with my main PR
 
 -- NOTE: LEARN METATABLES
 

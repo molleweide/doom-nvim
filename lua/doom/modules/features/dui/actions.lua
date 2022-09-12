@@ -1,7 +1,6 @@
 local utils = require("doom.utils")
 local mod = require("doom.modules.utils")
 local log = require("doom.utils.logging")
-local tscan = require("doom.utils.tree").traverse_table
 local nui = require("doom.modules.features.dui.nui")
 -- local sh = require("user.modules.features.dui2.shell")
 
@@ -58,31 +57,6 @@ conf_ui.settings = {
 }
 local confirm_alternatives = { "yes", "no" }
 
--- TODO: move this into mod utils
-local function check_if_module_name_exists(m, new_name)
-  -- TODO: need to account for origin.
-  -- local orig = type(m) == "string" and m or m.section
-  local sec = type(m) == "string" and m or m.section
-  results = tscan({
-    tree = require("doom.modules.utils").extend(),
-    filter = "doom_module_single", -- what makes a node in the tree
-    node = function(_, _, v)
-      -- todo: if m == string then do
-      --
-
-      if m.section == v.section and v.name == new_name then
-        log.debug("dui/actions check_if_module_exists: true")
-        return true
-      end
-    end,
-  })
-  return false
-end
-
-local query_module_rename = [[
-
-]]
-
 --
 -- MODULE ACTIONS ------------------------------------------------------------
 --
@@ -97,7 +71,7 @@ end
 
 actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
-    if not check_if_module_name_exists(m, value) then
+    if not mod.check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
       local ret = mod.root_apply({
         action = "rename",

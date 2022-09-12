@@ -1,3 +1,4 @@
+local tscan = require("doom.utils.tree").traverse_table
 local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
@@ -18,8 +19,7 @@ local validate = function(opts)
   return true
 end
 
-local compute_insertion_point = function()
-end
+local compute_insertion_point = function() end
 
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
@@ -69,12 +69,37 @@ M.sync_modules_to_root_file = function()
   -- insert modules.
 end
 
+M.module_move_all_component_function_into_table = function()
+  -- if you have
+  -- mod.xx["xx"]  = func
+  --  move this into mod.xx = { ["xx"] = func, ["yy"] = ....}
+end
+
 M.validate_and_prettify_modules = function()
   -- A. check that components are structured in the correct order.
   -- B. make sure that there are very clear `comment_frames` that
   --      make it easy to follow where you are and which module you are
   --      looking at.
   -- C. Insert missing components if necessary.
+end
+
+-- todo: branch check origin/section/category
+M.check_if_module_name_exists = function(m, new_name)
+  -- local orig = type(m) == "string" and m or m.section
+  -- local sec = type(m) == "string" and m or m.section
+  local results = tscan({
+    tree = require("doom.modules.utils").extend(),
+    filter = "doom_module_single", -- what makes a node in the tree
+    node = function(_, _, v)
+      -- todo: if m == string then do
+      --
+      if m.section == v.section and v.name == new_name then
+        log.debug("dui/actions check_if_module_exists: true")
+        return true
+      end
+    end,
+  })
+  return false
 end
 
 -- crud operations for `modules.lua`
@@ -139,6 +164,112 @@ M.root_apply = function(opts)
       b.set_text(ts_state.buf, range, '"' .. selected_mod)
     end
   end
+end
+
+--
+-- SETTINGS
+--
+
+M.setting_add_base = function(opts)
+  -- adds a new root setting to the settings table.
+  -- IF no module selected -> operates on `./modules.lua`
+  local q1 = queries.component_container(opts.ui_input_comp_type)
+  local captures, buf = ts.get_query_capture(
+    q1,
+    "component_container",
+    opts.selected_module.path .. "init.lua"
+  )
+
+  if not #captures then
+    return false
+  end
+  local insertion_line = captures[#captures].range[1]
+  local insertion_col = captures[#captures].range[2]
+
+  vim.api.nvim_win_set_buf(0, buf)
+  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+
+  -- TODO: INSERT COMPONENT TEMPLATE HERE
+  -- as the last thing of the same type
+  -- templ.<comp>
+end
+-- M.setting_add_to_selection_level = function()
+--   -- allows you to select a sub table entry and add a new entry to
+--   -- the same sub table
+-- end
+M.setting_edit = function(opts)
+  -- put cursor at last pos of setting and insert
+end
+-- M.setting_move = function(opts) end
+-- M.setting_remove = function(opts) end
+-- M.setting_replace = function(opts) end
+
+--
+-- PACKAGES
+--
+
+M.package_add = function(opts) end
+-- M.package_edit = function(opts) end
+-- M.package_move = function(opts) end
+-- M.package_remove = function(opts) end
+-- M.package_clone = function(opts) end
+-- M.package_fork = function(opts) end
+-- M.package_toggle_local = function(opts) end
+-- M.package_use_specific_upstream = function(opts) end
+
+--
+-- CONFIGS
+--
+
+M.config_add = function(opts)
+  -- 1. check if config table exists
+  -- 2. add table after
+  --        - settings
+  --      and before
+  --        - standalone config functions > need to check if these exist
+  --              also check if the target pkg already has a standalone func.
+  --        - before cmds/autocmds/binds
+  --
+end
+-- M.config_edit = function(opts) end
+-- M.config_remove = function(opts) end
+-- M.config_replace = function(opts) end
+
+--
+-- CMDS
+--
+
+M.cmd_add = function(opts) end
+M.cmd_edit = function(opts) end
+M.cmd_remove = function(opts) end
+M.cmd_replace = function(opts) end
+M.cmd_move = function(opts) end
+
+--
+-- AUTOCMDS
+--
+
+M.autocmd_add = function(opts) end
+M.autocmd_edit = function(opts) end
+M.autocmd_remove = function(opts) end
+M.autocmd_replace = function(opts) end
+M.autocmd_move = function(opts) end
+
+--
+-- BINDS
+--
+
+M.bind_add = function(opts) end
+M.bind_add_to_selection_level = function(opts) end
+-- M.bind_add_to_level = function(opts) end
+M.bind_edit = function(opts)
+  -- edit insert mode at rhs currently
+end
+M.bind_remove = function(opts) end
+M.bind_replace = function(opts) end
+M.bind_move = function(opts) end
+M.bind_move_leader = function(opts)
+  -- make it more easy to manage binds
 end
 
 -- TODO: SPLIT INTO FUNCTIONS
