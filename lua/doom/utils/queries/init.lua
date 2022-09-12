@@ -167,8 +167,14 @@ queries.binds_table = function(bind)
   -- todo: capture the field nodes here instead and play around with
   -- traversing the node and learning how that works more
   --
-  -- NOTE: this doesn't have to be perfect. ONLY good enough to
-  --        demo it.
+  -- NOTE: this doesn't have to be perfect. ONLY good enough.
+  --
+  --      test: does order of tags matter?
+  --
+  --      2 => string / function / identifier
+  --
+  --      [ string ]
+  --      [ string / func / identifier]
 
   -- @field [1] string|table<number, NestNode>
   -- @field [2] string|function|table<number,NestNode>

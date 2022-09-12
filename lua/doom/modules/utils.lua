@@ -52,9 +52,9 @@ end
 -- local get_text = function(node, bufnr)
 -- end
 
-local M = {}
+local mod_util = {}
 
-M.modules_refactor = function()
+mod_util.modules_refactor = function()
   -- eg. if you have
   -- mod_x.configs["arst"] = function() end
   --
@@ -64,18 +64,18 @@ end
 
 -- run this to make sure that all modules are exposed in the
 -- root file.
-M.sync_modules_to_root_file = function()
+mod_util.sync_modules_to_root_file = function()
   -- reuse funcs from module CRUD here to
   -- insert modules.
 end
 
-M.module_move_all_component_function_into_table = function()
+mod_util.module_move_all_component_function_into_table = function()
   -- if you have
   -- mod.xx["xx"]  = func
   --  move this into mod.xx = { ["xx"] = func, ["yy"] = ....}
 end
 
-M.validate_and_prettify_modules = function()
+mod_util.validate_and_prettify_modules = function()
   -- A. check that components are structured in the correct order.
   -- B. make sure that there are very clear `comment_frames` that
   --      make it easy to follow where you are and which module you are
@@ -84,7 +84,7 @@ M.validate_and_prettify_modules = function()
 end
 
 -- todo: branch check origin/section/category
-M.check_if_module_name_exists = function(m, new_name)
+mod_util.check_if_module_name_exists = function(m, new_name)
   -- local orig = type(m) == "string" and m or m.section
   -- local sec = type(m) == "string" and m or m.section
   local results = tscan({
@@ -104,7 +104,7 @@ end
 
 -- crud operations for `modules.lua`
 -- REFACTOR: i am not satisfied
-M.root_apply = function(opts)
+mod_util.root_apply = function(opts)
   local function get_ts_data_root_modules(msection, mname)
     local strings = {}
     if mname then
@@ -170,7 +170,7 @@ end
 -- SETTINGS
 --
 
-M.setting_add = function(opts)
+mod_util.setting_add = function(opts)
   -- adds a new root setting to the settings table.
   -- IF no module selected -> operates on `./modules.lua`
   local captures, buf = ts.get_query_capture(
@@ -190,12 +190,12 @@ M.setting_add = function(opts)
   -- templ.<comp>
 end
 
--- M.setting_add_to_selection_level = function()
+-- mod_util.setting_add_to_selection_level = function()
 --   -- allows you to select a sub table entry and add a new entry to
 --   -- the same sub table
 -- end
 
-M.setting_edit = function(opts)
+mod_util.setting_edit = function(opts)
   -- put cursor at last pos of setting and insert
   -- print()
   local sc = opts.selected_component
@@ -227,15 +227,15 @@ M.setting_edit = function(opts)
 
   -- TODO: visually select option here
 end
--- M.setting_move = function(opts) end
--- M.setting_remove = function(opts) end
--- M.setting_replace = function(opts) end
+-- mod_util.setting_move = function(opts) end
+-- mod_util.setting_remove = function(opts) end
+-- mod_util.setting_replace = function(opts) end
 
 --
 -- PACKAGES
 --
 
-M.package_add = function(opts)
+mod_util.package_add = function(opts)
   local captures, buf = ts.get_query_capture(
     queries.assignment_statement("table", opts.ui_input_comp_type),
     "rhs",
@@ -250,7 +250,7 @@ M.package_add = function(opts)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
-M.package_edit = function(opts)
+mod_util.package_edit = function(opts)
   -- local sc = opts.selected_component.value
   local mf = opts.selected_module.path .. "init.lua"
 
@@ -286,18 +286,18 @@ M.package_edit = function(opts)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
--- M.package_move = function(opts) end
--- M.package_remove = function(opts) end
--- M.package_clone = function(opts) end
--- M.package_fork = function(opts) end
--- M.package_toggle_local = function(opts) end
--- M.package_use_specific_upstream = function(opts) end
+-- mod_util.package_move = function(opts) end
+-- mod_util.package_remove = function(opts) end
+-- mod_util.package_clone = function(opts) end
+-- mod_util.package_fork = function(opts) end
+-- mod_util.package_toggle_local = function(opts) end
+-- mod_util.package_use_specific_upstream = function(opts) end
 
 --
 -- CONFIGS
 --
 
-M.config_add = function(opts)
+mod_util.config_add = function(opts)
   -- 1. check if config table exists
   -- 2. add table after
   --        - settings
@@ -320,7 +320,7 @@ M.config_add = function(opts)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
-M.config_edit = function(opts)
+mod_util.config_edit = function(opts)
   -- TODO: TRY EXTENDING THE TABLE FROM HERE AND SEE HOW IT GOES
   --
   --
@@ -339,15 +339,15 @@ M.config_edit = function(opts)
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
--- M.config_remove = function(opts) end
--- M.config_replace = function(opts) end
+-- mod_util.config_remove = function(opts) end
+-- mod_util.config_replace = function(opts) end
 
 --
 -- CMDS
 --
 
--- M.cmd_add = function(opts) end
-M.cmd_edit = function(opts)
+mod_util.cmd_add = function(opts) end
+mod_util.cmd_edit = function(opts)
   -- local sc = opts.selected_component.value
   local mf = opts.selected_module.path .. "init.lua"
 
@@ -384,39 +384,99 @@ M.cmd_edit = function(opts)
   -- vim.api.nvim_win_set_buf(0, buf)
   -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
--- M.cmd_remove = function(opts) end
--- M.cmd_replace = function(opts) end
--- M.cmd_move = function(opts) end
+-- mod_util.cmd_remove = function(opts) end
+-- mod_util.cmd_replace = function(opts) end
+-- mod_util.cmd_move = function(opts) end
 
 --
 -- AUTOCMDS
 --
 
-M.autocmd_add = function(opts) end
-M.autocmd_edit = function(opts) end
--- M.autocmd_remove = function(opts) end
--- M.autocmd_replace = function(opts) end
--- M.autocmd_move = function(opts) end
+mod_util.autocmd_add = function(opts)
+  -- autocmd container
+  local captures, buf = ts.get_query_capture(
+    queries.assignment_statement("table", opts.ui_input_comp_type),
+    "rhs",
+    opts.selected_module.path .. "init.lua"
+  )
+
+  -- if not #captures then
+  --   return false
+  -- end
+  -- local insertion_line = captures[#captures].range[1]
+  -- local insertion_col = captures[#captures].range[2]
+  -- vim.api.nvim_win_set_buf(0, buf)
+  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+end
+
+mod_util.autocmd_edit = function(opts)
+  local mf = opts.selected_module.path .. "init.lua"
+  -- print(vim.inspect(opts.selected_component))
+
+  local q_comp_table_rhs = queries.assignment_statement(
+    "table",
+    opts.selected_component.component_type
+  )
+
+  -- todo: supply params
+  local q_autocmd_table = queries.autocmd_table()
+end
+
+-- mod_util.autocmd_remove = function(opts) end
+-- mod_util.autocmd_replace = function(opts) end
+-- mod_util.autocmd_move = function(opts) end
 
 --
 -- BINDS
 --
 
-M.bind_add = function(opts) end
--- M.bind_add_to_selection_level = function(opts) end
--- M.bind_add_to_level = function(opts) end
-M.bind_edit = function(opts)
-  -- edit insert mode at rhs currently
+mod_util.bind_add = function(opts)
+
+  -- 1. get binds table.
+  -- 2. check if leader is present and where it is.
+  -- 3. insert befor the leader
+
+  -- local captures, buf = ts.get_query_capture(
+  --   queries.assignment_statement("table", opts.ui_input_comp_type),
+  --   "rhs",
+  --   opts.selected_module.path .. "init.lua"
+  -- )
+  -- if not #captures then
+  --   return false
+  -- end
+  -- local insertion_line = captures[#captures].range[1]
+  -- local insertion_col = captures[#captures].range[2]
+  -- vim.api.nvim_win_set_buf(0, buf)
+  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
--- M.bind_remove = function(opts) end
--- M.bind_replace = function(opts) end
--- M.bind_move = function(opts) end
--- M.bind_move_leader = function(opts)
+
+-- mod_util.bind_add_to_selection_level = function(opts) end
+-- mod_util.bind_add_to_level = function(opts) end
+
+mod_util.bind_edit = function(opts)
+  -- edit insert mode at rhs currently
+  -- local sc = opts.selected_component.value
+  local mf = opts.selected_module.path .. "init.lua"
+
+  print(vim.inspect(opts.selected_component))
+
+  local q_comp_table_rhs = queries.assignment_statement(
+    "table",
+    opts.selected_component.component_type
+  )
+
+  local q_binds_tbl = queries.binds_table(opts.selected_component)
+end
+
+-- mod_util.bind_remove = function(opts) end
+-- mod_util.bind_replace = function(opts) end
+-- mod_util.bind_move = function(opts) end
+-- mod_util.bind_move_leader = function(opts)
 --   -- make it more easy to manage binds
 -- end
 
 -- -- TODO: SPLIT INTO FUNCTIONS
--- M.add_component = function(opts)
+-- mod_util.add_component = function(opts)
 --   if not validate(opts) then
 --     return
 --   end
@@ -517,7 +577,7 @@ end
 
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
-M.extend = function(filter)
+mod_util.extend = function(filter)
   local config_path = vim.fn.stdpath("config")
 
   local function glob_modules(cat)
@@ -618,4 +678,4 @@ M.extend = function(filter)
   return apply_filters(merge_with_enabled(add_meta_data(get_all_module_paths())))
 end
 
-return M
+return mod_util

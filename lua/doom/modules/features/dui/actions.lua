@@ -276,6 +276,7 @@ end
 --     action = "add_package",
 --   })
 -- end
+
 actions.c_pkg_edit = function(sel)
   local ret = mod.package_edit({
     selected_module = DOOM_UI_STATE.selected_module,
@@ -302,14 +303,14 @@ end
 -- ADD CONFIGS
 --
 
-actions.c_config_add = function()
-  local ret = mod.config_add({
-    selected_module = DOOM_UI_STATE.selected_module,
-    selected_component = sel.value,
-  })
-end
+-- actions.c_config_add = function()
+--   local ret = mod.config_add({
+--     selected_module = DOOM_UI_STATE.selected_module,
+--     selected_component = sel.value,
+--   })
+-- end
 
-actions.c_config_edit = function(sel)
+actions.c_cfg_edit = function(sel)
   log.info("Edit single doom pkg config.")
   -- print(vim.inspect(sel))
   local ret = mod.config_edit({
@@ -328,33 +329,37 @@ end
 -- ADD CMD
 --
 
-actions.c_cmd_add = function(buf, config)
-  -- requires module to have been selected.
-  local ret = mod.module_apply({
-    action = "add_cmd",
-  })
-end
+-- actions.c_cmd_add = function(buf, config)
+--   -- requires module to have been selected.
+--   local ret = mod.module_apply({
+--     action = "add_cmd",
+--   })
+-- end
+
+actions.c_cmd_remove = function() end
+actions.c_cmd_move = function() end
 
 --
 -- ADD AUTOCMDS
 --
 
-actions.c_autocmd_add = function(buf, config)
+actions.c_autocmd_add = function()
   local ret = mod.module_apply({
     action = "add_autocmd",
   })
 end
-actions.c_autocmd_remove = function(buf, config)
+actions.c_autocmd_remove = function()
   local ret = mod.module_apply({
     action = "remove_autocmd",
   })
 end
+actions.c_autocmd_move = function() end
 
 --
 -- BINDS
 --
 
-actions.c_bind_add = function(buf, config)
+actions.c_bind_add = function()
   -- 1. check if module has binds table
   -- 2. check for regular binds AND leader table
   -- 3. enter new binds snippet before leader.
@@ -362,18 +367,24 @@ actions.c_bind_add = function(buf, config)
     action = "add_bind",
   })
 end
-actions.c_bind_replace = function(buf, config) end
-actions.c_bind_edit = function(buf, config)
-  -- 1. find binds table.
-  -- 2. find selected bind in table
-  -- 3. find selected prop
-  -- 4. put cursor in position.
-  -- 5. enter insert mode.
+
+actions.c_bind_edit = function(sel)
+  log.info("Edit single bind.")
+  -- print(vim.inspect(sel))
+  local ret = mod.bind_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
+  })
+
+end
+
+actions.c_bind_replace = function()
   local ret = mod.module_apply({
     action = "edit_bind",
   })
 end
-actions.c_bind_leader_add = function(buf, config)
+
+actions.c_bind_leader_add = function()
   -- 1. check if module has binds table
   -- 2. check for leader table
   -- 3. add to last
@@ -381,17 +392,13 @@ actions.c_bind_leader_add = function(buf, config)
     action = "add_leader",
   })
 end
+
 actions.c_bind_leader_add_to_sel = function(buf, config)
   -- find selected leader bind in module file.
   -- enter new binds snippet in the correct selected leader node.
   local ret = mod.module_apply({
     action = "add_leader_to_selected",
   })
-end
-
--- TODO: FOR FUN IN THE FUTURE
-actions.c_bind_add_ui = function(buf, config)
-  -- use NUI to create a UI pipeline for creating a new bind
 end
 
 --

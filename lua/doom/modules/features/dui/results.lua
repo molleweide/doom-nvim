@@ -901,7 +901,7 @@ result_nodes.binds = function()
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_bind_edit(sel)
           end,
           -- ["<C-XX"] = function()
           --   ax.c_autocmd_add_to_new_mod()
