@@ -170,26 +170,25 @@ end
 -- SETTINGS
 --
 
-M.setting_add = function(opts)
-  -- adds a new root setting to the settings table.
-  -- IF no module selected -> operates on `./modules.lua`
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
-  if not #captures then
-    return false
-  end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-
-  -- TODO: INSERT COMPONENT TEMPLATE HERE
-  -- as the last thing of the same type
-  -- templ.<comp>
-end
+-- M.setting_add = function(opts)
+--   -- adds a new root setting to the settings table.
+--   -- IF no module selected -> operates on `./modules.lua`
+--   local captures, buf = ts.get_query_capture(
+--     queries.assignment_statement("table", opts.ui_input_comp_type),
+--     "rhs",
+--     opts.selected_module.path .. "init.lua"
+--   )
+--   if not #captures then
+--     return false
+--   end
+--   local insertion_line = captures[#captures].range[1]
+--   local insertion_col = captures[#captures].range[2]
+--   vim.api.nvim_win_set_buf(0, buf)
+--   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+--   -- TODO: INSERT COMPONENT TEMPLATE HERE
+--   -- as the last thing of the same type
+--   -- templ.<comp>
+-- end
 
 -- M.setting_add_to_selection_level = function()
 --   -- allows you to select a sub table entry and add a new entry to
@@ -236,20 +235,20 @@ end
 -- PACKAGES
 --
 
-M.package_add = function(opts)
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
-  if not #captures then
-    return false
-  end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-end
+-- M.package_add = function(opts)
+--   local captures, buf = ts.get_query_capture(
+--     queries.assignment_statement("table", opts.ui_input_comp_type),
+--     "rhs",
+--     opts.selected_module.path .. "init.lua"
+--   )
+--   if not #captures then
+--     return false
+--   end
+--   local insertion_line = captures[#captures].range[1]
+--   local insertion_col = captures[#captures].range[2]
+--   vim.api.nvim_win_set_buf(0, buf)
+--   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+-- end
 
 M.package_edit = function(opts)
   -- local sc = opts.selected_component.value
@@ -298,15 +297,33 @@ end
 -- CONFIGS
 --
 
-M.config_add = function(opts)
-  -- 1. check if config table exists
-  -- 2. add table after
-  --        - settings
-  --      and before
-  --        - standalone config functions > need to check if these exist
-  --              also check if the target pkg already has a standalone func.
-  --        - before cmds/autocmds/binds
-  --
+-- M.config_add = function(opts)
+--   -- 1. check if config table exists
+--   -- 2. add table after
+--   --        - settings
+--   --      and before
+--   --        - standalone config functions > need to check if these exist
+--   --              also check if the target pkg already has a standalone func.
+--   --        - before cmds/autocmds/binds
+--   --
+--   local captures, buf = ts.get_query_capture(
+--     queries.assignment_statement("func", opts.ui_input_comp_type),
+--     "rhs",
+--     opts.selected_module.path .. "init.lua"
+--   )
+--   if not #captures then
+--     return false
+--   end
+--   local insertion_line = captures[#captures].range[1]
+--   local insertion_col = captures[#captures].range[2]
+--   vim.api.nvim_win_set_buf(0, buf)
+--   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+-- end
+
+M.config_edit = function(opts)
+
+  -- try extending the table from here and see how it goes
+
   local captures, buf = ts.get_query_capture(
     queries.assignment_statement("func", opts.ui_input_comp_type),
     "rhs",
@@ -319,10 +336,6 @@ M.config_add = function(opts)
   local insertion_col = captures[#captures].range[2]
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-end
-
-M.config_edit = function(opts)
-
 
 end
 -- M.config_remove = function(opts) end
@@ -332,8 +345,45 @@ end
 -- CMDS
 --
 
-M.cmd_add = function(opts) end
-M.cmd_edit = function(opts) end
+-- M.cmd_add = function(opts) end
+M.cmd_edit = function(opts)
+  -- local sc = opts.selected_component.value
+  local mf = opts.selected_module.path .. "init.lua"
+
+  print(vim.inspect(opts.selected_component))
+
+  local q_comp_table_rhs = queries.assignment_statement(
+    "table",
+    opts.selected_component.component_type
+  )
+  local q_pkg_table = queries.pkg_table(
+    opts.selected_component.data.table_path,
+    opts.selected_component.data.spec[1]
+  )
+
+  -- local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
+  --
+  -- -- print("pkg b:", q_comp_table_rhs)
+  -- -- print("pkg t:", q_pkg_table)
+  -- -- print("captures:", #c_containers)
+  --
+  -- local captures, buf = ts.get_query_capture(
+  --   q_pkg_table,
+  --   "pkg_table",
+  --   opts.selected_module.path .. "init.lua"
+  -- )
+  --
+  -- -- print("captures:", #captures)
+  --
+  -- if not #captures then
+  --   return false
+  -- end
+  -- local insertion_line = captures[#captures].range[1]
+  -- local insertion_col = captures[#captures].range[2]
+  -- vim.api.nvim_win_set_buf(0, buf)
+  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+
+end
 -- M.cmd_remove = function(opts) end
 -- M.cmd_replace = function(opts) end
 -- M.cmd_move = function(opts) end
@@ -342,7 +392,7 @@ M.cmd_edit = function(opts) end
 -- AUTOCMDS
 --
 
-M.autocmd_add = function(opts) end
+-- M.autocmd_add = function(opts) end
 M.autocmd_edit = function(opts) end
 -- M.autocmd_remove = function(opts) end
 -- M.autocmd_replace = function(opts) end
@@ -352,7 +402,7 @@ M.autocmd_edit = function(opts) end
 -- BINDS
 --
 
-M.bind_add = function(opts) end
+-- M.bind_add = function(opts) end
 -- M.bind_add_to_selection_level = function(opts) end
 -- M.bind_add_to_level = function(opts) end
 M.bind_edit = function(opts)
@@ -366,7 +416,7 @@ end
 -- end
 
 -- TODO: SPLIT INTO FUNCTIONS
-M.module_apply = function(opts)
+M.add_new = function(opts)
   if not validate(opts) then
     return
   end
@@ -387,70 +437,71 @@ M.module_apply = function(opts)
     -- TODO: INSERT COMPONENT TEMPLATE HERE
     -- as the last thing of the same type
     -- templ.<comp>
-
-    --
-  elseif opts.action == "component_edit_sel" then
-    local q_cont = queries.assignment_statement(
-      "table",
-      opts.selected_component.value.component_type
-    )
-    local q_unit = queries.comp_unit(opts.selected_component.value)
-
-    local c_containers, buf = ts.get_query_capture(
-      q_cont,
-      "rhs",
-      opts.selected_module.path .. "init.lua"
-    )
-
-    print("CONT:", q_cont)
-    print("UNIT:", q_unit)
-    print("captures:", #c_containers)
-
-    local captures, buf = ts.get_query_capture(
-      q_unit,
-      "value",
-      opts.selected_module.path .. "init.lua"
-    )
-
-    print("captures:", #captures)
-
-    if not #captures then
-      return false
-    end
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-
-    -- TODO: visually select option here
-
-    --
-  elseif opts.action == "component_remove_sel" then
-    -- REQUIRES YES/NO!!!
-
-    -- this should be easy -> just set range to empty string ""
-
-    --
-  elseif opts.action == "component_replace_sel" then
-
-    --
-    --  1. nui -> input entry
-    --
-    --  OR
-    --
-    --  2. move cursor and enter insert mode
-
-    -- put cursor at beginning of selected component
-  elseif opts.action == "pkg_fork" then
-    -- put cursor...
-  elseif opts.action == "pkg_clone" then
-    -- put cursor...
-  elseif opts.action == "pkg_cfg_add" then
-    -- put cursor at insertion point...
-  elseif opts.action == "bind_leader_add" then
-  elseif opts.action == "bind_leader_add_to_sel" then
-  elseif opts.action == "bind_" then
   end
+
+  --   --
+  -- if opts.action == "component_edit_sel" then
+  --   local q_cont = queries.assignment_statement(
+  --     "table",
+  --     opts.selected_component.value.component_type
+  --   )
+  --   local q_unit = queries.comp_unit(opts.selected_component.value)
+  --
+  --   local c_containers, buf = ts.get_query_capture(
+  --     q_cont,
+  --     "rhs",
+  --     opts.selected_module.path .. "init.lua"
+  --   )
+  --
+  --   print("CONT:", q_cont)
+  --   print("UNIT:", q_unit)
+  --   print("captures:", #c_containers)
+  --
+  --   local captures, buf = ts.get_query_capture(
+  --     q_unit,
+  --     "value",
+  --     opts.selected_module.path .. "init.lua"
+  --   )
+  --
+  --   print("captures:", #captures)
+  --
+  --   if not #captures then
+  --     return false
+  --   end
+  --   local insertion_line = captures[#captures].range[1]
+  --   local insertion_col = captures[#captures].range[2]
+  --   vim.api.nvim_win_set_buf(0, buf)
+  --   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  --
+  --   -- TODO: visually select option here
+  --
+  --   --
+  -- elseif opts.action == "component_remove_sel" then
+  --   -- REQUIRES YES/NO!!!
+  --
+  --   -- this should be easy -> just set range to empty string ""
+  --
+  --   --
+  -- elseif opts.action == "component_replace_sel" then
+  --
+  --   --
+  --   --  1. nui -> input entry
+  --   --
+  --   --  OR
+  --   --
+  --   --  2. move cursor and enter insert mode
+  --
+  --   -- put cursor at beginning of selected component
+  -- elseif opts.action == "pkg_fork" then
+  --   -- put cursor...
+  -- elseif opts.action == "pkg_clone" then
+  --   -- put cursor...
+  -- elseif opts.action == "pkg_cfg_add" then
+  --   -- put cursor at insertion point...
+  -- elseif opts.action == "bind_leader_add" then
+  -- elseif opts.action == "bind_leader_add_to_sel" then
+  -- elseif opts.action == "bind_" then
+  -- end
 end
 
 --

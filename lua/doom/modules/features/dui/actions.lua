@@ -224,7 +224,7 @@ actions.c_add = function(sel)
   --          2. readability.
 
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
-    local ret = mod.module_apply({
+    local ret = mod.add_component({
       action = "component_add",
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
@@ -297,28 +297,26 @@ end
 -- ADD CONFIGS
 --
 
--- actions.c_pkg_add_cfg = function()
---   local ret = mod.module_apply({
---     action = "add_config_to_package",
---   })
--- end
-actions.c_config_edit = function(sel)
-  log.info("Edit single doom pkg config.")
-  -- print(vim.inspect(sel))
+actions.c_config_add = function()
   local ret = mod.config_add({
     selected_module = DOOM_UI_STATE.selected_module,
     selected_component = sel.value,
   })
 end
 
-actions.c_pkg_cfg_remove = function()
+actions.c_config_edit = function(sel)
+  log.info("Edit single doom pkg config.")
+  -- print(vim.inspect(sel))
+  local ret = mod.config_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
+  })
+end
+
+actions.c_cfg_remove = function()
   local ret = mod.module_apply({
     action = "remove_package_config",
   })
-end
-actions.c_pkg_ckg_edit = function()
-  -- now that I know how to manage stuff with ts queries
-  -- I can do this some how and play around.
 end
 
 --
