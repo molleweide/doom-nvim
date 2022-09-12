@@ -15,9 +15,7 @@ which is something that you can really fucking do well.
 
 -- MOVING BACKGROUND!!!
 
--- TODO: REFACTOR MOD UTILS AND QUERIES INTO SMALL UNITS
-
--- TODO: ADD FUTURE IDEAS: `C_ADD_NEW_TO_SAME_LEVEL`
+-- TODO: finnish all add/edit funcs
 
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 

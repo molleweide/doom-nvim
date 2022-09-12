@@ -554,7 +554,7 @@ result_nodes.settings = function()
           --   ax.c_add_same(sel)
           -- end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_setting_edit(sel)
           end,
           -- ["<C-a>"] = function(sel, line)
           --   ax.c_setting_edit(sel)
@@ -635,7 +635,7 @@ result_nodes.packages = function()
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_pkg_edit(sel)
           end,
           -- ["<C-y>"] = function()
           --   ax.c_pkg_add_cfg()
@@ -706,7 +706,7 @@ result_nodes.configs = function()
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_config_edit(sel)
           end,
         },
       }

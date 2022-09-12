@@ -69,6 +69,14 @@ end
 --
 
 queries.field = function(lhs_name, rhs_name)
+  local rhs_tag
+  if type(rhs_name) == "string" then
+    rhs_name = "\\\"" .. rhs_name .. "\\\""
+    rhs_tag = "string"
+  -- else
+  --   rhs_tag = rhs_name
+  end
+
   return parse({
     field = {
       _name = {
@@ -88,15 +96,33 @@ queries.field = function(lhs_name, rhs_name)
         --
         --    - inside of parser > this would be a nice fallback
         --
-        [tostring(lhs_name)] = {
+        [rhs_tag] = {
           "@value",
           "eq",
           "@value",
-          tostring(lhs_name),
+          rhs_name,
         },
       },
     },
   })
+end
+
+queries.pkg_table = function(table_path, spec_one)
+  return string.format(
+    [[
+      (field
+        name: (string) @name (#eq? @name "\"%s\"")
+        value: (table_constructor
+          (field
+            value: (string) @repo
+              (#eq? @repo "\"%s\"")
+          )
+        ) @pkg_table
+      )
+    ]],
+    table_path,
+    spec_one
+  )
 end
 
 -- queries.package()

@@ -234,70 +234,83 @@ actions.c_add = function(sel)
   end)
 end
 
-actions.c_add_same = function(sel) end
-
-actions.c_edit_sel = function(sel)
-  log.info("Edit component")
-  local ret = mod.module_apply({
-    action = "component_edit_sel",
-    selected_module = DOOM_UI_STATE.selected_module,
-    selected_component = sel,
-  })
-end
+-- actions.c_add_same = function(sel) end
+-- actions.c_edit_sel = function(sel)
+--   log.info("Edit component")
+--   local ret = mod.module_apply({
+--     action = "component_edit_sel",
+--     selected_module = DOOM_UI_STATE.selected_module,
+--     selected_component = sel,
+--   })
+-- end
 
 --
 -- SETTINGS
 --
 
-actions.c_setting_edit = function(sel, line)
+actions.c_setting_edit = function(sel)
   log.info("Edit single doom setting.")
   print(vim.inspect(sel))
   -- find settings prop in settings file
   -- enter insert at last position.
-
-  local ret = mod.module_apply({
-    action = "edit_setting",
+  local ret = mod.setting_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
   })
-
   -- if no module is selected then do root settings
 end
-actions.c_setting_replace = function(buf, config) end
-actions.c_setting_remove = function(buf, config) end
+-- actions.c_setting_replace = function(buf, config) end
+-- actions.c_setting_remove = function(buf, config) end
 
 --
 -- ADD PACKAGES
 --
 
-actions.c_pkg_add = function()
-  local ret = mod.module_apply({
-    action = "add_package",
+-- actions.c_pkg_add = function()
+--   local ret = mod.module_apply({
+--     action = "add_package",
+--   })
+-- end
+actions.c_pkg_edit = function(sel)
+  local ret = mod.package_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
   })
 end
-actions.c_pkg_fork = function()
-  local ret = mod.module_apply({
-    action = "fork_package",
-  })
-end
-actions.c_pkg_clone = function()
-  local ret = mod.module_apply({
-    action = "clone_package",
-  })
-end
-actions.c_pkg_remove = function()
-  local ret = mod.module_apply({
-    action = "remove_package",
-  })
-end
+-- actions.c_pkg_fork = function()
+--   local ret = mod.module_apply({
+--     action = "fork_package",
+--   })
+-- end
+-- actions.c_pkg_clone = function()
+--   local ret = mod.module_apply({
+--     action = "clone_package",
+--   })
+-- end
+-- actions.c_pkg_remove = function()
+--   local ret = mod.module_apply({
+--     action = "remove_package",
+--   })
+-- end
 
 --
 -- ADD CONFIGS
 --
 
-actions.c_pkg_add_cfg = function()
-  local ret = mod.module_apply({
-    action = "add_config_to_package",
+-- actions.c_pkg_add_cfg = function()
+--   local ret = mod.module_apply({
+--     action = "add_config_to_package",
+--   })
+-- end
+actions.c_config_edit = function(sel)
+  log.info("Edit single doom pkg config.")
+  -- print(vim.inspect(sel))
+  local ret = mod.config_add({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
   })
 end
+
 actions.c_pkg_cfg_remove = function()
   local ret = mod.module_apply({
     action = "remove_package_config",
