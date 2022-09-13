@@ -195,32 +195,28 @@ queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
 
   return string.format(
-    -- TODO: test this
     [[
-      (field
-        value: (table_constructor
-
-          ;; lhs
-          (field value: (string) @lhs)
-
-          ;; [ string / func / identifier]
-          [
-            (string)
-            (field value: (dot_index_expression field: (identifier)))
-          ] @rhs
-
-          ;; TODO:
-          ;; third conditional [ name string || name prop ] ;; nothing else
-          [
-            (string)
-            ;;
-            (field name: ( identifier ) value: ( string ))
-          ] @name
-        )
+    (field
+      value: (table_constructor
+        .(field value: (string) @lhs (#eq? @lhs "\"%s\""))
+        .[
+          (field value: (string))
+          (field
+                value: (dot_index_expression
+                field: (identifier)))
+          ; (field) ; identifier
+        ] @rhs
+        .[
+          (string)
+          (field
+                name: (identifier) @key (#eq? @key "name")
+                value: (string) @name (#eq? @name "\"%s\""))
+        ] @name_field
       )
+    )
     ]],
     bind[1],
-    bind.rhs,
+    -- bind.rhs,
     bind.name
   )
 end
@@ -228,9 +224,8 @@ end
 queries.binds_leader_t = [[
   (field
     value: (table_constructor
-        ;; lhs
-        (field value: (string) @ld (@eq? @ld "\"<leader>\""))
-    )
+        . (field value: (string) @ld (@eq? @ld "\"<leader>\""))
+    ) @leader_table
   )
 ]]
 
