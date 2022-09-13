@@ -126,7 +126,24 @@ queries.pkg_table = function(table_path, spec_one)
 end
 
 queries.cmd_table = function(cmd)
-  print(vim.inspect("CMD >>>", cmd))
+  print("CMD >>>", vim.inspect(cmd))
+
+  -- CMD >>> {
+  --   component_type = "cmds",
+  --   data = {
+  --     cmd = <function 1>,
+  --     name = "DoomReload"
+  --   },
+  --   items = { { "CMD", "TSError" }, { "DoomReload", "TSError" }, { "function: 0x018b14a630", "TSError" } },
+  --   mappings = {
+  --     ["<C-e>"] = <function 2>,
+  --     ["<C-h>"] = <function 3>,
+  --     ["<CR>"] = <function 4>
+  --   },
+  --   ordinal = "DoomReload",
+  --   type = "module_cmd"
+  -- }
+
   --   table_constructor
   --     field [405, 4] - [405, 20]
   --       value: string [405, 4] - [405, 20]
@@ -138,15 +155,33 @@ queries.cmd_table = function(cmd)
         (field value: (string) @name)
         (field value: [(string) (function_definition)] @action)
       )
-    ]],
-    name,
-    action
+    ]]
+    -- name,
+    -- action
   )
 end
 
 -- Assume first two fields are uniqe
 queries.autocmd_table = function(autocmd)
-  print(vim.inspect("AUTOCMD >>>", autocmd))
+  print("AUTOCMD >>>", vim.inspect(autocmd))
+
+  -- BIND >>> {
+  --   component_type = "autocmds",
+  --   data = {
+  --     action = <function 1>,
+  --     event = "BufWinEnter",
+  --     pattern = "*.lua"
+  --   },
+  --   items = { { "AUTOCMD", "TSDebug" }, { "BufWinEnter", "TSDebug" }, { "*.lua", "TSDebug" }, { "function: 0x01782d84f0", "TSDebug" } },
+  --   mappings = {
+  --     ["<C-e>"] = <function 2>,
+  --     ["<C-h>"] = <function 3>,
+  --     ["<CR>"] = <function 4>
+  --   },
+  --   ordinal = "BufWinEnter*.lua",
+  --   type = "module_autocmd"
+  -- }
+
   return string.format(
     [[
       (field
@@ -163,12 +198,28 @@ queries.autocmd_table = function(autocmd)
 end
 
 queries.binds_table = function(bind)
-
   print("BIND >>>", vim.inspect(bind))
 
   -- todo: capture the field nodes here instead and play around with
   -- traversing the node and learning how that works more
-  --
+
+  -- BIND >>> {
+  --   component_type = "binds",
+  --   data = { "h", <function 1>,
+  --     lhs = "<leader>gch",
+  --     name = "commit single hunk",
+  --     rhs = <function 1>
+  --   },
+  --   items = { { "BIND", "TSKeywordFunction" }, { "<leader>gch", "TSKeywordFunction" }, { "commit single hunk", "TSKeywordFunction" }, { <function 1>, "TSKeywordFunction" } },
+  --   mappings = {
+  --     ["<C-e>"] = <function 2>,
+  --     ["<C-h>"] = <function 3>,
+  --     ["<CR>"] = <function 4>
+  --   },
+  --   ordinal = "commit single hunk<leader>gch",
+  --   type = "module_bind_leaf"
+  -- }
+
   -- NOTE: this doesn't have to be perfect. ONLY good enough.
   --
   --      test: does order of tags matter?

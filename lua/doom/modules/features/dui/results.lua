@@ -545,6 +545,11 @@ result_nodes.settings = function()
         ordinal = pc_display,
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
+            -- if selected_component then
+            --   -- switch file, and move cursor to that one
+            -- end
+
+
             -- TODO: helper fn `goto()` which takes `module` and `component` args
           end,
           ["<C-e>"] = function(sel, line)
@@ -625,6 +630,11 @@ result_nodes.packages = function()
         ordinal = repo_name .. pkg_name,
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
+            -- if selected_component then
+            --   -- switch file, and move cursor to that one
+            -- end
+
+
             -- DOOM_UI_STATE.query = {
             --   type = "settings",
             -- }
@@ -697,6 +707,11 @@ result_nodes.configs = function()
         ordinal = tostring(k),
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
+            -- if selected_component then
+            --   -- switch file, and move cursor to that one
+            -- end
+
+
             -- DOOM_UI_STATE.query = {
             --   type = "settings",
             -- }
