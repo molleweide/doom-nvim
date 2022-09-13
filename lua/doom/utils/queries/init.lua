@@ -204,10 +204,10 @@ queries.binds_table = function(bind)
           (field
                 value: (dot_index_expression
                 field: (identifier)))
-          ; (field) ; identifier
+          ; (field) ; TODO: identifier
         ] @rhs
         .[
-          (string)
+          (field value: (string) @ns (#eq? @ns "\"%s\""))
           (field
                 name: (identifier) @key (#eq? @key "name")
                 value: (string) @name (#eq? @name "\"%s\""))
@@ -217,6 +217,7 @@ queries.binds_table = function(bind)
     ]],
     bind[1],
     -- bind.rhs,
+    bind.name,
     bind.name
   )
 end
@@ -233,7 +234,6 @@ queries.binds_branch = function(branch)
   print("BIND BRANCH >>>", vim.inspect(branch))
 
   return string.format(
-    -- TODO: test this
     [[
       (field
         value: (table_constructor

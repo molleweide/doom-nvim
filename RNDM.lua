@@ -1,5 +1,10 @@
 --[[
 
+this is wierd and it is not paid and bought for by him and that is why
+people can't make children that they have been brain washed and
+don't think that it makes sense to go
+
+
 -- WASHING MACHINE FILTER!!
 
 -- custom fonts with treesitter.
@@ -10,21 +15,10 @@ vim.cmd.wincmd or feed keys
 since 0.8 indexing vim.cmd is
 vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 
-
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: bind edit
---
---    test query
-
--- TODO: QUERIES
---
---    - leader
---
---    - branch
-
--- TODO: cmd edit
+-- TODO: test queries
 
 -- TODO: mod_util.config_edit extend query manually with tables
 

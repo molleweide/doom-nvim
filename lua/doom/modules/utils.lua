@@ -464,13 +464,37 @@ mod_util.bind_edit = function(opts)
 
   print(vim.inspect(opts.selected_component))
 
-  local q_comp_table_rhs = queries.assignment_statement(
-    "table",
-    opts.selected_component.component_type
+  -- local q_comp_table_rhs = queries.assignment_statement(
+  --   "table",
+  --   opts.selected_component.component_type
+  -- )
+  local base, buf = ts.get_query_capture(
+    queries.assignment_statement("table", opts.selected_component.component_type),
+    "rhs",
+    mf
   )
 
   local q_binds_tbl = queries.binds_table(opts.selected_component.data)
 
+  print(#base)
+  print(q_binds_tbl)
+
+  local captures, buf = ts.get_query_capture(
+    queries.binds_table(opts.selected_component.data),
+    "rhs",
+    mf
+  )
+
+  print(#captures)
+
+  if #captures == 0 then
+    return false
+  end
+
+  local insertion_line = captures[#captures].range[1]
+  local insertion_col = captures[#captures].range[2]
+  vim.api.nvim_win_set_buf(0, buf)
+  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
 end
 
