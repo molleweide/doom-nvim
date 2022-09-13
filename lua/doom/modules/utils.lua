@@ -170,12 +170,8 @@ mod_util.setting_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local captures, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
   if not #captures then
-    return false
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
 -- mod_util.setting_add_to_selection_level = function()
@@ -196,13 +192,10 @@ mod_util.setting_edit = function(opts)
   print("captures:", #c_containers)
 
   local captures, buf = ts.get_captures(q_settings_field, "value", mf)
-
   print("captures:", #captures)
+
   if #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 -- mod_util.setting_move = function(opts) end
@@ -219,11 +212,8 @@ mod_util.package_add = function(opts)
     "rhs",
     opts.selected_module.path .. "init.lua"
   )
-  if not #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  if #captures then
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
@@ -251,10 +241,7 @@ mod_util.package_edit = function(opts)
   -- print("captures:", #captures)
 
   if not #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
@@ -281,21 +268,15 @@ mod_util.config_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local captures, buf = ts.get_captures(q.config_func(), "rhs", mf)
   if #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
 mod_util.config_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local captures, buf = ts.get_captures(q.config_func(opts.selected_component.data), "rhs", mf)
-  if not #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  if #captures then
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 mod_util.config_remove = function(opts) end
@@ -317,8 +298,8 @@ mod_util.cmd_edit = function(opts)
   -- -- print("pkg b:", q_comp_table_rhs)
   -- -- print("pkg t:", q_pkg_table)
   -- -- print("captures:", #c_containers)
-  if not #captures then
-    b.set_cursor_to_buf(buf, range)
+  if #captures then
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 -- mod_util.cmd_remove = function(opts) end
@@ -330,31 +311,23 @@ end
 --
 
 mod_util.autocmd_add = function(opts)
-  -- autocmd container
   local mf = opts.selected_module.path .. "init.lua"
   local t, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
 
   local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
-  if not #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  if #captures then
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
 mod_util.autocmd_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
-
   local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
 
   local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
-  if not #captures then
-    local insertion_line = captures[#captures].range[1]
-    local insertion_col = captures[#captures].range[2]
-    vim.api.nvim_win_set_buf(0, buf)
-    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  if #captures then
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
@@ -421,13 +394,8 @@ mod_util.bind_edit = function(opts)
   print(#captures)
 
   if #captures == 0 then
-    return false
+    b.set_cursor_to_buf(buf, captures[#captures].range)
   end
-
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
 mod_util.bind_remove = function(opts) end
