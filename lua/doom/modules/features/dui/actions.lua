@@ -361,7 +361,7 @@ end
 actions.c_autocmd_edit = function(sel)
   log.info("action: edit autocmd")
   -- print(vim.inspect(sel))
-  local ret = mod.bind_edit({
+  local ret = mod.autocmd_edit({
     selected_module = DOOM_UI_STATE.selected_module,
     selected_component = sel.value,
   })

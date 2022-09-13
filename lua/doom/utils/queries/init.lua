@@ -189,7 +189,7 @@ queries.cmd_table = function(cmd)
   return string.format(
     [[
       (table_constructor
-        (field value: (string) @name (#eq? @name "%s"))
+        . (field value: (string) @name (#eq? @name "\"%s\""))
         (field value: [(string) (function_definition)] @action)
       )
     ]],
@@ -197,35 +197,23 @@ queries.cmd_table = function(cmd)
   )
 end
 
---   {
---     action = <function 1>,
---     event = "BufWinEnter",
---     pattern = "*.lua"
---   },
 queries.autocmd_table = function(autocmd)
   print("AUTOCMD >>>", vim.inspect(autocmd))
-
   return string.format(
     [[
       (field
         value: (table_constructor
-          (field value: (string) @event (#eq? @event "%s"))
-          (field value: (string) @pattern (#eq? @pattern "%s"))
-          (field value: (function_definition) @action (#eq? @action "%s"))
+          . (field value: (string) @event (#eq? @event "\"%s\""))
+          . (field value: (string) @pattern (#eq? @pattern "\"%s\""))
+          (field value: (function_definition) @action)
         )
       )
     ]],
     autocmd.event,
-    autocmd.pattern,
-    autocmd.action
+    autocmd.pattern
   )
 end
 
---   { "h", <function 1>,
---     lhs = "<leader>gch",
---     name = "commit single hunk",
---     rhs = <function 1>
---   },
 queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
 

@@ -283,18 +283,18 @@ mod_util.cmd_add = function(opts)
 end
 
 mod_util.cmd_edit = function(opts)
-  local q_cmd = q.cmd_table(opts.selected_component)
-  local captures, buf = ts.get_captures(q_cmd, "rhs", mf)
-  -- -- print("pkg b:", q_comp_table_rhs)
-  -- -- print("pkg t:", q_pkg_table)
-  -- -- print("captures:", #c_containers)
-  if #captures then
+  local mf = opts.selected_module.path .. "init.lua"
+  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
+  local q_cmd = q.cmd_table(opts.selected_component.data)
+  local captures, buf = ts.get_captures(q_cmd, "action", mf)
+  if #captures > 0 then
     b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
--- mod_util.cmd_remove = function(opts) end
--- mod_util.cmd_replace = function(opts) end
--- mod_util.cmd_move = function(opts) end
+
+mod_util.cmd_remove = function(opts) end
+mod_util.cmd_replace = function(opts) end
+mod_util.cmd_move = function(opts) end
 
 --
 -- AUTOCMDS
@@ -314,9 +314,9 @@ mod_util.autocmd_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
   local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
-
-  local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
-  if #captures then
+  local q_auto = q.autocmd_table(opts.selected_component.data)
+  local captures, buf = ts.get_captures(q_auto, "action", mf)
+  if #captures > 0 then
     b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
