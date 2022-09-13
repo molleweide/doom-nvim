@@ -3,6 +3,7 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
+local q = require "nvim-treesitter.query"
 
 -- local Query = require("refactoring").query
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
@@ -416,7 +417,7 @@ mod_util.autocmd_edit = function(opts)
   )
 
   -- todo: supply params
-  local q_autocmd_table = queries.autocmd_table(opts.selected_component)
+  local q_autocmd_table = queries.autocmd_table(opts.selected_component.data)
 end
 
 -- mod_util.autocmd_remove = function(opts) end
@@ -433,11 +434,11 @@ mod_util.bind_add = function(opts)
   -- 2. check if leader is present and where it is.
   -- 3. insert befor the leader
 
-  -- local captures, buf = ts.get_query_capture(
-  --   queries.assignment_statement("table", opts.ui_input_comp_type),
-  --   "rhs",
-  --   opts.selected_module.path .. "init.lua"
-  -- )
+  local captures, buf = ts.get_query_capture(
+    queries.assignment_statement("table", opts.ui_input_comp_type),
+    "rhs",
+    opts.selected_module.path .. "init.lua"
+  )
   -- if not #captures then
   --   return false
   -- end
@@ -468,7 +469,9 @@ mod_util.bind_edit = function(opts)
     opts.selected_component.component_type
   )
 
-  local q_binds_tbl = queries.binds_table(opts.selected_component)
+  local q_binds_tbl = queries.binds_table(opts.selected_component.data)
+
+
 end
 
 -- mod_util.bind_remove = function(opts) end

@@ -2,6 +2,25 @@ local parse = require("doom.utils.queries.utils").parse
 
 local queries = {}
 
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+-- [
+--  (for_in_statement)
+--  (for_statement)
+--  (while_statement)
+--  (repeat_statement)
+--  (if_statement)
+--  (do_statement)
+--  (function_definition)
+--  (local_function)
+--  (function)
+--  (table)
+-- ] @fold
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
 -- TODO:
 --
 --
@@ -125,128 +144,129 @@ queries.pkg_table = function(table_path, spec_one)
   )
 end
 
+--   {
+--     cmd = <function 1>,
+--     name = "DoomReload"
+--   },
 queries.cmd_table = function(cmd)
   print("CMD >>>", vim.inspect(cmd))
 
-  -- CMD >>> {
-  --   component_type = "cmds",
-  --   data = {
-  --     cmd = <function 1>,
-  --     name = "DoomReload"
-  --   },
-  --   items = { { "CMD", "TSError" }, { "DoomReload", "TSError" }, { "function: 0x018b14a630", "TSError" } },
-  --   mappings = {
-  --     ["<C-e>"] = <function 2>,
-  --     ["<C-h>"] = <function 3>,
-  --     ["<CR>"] = <function 4>
-  --   },
-  --   ordinal = "DoomReload",
-  --   type = "module_cmd"
-  -- }
-
-  --   table_constructor
-  --     field [405, 4] - [405, 20]
-  --       value: string [405, 4] - [405, 20]
-  --     field [406, 4] - [427, 7]
-  --       value: function_definition [406, 4] - [427, 7]
   return string.format(
     [[
       (table_constructor
-        (field value: (string) @name)
+        (field value: (string) @name (#eq? @name "%s"))
         (field value: [(string) (function_definition)] @action)
       )
-    ]]
-    -- name,
-    -- action
+    ]],
+    cmd.name
   )
 end
 
--- Assume first two fields are uniqe
+--   {
+--     action = <function 1>,
+--     event = "BufWinEnter",
+--     pattern = "*.lua"
+--   },
 queries.autocmd_table = function(autocmd)
   print("AUTOCMD >>>", vim.inspect(autocmd))
 
-  -- BIND >>> {
-  --   component_type = "autocmds",
-  --   data = {
-  --     action = <function 1>,
-  --     event = "BufWinEnter",
-  --     pattern = "*.lua"
-  --   },
-  --   items = { { "AUTOCMD", "TSDebug" }, { "BufWinEnter", "TSDebug" }, { "*.lua", "TSDebug" }, { "function: 0x01782d84f0", "TSDebug" } },
-  --   mappings = {
-  --     ["<C-e>"] = <function 2>,
-  --     ["<C-h>"] = <function 3>,
-  --     ["<CR>"] = <function 4>
-  --   },
-  --   ordinal = "BufWinEnter*.lua",
-  --   type = "module_autocmd"
-  -- }
-
   return string.format(
     [[
       (field
         value: (table_constructor
-          (field value: (string) @event, (todo...))
-          (field value: (string) @pattern ())
-          (field value: (function_definition) @fn)
+          (field value: (string) @event (#eq? @event "%s"))
+          (field value: (string) @pattern (#eq? @pattern "%s"))
+          (field value: (function_definition) @action (#eq? @action "%s"))
         )
       )
-    ]]
-    -- event,
-    -- pattern
+    ]],
+    autocmd.event,
+    autocmd.pattern,
+    autocmd.action
   )
 end
 
+--   { "h", <function 1>,
+--     lhs = "<leader>gch",
+--     name = "commit single hunk",
+--     rhs = <function 1>
+--   },
 queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
 
-  -- todo: capture the field nodes here instead and play around with
-  -- traversing the node and learning how that works more
-
-  -- BIND >>> {
-  --   component_type = "binds",
-  --   data = { "h", <function 1>,
-  --     lhs = "<leader>gch",
-  --     name = "commit single hunk",
-  --     rhs = <function 1>
-  --   },
-  --   items = { { "BIND", "TSKeywordFunction" }, { "<leader>gch", "TSKeywordFunction" }, { "commit single hunk", "TSKeywordFunction" }, { <function 1>, "TSKeywordFunction" } },
-  --   mappings = {
-  --     ["<C-e>"] = <function 2>,
-  --     ["<C-h>"] = <function 3>,
-  --     ["<CR>"] = <function 4>
-  --   },
-  --   ordinal = "commit single hunk<leader>gch",
-  --   type = "module_bind_leaf"
-  -- }
-
   return string.format(
-    -- TODO: read query docs and make the query more specific and secure
+    -- TODO: test this
     [[
       (field
         value: (table_constructor
-          ;; First has to be a string
-          (field value: (string) @str)
+
+          ;; lhs
+          (field value: (string) @lhs)
+
           ;; [ string / func / identifier]
-          (field value: (dot_index_expression field: (identifier)) @f)
+          [
+            (string)
+            (field value: (dot_index_expression field: (identifier)))
+          ] @rhs
+
+          ;; TODO:
           ;; third conditional [ name string || name prop ] ;; nothing else
-          (field name: ( identifier ) value: ( string ))
+          [
+            (string)
+            ;;
+            (field name: ( identifier ) value: ( string ))
+          ] @name
         )
       )
-    ]]
-    -- event,
-    -- pattern
+    ]],
+    bind[1],
+    bind.rhs,
+    bind.name
   )
 end
 
-queries.binds_leader_t = function(bind)
-  -- only find leader <leader> table
-end
+queries.binds_leader_t = [[
+  (field
+    value: (table_constructor
+        ;; lhs
+        (field value: (string) @ld (@eq? @ld "\"<leader>\""))
+    )
+  )
+]]
 
-queries.binds_branch = function(bind)
-  -- only find branches
-  --
-  --    it can either be a leader branch or regular branch
+queries.binds_branch = function(branch)
+  print("BIND BRANCH >>>", vim.inspect(branch))
+
+  return string.format(
+    -- TODO: test this
+    [[
+      (field
+        value: (table_constructor
+
+          ; ;; lhs
+          ; (field value: (string) @lhs)
+
+          ; ;; [ string / func / identifier]
+          ; [
+          ;   (string)
+          ;   (field value: (dot_index_expression field: (identifier)))
+          ; ] @rhs
+
+          ; ;; TODO:
+          ; ;; third conditional [ name string || name prop ] ;; nothing else
+          ; [
+          ;   (string)
+          ;   ;;
+          ;   (field name: ( identifier ) value: ( string ))
+          ; ] @name
+
+        )
+      )
+    ]],
+    branch[1],
+    branch.rhs,
+    branch.name
+  )
 end
 
 -- queries.package()

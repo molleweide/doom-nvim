@@ -42,7 +42,8 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: merge with my main PR
 
--- NOTE: LEARN METATABLES
+-- TODO: replace all treesitter functions with `nvim-treesitter` internals
+--        so that they can maintain all treesitter related stuff.
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

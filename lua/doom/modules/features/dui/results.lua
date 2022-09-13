@@ -763,7 +763,7 @@ result_nodes.cmds = function()
         type = "module_cmd",
         data = {
           name = v[1],
-          cmd = v[2],
+          action = v[2],
         },
         ordinal = v[1],
         items = extend_entries_list({
