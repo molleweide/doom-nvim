@@ -445,6 +445,12 @@ mod_util.bind_add = function(opts)
   -- local insertion_col = captures[#captures].range[2]
   -- vim.api.nvim_win_set_buf(0, buf)
   -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+
+  if doom.settings.doom_ui.insert_templates then
+    -- insert template
+  else
+    -- only move cursor
+  end
 end
 
 -- mod_util.bind_add_to_selection_level = function(opts) end

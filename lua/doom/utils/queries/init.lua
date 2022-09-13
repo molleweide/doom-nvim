@@ -220,29 +220,16 @@ queries.binds_table = function(bind)
   --   type = "module_bind_leaf"
   -- }
 
-  -- NOTE: this doesn't have to be perfect. ONLY good enough.
-  --
-  --      test: does order of tags matter?
-  --
-  --      2 => string / function / identifier
-  --
-  --      [ string ]
-  --      [ string / func / identifier]
-  --
-  --      [ string @name/ field name string /]
-
-  -- @field [1] string|table<number, NestNode>
-  -- @field [2] string|function|table<number,NestNode>
-  -- @field [3] string|nil Name
-  -- @field name string|nil Name
-  -- @field [4] string|nil Description
-  -- @field description string|nil Description
   return string.format(
+    -- TODO: read query docs and make the query more specific and secure
     [[
       (field
         value: (table_constructor
+          ;; First has to be a string
           (field value: (string) @str)
+          ;; [ string / func / identifier]
           (field value: (dot_index_expression field: (identifier)) @f)
+          ;; third conditional [ name string || name prop ] ;; nothing else
           (field name: ( identifier ) value: ( string ))
         )
       )
@@ -250,6 +237,16 @@ queries.binds_table = function(bind)
     -- event,
     -- pattern
   )
+end
+
+queries.binds_leader_t = function(bind)
+  -- only find leader <leader> table
+end
+
+queries.binds_branch = function(bind)
+  -- only find branches
+  --
+  --    it can either be a leader branch or regular branch
 end
 
 -- queries.package()
