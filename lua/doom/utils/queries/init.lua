@@ -125,7 +125,8 @@ queries.pkg_table = function(table_path, spec_one)
   )
 end
 
-queries.cmd_table = function(name, action)
+queries.cmd_table = function(cmd)
+  print(vim.inspect("CMD >>>", cmd))
   --   table_constructor
   --     field [405, 4] - [405, 20]
   --       value: string [405, 4] - [405, 20]
@@ -144,7 +145,8 @@ queries.cmd_table = function(name, action)
 end
 
 -- Assume first two fields are uniqe
-queries.autocmd_table = function(event, pattern)
+queries.autocmd_table = function(autocmd)
+  print(vim.inspect("AUTOCMD >>>", autocmd))
   return string.format(
     [[
       (field
@@ -154,15 +156,15 @@ queries.autocmd_table = function(event, pattern)
           (field value: (function_definition) @fn)
         )
       )
-    ]],
-    event,
-    pattern
+    ]]
+    -- event,
+    -- pattern
   )
 end
 
 queries.binds_table = function(bind)
 
-  print(vim.inspect("BIND >>>", bind))
+  print("BIND >>>", vim.inspect(bind))
 
   -- todo: capture the field nodes here instead and play around with
   -- traversing the node and learning how that works more
@@ -175,6 +177,8 @@ queries.binds_table = function(bind)
   --
   --      [ string ]
   --      [ string / func / identifier]
+  --
+  --      [ string @name/ field name string /]
 
   -- @field [1] string|table<number, NestNode>
   -- @field [2] string|function|table<number,NestNode>

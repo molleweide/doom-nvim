@@ -336,6 +336,15 @@ end
 --   })
 -- end
 
+actions.c_cmd_edit = function(sel)
+  log.info("action: edit cmd")
+  -- print(vim.inspect(sel))
+  local ret = mod.cmd_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
+  })
+end
+
 actions.c_cmd_remove = function() end
 actions.c_cmd_move = function() end
 
@@ -348,6 +357,20 @@ actions.c_autocmd_add = function()
     action = "add_autocmd",
   })
 end
+
+actions.c_autocmd_edit = function(sel)
+  log.info("action: edit autocmd")
+  -- print(vim.inspect(sel))
+  local ret = mod.bind_edit({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
+  })
+end
+
+
+
+
+
 actions.c_autocmd_remove = function()
   local ret = mod.module_apply({
     action = "remove_autocmd",

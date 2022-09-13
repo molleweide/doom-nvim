@@ -2,20 +2,15 @@
 
 -- WASHING MACHINE FILTER!!
 
-now I am feeling a bit tired but now pretty much everything is solved.
-now we just need to play around with this, but essentially this would
-make into something that is pretty fucking good at searching and doing shit
-you know and so that is why they never do anything that can be ran like
-the insanest shit every but why not you know.
-
-so this is something that I need to get working now so that we can do this shit.
-which is something that you can really fucking do well.
-
 -- custom fonts with treesitter.
 
 -- MOVING BACKGROUND!!!
 
+-- TODO: mod_util.config_edit extend query manually with tables
+
 -- TODO: finnish all add/edit funcs
+
+  print component in queries.
 
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 

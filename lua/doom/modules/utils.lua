@@ -357,10 +357,7 @@ mod_util.cmd_edit = function(opts)
     "table",
     opts.selected_component.component_type
   )
-  local q_pkg_table = queries.pkg_table(
-    opts.selected_component.data.table_path,
-    opts.selected_component.data.spec[1]
-  )
+  local q_cmd_table = queries.cmd_table(opts.selected_component)
 
   -- local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
   --
@@ -419,7 +416,7 @@ mod_util.autocmd_edit = function(opts)
   )
 
   -- todo: supply params
-  local q_autocmd_table = queries.autocmd_table()
+  local q_autocmd_table = queries.autocmd_table(opts.selected_component)
 end
 
 -- mod_util.autocmd_remove = function(opts) end

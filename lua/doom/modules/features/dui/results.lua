@@ -702,11 +702,12 @@ result_nodes.configs = function()
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          -- this one should be refactord and applied to all entries.
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_config_edit(sel)
+            ax.c_cfg_edit(sel)
           end,
         },
       }
@@ -757,17 +758,24 @@ result_nodes.cmds = function()
         }, { hl = "TSError" }),
         mappings = {
           ["<CR>"] = function(fuzzy, line, cb)
+
+            -- if selected_component then
+            --   -- switch file, and move cursor to that one
+            -- end
+
+
             i(fuzzy)
             -- DOOM_UI_STATE.query = {
             --   type = "settings",
             -- }
             -- DOOM_UI_STATE.next()
           end,
+          -- this one should be refactord and applied to all entries.
           ["<C-e>"] = function(sel, line)
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_cmd_edit(sel)
           end,
           -- ["<C-XX"] = function()
           --   ax.c_cmd_add_new_to_sel_mod()
@@ -838,7 +846,7 @@ result_nodes.autocmds = function()
             ax.c_add(sel)
           end,
           ["<C-h>"] = function(sel, line)
-            ax.c_edit_sel(sel)
+            ax.c_autocmd_edit(sel)
           end,
           -- ["<C-XX"] = function()
           --   ax.c_autocmd_add()
