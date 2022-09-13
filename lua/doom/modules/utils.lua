@@ -3,7 +3,7 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local queries = require("doom.utils.queries")
-local q = require "nvim-treesitter.query"
+local q = require("nvim-treesitter.query")
 
 -- local Query = require("refactoring").query
 -- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
@@ -354,12 +354,17 @@ mod_util.cmd_edit = function(opts)
 
   print(vim.inspect(opts.selected_component))
 
-  local q_comp_table_rhs = queries.assignment_statement(
-    "table",
-    opts.selected_component.component_type
+  local t, buf = ts.get_query_capture(
+    queries.assignment_statement("table", opts.selected_component.component_type),
+    "rhs",
+    mf
   )
-  local q_cmd_table = queries.cmd_table(opts.selected_component)
 
+  local cmd, buf = ts.get_query_capture(
+    queries.cmd_table(opts.selected_component),
+    "rhs",
+    mf
+  )
   -- local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
   --
   -- -- print("pkg b:", q_comp_table_rhs)
@@ -411,13 +416,17 @@ mod_util.autocmd_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
 
-  local q_comp_table_rhs = queries.assignment_statement(
-    "table",
-    opts.selected_component.component_type
+  local t, buf = ts.get_query_capture(
+    queries.assignment_statement("table", opts.selected_component.component_type),
+    "rhs",
+    mf
   )
 
-  -- todo: supply params
-  local q_autocmd_table = queries.autocmd_table(opts.selected_component.data)
+  local autocmd, buf = ts.get_query_capture(
+    queries.autocmd_table(opts.selected_component.data),
+    "rhs",
+    mf
+  )
 end
 
 -- mod_util.autocmd_remove = function(opts) end
@@ -429,7 +438,6 @@ end
 --
 
 mod_util.bind_add = function(opts)
-
   -- 1. get binds table.
   -- 2. check if leader is present and where it is.
   -- 3. insert befor the leader
@@ -495,7 +503,6 @@ mod_util.bind_edit = function(opts)
   local insertion_col = captures[#captures].range[2]
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-
 end
 
 -- mod_util.bind_remove = function(opts) end
