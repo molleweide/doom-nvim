@@ -237,30 +237,14 @@ queries.binds_branch = function(branch)
     [[
       (field
         value: (table_constructor
-
-          ; ;; lhs
-          ; (field value: (string) @lhs)
-
-          ; ;; [ string / func / identifier]
-          ; [
-          ;   (string)
-          ;   (field value: (dot_index_expression field: (identifier)))
-          ; ] @rhs
-
-          ; ;; TODO:
-          ; ;; third conditional [ name string || name prop ] ;; nothing else
-          ; [
-          ;   (string)
-          ;   ;;
-          ;   (field name: ( identifier ) value: ( string ))
-          ; ] @name
-
+        . (field value: (string) @lhs (#eq? @lhs "\"%s\""))
+        . (field value: (table_constructor)) @child_table
         )
       )
     ]],
-    branch[1],
-    branch.rhs,
-    branch.name
+    branch[1]
+    -- branch.rhs,
+    -- branch.name
   )
 end
 
