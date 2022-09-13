@@ -126,6 +126,26 @@ queries.field = function(lhs_name, rhs_name)
   })
 end
 
+queries.mod_tbl = function(field_name)
+  print("mod tbl >>>", vim.inspect(field_name))
+
+  return string.format(
+    [[
+      (assignment_statement
+        (variable_list
+          name: (dot_index_expression
+              table: (identifier)
+              field: (identifier) @varl_name (#eq? @varl_name "%s")
+            )
+
+        )
+        (expression_list value: (table_constructor) @rhs)
+      )
+    ]],
+    field_name
+  )
+end
+
 queries.pkg_table = function(table_path, spec_one)
   return string.format(
     [[
@@ -144,7 +164,30 @@ queries.pkg_table = function(table_path, spec_one)
   )
 end
 
-queries.config_func = function(conf)
+queries.config_func = function(name)
+
+  if name then
+    -- only add the name capture if it is supplied so
+    -- that we can always use #capture to get the
+    -- correct one.
+  end
+
+  return string.format(
+    [[
+      (assignment_statement
+        (variable_list
+          name:
+            (bracket_index_expression
+              table: (dot_index_expression
+                  table: (identifier)
+                  field: (identifier) @varl_name (#eq? @varl_name "%s"))
+              field:(string))
+          )
+        )
+        (expression_list value: (function_definition)  @rhs )
+      )
+    ]])
+
 end
 
 --   {
@@ -196,8 +239,6 @@ end
 --   },
 queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
-
-
 
   -- todo: account for
   --

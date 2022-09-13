@@ -2,11 +2,11 @@ local tscan = require("doom.utils.tree").traverse_table
 local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
-local queries = require("doom.utils.queries")
-local q = require("nvim-treesitter.query")
+local q = require("doom.utils.q")
+local ntq = require("nvim-treesitter.query")
 
 -- local Query = require("refactoring").query
--- replace: get_query_capture ->  Query:new() from `refactoring.nvim`
+-- replace: get_captures ->  Query:new() from `refactoring.nvim`
 
 -- note: if no module file passed ->>> operate on `./settings.lua`
 
@@ -113,19 +113,10 @@ mod_util.root_apply = function(opts)
   local function get_ts_data_root_modules(msection, mname)
     local strings = {}
     if mname then
-      strings = ts.get_query_capture(
-        queries.root_mod_name_by_section(mname, msection),
-        "module_string"
-      )
+      strings = ts.get_captures(q.root_mod_name_by_section(mname, msection), "module_string")
     end
-    local comments = ts.get_query_capture(
-      queries.root_all_comments_from_section(msection),
-      "section_comment"
-    )
-    local tables, buf = ts.get_query_capture(
-      queries.root_get_section_table_by_name(msection),
-      "section_table"
-    )
+    local comments = ts.get_captures(q.root_all_comments_from_section(msection), "section_comment")
+    local tables, buf = ts.get_captures(q.root_get_section_table_by_name(msection), "section_table")
     return {
       ts = {
         strings = strings,
@@ -176,13 +167,8 @@ end
 --
 
 mod_util.setting_add = function(opts)
-  -- adds a new root setting to the settings table.
-  -- IF no module selected -> operates on `./modules.lua`
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
+  local mf = opts.selected_module.path .. "init.lua"
+  local captures, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
   if not #captures then
     return false
   end
@@ -190,9 +176,6 @@ mod_util.setting_add = function(opts)
   local insertion_col = captures[#captures].range[2]
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-  -- TODO: INSERT COMPONENT TEMPLATE HERE
-  -- as the last thing of the same type
-  -- templ.<comp>
 end
 
 -- mod_util.setting_add_to_selection_level = function()
@@ -201,36 +184,26 @@ end
 -- end
 
 mod_util.setting_edit = function(opts)
-  -- put cursor at last pos of setting and insert
-  -- print()
   local sc = opts.selected_component
   local mf = opts.selected_module.path .. "init.lua"
 
-  local q_comp_table_rhs = queries.assignment_statement("table", sc.component_type)
-  local q_settings_field = queries.field(
-    sc.data.table_path[#sc.data.table_path],
-    sc.data.table_value
-  )
+  local q_comp_table_rhs = q.mod_tbl(sc.component_type)
+  local q_settings_field = q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value)
 
-  local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
-
+  local c_containers, buf = ts.get_captures(q_comp_table_rhs, "rhs", mf)
   print("CONT:", q_comp_table_rhs)
   print("UNIT:", q_settings_field)
   print("captures:", #c_containers)
 
-  local captures, buf = ts.get_query_capture(q_settings_field, "value", mf)
+  local captures, buf = ts.get_captures(q_settings_field, "value", mf)
 
   print("captures:", #captures)
-
-  if not #captures then
-    return false
+  if #captures then
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
-
-  -- TODO: visually select option here
 end
 -- mod_util.setting_move = function(opts) end
 -- mod_util.setting_remove = function(opts) end
@@ -241,40 +214,35 @@ end
 --
 
 mod_util.package_add = function(opts)
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
+  local captures, buf = ts.get_captures(
+    q.mod_tbl(opts.selected_component.component_type),
     "rhs",
     opts.selected_module.path .. "init.lua"
   )
   if not #captures then
-    return false
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
 mod_util.package_edit = function(opts)
-  -- local sc = opts.selected_component.value
   local mf = opts.selected_module.path .. "init.lua"
 
   print(vim.inspect(opts.selected_component))
 
-  local q_comp_table_rhs = queries.assignment_statement(
-    "table",
-    opts.selected_component.component_type
-  )
-  local q_pkg_table = queries.pkg_table(
+  local q_comp_table_rhs = q.mod_tbl(opts.selected_component.component_type)
+  local q_pkg_table = q.pkg_table(
     opts.selected_component.data.table_path,
     opts.selected_component.data.spec[1]
   )
 
-  local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
+  local c_containers, buf = ts.get_captures(q_comp_table_rhs, "rhs", mf)
   -- print("pkg b:", q_comp_table_rhs)
   -- print("pkg t:", q_pkg_table)
   -- print("captures:", #c_containers)
-  local captures, buf = ts.get_query_capture(
+  local captures, buf = ts.get_captures(
     q_pkg_table,
     "pkg_table",
     opts.selected_module.path .. "init.lua"
@@ -283,107 +251,75 @@ mod_util.package_edit = function(opts)
   -- print("captures:", #captures)
 
   if not #captures then
-    return false
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
--- mod_util.package_move = function(opts) end
--- mod_util.package_remove = function(opts) end
--- mod_util.package_clone = function(opts) end
--- mod_util.package_fork = function(opts) end
--- mod_util.package_toggle_local = function(opts) end
--- mod_util.package_use_specific_upstream = function(opts) end
+mod_util.package_move = function(opts) end
+mod_util.package_remove = function(opts) end
+mod_util.package_clone = function(opts) end
+mod_util.package_fork = function(opts) end
+mod_util.package_toggle_local = function(opts) end
+mod_util.package_use_specific_upstream = function(opts) end
 
 --
 -- CONFIGS
 --
 
+-- 1. check if config table exists
+-- 2. add table after
+--        - settings
+--      and before
+--        - standalone config functions > need to check if these exist
+--              also check if the target pkg already has a standalone func.
+--        - before cmds/autocmds/binds
+--
 mod_util.config_add = function(opts)
-  -- 1. check if config table exists
-  -- 2. add table after
-  --        - settings
-  --      and before
-  --        - standalone config functions > need to check if these exist
-  --              also check if the target pkg already has a standalone func.
-  --        - before cmds/autocmds/binds
-  --
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("func", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
-  if not #captures then
-    return false
+  local mf = opts.selected_module.path .. "init.lua"
+  local captures, buf = ts.get_captures(q.config_func(), "rhs", mf)
+  if #captures then
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
 mod_util.config_edit = function(opts)
-
-  -- TODO: redo query with lisp
-
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("func", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
+  local mf = opts.selected_module.path .. "init.lua"
+  local captures, buf = ts.get_captures(q.config_func(opts.selected_component.data), "rhs", mf)
   if not #captures then
-    return false
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
   end
-  local insertion_line = captures[#captures].range[1]
-  local insertion_col = captures[#captures].range[2]
-  vim.api.nvim_win_set_buf(0, buf)
-  vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
--- mod_util.config_remove = function(opts) end
--- mod_util.config_replace = function(opts) end
+mod_util.config_remove = function(opts) end
+mod_util.config_replace = function(opts) end
 
 --
 -- CMDS
 --
 
-mod_util.cmd_add = function(opts) end
-mod_util.cmd_edit = function(opts)
-  -- local sc = opts.selected_component.value
+mod_util.cmd_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
-
   -- print(vim.inspect(opts.selected_component))
+  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
+end
 
-  local t, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.selected_component.component_type),
-    "rhs",
-    mf
-  )
-
-  local q_cmd = queries.cmd_table(opts.selected_component)
-  local captures, buf = ts.get_query_capture(q_cmd, "rhs", mf)
-  --
+mod_util.cmd_edit = function(opts)
+  local q_cmd = q.cmd_table(opts.selected_component)
+  local captures, buf = ts.get_captures(q_cmd, "rhs", mf)
   -- -- print("pkg b:", q_comp_table_rhs)
   -- -- print("pkg t:", q_pkg_table)
   -- -- print("captures:", #c_containers)
-  --
-  -- local captures, buf = ts.get_query_capture(
-  --   q_pkg_table,
-  --   "pkg_table",
-  --   opts.selected_module.path .. "init.lua"
-  -- )
-  --
-  -- -- print("captures:", #captures)
-  --
-  -- if not #captures then
-  --   return false
-  -- end
-  -- local insertion_line = captures[#captures].range[1]
-  -- local insertion_col = captures[#captures].range[2]
-  -- vim.api.nvim_win_set_buf(0, buf)
-  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  if not #captures then
+    b.set_cursor_to_buf(buf, range)
+  end
 end
 -- mod_util.cmd_remove = function(opts) end
 -- mod_util.cmd_replace = function(opts) end
@@ -395,41 +331,31 @@ end
 
 mod_util.autocmd_add = function(opts)
   -- autocmd container
-  local t, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
+  local mf = opts.selected_module.path .. "init.lua"
+  local t, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
 
-  local captures, buf = ts.get_query_capture(
-    queries.autocmd_table(opts.selected_component.data),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
-  )
-  -- if not #captures then
-  --   return false
-  -- end
-  -- local insertion_line = captures[#captures].range[1]
-  -- local insertion_col = captures[#captures].range[2]
-  -- vim.api.nvim_win_set_buf(0, buf)
-  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
+  if not #captures then
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  end
 end
 
 mod_util.autocmd_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
 
-  local t, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.selected_component.component_type),
-    "rhs",
-    mf
-  )
+  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
 
-  local autocmd, buf = ts.get_query_capture(
-    queries.autocmd_table(opts.selected_component.data),
-    "rhs",
-    mf
-  )
+  local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
+  if not #captures then
+    local insertion_line = captures[#captures].range[1]
+    local insertion_col = captures[#captures].range[2]
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+  end
 end
 
 -- mod_util.autocmd_remove = function(opts) end
@@ -444,11 +370,12 @@ mod_util.bind_add = function(opts)
   -- 1. get binds table.
   -- 2. check if leader is present and where it is.
   -- 3. insert befor the leader
+  local mf = opts.selected_module.path .. "init.lua"
 
-  local captures, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.ui_input_comp_type),
+  local captures, buf = ts.get_captures(
+    q.mod_tbl(opts.selected_component.component_type),
     "rhs",
-    opts.selected_module.path .. "init.lua"
+    mf
   )
   -- if not #captures then
   --   return false
@@ -476,20 +403,20 @@ mod_util.bind_edit = function(opts)
 
   print(vim.inspect(opts.selected_component))
 
-  -- local q_comp_table_rhs = queries.assignment_statement(
+  -- local q_comp_table_rhs = q.assignment_statement(
   --   "table",
   --   opts.selected_component.component_type
   -- )
-  local base, buf = ts.get_query_capture(
-    queries.assignment_statement("table", opts.selected_component.component_type),
+  local base, buf = ts.get_captures(
+    q.assignment_statement("table", opts.selected_component.component_type),
     "rhs",
     mf
   )
 
-  local q_binds_tbl = queries.binds_table(opts.selected_component.data)
+  local q_binds_tbl = q.binds_table(opts.selected_component.data)
   -- print(#base)
   -- print(q_binds_tbl)
-  local captures, buf = ts.get_query_capture(q_binds_tbl, "rhs", mf)
+  local captures, buf = ts.get_captures(q_binds_tbl, "rhs", mf)
 
   print(#captures)
 
@@ -516,8 +443,7 @@ mod_util.bind_make_leader = function(opts)
   --
   -- leader_max_length
 end
-mod_util.bind_merge_leader = function(opts)
-end
+mod_util.bind_merge_leader = function(opts) end
 
 -- -- TODO: SPLIT INTO FUNCTIONS
 -- mod_util.add_component = function(opts)
@@ -525,8 +451,8 @@ end
 --     return
 --   end
 --
---   local q1 = queries.assignment_statement("table", opts.ui_input_comp_type)
---   local captures, buf = ts.get_query_capture(q1, "rhs", opts.selected_module.path .. "init.lua")
+--   local q1 = q.assignment_statement("table", opts.ui_input_comp_type)
+--   local captures, buf = ts.get_captures(q1, "rhs", opts.selected_module.path .. "init.lua")
 --
 --   if not #captures then
 --     return false
@@ -549,13 +475,13 @@ end
 --
 --   --   --
 --   -- if opts.action == "component_edit_sel" then
---   --   local q_cont = queries.assignment_statement(
+--   --   local q_cont = q.assignment_statement(
 --   --     "table",
 --   --     opts.selected_component.value.component_type
 --   --   )
---   --   local q_unit = queries.comp_unit(opts.selected_component.value)
+--   --   local q_unit = q.comp_unit(opts.selected_component.value)
 --   --
---   --   local c_containers, buf = ts.get_query_capture(
+--   --   local c_containers, buf = ts.get_captures(
 --   --     q_cont,
 --   --     "rhs",
 --   --     opts.selected_module.path .. "init.lua"
@@ -565,7 +491,7 @@ end
 --   --   print("UNIT:", q_unit)
 --   --   print("captures:", #c_containers)
 --   --
---   --   local captures, buf = ts.get_query_capture(
+--   --   local captures, buf = ts.get_captures(
 --   --     q_unit,
 --   --     "value",
 --   --     opts.selected_module.path .. "init.lua"
