@@ -18,19 +18,21 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: test queries
+-- TODO: test queries autocmd & cmd
 
 -- TODO: mod_util.config_edit extend query manually with tables
 
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 
--- TODO: MOVE ALL STUPID MODULES INTO USER
+-- TODO: refactor mod_utils
 
--- TODO: fix modules extend() > `user` show up in telescope.
+-- TODO: MOVE ALL STUPID MODULES INTO USER
 
 -- TODO: delete old/unused modules
 
 -- TODO: RENAME TREE NODE -> TREE LEAF
+
+-- TODO: fix modules extend() > `user` show up in telescope.
 
 -- TODO: NEOGEN EVERYTHING
 

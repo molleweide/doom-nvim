@@ -290,6 +290,10 @@ local function doom_picker()
 
   require("telescope.pickers").new(opts, {
     -------------------------------------------------------
+    --
+    -- todo: move this to a split function again.
+    --
+    -- this is not a good way of keeping it.
     prompt_title = (function()
       local title
       if DOOM_UI_STATE.query.type == "MAIN_MENU" then
@@ -448,10 +452,23 @@ doom_ui.cmds = {
 
   -- 1. if current buf == module/init.lua file do action else open module browser.
   -- 2. `leader d a (c|a|b|p)`
-  -- { "DoomModuleCurrentAddCmd", },
-  -- { "DoomModuleCurrentAddAutocmd", },
-  -- { "DoomModuleCurrentAddBind", },
-  -- { "DoomModuleCurrentAddPackage", },
+  { "DoomModule_add_cmd", function() end },
+  { "DoomModule_add_autocmd", function() end },
+  { "DoomModule_add_bind", function() end },
+  { "DoomModule_add_package", function() end },
+
+  { "DoomModule_add_bind_to_cursor", function()
+    -- if inside of a branch -> then
+    -- add new bind within the branch.
+  end },
+  { "DoomModule_add_leader_bind", function()
+      -- open telescope with current modules binds
+    --
+    -- the `line` string that you input via telescope
+    -- will be the leader bind.
+    --
+    -- then <CR> will take you to the bind to add the rhs
+  end },
 
   -- more commands???
 }

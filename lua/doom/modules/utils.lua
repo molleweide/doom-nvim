@@ -104,7 +104,11 @@ mod_util.check_if_module_name_exists = function(m, new_name)
 end
 
 -- crud operations for `modules.lua`
--- REFACTOR: i am not satisfied
+-- REFACTOR:
+--
+--    split this into separate functions as before.
+--
+--
 mod_util.root_apply = function(opts)
   local function get_ts_data_root_modules(msection, mname)
     local strings = {}
@@ -322,10 +326,8 @@ mod_util.config_add = function(opts)
 end
 
 mod_util.config_edit = function(opts)
-  -- TODO: TRY EXTENDING THE TABLE FROM HERE AND SEE HOW IT GOES
-  --
-  --
-  --    i need to extend the
+
+  -- TODO: redo query with lisp
 
   local captures, buf = ts.get_query_capture(
     queries.assignment_statement("func", opts.ui_input_comp_type),
@@ -352,7 +354,7 @@ mod_util.cmd_edit = function(opts)
   -- local sc = opts.selected_component.value
   local mf = opts.selected_module.path .. "init.lua"
 
-  print(vim.inspect(opts.selected_component))
+  -- print(vim.inspect(opts.selected_component))
 
   local t, buf = ts.get_query_capture(
     queries.assignment_statement("table", opts.selected_component.component_type),
@@ -360,12 +362,8 @@ mod_util.cmd_edit = function(opts)
     mf
   )
 
-  local cmd, buf = ts.get_query_capture(
-    queries.cmd_table(opts.selected_component),
-    "rhs",
-    mf
-  )
-  -- local c_containers, buf = ts.get_query_capture(q_comp_table_rhs, "rhs", mf)
+  local q_cmd = queries.cmd_table(opts.selected_component)
+  local captures, buf = ts.get_query_capture(q_cmd, "rhs", mf)
   --
   -- -- print("pkg b:", q_comp_table_rhs)
   -- -- print("pkg t:", q_pkg_table)
@@ -397,12 +395,17 @@ end
 
 mod_util.autocmd_add = function(opts)
   -- autocmd container
-  local captures, buf = ts.get_query_capture(
+  local t, buf = ts.get_query_capture(
     queries.assignment_statement("table", opts.ui_input_comp_type),
     "rhs",
     opts.selected_module.path .. "init.lua"
   )
 
+  local captures, buf = ts.get_query_capture(
+    queries.autocmd_table(opts.selected_component.data),
+    "rhs",
+    opts.selected_module.path .. "init.lua"
+  )
   -- if not #captures then
   --   return false
   -- end
@@ -455,6 +458,7 @@ mod_util.bind_add = function(opts)
   -- vim.api.nvim_win_set_buf(0, buf)
   -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
+  -- todo: luasnip
   if doom.settings.doom_ui.insert_templates then
     -- insert template
   else
@@ -483,15 +487,9 @@ mod_util.bind_edit = function(opts)
   )
 
   local q_binds_tbl = queries.binds_table(opts.selected_component.data)
-
-  print(#base)
-  print(q_binds_tbl)
-
-  local captures, buf = ts.get_query_capture(
-    queries.binds_table(opts.selected_component.data),
-    "rhs",
-    mf
-  )
+  -- print(#base)
+  -- print(q_binds_tbl)
+  local captures, buf = ts.get_query_capture(q_binds_tbl, "rhs", mf)
 
   print(#captures)
 
@@ -505,12 +503,21 @@ mod_util.bind_edit = function(opts)
   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 end
 
--- mod_util.bind_remove = function(opts) end
--- mod_util.bind_replace = function(opts) end
--- mod_util.bind_move = function(opts) end
--- mod_util.bind_move_leader = function(opts)
---   -- make it more easy to manage binds
--- end
+mod_util.bind_remove = function(opts) end
+mod_util.bind_replace = function(opts) end
+mod_util.bind_move = function(opts) end
+mod_util.bind_move_leader = function(opts)
+  -- make it more easy to manage binds
+end
+
+mod_util.bind_add_to_same = function(opts) end
+mod_util.bind_make_leader = function(opts)
+  -- create a loop that generates the leader.
+  --
+  -- leader_max_length
+end
+mod_util.bind_merge_leader = function(opts)
+end
 
 -- -- TODO: SPLIT INTO FUNCTIONS
 -- mod_util.add_component = function(opts)

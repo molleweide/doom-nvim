@@ -144,6 +144,9 @@ queries.pkg_table = function(table_path, spec_one)
   )
 end
 
+queries.config_func = function(conf)
+end
+
 --   {
 --     cmd = <function 1>,
 --     name = "DoomReload"
@@ -193,6 +196,14 @@ end
 --   },
 queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
+
+
+
+  -- todo: account for
+  --
+  --    - mode
+  --    - options
+  --    - descr
 
   return string.format(
     [[
