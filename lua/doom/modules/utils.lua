@@ -263,7 +263,6 @@ end
 mod_util.config_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local q = q.config_func(opts.selected_component.data)
-  print(q)
   local captures, buf = ts.get_captures(q, "rhs", mf)
   if #captures then
     b.set_cursor_to_buf(buf, captures[#captures].range)

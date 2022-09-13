@@ -158,35 +158,10 @@ end
 
 queries.config_func = function(config)
   print(vim.inspect(config))
-
   local q = ""
-
-  local ts_query_pre = [[
-      (assignment_statement
-        (variable_list
-          name:
-            (bracket_index_expression
-              table: (dot_index_expression
-                  table: (identifier)
-                  field: (identifier) @varl_name
-  ]]
-
-  local ts_query_post = [[
-                                  )
-              field: (string))
-          )
-        )
-        (expression_list value: (function_definition)  @rhs)
-      )
-  ]]
-
   if config.table_path then
-    -- (#eq? @varl_name "%s"))
-  else
+    q = string.format([[@cfg_name (#eq? @cfg_name "\"%s\"")]], config.table_path)
   end
-
-  -- return
-
   return string.format(
     [[
       (assignment_statement
@@ -195,13 +170,13 @@ queries.config_func = function(config)
             (bracket_index_expression
               table: (dot_index_expression
                   table: (identifier)
-                  field: (identifier) @varl_name (#eq? @varl_name "%s"))
-              field: (string))
-          )
+                  field: (identifier) @varl_name (#eq? @varl_name "configs"))
+              field: (string) %s
+            )
         )
-        (expression_list value: (function_definition)  @rhs)
+        (expression_list value: (function_definition) @rhs)
       )
-    ]], name)
+    ]], q)
 end
 
 --   {
