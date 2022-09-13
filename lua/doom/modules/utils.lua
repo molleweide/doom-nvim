@@ -2,7 +2,7 @@ local tscan = require("doom.utils.tree").traverse_table
 local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
-local q = require("doom.utils.q")
+local q = require("doom.utils.queries")
 local ntq = require("nvim-treesitter.query")
 
 -- local Query = require("refactoring").query
@@ -183,16 +183,9 @@ mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
   local mf = opts.selected_module.path .. "init.lua"
 
-  local q_comp_table_rhs = q.mod_tbl(sc.component_type)
+  local t, buf = ts.get_captures(q.mod_tbl(sc.component_type), "rhs", mf)
   local q_settings_field = q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value)
-
-  local c_containers, buf = ts.get_captures(q_comp_table_rhs, "rhs", mf)
-  print("CONT:", q_comp_table_rhs)
-  print("UNIT:", q_settings_field)
-  print("captures:", #c_containers)
-
   local captures, buf = ts.get_captures(q_settings_field, "value", mf)
-  print("captures:", #captures)
 
   if #captures then
     b.set_cursor_to_buf(buf, captures[#captures].range)
@@ -229,28 +222,23 @@ mod_util.package_edit = function(opts)
   )
 
   local c_containers, buf = ts.get_captures(q_comp_table_rhs, "rhs", mf)
-  -- print("pkg b:", q_comp_table_rhs)
-  -- print("pkg t:", q_pkg_table)
-  -- print("captures:", #c_containers)
   local captures, buf = ts.get_captures(
     q_pkg_table,
     "pkg_table",
     opts.selected_module.path .. "init.lua"
   )
 
-  -- print("captures:", #captures)
-
-  if not #captures then
+  if #captures then
     b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
 
-mod_util.package_move = function(opts) end
-mod_util.package_remove = function(opts) end
-mod_util.package_clone = function(opts) end
-mod_util.package_fork = function(opts) end
-mod_util.package_toggle_local = function(opts) end
-mod_util.package_use_specific_upstream = function(opts) end
+-- mod_util.package_move = function(opts) end
+-- mod_util.package_remove = function(opts) end
+-- mod_util.package_clone = function(opts) end
+-- mod_util.package_fork = function(opts) end
+-- mod_util.package_toggle_local = function(opts) end
+-- mod_util.package_use_specific_upstream = function(opts) end
 
 --
 -- CONFIGS
@@ -274,11 +262,14 @@ end
 
 mod_util.config_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
-  local captures, buf = ts.get_captures(q.config_func(opts.selected_component.data), "rhs", mf)
+  local q = q.config_func(opts.selected_component.data)
+  print(q)
+  local captures, buf = ts.get_captures(q, "rhs", mf)
   if #captures then
     b.set_cursor_to_buf(buf, captures[#captures].range)
   end
 end
+
 mod_util.config_remove = function(opts) end
 mod_util.config_replace = function(opts) end
 

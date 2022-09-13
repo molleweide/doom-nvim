@@ -87,43 +87,35 @@ end
 -----------------------------------------------------------------------------
 --
 
-queries.field = function(lhs_name, rhs_name)
+queries.field = function(lhs_key, rhs_value)
   local rhs_tag
-  if type(rhs_name) == "string" then
-    rhs_name = '\\"' .. rhs_name .. '\\"'
+  if type(rhs_value) == "string" then
+    rhs_value = '\\"' .. rhs_value .. '\\"'
     rhs_tag = "string"
-    -- else
-    --   rhs_tag = rhs_name
+  else
+    rhs_tag = rhs_value
   end
 
-  return parse({
-    field = {
-      _name = {
-        identifier = {
-          "@name",
-          "eq",
-          "@name",
-          lhs_name,
-        },
-      },
-      _value = {
-        -- 100 -> "number"
-        --
-        -- ALTERNATIVES:
-        --
-        --    - inside of results when we collect entries.
-        --
-        --    - inside of parser > this would be a nice fallback
-        --
-        [rhs_tag] = {
-          "@value",
-          "eq",
-          "@value",
-          rhs_name,
-        },
-      },
-    },
-  })
+  -- 100 -> "number"
+  --
+  -- ALTERNATIVES:
+  --
+  --    - inside of results when we collect entries.
+  --
+  --    - inside of parser > this would be a nice fallback
+  --
+
+  return string.format(
+    [[
+      (field
+        name: (identifier) @key (#eq? @key "%s")
+        value: (%s) @value (#eq? @value "%s")
+      )
+    ]],
+    lhs_key,
+    rhs_tag,
+    rhs_value
+  )
 end
 
 queries.mod_tbl = function(field_name)
@@ -164,13 +156,36 @@ queries.pkg_table = function(table_path, spec_one)
   )
 end
 
-queries.config_func = function(name)
+queries.config_func = function(config)
+  print(vim.inspect(config))
 
-  if name then
-    -- only add the name capture if it is supplied so
-    -- that we can always use #capture to get the
-    -- correct one.
+  local q = ""
+
+  local ts_query_pre = [[
+      (assignment_statement
+        (variable_list
+          name:
+            (bracket_index_expression
+              table: (dot_index_expression
+                  table: (identifier)
+                  field: (identifier) @varl_name
+  ]]
+
+  local ts_query_post = [[
+                                  )
+              field: (string))
+          )
+        )
+        (expression_list value: (function_definition)  @rhs)
+      )
+  ]]
+
+  if config.table_path then
+    -- (#eq? @varl_name "%s"))
+  else
   end
+
+  -- return
 
   return string.format(
     [[
@@ -181,13 +196,12 @@ queries.config_func = function(name)
               table: (dot_index_expression
                   table: (identifier)
                   field: (identifier) @varl_name (#eq? @varl_name "%s"))
-              field:(string))
+              field: (string))
           )
         )
-        (expression_list value: (function_definition)  @rhs )
+        (expression_list value: (function_definition)  @rhs)
       )
-    ]])
-
+    ]], name)
 end
 
 --   {

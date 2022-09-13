@@ -9,7 +9,8 @@ ts.get_root = function(bufnr)
   return tree:root()
 end
 
-ts.get_query_capture = function(query, cname, path)
+-- get_captures
+ts.get_captures = function(query, cname, path, scope)
   -- if not path then
   path = path or utils.find_config("modules.lua")
   -- end

@@ -46,4 +46,9 @@ buf.insert_text_at = function(buf, row, col, value)
   vim.api.nvim_buf_set_text(buf, row, col, row, col, { value })
 end
 
+buf.set_cursor_to_buf = function(buf, range, win)
+  vim.api.nvim_win_set_buf(0, buf)
+  vim.fn.cursor(range[1] + 1, range[2])
+end
+
 return buf
