@@ -10,7 +10,26 @@ ts.get_root = function(bufnr)
 end
 
 -- get_captures
+--
+--        path/buf
+--
+--        queryN, captureN,
+--        queryN, captureN,
+--        queryN, captureN,
+--
 ts.get_captures = function(query, cname, path, scope)
+
+  local args = ...
+
+
+
+
+  -- loop args,
+  --
+  --    process queries.
+
+
+
   -- if not path then
   path = path or utils.find_config("modules.lua")
   -- end

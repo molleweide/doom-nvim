@@ -235,7 +235,7 @@ return {
 
   doom_ui = {
     -- if false only moves cursor to file setting/data.
-    insert_templates = true,
+    use = "move_cursor",
     -- prefer updating text via Nui popups rather than entering text in the targeted file.
     prefer_nui = false,
   }

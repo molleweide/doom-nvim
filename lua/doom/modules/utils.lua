@@ -50,6 +50,22 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
+
+
+-- insert before/after
+local function act_on_capture(captures, buf)
+  if #captures > 0 then
+    if doom.settings.doom_ui.insert_templates == "templates" then
+      -- insert template
+    elseif doom.settings.doom_ui.use == "luasnip" then
+      -- init luasnippet
+    else
+      -- only move cursor
+      b.set_cursor_to_buf(buf, captures[#captures].range)
+    end
+  end
+end
+
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -169,9 +185,7 @@ end
 mod_util.setting_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local captures, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
-  if not #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 -- mod_util.setting_add_to_selection_level = function()
@@ -182,14 +196,12 @@ end
 mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
   local mf = opts.selected_module.path .. "init.lua"
-
+  -- TODO: DOUBLE CAPTURES
   local t, buf = ts.get_captures(q.mod_tbl(sc.component_type), "rhs", mf)
   local q_settings_field = q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value)
   local captures, buf = ts.get_captures(q_settings_field, "value", mf)
-
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  -- local cps, buf = ts.get_cps(query1, c1, query2, c2, mf)
+  act_on_capture(captures, buf)
 end
 -- mod_util.setting_move = function(opts) end
 -- mod_util.setting_remove = function(opts) end
@@ -205,9 +217,7 @@ mod_util.package_add = function(opts)
     "rhs",
     opts.selected_module.path .. "init.lua"
   )
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 mod_util.package_edit = function(opts)
@@ -228,9 +238,7 @@ mod_util.package_edit = function(opts)
     opts.selected_module.path .. "init.lua"
   )
 
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 -- mod_util.package_move = function(opts) end
@@ -255,18 +263,14 @@ end
 mod_util.config_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local captures, buf = ts.get_captures(q.config_func(), "rhs", mf)
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 mod_util.config_edit = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   local q = q.config_func(opts.selected_component.data)
   local captures, buf = ts.get_captures(q, "rhs", mf)
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 mod_util.config_remove = function(opts) end
@@ -280,6 +284,8 @@ mod_util.cmd_add = function(opts)
   local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
   local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
+
+  -- act_on_capture(captures, buf)
 end
 
 mod_util.cmd_edit = function(opts)
@@ -287,9 +293,7 @@ mod_util.cmd_edit = function(opts)
   local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
   local q_cmd = q.cmd_table(opts.selected_component.data)
   local captures, buf = ts.get_captures(q_cmd, "action", mf)
-  if #captures > 0 then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 mod_util.cmd_remove = function(opts) end
@@ -305,9 +309,7 @@ mod_util.autocmd_add = function(opts)
   local t, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
 
   local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
-  if #captures then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 mod_util.autocmd_edit = function(opts)
@@ -316,9 +318,7 @@ mod_util.autocmd_edit = function(opts)
   local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
   local q_auto = q.autocmd_table(opts.selected_component.data)
   local captures, buf = ts.get_captures(q_auto, "action", mf)
-  if #captures > 0 then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
 -- mod_util.autocmd_remove = function(opts) end
@@ -335,166 +335,55 @@ mod_util.bind_add = function(opts)
   -- 3. insert befor the leader
   local mf = opts.selected_module.path .. "init.lua"
 
+  -- capture binds table
   local captures, buf = ts.get_captures(
     q.mod_tbl(opts.selected_component.component_type),
     "rhs",
     mf
   )
-  -- if not #captures then
-  --   return false
-  -- end
-  -- local insertion_line = captures[#captures].range[1]
-  -- local insertion_col = captures[#captures].range[2]
-  -- vim.api.nvim_win_set_buf(0, buf)
-  -- vim.fn.cursor(insertion_line + 1, insertion_col + 1)
 
-  -- todo: luasnip
-  if doom.settings.doom_ui.insert_templates then
-    -- insert template
-  else
-    -- only move cursor
-  end
+  -- TODO: CAPTURE LEADER
+
+  act_on_capture(captures, buf)
 end
 
--- mod_util.bind_add_to_selection_level = function(opts) end
--- mod_util.bind_add_to_level = function(opts) end
-
 mod_util.bind_edit = function(opts)
-  -- edit insert mode at rhs currently
-  -- local sc = opts.selected_component.value
   local mf = opts.selected_module.path .. "init.lua"
 
   print(vim.inspect(opts.selected_component))
 
-  -- local q_comp_table_rhs = q.assignment_statement(
-  --   "table",
-  --   opts.selected_component.component_type
-  -- )
-  local base, buf = ts.get_captures(
-    q.assignment_statement("table", opts.selected_component.component_type),
-    "rhs",
-    mf
-  )
-
+  local mod_tbl, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
   local q_binds_tbl = q.binds_table(opts.selected_component.data)
   -- print(#base)
   -- print(q_binds_tbl)
   local captures, buf = ts.get_captures(q_binds_tbl, "rhs", mf)
 
-  print(#captures)
-
-  if #captures == 0 then
-    b.set_cursor_to_buf(buf, captures[#captures].range)
-  end
+  act_on_capture(captures, buf)
 end
 
-mod_util.bind_remove = function(opts) end
-mod_util.bind_replace = function(opts) end
-mod_util.bind_move = function(opts) end
-mod_util.bind_move_leader = function(opts)
-  -- make it more easy to manage binds
-end
-
-mod_util.bind_add_to_same = function(opts) end
-mod_util.bind_make_leader = function(opts)
-  -- create a loop that generates the leader.
-  --
-  -- leader_max_length
-end
-mod_util.bind_merge_leader = function(opts) end
-
--- -- TODO: SPLIT INTO FUNCTIONS
--- mod_util.add_component = function(opts)
---   if not validate(opts) then
---     return
---   end
+-- mod_util.bind_add_to_selection_level = function(opts) end
 --
---   local q1 = q.assignment_statement("table", opts.ui_input_comp_type)
---   local captures, buf = ts.get_captures(q1, "rhs", opts.selected_module.path .. "init.lua")
+-- mod_util.bind_add_to_level = function(opts) end
 --
---   if not #captures then
---     return false
---   end
---   local insertion_line = captures[#captures].range[1]
---   local insertion_col = captures[#captures].range[2]
+-- mod_util.bind_remove = function(opts) end
 --
---   vim.api.nvim_win_set_buf(0, buf)
---   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
+-- mod_util.bind_replace = function(opts) end
 --
---   -- TODO: INSERT COMPONENT TEMPLATE HERE
---   -- as the last thing of the same type
---   -- templ.<comp>
+-- mod_util.bind_move = function(opts) end
 --
---
---   -- TODO: IF STATEMENT FOR EACH COMPOENENT TYPE
---
---
---
---
---   --   --
---   -- if opts.action == "component_edit_sel" then
---   --   local q_cont = q.assignment_statement(
---   --     "table",
---   --     opts.selected_component.value.component_type
---   --   )
---   --   local q_unit = q.comp_unit(opts.selected_component.value)
---   --
---   --   local c_containers, buf = ts.get_captures(
---   --     q_cont,
---   --     "rhs",
---   --     opts.selected_module.path .. "init.lua"
---   --   )
---   --
---   --   print("CONT:", q_cont)
---   --   print("UNIT:", q_unit)
---   --   print("captures:", #c_containers)
---   --
---   --   local captures, buf = ts.get_captures(
---   --     q_unit,
---   --     "value",
---   --     opts.selected_module.path .. "init.lua"
---   --   )
---   --
---   --   print("captures:", #captures)
---   --
---   --   if not #captures then
---   --     return false
---   --   end
---   --   local insertion_line = captures[#captures].range[1]
---   --   local insertion_col = captures[#captures].range[2]
---   --   vim.api.nvim_win_set_buf(0, buf)
---   --   vim.fn.cursor(insertion_line + 1, insertion_col + 1)
---   --
---   --   -- TODO: visually select option here
---   --
---   --   --
---   -- elseif opts.action == "component_remove_sel" then
---   --   -- REQUIRES YES/NO!!!
---   --
---   --   -- this should be easy -> just set range to empty string ""
---   --
---   --   --
---   -- elseif opts.action == "component_replace_sel" then
---   --
---   --   --
---   --   --  1. nui -> input entry
---   --   --
---   --   --  OR
---   --   --
---   --   --  2. move cursor and enter insert mode
---   --
---   --   -- put cursor at beginning of selected component
---   -- elseif opts.action == "pkg_fork" then
---   --   -- put cursor...
---   -- elseif opts.action == "pkg_clone" then
---   --   -- put cursor...
---   -- elseif opts.action == "pkg_cfg_add" then
---   --   -- put cursor at insertion point...
---   -- elseif opts.action == "bind_leader_add" then
---   -- elseif opts.action == "bind_leader_add_to_sel" then
---   -- elseif opts.action == "bind_" then
---   -- end
+-- mod_util.bind_move_leader = function(opts)
+--   -- make it more easy to manage binds
 -- end
+--
+-- mod_util.bind_add_to_same = function(opts) end
+--
+-- mod_util.bind_make_leader = function(opts)
+--   -- create a loop that generates the leader.
+--   --
+--   -- leader_max_length
+-- end
+--
+-- mod_util.bind_merge_leader = function(opts) end
 
 --
 -- GET FULL/EXTENDED TABLE OF ALL MODULES
