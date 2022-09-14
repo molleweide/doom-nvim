@@ -126,31 +126,31 @@ mod_util.root_new = function(opts)
 end
 
 mod_util.root_rename = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(mname, msection), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(msection), "section_comment")
+  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(
     strings,
     comments,
-    opts.selected_mod,
+    opts.module_name,
     buf
   )
-  b.set_text(ts_state.buf, range, opts.new_name)
+  b.set_text(buf, range, opts.new_name)
 end
 
 mod_util.root_delete = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(mname, msection), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(msection), "section_comment")
+  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(strings, comments, selected_mod, buf)
   vim.api.nvim_buf_set_lines(buf, range[1], range[1] + 1, 0, {})
 end
 
 mod_util.root_toggle = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(mname, msection), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(msection), "section_comment")
+  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(
     strings,
     comments,
-    opts.selected_mod,
+    opts.module_name,
     buf
   )
 
@@ -160,59 +160,6 @@ mod_util.root_toggle = function(opts)
     range[2] = comment_start
     b.set_text(buf, range, '"' .. opts.module_name)
   end
-end
-
-mod_util.root_apply = function(opts)
-  -- local function get_ts_data_root_modules(msection, mname)
-  --   local strings = {}
-  --   if mname then
-  --     strings = ts.get_captures(q.root_mod_name_by_section(mname, msection), "module_string")
-  --   end
-  --   local comments = ts.get_captures(q.root_all_comments_from_section(msection), "section_comment")
-  --   local tables, buf = ts.get_captures(q.root_get_section_table_by_name(msection), "section_table")
-  --   return {
-  --     ts = {
-  --       strings = strings,
-  --       comments = comments,
-  --       tables = tables,
-  --     },
-  --     buf = buf,
-  --   }
-  -- end
-  --
-  -- local selected_mod
-  -- if opts.module_name ~= nil then
-  --   selected_mod = opts.module_name
-  -- end
-  -- local ts_state = get_ts_data_root_modules(opts.section, selected_mod)
-  -- if not ts_state.ts.strings[1] and not ts_state.ts.comments[1] then
-  --   return false
-  -- end
-  -- local range, enabled, comment_start
-  -- if opts.action ~= "new" then
-  --   range, enabled, comment_start = get_replacement_range(
-  --     ts_state.ts.strings,
-  --     ts_state.ts.comments,
-  --     selected_mod,
-  --     ts_state.buf
-  --   )
-  -- end
-  -- if opts.action == "rename" then
-  --   b.set_text(ts_state.buf, range, opts.new_name)
-  -- elseif opts.action == "new" then
-  --   local pre = '    "'
-  --   local post = '",'
-  --   b.insert_line(ts_state.buf, ts_state.ts.tables[1].range[3], pre .. opts.new_name .. post)
-  -- elseif opts.action == "delete" then
-  --   vim.api.nvim_buf_set_lines(ts_state.buf, range[1], range[1] + 1, 0, {})
-  -- elseif opts.action == "toggle" then
-  --   if enabled then
-  --     b.insert_text_at(ts_state.buf, range[1], range[2] - 1, "-- ")
-  --   else
-  --     range[2] = comment_start
-  --     b.set_text(ts_state.buf, range, '"' .. selected_mod)
-  --   end
-  -- end
 end
 
 --

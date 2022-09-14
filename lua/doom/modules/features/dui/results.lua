@@ -460,6 +460,9 @@ result_nodes.modules = function()
         ["<C-x>"] = function(fuzzy, _)
           ax.m_delete(fuzzy.value)
         end,
+        ["<C-l>"] = function(fuzzy, _)
+          ax.m_toggle(fuzzy.value)
+        end,
         ["<C-y>"] = function(fuzzy, _)
           ax.m_move(fuzzy.value)
         end,
@@ -468,9 +471,6 @@ result_nodes.modules = function()
         end,
         ["<C-q>"] = function(fuzzy, _)
           ax.m_submit_module_to_upstream()
-        end,
-        ["<C-l>"] = function(fuzzy, _)
-          ax.m_toggle(fuzzy.value)
         end,
       }
       return module

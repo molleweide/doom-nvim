@@ -19,7 +19,7 @@ ts.get_captures = function(path, q1, c1, q2, c2)
   local t2 = {}
 
   -- NOTE: this prints after file has changed?! why
-  log.info(q1, "\n", q2)
+  -- log.info(q1, "\n", q2)
 
   if q2 and c2 then
     local parsed1 = vim.treesitter.parse_query("lua", q1)

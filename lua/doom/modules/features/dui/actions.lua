@@ -73,8 +73,7 @@ actions.m_rename = function(m)
   nui.nui_input("NEW NAME", function(value)
     if not mod.check_if_module_name_exists(m, value) then
       log.debug("old name: ", m.name, ", new name:", value)
-      local ret = mod.root_apply({
-        action = "rename",
+      local ret = mod.root_rename({
         section = m.section,
         module_name = m.name,
         new_name = value,
@@ -137,8 +136,7 @@ actions.m_delete = function(m)
       -- print("delete module: ", c.selected_module.section .. " > " .. c.selected_module.name)
       log.info("Trying to DELETE module: " .. m.origin .. " > " .. m.section .. " > " .. m.name)
 
-      local ret = mod.root_apply({
-        action = "delete",
+      local ret = mod.root_delete({
         section = m.section,
         module_name = m.name,
       })
@@ -154,11 +152,10 @@ actions.m_delete = function(m)
 end
 
 actions.m_toggle = function(m)
-  local root_modules = utils.find_config("modules.lua")
-  local buf = utils.get_buf_handle(root_modules)
+  -- local root_modules = utils.find_config("modules.lua")
+  -- local buf = utils.get_buf_handle(root_modules)
   log.info("Toggling module: ")
-  local ret = mod.root_apply({
-    action = "toggle",
+  local ret = mod.root_toggle({
     section = m.section,
     module_name = m.name,
   })
