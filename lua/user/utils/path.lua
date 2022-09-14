@@ -81,27 +81,6 @@ M.get_user_mod_names = function()
   return M.path_get_tail(M.get_user_mod_paths())
 end
 
--- TODO: finish this
-M.get_module_meta_data = function()
-  local t = {}
-
-  local sections = { "core", "features", "langs", "user" }
-
-  for _, sec in pairs(sections) do
-    local mp = M.get_modules_path(sec)
-    local t_paths = M.get_dir_files_or_both_in_path_location(mp)
-    vim.inspect(t_paths)
-    for _, p in pairs(t_paths) do
-      local tail = M.single_path_tail(p)
-      table.insert(t, {
-        path = p,
-        name = tail,
-        section = sec,
-      })
-    end
-  end
-
-  return t
-end
-
 return M
+
+
