@@ -17,37 +17,49 @@ end
 --        queryN, captureN,
 --        queryN, captureN,
 --
-ts.get_captures = function(query, cname, path, scope)
-  -- args[1] should be the path/buf to operate on.
-  -- local args = ...
-  local path = path or utils.find_config("modules.lua")
+-- path, [query, capt], [query, capt], ...
+--
+-- varargs doesn't work for some reason?! this func would be nicer if you could
+-- use varargs to pass scopes that would narrow down the target.
+--
+ts.get_captures = function(path, q1, c1, q2, c2)
+
+  local path = args[1] or utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(path)
 
-  local captured_entries = {}
-  local prev_scope
-  for i = 2, #args, 2 do
-    local parsed = vim.treesitter.parse_query("lua", args[i])
-    local root = ts.get_root(buf)
-    if i >= #args - 1 then
-    else
-      -- prev_scope = ???
-    end
-  end
+  -- Q1 --
 
-  local parsed = vim.treesitter.parse_query("lua", query)
+  local parsed = vim.treesitter.parse_query("lua", q1)
   local root = ts.get_root(buf)
-  local t = {}
+  local t1 = {}
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
-    if name == cname then
-      table.insert(t, {
+    if name == c1 then
+      table.insert(t1, {
         node = node,
         text = tsq.get_node_text(node, buf),
         range = { node:range() },
       })
     end
   end
-  return t, buf
+
+  -- Q2 --
+
+  local parsed = vim.treesitter.parse_query("lua", q2)
+  local root = ts.get_root(buf)
+  local t2 = {}
+  for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
+    local name = parsed.captures[id]
+    if name == c2 then
+      table.insert(t2, {
+        node = node,
+        text = tsq.get_node_text(node, buf),
+        range = { node:range() },
+      })
+    end
+  end
+
+  return t2, buf
 end
 
 return ts
