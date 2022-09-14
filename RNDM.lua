@@ -18,13 +18,14 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
+-- TODO: RENAME TREE NODE -> TREE LEAF
+-- TODO: move looger into tree
+
 -- TODO: `<C-s>` add after (make last bind for leader)
 --        selected bind/setting
 
 -- TODO: `<C-y>` bind create from line string
 --        if a bind is selected > then this is available.
-
--- TODO: RENAME TREE NODE -> TREE LEAF
 
 -- TODO: move all modules to user that don't belong in core
 
@@ -34,8 +35,6 @@ so it'll be vim.fn.win_gotoid(winnr)
 --      modules to my own user
 
 -- TODO: fix modules extend() > `user` show up in telescope.
-
--- TODO: move looger into tree
 
 -- TODO: NEOGEN EVERYTHING
 
