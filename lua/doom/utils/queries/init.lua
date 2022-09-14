@@ -212,12 +212,12 @@ queries.binds_table = function(bind)
   )
 end
 
-queries.binds_leader_t = [[
+queries.leader_t = [[
   (field
     value: (table_constructor
-        . (field value: (string) @ld (@eq? @ld "\"<leader>\""))
+        . (field value: (string) @ld (#eq? @ld "\"<leader>\""))
     ) @leader_table
-  )
+  ) @leader_field
 ]]
 
 queries.binds_branch = function(branch)

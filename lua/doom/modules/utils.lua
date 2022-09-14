@@ -6,6 +6,8 @@ local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
 
+-- TODO: MAKE SURE THAT TEXT IS INSERTED IN BETWEEN CORRECT NODES
+
 local compute_insertion_point = function() end
 
 local rmf = utils.find_config("modules.lua")
@@ -74,6 +76,14 @@ local function get_settings_file(mod_path)
   end
 end
 
+local function has_leader(opts)
+  local leader, buf = ts.get_captures(
+    opts.selected_module.path .. "init.lua",
+    q.leader_t,
+    "leader_field"
+  )
+  return leader, buf
+end
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -340,20 +350,19 @@ mod_util.autocmd_move = function(opts) end
 --
 
 mod_util.bind_add = function(opts)
-  -- 1. get binds table.
-  -- 2. check if leader is present and where it is.
-  -- 3. insert befor the leader
-
-  -- capture binds table
-  ts.get_captures(
+  local t, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
     q.mod_tbl(opts.selected_component.component_type),
     "rhs"
   )
 
-  -- todo: if has leader
+  local leader = has_leader(opts)
+  if #leader > 0 then
+    act_on_capture(leader, buf)
+  else
+    act_on_capture(t, buf)
+  end
 
-  act_on_capture(captures, buf)
 end
 
 mod_util.bind_edit = function(opts)

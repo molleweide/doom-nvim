@@ -20,13 +20,15 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add b4 <leader>
 
--- TODO: add bind to same leader
+-- TODO: add bind to selected level, eg for leaders
 
 -- TODO: add new leader
 
--- TODO: refactor mod_utils
+-- TODO:
 
 -- TODO: MOVE ALL STUPID MODULES INTO USER
+
+-- delete old files / utils
 
 -- TODO: delete old/unused modules
 
