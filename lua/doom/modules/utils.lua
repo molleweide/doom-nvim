@@ -125,7 +125,7 @@ mod_util.check_if_module_name_exists = function(m, new_name)
   local results = tscan({
     tree = require("doom.modules.utils").extend(),
     filter = "doom_module_single", -- what makes a node in the tree
-    node = function(_, _, v)
+    leaf = function(_, _, v)
       -- todo: if m == string then do
       --
       if m.section == v.section and v.name == new_name then

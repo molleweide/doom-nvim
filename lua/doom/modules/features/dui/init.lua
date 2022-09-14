@@ -182,13 +182,13 @@ local function make_results()
   elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
     results = crawl({
       tree = doom.settings,
-      node = (require("doom.modules.features.dui.results").settings)().entry_template,
+      leaf = (require("doom.modules.features.dui.results").settings)().entry_template,
       filter = "settings",
     })
   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     results = crawl({
       tree = require("doom.modules.utils").extend(),
-      node = (require("doom.modules.features.dui.results").modules)().entry_template,
+      leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
       filter = "doom_module_single",
     })
 
@@ -197,7 +197,7 @@ local function make_results()
     crawl({
       tree = DOOM_UI_STATE.selected_module,
       filter = "list",
-      node = function(_, k, v)
+      leaf = function(_, k, v)
         -- TODO: use
         -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
         -- end
@@ -205,7 +205,7 @@ local function make_results()
           results = crawl({
             tree = v,
             filter = "settings",
-            node = require("doom.modules.features.dui.results")[k]().entry_template,
+            leaf = require("doom.modules.features.dui.results")[k]().entry_template,
             acc = results,
           })
         elseif k == "binds" then
@@ -215,7 +215,7 @@ local function make_results()
             branch_next = function(v)
               return v.rhs
             end,
-            node = (require("doom.modules.features.dui.results")[k])().entry_template,
+            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
             filter = function(_, l, r)
               return type(r.val.rhs) ~= "table"
@@ -225,7 +225,7 @@ local function make_results()
           results = crawl({
             tree = v,
             filter = "list",
-            node = (require("doom.modules.features.dui.results")[k])().entry_template,
+            leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
             acc = results,
           })
         end
@@ -246,7 +246,7 @@ local function make_results()
         enabled = true,
       }),
       filter = "doom_module_single",
-      node = function(_, k, v)
+      leaf = function(_, k, v)
         -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
         -- I can assign results here inside of `node` or I could return entry if package.
         -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
@@ -254,7 +254,7 @@ local function make_results()
           results = crawl({
             tree = v,
             filter = "list",
-            node = require("doom.modules.features.dui.results")[k],
+            leaf = require("doom.modules.features.dui.results")[k],
             acc = results,
           })
         end

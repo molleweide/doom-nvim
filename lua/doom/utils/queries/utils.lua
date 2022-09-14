@@ -93,7 +93,7 @@ query_utils.parse = function(query)
       end
       return str
     end,
-    node = function(_, _, v)
+    leaf = function(_, _, v)
       return { pass_up = v }
     end,
     branch_post = function(s, k, v, u) -- post

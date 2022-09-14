@@ -19,7 +19,6 @@ call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: RENAME TREE NODE -> TREE LEAF
--- TODO: move looger into tree
 
 -- TODO: `<C-s>` add after (make last bind for leader)
 --        selected bind/setting

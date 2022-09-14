@@ -104,11 +104,13 @@
 --
 --  ::: acc :::
 --
---  ::: leaf -> node (do|nodes|node_apply|process_node) :::
+--  ::: leaf
 --
---  ::: branch -> edge (edges|process_edge) :::
+--  ::: branch
 --
 --  ::: branch_next -> next_subtable (edge_next|subtable) :::
+--
+--  ::: branch_post
 --
 --    if there is a specific way that you access the next entry to analyze
 --    within RHS if rhs == table
@@ -414,7 +416,7 @@ M.recurse = function(opts, tree, stack, accumulator)
       end
     else
       -- leaf
-      local ret = opts.node(stack, k, v)
+      local ret = opts.leaf(stack, k, v)
       if ret then
         if ret.pass_up then
           table.insert(pass_up, ret.pass_up)
@@ -513,8 +515,8 @@ M.traverse_table = function(opts, tree, acc)
   --
   ---     how to process each node node
   ---     return appens to accumulator
-  if not opts.node then
-    opts.node = function(_, _, v)
+  if not opts.leaf then
+    opts.leaf = function(_, _, v)
       return v
     end
   end

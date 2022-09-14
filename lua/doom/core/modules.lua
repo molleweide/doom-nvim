@@ -122,7 +122,7 @@ modules.load_modules = function()
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     filter = "doom_module_single",
-    node = function(_, module_name, module)
+    leaf = function(_, module_name, module)
       -- print(module_name, module)
 
       -- Import dependencies with packer from module.packages
