@@ -370,6 +370,12 @@ actions.c_autocmd_move = function() end
 actions.c_bind_add_after = function(sel)
   -- for regular binds this means insert below,
   -- for leader, this also means insert below
+  log.info("action: bind after")
+  -- print(vim.inspect(sel))
+  local ret = mod.bind_add_after({
+    selected_module = DOOM_UI_STATE.selected_module,
+    selected_component = sel.value,
+  })
 end
 
 actions.c_bind_edit = function(sel)
@@ -390,6 +396,13 @@ end
 actions.c_bind_create_from_line = function(sel, line)
   -- find selected leader bind in module file.
   -- enter new binds snippet in the correct selected leader node.
+  log.info("action: bind create from line")
+  -- print(vim.inspect(sel))
+  local ret = mod.bind_create_from_line({
+    sel_mod = DOOM_UI_STATE.selected_module,
+    sel_cmp = sel.value,
+    line = line
+  })
 end
 
 actions.c_bind_move = function()

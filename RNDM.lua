@@ -18,20 +18,21 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: RENAME TREE NODE -> TREE LEAF
+-- TODO: add after / create from line
+--
+--        hooked up     (check)
+--        get captures
+--        custom ts
+--
 
--- TODO: `<C-s>` add after (make last bind for leader)
---        selected bind/setting
-
--- TODO: `<C-y>` bind create from line string
---        if a bind is selected > then this is available.
-
--- TODO: move all modules to user that don't belong in core
+-- TODO: move user modules
 
 -- TODO: more module categories >> check branch `feat/mod-struct-recursive`
 --      if I am not mistaken, it should be possible to use recursive structures
 --      all ready now. so I should try to do this and then add all other
 --      modules to my own user
+--
+--      make one section at a time
 
 -- TODO: fix modules extend() > `user` show up in telescope.
 
