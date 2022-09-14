@@ -18,22 +18,20 @@ end
 --        queryN, captureN,
 --
 ts.get_captures = function(query, cname, path, scope)
-
-  local args = ...
-
-
-
-
-  -- loop args,
-  --
-  --    process queries.
-
-
-
-  -- if not path then
-  path = path or utils.find_config("modules.lua")
-  -- end
+  -- local args = ...
+  local path = path or utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(path)
+
+  local prev_scope
+  for i = 2, #args do
+    -- args[1] should be the path/buf to operate on.
+
+    -- loop args,
+    --
+    --    process queries.
+
+    -- prev_scope = ???
+  end
 
   local parsed = vim.treesitter.parse_query("lua", query)
   local root = ts.get_root(buf)

@@ -5,21 +5,6 @@ local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
 local ntq = require("nvim-treesitter.query")
 
--- local Query = require("refactoring").query
--- replace: get_captures ->  Query:new() from `refactoring.nvim`
-
--- note: if no module file passed ->>> operate on `./settings.lua`
-
--- doesn't do much at the moment. dunno if this is necessary atm.
-local validate = function(opts)
-  -- todo: check what types of components a module contain so that we
-  -- can make conditionals based on this. Eg.
-  if not opts.action then
-    return false
-  end
-  return true
-end
-
 local compute_insertion_point = function() end
 
 local function get_replacement_range(strings, comments, module_name, buf)
@@ -50,9 +35,21 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
+-- local validate = function(opts)
+--   -- DOESN'T DO MUCH AT THE MOMENT. DUNNO IF THIS IS NECESSARY ATM.
+--   --
+--   -- todo: check what types of components a module contain so that we
+--   -- can make conditionals based on this. Eg.
+--   if not opts.action then
+--     return false
+--   end
+--   return true
+-- end
 
-
--- insert before/after
+-- todo
+--
+--    - insert before/after
+--
 local function act_on_capture(captures, buf)
   if #captures > 0 then
     if doom.settings.doom_ui.insert_templates == "templates" then
@@ -188,11 +185,6 @@ mod_util.setting_add = function(opts)
   act_on_capture(captures, buf)
 end
 
--- mod_util.setting_add_to_selection_level = function()
---   -- allows you to select a sub table entry and add a new entry to
---   -- the same sub table
--- end
-
 mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
   local mf = opts.selected_module.path .. "init.lua"
@@ -203,8 +195,16 @@ mod_util.setting_edit = function(opts)
   -- local cps, buf = ts.get_cps(query1, c1, query2, c2, mf)
   act_on_capture(captures, buf)
 end
+
+-- mod_util.setting_add_to_selection_level = function()
+--   -- allows you to select a sub table entry and add a new entry to
+--   -- the same sub table
+-- end
+--
 -- mod_util.setting_move = function(opts) end
+--
 -- mod_util.setting_remove = function(opts) end
+--
 -- mod_util.setting_replace = function(opts) end
 
 --

@@ -18,9 +18,11 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: test queries autocmd & cmd
-
--- TODO: mod_util.config_edit extend query manually with tables
+-- TODO: get captures
+--
+--      - loop/narrow down closures
+--
+--      - logging
 
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 
