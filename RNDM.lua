@@ -18,6 +18,8 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
+-- TODO: refactor root apply
+
 -- TODO: FALLBACK TO REGULAR SETTINGS.LUA
 
 -- TODO: add b4 <leader>
