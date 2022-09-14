@@ -209,15 +209,12 @@ actions.c_add = function(sel)
 
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
     local sv = value.text
-
     local t = {
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
-      ui_input_comp_type = value.text,
+      ui_input_comp_type = sv,
       -- ui_input_module = ..
     }
-
-
     if sv == "settings" then
       mod.setting_add(t)
     elseif sv == "packages" then
@@ -231,7 +228,6 @@ actions.c_add = function(sel)
     elseif sv == "binds" then
       mod.bind_add(t)
     end
-
   end)
 end
 

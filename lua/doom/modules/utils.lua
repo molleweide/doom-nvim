@@ -3,7 +3,6 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
--- local ntq = require("nvim-treesitter.query")
 
 local compute_insertion_point = function() end
 
@@ -191,14 +190,15 @@ end
 
 mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
-  local caps, buf = ts.get_captures(
-    opts.selected_module.path .. "init.lua",
-    q.mod_tbl(sc.component_type),
-    "rhs",
-    q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
-    "value"
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(sc.component_type),
+      "rhs",
+      q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
+      "value"
+    )
   )
-  act_on_capture(caps, buf)
 end
 
 mod_util.setting_add_to_selection_level = function()
