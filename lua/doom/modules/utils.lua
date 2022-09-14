@@ -180,9 +180,13 @@ end
 --
 
 mod_util.setting_add = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  local captures, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
-  act_on_capture(captures, buf)
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.ui_input_comp_type),
+      "rhs"
+    )
+  )
 end
 
 mod_util.setting_edit = function(opts)
@@ -213,33 +217,25 @@ end
 --
 
 mod_util.package_add = function(opts)
-  local captures, buf = ts.get_captures(
-    q.mod_tbl(opts.selected_component.component_type),
-    "rhs",
-    opts.selected_module.path .. "init.lua"
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.selected_component.component_type),
+      "rhs"
+    )
   )
-  act_on_capture(captures, buf)
 end
 
 mod_util.package_edit = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-
-  print(vim.inspect(opts.selected_component))
-
-  local q_comp_table_rhs = q.mod_tbl(opts.selected_component.component_type)
-  local q_pkg_table = q.pkg_table(
-    opts.selected_component.data.table_path,
-    opts.selected_component.data.spec[1]
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.selected_component.component_type),
+      "rhs",
+      q.pkg_table(opts.selected_component.data.table_path, opts.selected_component.data.spec[1]),
+      "pkg_table"
+    )
   )
-
-  local c_containers, buf = ts.get_captures(q_comp_table_rhs, "rhs", mf)
-  local captures, buf = ts.get_captures(
-    q_pkg_table,
-    "pkg_table",
-    opts.selected_module.path .. "init.lua"
-  )
-
-  act_on_capture(captures, buf)
 end
 
 -- mod_util.package_move = function(opts) end
@@ -262,16 +258,22 @@ end
 --        - before cmds/autocmds/binds
 --
 mod_util.config_add = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  local captures, buf = ts.get_captures(q.config_func(), "rhs", mf)
+  local captures, buf = ts.get_captures(
+    opts.selected_module.path .. "init.lua",
+    q.config_func(),
+    "rhs"
+  )
   act_on_capture(captures, buf)
 end
 
 mod_util.config_edit = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  local q = q.config_func(opts.selected_component.data)
-  local captures, buf = ts.get_captures(q, "rhs", mf)
-  act_on_capture(captures, buf)
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.config_func(opts.selected_component.data),
+      "rhs"
+    )
+  )
 end
 
 mod_util.config_remove = function(opts) end
@@ -282,19 +284,25 @@ mod_util.config_replace = function(opts) end
 --
 
 mod_util.cmd_add = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
   -- print(vim.inspect(opts.selected_component))
-  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
-
-  -- act_on_capture(captures, buf)
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.selected_component.component_type),
+      "rhs"
+    )
+  )
 end
 
 mod_util.cmd_edit = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
-  local q_cmd = q.cmd_table(opts.selected_component.data)
-  local captures, buf = ts.get_captures(q_cmd, "action", mf)
-  act_on_capture(captures, buf)
+  act_on_capture(
+    ts.get_captures(
+      q.mod_tbl(opts.selected_module.path .. "init.lua", opts.selected_component.component_type),
+      "rhs",
+      q.cmd_table(opts.selected_component.data),
+      "action"
+    )
+  )
 end
 
 mod_util.cmd_remove = function(opts) end
@@ -306,20 +314,25 @@ mod_util.cmd_move = function(opts) end
 --
 
 mod_util.autocmd_add = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  local t, buf = ts.get_captures(q.mod_tbl(opts.ui_input_comp_type), "rhs", mf)
-
-  local captures, buf = ts.get_captures(q.autocmd_table(opts.selected_component.data), "rhs", mf)
-  act_on_capture(captures, buf)
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.ui_input_comp_type),
+      "rhs"
+    )
+  )
 end
 
 mod_util.autocmd_edit = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-  -- print(vim.inspect(opts.selected_component))
-  local t, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
-  local q_auto = q.autocmd_table(opts.selected_component.data)
-  local captures, buf = ts.get_captures(q_auto, "action", mf)
-  act_on_capture(captures, buf)
+  action(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.ui_input_comp_type),
+      "rhs",
+      q.autocmd_table(opts.selected_component.data),
+      "action"
+    )
+  )
 end
 
 -- mod_util.autocmd_remove = function(opts) end
@@ -334,16 +347,15 @@ mod_util.bind_add = function(opts)
   -- 1. get binds table.
   -- 2. check if leader is present and where it is.
   -- 3. insert befor the leader
-  local mf = opts.selected_module.path .. "init.lua"
 
   -- capture binds table
-  local captures, buf = ts.get_captures(
+  ts.get_captures(
+    opts.selected_module.path .. "init.lua",
     q.mod_tbl(opts.selected_component.component_type),
-    "rhs",
-    mf
+    "rhs"
   )
 
-  -- TODO: CAPTURE LEADER
+  -- todo: if has leader
 
   act_on_capture(captures, buf)
 end

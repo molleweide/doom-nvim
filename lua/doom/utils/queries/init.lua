@@ -1,30 +1,5 @@
 local queries = {}
 
------------------------------------------------------------------------------
------------------------------------------------------------------------------
-
--- [
---  (for_in_statement)
---  (for_statement)
---  (while_statement)
---  (repeat_statement)
---  (if_statement)
---  (do_statement)
---  (function_definition)
---  (local_function)
---  (function)
---  (table)
--- ] @fold
-
------------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------
-
-queries.format = function(...)
-  return string.format(...)
-end
-
 queries.root_mod_name_by_section = function(name, section)
   return string.format(
     [[
@@ -168,10 +143,6 @@ queries.config_func = function(config)
   )
 end
 
---   {
---     cmd = <function 1>,
---     name = "DoomReload"
---   },
 queries.cmd_table = function(cmd)
   print("CMD >>>", vim.inspect(cmd))
 
@@ -206,7 +177,8 @@ end
 queries.binds_table = function(bind)
   print("BIND >>>", vim.inspect(bind))
 
-  -- todo: account for
+  -- todo: account for special cases when you have to assign the
+  --          field name string
   --
   --    - mode
   --    - options

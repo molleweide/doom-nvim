@@ -310,7 +310,7 @@ vim.opt.relativenumber = true
 --   · warn
 --   · error
 --   · fatal
-doom.settings.logging = "error"
+-- doom.settings.logging = "error"
 
 vim.opt.winwidth = 95
 

@@ -198,22 +198,6 @@ end
 -- COMPONENT ACTIONS ---------------------------------------------------------
 --
 
--- TODO: rename each func to `manage_ <component>(opts)`
---  so that I can use the same func every where but only change the
---  args when necessary.
-
--- NOTE: how do I distinguish between DOOM and MOD here
---        what did I mean with this note?!
-
---      NOTE: REMEMBER THAT FOR `SETTINGS`, IF NO MODULE IS SELETED,
---      then operate on `./settings.lua`. Redo this later when
---      looking over ui query pattern. It is a bit hacky so it could
---      probably be improved.
-
--- NOTE: EACH ACTION OPERATES ON A SINGLE CONFIG UNIT.
-
--- GLOBAL
-
 actions.c_add = function(sel)
   log.info("Add component")
 
@@ -224,18 +208,30 @@ actions.c_add = function(sel)
   --          2. readability.
 
   nui.nui_menu("ADD MODULE COMPONENT:", conf_ui.settings.component_alternatives, function(value)
+    local sv = value.text
 
-
-    -- TODO: IF STATEMENT FOR EACH COMPONENT
-
-
-
-    local ret = mod.add_component({
+    local t = {
       selected_module = DOOM_UI_STATE.selected_module,
       selected_component = sel,
       ui_input_comp_type = value.text,
       -- ui_input_module = ..
-    })
+    }
+
+
+    if sv == "settings" then
+      mod.setting_add(t)
+    elseif sv == "packages" then
+      mod.package_add(t)
+    elseif sv == "configs" then
+      mod.config_add(t)
+    elseif sv == "cmds" then
+      mod.cmd_add(t)
+    elseif sv == "autocmds" then
+      mod.autocmd_add(t)
+    elseif sv == "binds" then
+      mod.bind_add(t)
+    end
+
   end)
 end
 
@@ -367,10 +363,6 @@ actions.c_autocmd_edit = function(sel)
   })
 end
 
-
-
-
-
 actions.c_autocmd_remove = function()
   local ret = mod.module_apply({
     action = "remove_autocmd",
@@ -398,7 +390,6 @@ actions.c_bind_edit = function(sel)
     selected_module = DOOM_UI_STATE.selected_module,
     selected_component = sel.value,
   })
-
 end
 
 actions.c_bind_replace = function()
