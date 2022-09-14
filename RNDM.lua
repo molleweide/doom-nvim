@@ -4,7 +4,6 @@ this is wierd and it is not paid and bought for by him and that is why
 people can't make children that they have been brain washed and
 don't think that it makes sense to go
 
-
 -- WASHING MACHINE FILTER!!
 
 -- custom fonts with treesitter.
@@ -20,9 +19,8 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add after / create from line
 --
---        hooked up     (check)
 --        get captures
---        custom ts
+--        leader conditional
 --
 
 -- TODO: move user modules

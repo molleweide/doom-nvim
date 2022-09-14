@@ -6,7 +6,7 @@ local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
 
--- TODO: MAKE SURE THAT TEXT IS INSERTED IN BETWEEN CORRECT NODES
+-- TODO: apply formatting to file operated on. call null-ls method on buf.
 
 local compute_insertion_point = function() end
 
@@ -378,10 +378,17 @@ mod_util.bind_add_after = function(opts)
   local leader = has_leader(opts)
 
   -- NOTE: compare binds table range[1] within leader table
+  --
 
   -- if inside_leader then
   --    if inside leader. find enclosing branch E.
   --        insert new binding last in E.
+  --
+  --        get .node -> get parent and get up to the branch
+  --
+  --        get branch range
+  --
+  --
   -- else
   --    insert line after
   -- end
@@ -428,8 +435,16 @@ mod_util.bind_create_from_line = function(opts)
 
   local leader = has_leader(opts)
 
-  -- todo: recursively look for the deepest existing leader child that
-  --        we want to add the new child to
+  -- local leader_tbl = leader[1].node:...
+
+  -- while(leader_tbl)
+  -- do
+  --    -- assumes no duplicate branches
+  --    checks for child table with correct "lhs"
+  --    loop children
+  --
+  --    leader_tbl = ...
+  -- end
 
   if #leader > 0 then
     -- if is_leader then
