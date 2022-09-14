@@ -18,26 +18,25 @@ end
 --        queryN, captureN,
 --
 ts.get_captures = function(query, cname, path, scope)
+  -- args[1] should be the path/buf to operate on.
   -- local args = ...
   local path = path or utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(path)
 
+  local captured_entries = {}
   local prev_scope
-  for i = 2, #args do
-    -- args[1] should be the path/buf to operate on.
-
-    -- loop args,
-    --
-    --    process queries.
-
-    -- prev_scope = ???
+  for i = 2, #args, 2 do
+    local parsed = vim.treesitter.parse_query("lua", args[i])
+    local root = ts.get_root(buf)
+    if i >= #args - 1 then
+    else
+      -- prev_scope = ???
+    end
   end
 
   local parsed = vim.treesitter.parse_query("lua", query)
   local root = ts.get_root(buf)
-
   local t = {}
-
   for id, node, _ in parsed:iter_captures(root, buf, 0, -1) do
     local name = parsed.captures[id]
     if name == cname then
@@ -48,7 +47,6 @@ ts.get_captures = function(query, cname, path, scope)
       })
     end
   end
-
   return t, buf
 end
 

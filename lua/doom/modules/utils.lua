@@ -3,7 +3,7 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
-local ntq = require("nvim-treesitter.query")
+-- local ntq = require("nvim-treesitter.query")
 
 local compute_insertion_point = function() end
 
