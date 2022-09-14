@@ -1,1 +1,0 @@
--- walk through nvim-treesitter and use every function under locals.

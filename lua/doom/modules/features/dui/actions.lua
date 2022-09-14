@@ -367,13 +367,9 @@ actions.c_autocmd_move = function() end
 -- BINDS
 --
 
-actions.c_bind_add = function()
-  -- 1. check if module has binds table
-  -- 2. check for regular binds AND leader table
-  -- 3. enter new binds snippet before leader.
-  local ret = mod.module_apply({
-    action = "add_bind",
-  })
+actions.c_bind_add_after = function()
+  -- for regular binds this means insert below,
+  -- for leader, this also means insert below
 end
 
 actions.c_bind_edit = function(sel)
@@ -391,23 +387,15 @@ actions.c_bind_replace = function()
   })
 end
 
-actions.c_bind_leader_add = function()
-  -- 1. check if module has binds table
-  -- 2. check for leader table
-  -- 3. add to last
-  local ret = mod.module_apply({
-    action = "add_leader",
-  })
-end
-
 actions.c_bind_leader_add_to_sel = function(buf, config)
   -- find selected leader bind in module file.
   -- enter new binds snippet in the correct selected leader node.
-  local ret = mod.module_apply({
-    action = "add_leader_to_selected",
-  })
 end
 
+actions.c_bind_move = function()
+  -- 1. use telescope line string to move the bind to a new `lhs`
+  -- 2. if you start with a `<ld>`, then we add the new bind to a new leader.
+end
 --
 -- USER CONFIG
 --
