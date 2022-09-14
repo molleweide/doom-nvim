@@ -18,13 +18,9 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: add b4 <leader>
-
 -- TODO: add bind to selected level, eg for leaders
 
 -- TODO: add new leader
-
--- TODO:
 
 -- TODO: MOVE ALL STUPID MODULES INTO USER
 
