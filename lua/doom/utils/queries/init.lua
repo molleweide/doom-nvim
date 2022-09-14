@@ -1,6 +1,6 @@
 local queries = {}
 
-queries.root_mod_name_by_section = function(name, section)
+queries.root_mod = function(name, section)
   return string.format(
     [[
 (return_statement (expression_list
@@ -19,7 +19,7 @@ queries.root_mod_name_by_section = function(name, section)
   )
 end
 
-queries.root_all_comments_from_section = function(section)
+queries.root_comments = function(section)
   return string.format(
     [[
 (return_statement (expression_list
@@ -35,7 +35,7 @@ queries.root_all_comments_from_section = function(section)
   )
 end
 
-queries.root_get_section_table_by_name = function(section)
+queries.root_section_table = function(section)
   return string.format(
     [[
 (return_statement (expression_list
