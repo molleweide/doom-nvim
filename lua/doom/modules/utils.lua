@@ -411,16 +411,6 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  -- if not leader
-  --
-  --      insert before leader
-  --
-  --  else
-  --
-  --      iterate leaders and add new branches if needed*.
-  --
-  --        * concatenate together the whole new branch and
-  --          insert it. this is not as complicated as it sounds.
 
   act_on_capture(
     ts.get_captures(
@@ -438,14 +428,15 @@ mod_util.bind_create_from_line = function(opts)
 
   local leader = has_leader(opts)
 
-  if #leader > 0 then
+  -- todo: recursively look for the deepest existing leader child that
+  --        we want to add the new child to
 
+  if #leader > 0 then
     -- if is_leader then
     --    append new leader bind
     -- else
     --    insert after leader here.
     -- end
-
   else
 
     -- if is_leader then
@@ -453,9 +444,7 @@ mod_util.bind_create_from_line = function(opts)
     -- else
     --    just insert here
     -- end
-
   end
-
 end
 
 mod_util.bind_move_leader = function(opts)
