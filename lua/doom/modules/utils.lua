@@ -330,7 +330,7 @@ mod_util.autocmd_add = function(opts)
 end
 
 mod_util.autocmd_edit = function(opts)
-  action(
+  act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
       q.mod_tbl(opts.ui_input_comp_type),
@@ -365,29 +365,39 @@ mod_util.bind_add = function(opts)
 end
 
 mod_util.bind_add_after = function(opts)
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.selected_component.component_type),
+      "rhs",
+      q.binds_table(opts.selected_component.data),
+      "rhs"
+    )
+  )
 
-  -- TODO:
-  --
-  --    find bind.
-  --
+  local leader = has_leader(opts)
+
+  -- NOTE: compare binds table range[1] within leader table
+
+  -- if inside_leader then
   --    if inside leader. find enclosing branch E.
   --        insert new binding last in E.
-  --
-  --    else, insert line after
+  -- else
+  --    insert line after
+  -- end
 end
 
 mod_util.bind_edit = function(opts)
-  local mf = opts.selected_module.path .. "init.lua"
-
-  print(vim.inspect(opts.selected_component))
-
-  local mod_tbl, buf = ts.get_captures(q.mod_tbl(opts.selected_component.component_type), "rhs", mf)
-  local q_binds_tbl = q.binds_table(opts.selected_component.data)
-  -- print(#base)
-  -- print(q_binds_tbl)
-  local captures, buf = ts.get_captures(q_binds_tbl, "rhs", mf)
-
-  act_on_capture(captures, buf)
+  -- print(vim.inspect(opts.selected_component))
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.selected_component.component_type),
+      "rhs",
+      q.binds_table(opts.selected_component.data),
+      "rhs"
+    )
+  )
 end
 
 mod_util.bind_add_to_selection_level = function(opts) end
@@ -401,9 +411,6 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-
-  -- TODO: only implement lhs and leader
-  --
   -- if not leader
   --
   --      insert before leader
@@ -414,6 +421,41 @@ mod_util.bind_create_from_line = function(opts)
   --
   --        * concatenate together the whole new branch and
   --          insert it. this is not as complicated as it sounds.
+
+  act_on_capture(
+    ts.get_captures(
+      opts.selected_module.path .. "init.lua",
+      q.mod_tbl(opts.ui_input_comp_type),
+      "rhs",
+      q.autocmd_table(opts.selected_component.data),
+      "action"
+    )
+  )
+
+  -- if line starts with "^%s*" mult whitespace,
+  -- then create leader
+  --
+
+  local leader = has_leader(opts)
+
+  if #leader > 0 then
+
+    -- if is_leader then
+    --    append new leader bind
+    -- else
+    --    insert after leader here.
+    -- end
+
+  else
+
+    -- if is_leader then
+    --    need to create whole new leader table here.
+    -- else
+    --    just insert here
+    -- end
+
+  end
+
 end
 
 mod_util.bind_move_leader = function(opts)
