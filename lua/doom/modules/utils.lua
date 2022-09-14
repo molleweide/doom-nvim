@@ -187,23 +187,13 @@ end
 
 mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
-  local mf = opts.selected_module.path .. "init.lua"
-
-  -- -- TODO: DOUBLE CAPTURES
-  -- local t, buf = ts.get_captures(q.mod_tbl(sc.component_type), "rhs", mf)
-  -- local q_settings_field = q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value)
-  -- local captures, buf = ts.get_captures(q_settings_field, "value", mf)
-
-  local caps = ts.get_captures(
-    mf,
-    q.mod_tbl(sc.comp_type),
+  local caps, buf = ts.get_captures(
+    opts.selected_module.path .. "init.lua",
+    q.mod_tbl(sc.component_type),
     "rhs",
-    q.field(sc.data.tbl_path[#sc.data.tbl_path], sc.data.tbl_value),
+    q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
     "value"
   )
-  -- local caps = ts.get_captures(mf, mt, "rhs", qs, "value")
-
-  -- local cps, buf = ts.get_cps(query1, c1, query2, c2, mf)
   act_on_capture(caps, buf)
 end
 
