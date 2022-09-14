@@ -367,7 +367,7 @@ actions.c_autocmd_move = function() end
 -- BINDS
 --
 
-actions.c_bind_add_after = function()
+actions.c_bind_add_after = function(sel)
   -- for regular binds this means insert below,
   -- for leader, this also means insert below
 end
@@ -387,7 +387,7 @@ actions.c_bind_replace = function()
   })
 end
 
-actions.c_bind_leader_add_to_sel = function(buf, config)
+actions.c_bind_create_from_line = function(sel, line)
   -- find selected leader bind in module file.
   -- enter new binds snippet in the correct selected leader node.
 end

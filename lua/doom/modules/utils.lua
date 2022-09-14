@@ -362,7 +362,18 @@ mod_util.bind_add = function(opts)
   else
     act_on_capture(t, buf)
   end
+end
 
+mod_util.bind_add_after = function(opts)
+
+  -- TODO:
+  --
+  --    find bind.
+  --
+  --    if inside leader. find enclosing branch E.
+  --        insert new binding last in E.
+  --
+  --    else, insert line after
 end
 
 mod_util.bind_edit = function(opts)
@@ -388,6 +399,22 @@ mod_util.bind_remove = function(opts) end
 mod_util.bind_replace = function(opts) end
 
 mod_util.bind_move = function(opts) end
+
+mod_util.bind_create_from_line = function(opts)
+
+  -- TODO: only implement lhs and leader
+  --
+  -- if not leader
+  --
+  --      insert before leader
+  --
+  --  else
+  --
+  --      iterate leaders and add new branches if needed*.
+  --
+  --        * concatenate together the whole new branch and
+  --          insert it. this is not as complicated as it sounds.
+end
 
 mod_util.bind_move_leader = function(opts)
   -- make it more easy to manage binds
