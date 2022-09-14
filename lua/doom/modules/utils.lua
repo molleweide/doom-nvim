@@ -201,16 +201,16 @@ mod_util.setting_edit = function(opts)
   act_on_capture(caps, buf)
 end
 
--- mod_util.setting_add_to_selection_level = function()
---   -- allows you to select a sub table entry and add a new entry to
---   -- the same sub table
--- end
---
--- mod_util.setting_move = function(opts) end
---
--- mod_util.setting_remove = function(opts) end
---
--- mod_util.setting_replace = function(opts) end
+mod_util.setting_add_to_selection_level = function()
+  -- allows you to select a sub table entry and add a new entry to
+  -- the same sub table
+end
+
+mod_util.setting_move = function(opts) end
+
+mod_util.setting_remove = function(opts) end
+
+mod_util.setting_replace = function(opts) end
 
 --
 -- PACKAGES
@@ -238,12 +238,12 @@ mod_util.package_edit = function(opts)
   )
 end
 
--- mod_util.package_move = function(opts) end
--- mod_util.package_remove = function(opts) end
--- mod_util.package_clone = function(opts) end
--- mod_util.package_fork = function(opts) end
--- mod_util.package_toggle_local = function(opts) end
--- mod_util.package_use_specific_upstream = function(opts) end
+mod_util.package_move = function(opts) end
+mod_util.package_remove = function(opts) end
+mod_util.package_clone = function(opts) end
+mod_util.package_fork = function(opts) end
+mod_util.package_toggle_local = function(opts) end
+mod_util.package_use_specific_upstream = function(opts) end
 
 --
 -- CONFIGS
@@ -335,9 +335,9 @@ mod_util.autocmd_edit = function(opts)
   )
 end
 
--- mod_util.autocmd_remove = function(opts) end
--- mod_util.autocmd_replace = function(opts) end
--- mod_util.autocmd_move = function(opts) end
+mod_util.autocmd_remove = function(opts) end
+mod_util.autocmd_replace = function(opts) end
+mod_util.autocmd_move = function(opts) end
 
 --
 -- BINDS
@@ -374,29 +374,29 @@ mod_util.bind_edit = function(opts)
   act_on_capture(captures, buf)
 end
 
--- mod_util.bind_add_to_selection_level = function(opts) end
---
--- mod_util.bind_add_to_level = function(opts) end
---
--- mod_util.bind_remove = function(opts) end
---
--- mod_util.bind_replace = function(opts) end
---
--- mod_util.bind_move = function(opts) end
---
--- mod_util.bind_move_leader = function(opts)
---   -- make it more easy to manage binds
--- end
---
--- mod_util.bind_add_to_same = function(opts) end
---
--- mod_util.bind_make_leader = function(opts)
---   -- create a loop that generates the leader.
---   --
---   -- leader_max_length
--- end
---
--- mod_util.bind_merge_leader = function(opts) end
+mod_util.bind_add_to_selection_level = function(opts) end
+
+mod_util.bind_add_to_level = function(opts) end
+
+mod_util.bind_remove = function(opts) end
+
+mod_util.bind_replace = function(opts) end
+
+mod_util.bind_move = function(opts) end
+
+mod_util.bind_move_leader = function(opts)
+  -- make it more easy to manage binds
+end
+
+mod_util.bind_add_to_same = function(opts) end
+
+mod_util.bind_make_leader = function(opts)
+  -- create a loop that generates the leader.
+  --
+  -- leader_max_length
+end
+
+mod_util.bind_merge_leader = function(opts) end
 
 --
 -- GET FULL/EXTENDED TABLE OF ALL MODULES
