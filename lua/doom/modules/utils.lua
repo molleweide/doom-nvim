@@ -66,6 +66,14 @@ local function act_on_capture(captures, buf)
   end
 end
 
+local function get_settings_file(mod_path)
+  if mod_path then
+    return mod_path .. "init.lua"
+  else
+    return utils.find_config("settings.lua")
+  end
+end
+
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -169,7 +177,7 @@ end
 mod_util.setting_add = function(opts)
   act_on_capture(
     ts.get_captures(
-      opts.selected_module.path .. "init.lua",
+      get_settings_file(opts.selected_module),
       q.mod_tbl(opts.ui_input_comp_type),
       "rhs"
     )
@@ -180,7 +188,7 @@ mod_util.setting_edit = function(opts)
   local sc = opts.selected_component
   act_on_capture(
     ts.get_captures(
-      opts.selected_module.path .. "init.lua",
+      get_settings_file(opts.selected_module),
       q.mod_tbl(sc.component_type),
       "rhs",
       q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
