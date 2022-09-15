@@ -4,6 +4,8 @@ local file_explorers = {}
 -- https://github.com/Shougo/defx.nvim /// https://github.com/kristijanhusak/defx-git
 -- https://github.com/nvim-neo-tree/neo-tree.nvim
 
+-- features / file_explorers
+
 file_explorers.packages = {
   ["neofs"] = { "TimUntersberger/neofs" },
 }

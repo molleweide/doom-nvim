@@ -84,6 +84,20 @@ local function has_leader(opts)
   )
   return leader, buf
 end
+
+local function find_deepest_leader()
+end
+
+local function build_new_build_bind()
+  -- BUILD NEW LEADER
+  --
+  --
+  --      create helper func
+  --
+  --      generate dummy branch names
+  --          +AAA, +BBB, +CCC, ...
+end
+
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -250,6 +264,12 @@ mod_util.package_clone = function(opts) end
 mod_util.package_fork = function(opts) end
 mod_util.package_toggle_local = function(opts) end
 mod_util.package_use_specific_upstream = function(opts) end
+
+mod_util.create_new_module_from = function()
+  -- package string / section
+  -- or other compones.
+  -- spawn new module and enter it etc.
+end
 
 --
 -- CONFIGS
@@ -418,7 +438,6 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
@@ -445,6 +464,9 @@ mod_util.bind_create_from_line = function(opts)
   --
   --    leader_tbl = ...
   -- end
+  -- local ld_deepest = find_deepest_leader()
+
+  local bstr = build_new_build_bind()
 
   if #leader > 0 then
     -- if is_leader then
@@ -509,7 +531,11 @@ mod_util.extend = function(filter)
   local function add_meta_data(paths)
     local prep_all_m = { doom = {}, user = {} }
     for _, p in ipairs(paths) do
+      -- TODO: capture sections in path table!!!
+      --    just like with settings `table_path`
+
       local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
+
       -- if user is empty for now..
       if m_origin == nil then
         break
@@ -529,8 +555,13 @@ mod_util.extend = function(filter)
     return prep_all_m
   end
 
+  --
+  -- TODO: REWRITE TO WORK WITH THE NEW RECURSIVE PATTERN.
+  --
   local function merge_with_enabled(prep_all_m)
     local enabled_modules = require("doom.core.modules").enabled_modules
+
+    -- tree crawl enabled modules. copy from `core/config.lua`
 
     for section_name, section_modules in pairs(enabled_modules) do
       for _, module_name in pairs(section_modules) do

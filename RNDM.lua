@@ -1,9 +1,5 @@
 --[[
 
-this is wierd and it is not paid and bought for by him and that is why
-people can't make children that they have been brain washed and
-don't think that it makes sense to go
-
 -- WASHING MACHINE FILTER!!
 
 -- custom fonts with treesitter.
@@ -18,24 +14,9 @@ call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add after / create from line
---
---        get captures
---        leader conditional
---
-
--- TODO: move user modules
-
--- TODO: more module categories >> check branch `feat/mod-struct-recursive`
---      if I am not mistaken, it should be possible to use recursive structures
---      all ready now. so I should try to do this and then add all other
---      modules to my own user
---
---      make one section at a time
-
+-- TODO: recursive mod dirs > rewrite mod_utils.extend()
 -- TODO: fix modules extend() > `user` show up in telescope.
-
 -- TODO: NEOGEN EVERYTHING
-
 -- TODO: merge with my main PR
 
 -----------------------------------------------------------------------------

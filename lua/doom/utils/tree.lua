@@ -318,6 +318,8 @@ local function flatten_stack(stack, v)
   return pc
 end
 
+-- TODO: move both of these into other utils
+
 -- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
 -- could be a head if you want to append all modules upon loading doom.
 --

@@ -418,7 +418,7 @@ result_nodes.modules = function()
         { "MODULE" },
         { module.enabled and "x" or " " },
         { module.origin },
-        { module.section },
+        { module.section }, -- put path here instead
         { module.name },
       }
 
