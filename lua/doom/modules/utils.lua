@@ -85,8 +85,7 @@ local function has_leader(opts)
   return leader, buf
 end
 
-local function find_deepest_leader()
-end
+local function find_deepest_leader() end
 
 local function build_new_build_bind()
   -- BUILD NEW LEADER
@@ -98,6 +97,12 @@ local function build_new_build_bind()
   --          +AAA, +BBB, +CCC, ...
 end
 
+local function get_component_node_under_cursor()
+  -- 1. nvim treesitter get node under cursor.
+  -- 2. iterate outwards.
+  -- 3. check for match pattern with spec.
+  -- 4. if match return most logical enclosing node
+end
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -399,6 +404,10 @@ mod_util.bind_add_after = function(opts)
 
   -- NOTE: compare binds table range[1] within leader table
   --
+  --
+  --      local ts_utils = require 'nvim-treesitter.ts_utils'
+  --
+  --      is_parent(dest, source) -- nodes
 
   -- if inside_leader then
   --    if inside leader. find enclosing branch E.
