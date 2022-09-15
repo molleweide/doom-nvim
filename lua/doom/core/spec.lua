@@ -24,4 +24,5 @@ return {
       ("doom.modules.%s"):format(path_str),
     }
   end,
+  modules_max_depth = "*/*/"
 }

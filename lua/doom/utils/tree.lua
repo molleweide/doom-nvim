@@ -322,17 +322,27 @@ M.flatten_stack = function(stack, v, concat)
   end
 end
 
--- TODO: move both of these into other utils
-
 -- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
 -- could be a head if you want to append all modules upon loading doom.
 --
+-- TODO: rename > table_path_do
+--
 -- @param table list of path components
-M.attach_table_path = function(head, tp, data)
+M.attach_table_path = function(head, tp, data, return_on_nil, log)
+  if not head then
+    return false
+  end
   local last = #tp
   for i, p in ipairs(tp) do
+    -- if log then
+    --   print(i, p)
+    -- end
     if i ~= last then
+      -- end
       if head[p] == nil then
+        if return_on_nil then
+          return false
+        end
         head[p] = {}
       end
       head = head[p]
@@ -342,6 +352,12 @@ M.attach_table_path = function(head, tp, data)
       else
         head[p] = data
       end
+
+      -- if log then
+      --   print(vim.inspect(head[p]))
+      -- end
+
+      return head[p]
     end
   end
 end

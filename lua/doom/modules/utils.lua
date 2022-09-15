@@ -539,15 +539,9 @@ mod_util.extend = function(filter)
     end
 
     -- TODO:
-    -- need to add extra * here.
-    -- allow max depth? 5 ????
-    -- doom.specs.m_max_depth = "*/*/*/" -- three levels allowed currently
-    --
     -- append "init.lua" so that we know that we only get module
     -- entry points
-    --
-    --
-    local glob = config_path .. "/lua/" .. cat .. "/modules/*/*/"
+    local glob = config_path .. "/lua/" .. cat .. "/modules/" .. spec.modules_max_depth
     return vim.split(vim.fn.glob(glob), "\n")
   end
 
@@ -555,45 +549,38 @@ mod_util.extend = function(filter)
   local function get_all_module_paths()
     local glob_doom_modules = glob_modules("doom")
     local glob_user_modules = glob_modules("user")
+    -- i(glob_user_modules)
     -- merge origin paths
     local all = glob_doom_modules
     for _, p in ipairs(glob_user_modules) do
+      -- print(p)
       table.insert(all, p)
     end
+    -- print(all[#all])
     return all
   end
 
   -- make_table for each mod path
   local function add_meta_data(paths)
     local m_all = { doom = {}, user = {} }
+    -- print(paths[#paths])
     for _, p in ipairs(paths) do
-      -- TODO: FOLLOW TABLE PATH PATTERN.
-      -- todo: capture sections in path table!!!
-      --    just like with settings `table_path`
-      -- add `*` around section capture
-      -- then use index 1 to get origin, and -1 to get module name
-      local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
+      local match_str = "/([_%w]-)/modules/([_%w]-)/([_%w]-)/$"
 
+      -- todo: why is origin nil here for user??
+      local m_origin, m_section, m_name = p:match(match_str)
       -- if user is empty for now..
       if m_origin == nil then
-        break
+        -- break
+        m_origin = "user"
       end
 
-      -- tree.attach_table_path(m_all[m_origin], pc, {
-      --   -- todo: how is type used?
-      --   type = "doom_module_single",
-      --   enabled = false,
-      --   name = m_name,
-      --   section = m_section,
-      --   origin = m_origin,
-      --   path = p, -- only the dir path
-      --   -- path_init = module init file path
-      -- })
+      -- print(m_origin, m_section, m_name)
+      -- if m_origin ~= "doom" then
+      --   print(m_origin)
+      -- end
 
-      if m_all[m_origin][m_section] == nil then
-        m_all[m_origin][m_section] = {}
-      end
-      m_all[m_origin][m_section][m_name] = {
+      tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
         -- todo: how is type used?
         type = "doom_module_single",
         enabled = false,
@@ -602,8 +589,10 @@ mod_util.extend = function(filter)
         origin = m_origin,
         path = p, -- only the dir path
         -- path_init = module init file path
-      }
+      })
     end
+
+    -- print(vim.inspect(m_all["user"]))
     return m_all
   end
 
@@ -611,20 +600,43 @@ mod_util.extend = function(filter)
   local function merge_with_enabled(m_all)
     local enabled_modules = require("doom.core.modules").enabled_modules
 
+    -- print(vim.inspect(m_all))
+
     -- tree.traverse_table({
     --   tree = enabled_modules,
     --   leaf = function(stack, _, v)
     --     local pc, path_concat = tree.flatten_stack(stack, v, ".")
     --     for _, path in ipairs(spec.search_paths(path_concat)) do
     --       local origin = path:sub(1, 4)
-    --       tree.attach_table_path(m_all[origin], pc, true)
+    --       -- print(origin)
+    --       -- i(m_all["user"])
+    --       -- print(vim.inspect(pc))
+    --       -- tree.attach_table_path(m_all[origin], pc, true, "enabled", true)
+    --       -- local pce = pc
+    --       -- table.insert(pce, "enabled")
+    --
+    --       -- TODO: the problem is that here, in this case, i don't
+    --       -- want to attach path. i only want to get if it exists.
+    --
+    --       local p_enab = vim.deepcopy(pc)
+    --       table.insert(p_enab, "enabled")
+    --       local m = tree.attach_table_path(m_all[origin], p_enab, true, true, true)
+    --       -- tree.attach_table_path(m_all[origin], pc, function(head)
+    --       --   head.enabled = true
+    --       -- end)
+    --
+    --       -- print("xxxxxxxxxx")
+    --
     --       tree.attach_table_path(doom.modules, pc, function(head)
+    --         -- i(head)
     --         for i, j in pairs(head) do
-    --           local pcn = pc
-    --           table.insert(pcn, i)
-    --           tree.attach_table_path(m_all[origin], pcn, j)
+    --           m[i] = j
+    --           -- local pcn = vim.deepcopy(pc)
+    --           -- table.insert(pcn, i)
+    --           -- print(vim.inspect(pcn))
+    --           -- tree.attach_table_path(m_all[origin], pcn, j, true)
     --         end
-    --       end)
+    --       end, true)
     --     end
     --     return pc
     --   end,
@@ -651,10 +663,13 @@ mod_util.extend = function(filter)
         --------
       end
     end
+
     return m_all
   end
 
   -- TODO: NEED TO DISABLE THIS UNTIL THE RECUSRIVE STRUCTURE IS FINNISHED.
+  --
+  -- NOTE: FILTER IS NOT REALLY USED, SO IT IS OKAY TO DISABLE IT
 
   local function apply_filters(mods)
     -- AND type(filter) == "table"
