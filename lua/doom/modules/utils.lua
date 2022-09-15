@@ -1,5 +1,7 @@
 local log = require("doom.utils.logging")
 local utils = require("doom.utils")
+local spec = require("doom.core.spec")
+local tree = require("doom.utils.tree")
 local tscan = require("doom.utils.tree").traverse_table
 local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
@@ -577,7 +579,16 @@ mod_util.extend = function(filter)
         break
       end
 
-      -- TODO: USE ATTACH TABLE PATH HERE
+      -- tree.attach_table_path(m_all[m_origin], pc, {
+      --   -- todo: how is type used?
+      --   type = "doom_module_single",
+      --   enabled = false,
+      --   name = m_name,
+      --   section = m_section,
+      --   origin = m_origin,
+      --   path = p, -- only the dir path
+      --   -- path_init = module init file path
+      -- })
 
       if m_all[m_origin][m_section] == nil then
         m_all[m_origin][m_section] = {}
@@ -596,49 +607,28 @@ mod_util.extend = function(filter)
     return m_all
   end
 
-  --
-  -- TODO: REWRITE TO WORK WITH THE NEW RECURSIVE PATTERN.
-  --
-  --
-  -- this is actually not that difficult because I have already
-  -- written the necessary helpers that we need. hell yeah
-  --
-
-  -- tree.traverse_table({
-  --   tree = enabled_modules,
-  --   leaf = function(stack, k, v)
-  --     -- print(vim.inspect(stack), k, v)
-  --     local pc, path_concat = tree.flatten_stack(stack, v, ".")
-  --     local ok, result
-  --     for _, path in ipairs(spec.search_paths(path_concat)) do
-  --       ok, result = xpcall(require, debug.traceback, path)
-  --       if ok then
-  --         break
-  --       end
-  --     end
-  --     if ok then
-  --       result["is_module"] = true -- I don't think this one is used.
-  --       result.type = "doom_module_single"
-  --       tree.attach_table_path(doom.modules, pc, result)
-  --     else
-  --       local log = require("doom.utils.logging")
-  --       log.error(
-  --         string.format(
-  --           "There was an error loading module '%s'. Traceback:\n%s",
-  --           path_concat,
-  --           result
-  --         )
-  --       )
-  --     end
-  --     return pc
-  --   end,
-  -- })
-
   -- add_enabled_states
   local function merge_with_enabled(m_all)
     local enabled_modules = require("doom.core.modules").enabled_modules
 
-    -- tree crawl enabled modules. copy from `core/config.lua`
+    -- tree.traverse_table({
+    --   tree = enabled_modules,
+    --   leaf = function(stack, _, v)
+    --     local pc, path_concat = tree.flatten_stack(stack, v, ".")
+    --     for _, path in ipairs(spec.search_paths(path_concat)) do
+    --       local origin = path:sub(1, 4)
+    --       tree.attach_table_path(m_all[origin], pc, true)
+    --       tree.attach_table_path(doom.modules, pc, function(head)
+    --         for i, j in pairs(head) do
+    --           local pcn = pc
+    --           table.insert(pcn, i)
+    --           tree.attach_table_path(m_all[origin], pcn, j)
+    --         end
+    --       end)
+    --     end
+    --     return pc
+    --   end,
+    -- })
 
     for section_name, section_modules in pairs(enabled_modules) do
       for _, module_name in pairs(section_modules) do
@@ -646,13 +636,8 @@ mod_util.extend = function(filter)
           ("user.modules.%s.%s"):format(section_name, module_name),
           ("doom.modules.%s.%s"):format(section_name, module_name),
         }
-
-        -- this should go in the leaf call back.
         for _, path in ipairs(search_paths) do
           local origin = path:sub(1, 4)
-
-          -- use attach table path here to attach data to
-
           if m_all[origin][section_name] ~= nil then
             if m_all[origin][section_name][module_name] ~= nil then
               m_all[origin][section_name][module_name].enabled = true
@@ -669,7 +654,7 @@ mod_util.extend = function(filter)
     return m_all
   end
 
-  -- todo: need to disable this until the recusrive structure is finnished.
+  -- TODO: NEED TO DISABLE THIS UNTIL THE RECUSRIVE STRUCTURE IS FINNISHED.
 
   local function apply_filters(mods)
     -- AND type(filter) == "table"
