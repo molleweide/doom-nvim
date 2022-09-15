@@ -6,6 +6,8 @@ local nui = require("doom.modules.features.dui.nui")
 
 -- TODO: nui themeing and stylez
 
+-- TODO: undo points for all actions!!!!!
+--
 -- TODO: refactor everything NUI into util so that it becomes a bit nicer to handle
 
 --  - open/edit (new) module in split / same win is default on <CR>

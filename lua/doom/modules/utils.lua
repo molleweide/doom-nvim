@@ -519,17 +519,25 @@ mod_util.bind_merge_leader = function(opts) end
 mod_util.extend = function(filter)
   local config_path = vim.fn.stdpath("config")
 
+  -- m_glob_mod_paths_by_origin
   local function glob_modules(cat)
+    -- doom.specs.origins = { list of all origins}
     if cat ~= "doom" and cat ~= "user" then
       return
     end
+
+    -- TODO:
+    -- need to add extra * here.
+    -- allow max depth? 5 ????
     local glob = config_path .. "/lua/" .. cat .. "/modules/*/*/"
     return vim.split(vim.fn.glob(glob), "\n")
   end
 
+  -- m_collect_all_paths
   local function get_all_module_paths()
     local glob_doom_modules = glob_modules("doom")
     local glob_user_modules = glob_modules("user")
+    -- merge origin paths
     local all = glob_doom_modules
     for _, p in ipairs(glob_user_modules) do
       table.insert(all, p)
@@ -537,6 +545,7 @@ mod_util.extend = function(filter)
     return all
   end
 
+  -- make_table for each mod path
   local function add_meta_data(paths)
     local prep_all_m = { doom = {}, user = {} }
     for _, p in ipairs(paths) do
@@ -567,6 +576,8 @@ mod_util.extend = function(filter)
   --
   -- TODO: REWRITE TO WORK WITH THE NEW RECURSIVE PATTERN.
   --
+
+  -- add_enabled_states
   local function merge_with_enabled(prep_all_m)
     local enabled_modules = require("doom.core.modules").enabled_modules
 
