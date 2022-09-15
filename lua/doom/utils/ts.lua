@@ -20,6 +20,8 @@ ts.get_captures = function(path, q1, c1, q2, c2)
   local t1 = {}
   local t2 = {}
 
+  local return_both = q2 and c2
+
   -- NOTE: this prints long after I am expecting it to print??!
   -- log.info(q1, "\n", q2)
 
@@ -52,11 +54,12 @@ ts.get_captures = function(path, q1, c1, q2, c2)
     end
   end
 
-  -- -- double query
-  -- return t1, t2, buf
-
-  -- single query
-  return t2, buf
+  if return_both then
+    -- if both queries are supplied
+    return t1, t2, buf
+  else
+    return t2, buf
+  end
 end
 
 return ts

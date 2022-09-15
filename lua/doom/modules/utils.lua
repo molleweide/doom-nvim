@@ -422,26 +422,17 @@ end
 
 -- IF LEADER BRANCH -> ADD BIND TO SAME BRANCH
 mod_util.bind_add_after = function(opts)
-  -- A. TELESCOPE
-  --
-  --    then get the bind under cursor with queries
-  --
-  -- B. REGULAR COMMAND
-  --
-  --      get bind / enclosing with nvim treesitter cursor helpers.
-
-  -- TODO: RETURN ALL CAPTURES
-  local c1, c2, buf = ts.get_captures(
+  -- TELESCOPE  -> then get the bind under cursor with queries
+  -- REGULAR    -> get bind / enclosing with nvim treesitter cursor helpers.
+  local binds_tbl, bind, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
     q.mod_tbl(opts.selected_component.component_type),
     "rhs",
     q.binds_table(opts.selected_component.data),
     "rhs"
   )
-
   local leader = has_leader(opts)
   local add_new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
-
   if add_new_leader then
     local branch_table = get_branch_from_leader_bind(bind[1].node)
     -- insert new bind above row_end
