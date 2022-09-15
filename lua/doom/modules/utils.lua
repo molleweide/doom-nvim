@@ -57,6 +57,13 @@ end
 --    - insert before/after
 --
 local function act_on_capture(captures, buf)
+  -- TODO: USE THIS FUNCTION IN NVIM-TREESITTER.
+  --
+  --  PR: add the ability to pass a buf handle
+  --
+  -- goto_node(node, goto_end, avoid_set_jump)~
+  -- Sets cursor to the position of `node` in the current windows.
+
   if #captures > 0 then
     if doom.settings.doom_ui.insert_templates == "templates" then
       -- insert template
@@ -86,7 +93,28 @@ local function has_leader(opts)
   return leader, buf
 end
 
-local function find_deepest_leader() end
+local function find_deepest_leader()
+
+  -- get_next_node(node, allow_switch_parent, allow_next_parent)~
+  -- Returns the next node within the same parent.
+
+  -- get_previous_node(node, allow_switch_parents, allow_prev_parent)~
+  -- Returns the previous node within the same parent.
+
+  -- get_named_children(node)~
+  -- Returns a table of named children of `node`.
+
+  ------------------------------------------------------------------
+
+  -- while(leader_tbl)
+  -- do
+  --    -- assumes no duplicate branches
+  --    checks for child table with correct "lhs"
+  --    loop children
+  --
+  --    leader_tbl = ...
+  -- end
+end
 
 local function build_new_build_bind()
   -- BUILD NEW LEADER
@@ -394,12 +422,12 @@ end
 mod_util.bind_add_after = function(opts)
   -- return all captures
   local c1, c2, buf = ts.get_captures(
-      opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.selected_component.component_type),
-      "rhs",
-      q.binds_table(opts.selected_component.data),
-      "rhs"
-    )
+    opts.selected_module.path .. "init.lua",
+    q.mod_tbl(opts.selected_component.component_type),
+    "rhs",
+    q.binds_table(opts.selected_component.data),
+    "rhs"
+  )
 
   local leader = has_leader(opts)
   local new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
@@ -435,35 +463,42 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  act_on_capture(
-    ts.get_captures(
-      opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.ui_input_comp_type),
-      "rhs",
-      q.autocmd_table(opts.selected_component.data),
-      "action"
-    )
+  ts.get_captures(
+    opts.selected_module.path .. "init.lua",
+    q.mod_tbl(opts.ui_input_comp_type),
+    "rhs",
+    q.autocmd_table(opts.selected_component.data),
+    "action"
   )
 
   -- if line starts with "^%s*" mult whitespace,
   -- then create leader
   --
 
+  local match_leader = line:match("^%s*")
+
+  -- print("`" .. match_leader .. "`")
+
+  -- rename: leader_exists
+  --
+  -- pass the capture that I like?
   local leader = has_leader(opts)
 
-  -- local leader_tbl = leader[1].node:...
+  local leader_tbl
 
-  -- while(leader_tbl)
-  -- do
-  --    -- assumes no duplicate branches
-  --    checks for child table with correct "lhs"
-  --    loop children
+  if leader[1] then
+    leader_tbl = leader[1].node
+
+    local ld_deepest = find_deepest_leader(leader_tbl)
+  end
+
+  -- if ld_deepest
   --
-  --    leader_tbl = ...
-  -- end
-  -- local ld_deepest = find_deepest_leader()
+  --
+  -- new_leader_spec = subtract collected leaders from the leader string
+  --
 
-  local bstr = build_new_build_bind()
+  local bind_new_compiled_str = build_new_build_bind()
 
   if #leader > 0 then
     -- if is_leader then
