@@ -8,6 +8,9 @@ local q = require("doom.utils.queries")
 local nt = require("nvim-treesitter.utils")
 
 -- TODO: apply formatting to file operated on. call null-ls method on buf.
+--
+-- TODO: add debug logs and messages
+--
 
 local compute_insertion_point = function() end
 
@@ -84,11 +87,11 @@ local function get_settings_file(mod_path)
   end
 end
 
-local function has_leader(opts)
+local function has_leader(opts, capture)
   local leader, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
     q.leader_t,
-    "leader_field"
+    capture or "leader_field"
   )
   return leader, buf
 end
@@ -420,7 +423,6 @@ mod_util.bind_add = function(opts)
   end
 end
 
--- IF LEADER BRANCH -> ADD BIND TO SAME BRANCH
 mod_util.bind_add_after = function(opts)
   -- TELESCOPE  -> then get the bind under cursor with queries
   -- REGULAR    -> get bind / enclosing with nvim treesitter cursor helpers.
@@ -431,7 +433,7 @@ mod_util.bind_add_after = function(opts)
     q.binds_table(opts.selected_component.data),
     "rhs"
   )
-  local leader = has_leader(opts)
+  local leader = has_leader(opts, "leader_table")
   local add_new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
   if add_new_leader then
     local branch_table = get_branch_from_leader_bind(bind[1].node)
@@ -470,48 +472,34 @@ mod_util.bind_create_from_line = function(opts)
     q.mod_tbl(opts.ui_input_comp_type),
     "rhs"
   )
-
-  --
   local line = opts.line
   local match_leader = line:match("^%s*")
-  -- all chars after whitespace are used to make command `lhs`
   local lhs_str = line.sub(white_space_range)
-
   print("`" .. match_leader .. "`")
 
-  -- rename: leader_exists
-  --
-  -- pass the capture that I like?
-  local leader = has_leader(opts)
+  local leader = has_leader(opts, "leader_table")
 
   local leader_tbl
-
   if leader[1] then
     leader_tbl = leader[1].node
     local branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
   end
 
-  -- if ld_deepest
-  --
-  --
-  -- new_leader_spec = subtract collected leaders from the leader string
-  --
-
   local bind_new_compiled_str = build_new_bind()
-
+  -- it feels like this whole if statement could be
+  -- refactored into somekind of binds_insert helper
   if #leader > 0 then
-    -- if is_leader then
-    --    append new leader bind
-    -- else
-    --    insert after leader here.
-    -- end
+    if is_leader then
+      --    append new leader bind
+    else
+      --    insert after leader here.
+    end
   else
-
-    -- if is_leader then
-    --    need to create whole new leader table here.
-    -- else
-    --    just insert here
-    -- end
+    if is_leader then
+      --    need to create whole new leader table here.
+    else
+      --    just insert here
+    end
   end
 end
 
