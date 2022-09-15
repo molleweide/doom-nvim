@@ -484,7 +484,6 @@ mod_util.bind_create_from_line = function(opts)
     leader_tbl = leader[1].node
     local branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
   end
-
   local bind_new_compiled_str = build_new_bind()
   -- it feels like this whole if statement could be
   -- refactored into somekind of binds_insert helper
@@ -566,7 +565,8 @@ mod_util.extend = function(filter)
   local function add_meta_data(paths)
     local m_all = { doom = {}, user = {} }
     for _, p in ipairs(paths) do
-      -- TODO: capture sections in path table!!!
+      -- TODO: FOLLOW TABLE PATH PATTERN.
+      -- todo: capture sections in path table!!!
       --    just like with settings `table_path`
       -- add `*` around section capture
       -- then use index 1 to get origin, and -1 to get module name
@@ -576,12 +576,14 @@ mod_util.extend = function(filter)
       if m_origin == nil then
         break
       end
+
+      -- TODO: USE ATTACH TABLE PATH HERE
+
       if m_all[m_origin][m_section] == nil then
         m_all[m_origin][m_section] = {}
       end
       m_all[m_origin][m_section][m_name] = {
-        -- TODO: better naming convention.
-        --    now I am unsure of how I am using type...
+        -- todo: how is type used?
         type = "doom_module_single",
         enabled = false,
         name = m_name,
@@ -597,6 +599,9 @@ mod_util.extend = function(filter)
   --
   -- TODO: REWRITE TO WORK WITH THE NEW RECURSIVE PATTERN.
   --
+  --
+  -- this is actually not that difficult because I have already
+  -- written the necessary helpers that we need. hell yeah
 
   -- add_enabled_states
   local function merge_with_enabled(m_all)
@@ -611,8 +616,11 @@ mod_util.extend = function(filter)
           ("doom.modules.%s.%s"):format(section_name, module_name),
         }
 
+        -- this should go in the leaf call back.
         for _, path in ipairs(search_paths) do
           local origin = path:sub(1, 4)
+
+          -- use attach table path here to attach data to
 
           if m_all[origin][section_name] ~= nil then
             if m_all[origin][section_name][module_name] ~= nil then
@@ -624,6 +632,7 @@ mod_util.extend = function(filter)
             end
           end
         end
+        --------
       end
     end
     return m_all

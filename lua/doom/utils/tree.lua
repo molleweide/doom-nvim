@@ -333,6 +333,7 @@ M.attach_table_path = function(head, tp, data)
       end
       head = head[p]
     else
+      -- TODO: IF DATA = FUNCTION THEN
       head[p] = data
     end
   end
