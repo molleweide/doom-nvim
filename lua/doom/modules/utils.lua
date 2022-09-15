@@ -116,7 +116,7 @@ local function find_deepest_leader()
   -- end
 end
 
-local function build_new_build_bind()
+local function build_new_bind()
   -- BUILD NEW LEADER
   --
   --
@@ -126,7 +126,7 @@ local function build_new_build_bind()
   --          +AAA, +BBB, +CCC, ...
 end
 
-local function get_component_node_under_cursor()
+local function get_branch_node_under_cursor()
   -- 1. nvim treesitter get node under cursor.
   -- 2. iterate outwards.
   -- 3. check for match pattern with spec.
@@ -433,9 +433,10 @@ mod_util.bind_add_after = function(opts)
   local new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
 
   if new_leader then
-    --        bind[1].node -> get enclosing branch range
+    local branch_table = get_branch_node_under_cursor(bind[1].node)
+    -- insert new bind above row_end
   else
-    -- insert line after
+    -- insert line after bind and before leader if leader
   end
 end
 
@@ -463,19 +464,17 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  ts.get_captures(
+  local binds_table, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
     q.mod_tbl(opts.ui_input_comp_type),
-    "rhs",
-    q.autocmd_table(opts.selected_component.data),
-    "action"
+    "rhs"
   )
 
+  --
+  local line = opts.line
+  local match_leader = line:match("^%s*")
   -- if line starts with "^%s*" mult whitespace,
   -- then create leader
-  --
-
-  local match_leader = line:match("^%s*")
 
   -- print("`" .. match_leader .. "`")
 
@@ -498,7 +497,7 @@ mod_util.bind_create_from_line = function(opts)
   -- new_leader_spec = subtract collected leaders from the leader string
   --
 
-  local bind_new_compiled_str = build_new_build_bind()
+  local bind_new_compiled_str = build_new_bind()
 
   if #leader > 0 then
     -- if is_leader then
