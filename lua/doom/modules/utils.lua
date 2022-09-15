@@ -539,11 +539,13 @@ mod_util.bind_merge_leader = function(opts) end
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
 mod_util.extend = function(filter)
+
+  -- TODO: USE SYSTEM.CONFIG PATH HERE
   local config_path = vim.fn.stdpath("config")
 
   -- m_glob_mod_paths_by_origin
   local function glob_modules(cat)
-    -- doom.specs.origins = { list of all origins}
+    -- doom.specs.m_origins = { ... }
     if cat ~= "doom" and cat ~= "user" then
       return
     end
@@ -551,6 +553,12 @@ mod_util.extend = function(filter)
     -- TODO:
     -- need to add extra * here.
     -- allow max depth? 5 ????
+    -- doom.specs.m_max_depth = "*/*/*/" -- three levels allowed currently
+    --
+    -- append "init.lua" so that we know that we only get module
+    -- entry points
+    --
+    --
     local glob = config_path .. "/lua/" .. cat .. "/modules/*/*/"
     return vim.split(vim.fn.glob(glob), "\n")
   end
@@ -569,30 +577,34 @@ mod_util.extend = function(filter)
 
   -- make_table for each mod path
   local function add_meta_data(paths)
-    local prep_all_m = { doom = {}, user = {} }
+    local m_all = { doom = {}, user = {} }
     for _, p in ipairs(paths) do
       -- TODO: capture sections in path table!!!
       --    just like with settings `table_path`
-
+      -- add `*` around section capture
+      -- then use index 1 to get origin, and -1 to get module name
       local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$") -- capture only dirname
 
       -- if user is empty for now..
       if m_origin == nil then
         break
       end
-      if prep_all_m[m_origin][m_section] == nil then
-        prep_all_m[m_origin][m_section] = {}
+      if m_all[m_origin][m_section] == nil then
+        m_all[m_origin][m_section] = {}
       end
-      prep_all_m[m_origin][m_section][m_name] = {
+      m_all[m_origin][m_section][m_name] = {
+        -- TODO: better naming convention.
+        --    now I am unsure of how I am using type...
         type = "doom_module_single",
         enabled = false,
         name = m_name,
         section = m_section,
         origin = m_origin,
-        path = p,
+        path = p, -- only the dir path
+        -- path_init = module init file path
       }
     end
-    return prep_all_m
+    return m_all
   end
 
   --
@@ -600,7 +612,7 @@ mod_util.extend = function(filter)
   --
 
   -- add_enabled_states
-  local function merge_with_enabled(prep_all_m)
+  local function merge_with_enabled(m_all)
     local enabled_modules = require("doom.core.modules").enabled_modules
 
     -- tree crawl enabled modules. copy from `core/config.lua`
@@ -615,11 +627,11 @@ mod_util.extend = function(filter)
         for _, path in ipairs(search_paths) do
           local origin = path:sub(1, 4)
 
-          if prep_all_m[origin][section_name] ~= nil then
-            if prep_all_m[origin][section_name][module_name] ~= nil then
-              prep_all_m[origin][section_name][module_name].enabled = true
+          if m_all[origin][section_name] ~= nil then
+            if m_all[origin][section_name][module_name] ~= nil then
+              m_all[origin][section_name][module_name].enabled = true
               for k, v in pairs(doom[section_name][module_name]) do
-                prep_all_m[origin][section_name][module_name][k] = v
+                m_all[origin][section_name][module_name][k] = v
               end
               break
             end
@@ -627,7 +639,7 @@ mod_util.extend = function(filter)
         end
       end
     end
-    return prep_all_m
+    return m_all
   end
 
   local function apply_filters(mods)

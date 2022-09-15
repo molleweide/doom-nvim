@@ -14,6 +14,10 @@ call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add after / create from line
+--        return all captures from get captures.
+--
+--        leader func select capture
+--
 -- TODO: recursive mod dirs > rewrite mod_utils.extend()
 -- TODO: fix modules extend() > `user` show up in telescope.
 -- TODO: NEOGEN EVERYTHING
