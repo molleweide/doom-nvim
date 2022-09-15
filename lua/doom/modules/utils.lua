@@ -5,6 +5,7 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
+local nt = require("nvim-treesitter.utils")
 
 -- TODO: apply formatting to file operated on. call null-ls method on buf.
 
@@ -389,38 +390,25 @@ mod_util.bind_add = function(opts)
   end
 end
 
+-- IF LEADER BRANCH -> ADD BIND TO SAME BRANCH
 mod_util.bind_add_after = function(opts)
-  act_on_capture(
-    ts.get_captures(
+  -- return all captures
+  local c1, c2, buf = ts.get_captures(
       opts.selected_module.path .. "init.lua",
       q.mod_tbl(opts.selected_component.component_type),
       "rhs",
       q.binds_table(opts.selected_component.data),
       "rhs"
     )
-  )
 
   local leader = has_leader(opts)
+  local new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
 
-  -- NOTE: compare binds table range[1] within leader table
-  --
-  --
-  --      local ts_utils = require 'nvim-treesitter.ts_utils'
-  --
-  --      is_parent(dest, source) -- nodes
-
-  -- if inside_leader then
-  --    if inside leader. find enclosing branch E.
-  --        insert new binding last in E.
-  --
-  --        get .node -> get parent and get up to the branch
-  --
-  --        get branch range
-  --
-  --
-  -- else
-  --    insert line after
-  -- end
+  if new_leader then
+    --        bind[1].node -> get enclosing branch range
+  else
+    -- insert line after
+  end
 end
 
 mod_util.bind_edit = function(opts)
