@@ -126,6 +126,8 @@ local function build_new_bind()
   --          +AAA, +BBB, +CCC, ...
 end
 
+local function get_branch_from_leader_bind() end
+
 local function get_branch_node_under_cursor()
   -- 1. nvim treesitter get node under cursor.
   -- 2. iterate outwards.
@@ -420,7 +422,15 @@ end
 
 -- IF LEADER BRANCH -> ADD BIND TO SAME BRANCH
 mod_util.bind_add_after = function(opts)
-  -- return all captures
+  -- A. TELESCOPE
+  --
+  --    then get the bind under cursor with queries
+  --
+  -- B. REGULAR COMMAND
+  --
+  --      get bind / enclosing with nvim treesitter cursor helpers.
+
+  -- TODO: RETURN ALL CAPTURES
   local c1, c2, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
     q.mod_tbl(opts.selected_component.component_type),
@@ -430,10 +440,10 @@ mod_util.bind_add_after = function(opts)
   )
 
   local leader = has_leader(opts)
-  local new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
+  local add_new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
 
-  if new_leader then
-    local branch_table = get_branch_node_under_cursor(bind[1].node)
+  if add_new_leader then
+    local branch_table = get_branch_from_leader_bind(bind[1].node)
     -- insert new bind above row_end
   else
     -- insert line after bind and before leader if leader
@@ -473,10 +483,10 @@ mod_util.bind_create_from_line = function(opts)
   --
   local line = opts.line
   local match_leader = line:match("^%s*")
-  -- if line starts with "^%s*" mult whitespace,
-  -- then create leader
+  -- all chars after whitespace are used to make command `lhs`
+  local lhs_str = line.sub(white_space_range)
 
-  -- print("`" .. match_leader .. "`")
+  print("`" .. match_leader .. "`")
 
   -- rename: leader_exists
   --
@@ -487,8 +497,7 @@ mod_util.bind_create_from_line = function(opts)
 
   if leader[1] then
     leader_tbl = leader[1].node
-
-    local ld_deepest = find_deepest_leader(leader_tbl)
+    local branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
   end
 
   -- if ld_deepest
@@ -539,7 +548,6 @@ mod_util.bind_merge_leader = function(opts) end
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
 mod_util.extend = function(filter)
-
   -- TODO: USE SYSTEM.CONFIG PATH HERE
   local config_path = vim.fn.stdpath("config")
 

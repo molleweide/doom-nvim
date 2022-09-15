@@ -11,6 +11,8 @@ ts.get_root = function(bufnr)
 end
 
 -- TODO: allow chained scopes
+--
+--    >>> use varargs [ qN, cN ... ]
 ts.get_captures = function(path, q1, c1, q2, c2)
   local path = path or utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(path)
@@ -50,6 +52,10 @@ ts.get_captures = function(path, q1, c1, q2, c2)
     end
   end
 
+  -- -- double query
+  -- return t1, t2, buf
+
+  -- single query
   return t2, buf
 end
 
