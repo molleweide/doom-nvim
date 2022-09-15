@@ -17,12 +17,12 @@ so it'll be vim.fn.win_gotoid(winnr)
 --        return all captures from get captures.
 --        leader func select capture
 
+-- TODO: recursive mod dirs > rewrite mod_utils.extend()
+-- TODO: fix modules extend() > `user` show up in telescope.
+
 -- TODO: NEOGEN EVERYTHING
 
 -- TODO: merge with my main PR
-
--- TODO: recursive mod dirs > rewrite mod_utils.extend()
--- TODO: fix modules extend() > `user` show up in telescope.
 
 -- what is the difference btw `type` and `component_type`
 

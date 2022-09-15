@@ -602,6 +602,37 @@ mod_util.extend = function(filter)
   --
   -- this is actually not that difficult because I have already
   -- written the necessary helpers that we need. hell yeah
+  --
+
+  -- tree.traverse_table({
+  --   tree = enabled_modules,
+  --   leaf = function(stack, k, v)
+  --     -- print(vim.inspect(stack), k, v)
+  --     local pc, path_concat = tree.flatten_stack(stack, v, ".")
+  --     local ok, result
+  --     for _, path in ipairs(spec.search_paths(path_concat)) do
+  --       ok, result = xpcall(require, debug.traceback, path)
+  --       if ok then
+  --         break
+  --       end
+  --     end
+  --     if ok then
+  --       result["is_module"] = true -- I don't think this one is used.
+  --       result.type = "doom_module_single"
+  --       tree.attach_table_path(doom.modules, pc, result)
+  --     else
+  --       local log = require("doom.utils.logging")
+  --       log.error(
+  --         string.format(
+  --           "There was an error loading module '%s'. Traceback:\n%s",
+  --           path_concat,
+  --           result
+  --         )
+  --       )
+  --     end
+  --     return pc
+  --   end,
+  -- })
 
   -- add_enabled_states
   local function merge_with_enabled(m_all)
@@ -637,6 +668,8 @@ mod_util.extend = function(filter)
     end
     return m_all
   end
+
+  -- todo: need to disable this until the recusrive structure is finnished.
 
   local function apply_filters(mods)
     -- AND type(filter) == "table"

@@ -60,7 +60,6 @@ local doom_ui = {}
 --
 --
 --
---
 
 -- UI: use a preview window + mappings legend window, so that each item
 --        mappings per entry are shown properly.

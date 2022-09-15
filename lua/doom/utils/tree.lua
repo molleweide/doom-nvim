@@ -309,13 +309,17 @@ local M = {}
 
 --- conatenate path stack with node
 --- rename: flatten_stack is a non descriptive name -> concat_node_path()
-local function flatten_stack(stack, v)
+M.flatten_stack = function(stack, v, concat)
   local pc = { v }
   if #stack > 0 then
     pc = vim.deepcopy(stack)
     table.insert(pc, v)
   end
-  return pc
+  if concat then
+    return pc, table.concat(pc, concat)
+  else
+    return pc
+  end
 end
 
 -- TODO: move both of these into other utils
@@ -333,8 +337,11 @@ M.attach_table_path = function(head, tp, data)
       end
       head = head[p]
     else
-      -- TODO: IF DATA = FUNCTION THEN
-      head[p] = data
+      if type(data) == "function" then
+        data(head[p])
+      else
+        head[p] = data
+      end
     end
   end
 end

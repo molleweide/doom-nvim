@@ -5,6 +5,7 @@
 --  running the user's `config.lua` file.
 
 local utils = require("doom.utils")
+local spec = require("doom.core.spec")
 local tree = require("doom.utils.tree")
 local config = {}
 local filename = "config.lua"
@@ -66,25 +67,17 @@ config.load = function()
     tree = enabled_modules,
     leaf = function(stack, k, v)
       -- print(vim.inspect(stack), k, v)
-      local pc = { v }
-      if #stack > 0 then
-        pc = vim.deepcopy(stack)
-        table.insert(pc, v)
-      end
-      local path_concat = table.concat(pc, ".")
-      local search_paths = {
-        ("user.modules.%s"):format(path_concat),
-        ("doom.modules.%s"):format(path_concat),
-      }
+      local pc, path_concat = tree.flatten_stack(stack, v, ".")
+      -- local path_concat = table.concat(pc, ".")
       local ok, result
-      for _, path in ipairs(search_paths) do
+      for _, path in ipairs(spec.search_paths(path_concat)) do
         ok, result = xpcall(require, debug.traceback, path)
         if ok then
           break
         end
       end
       if ok then
-        result["is_module"] = true -- I add this flag here to make it easier to catch each module node
+        result["is_module"] = true -- I don't think this one is used.
         result.type = "doom_module_single"
         tree.attach_table_path(doom.modules, pc, result)
       else
