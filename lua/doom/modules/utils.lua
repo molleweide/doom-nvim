@@ -518,52 +518,34 @@ end
 
 mod_util.bind_merge_leader = function(opts) end
 
---
--- GET FULL/EXTENDED TABLE OF ALL MODULES
---
+local mod_glob_path = function(origin)
+  return string.format("%s/lua/%s/modules/**/init.lua", vim.fn.stdpath("config"), origin)
+end
 
--- FUTURE: filter levels instead -> since you might have a recursive module structure?
---    so that we don't need (origins/sections/mname) hardcoded -> used tree traversal instead.
-
--- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
+local function m_glob(cat)
+  if vim.tbl_contains(spec.origins, cat) then
+    return vim.split(vim.fn.glob(mod_glob_path(cat)), "\n")
+  end
+end
 
 mod_util.extend = function(filter)
-  local config_path = vim.fn.stdpath("config") -- todo: use system.config path here
-  local function glob_modules(cat)
-    if vim.tbl_contains(spec.origins, cat) then
-      local glob = string.format(
-        [[%s/lua/%s/modules/%s]],
-        config_path,
-        cat,
-        spec.modules_max_depth
-        -- "init.lua"
-      )
-      return vim.split(vim.fn.glob(glob), "\n")
-    end
-  end
-  local glob_doom_modules = glob_modules("doom")
-  local glob_user_modules = glob_modules("user")
-  local all = glob_doom_modules
-  for _, p in ipairs(glob_user_modules) do
-    table.insert(all, p)
-  end
-  -- TODO: print paths with `init.lua`
-  -- print(vim.inspect(all))
+  local all = utils.tbl_merge(m_glob("doom"), m_glob("user"))
   local m_all = { doom = {}, user = {} }
   for _, p in ipairs(all) do
-    local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$")
+    -- FIX: CAPTURES INTO TABLE
+    local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/init.lua$")
     if m_origin == nil then
       m_origin = "user" -- todo: WHY IS ORIGIN NIL HERE FOR USER??
     end
     tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
       type = "doom_module_single", -- todo: how is type used?
       enabled = false,
-      -- TODO: replace this with table path.
+      -- FIX: REPLACE THIS WITH TABLE PATH.
       -- 1 = origin, #tp = mod name, all others are sections
       name = m_name,
       section = m_section,
       origin = m_origin,
-      path = p, -- only the dir path
+      path = string.sub(p, 1, -9), -- only the dir path
       -- path_dir -- includes trailing slash
       -- path_init = module init file path
     })
@@ -587,33 +569,33 @@ mod_util.extend = function(filter)
     end,
   })
 
-  -- local function apply_filters(mods)
-  --   -- AND type(filter) == "table"
-  --   if filter and type(filter) == "table" then
-  --     if filter.origins then
-  --       for o, origin in pairs(mods) do
-  --         if vim.tbl_contains(filter.origins, o) then
-  --           table.remove(mods, o) -- filter origins
-  --         else
-  --           for s, section in pairs(origin) do
-  --             if not vim.tbl_contains(filter.sections, s) then
-  --               table.remove(mods[o], s) -- filter sections
-  --             else
-  --               for m, _ in pairs(section) do
-  --                 if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
-  --                   table.remove(mods[o][s], m) -- filter modules by name
-  --                 end
-  --               end
-  --             end
-  --           end
-  --         end
-  --       end
-  --     end
-  --   end
-  --   return mods
-  -- end
+  local function apply_filters(mods)
+    -- AND type(filter) == "table"
+    if filter and type(filter) == "table" then
+      if filter.origins then
+        for o, origin in pairs(mods) do
+          if vim.tbl_contains(filter.origins, o) then
+            table.remove(mods, o) -- filter origins
+          else
+            for s, section in pairs(origin) do
+              if not vim.tbl_contains(filter.sections, s) then
+                table.remove(mods[o], s) -- filter sections
+              else
+                for m, _ in pairs(section) do
+                  if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
+                    table.remove(mods[o][s], m) -- filter modules by name
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    return mods
+  end
 
-  return m_all
+  return apply_filters(m_all)
 end
 
 return mod_util

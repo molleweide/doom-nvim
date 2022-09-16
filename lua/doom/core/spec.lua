@@ -1,5 +1,8 @@
 return {
-  -- move all of these into `core/modules`
+  -- TODO: where to put this??
+  --
+  --      under core/modules or in modules/utils??
+  --
   origins = {
     "user",
     "doom",
@@ -24,5 +27,4 @@ return {
       ("doom.modules.%s"):format(path_str),
     }
   end,
-  modules_max_depth = "*/*/"
 }

@@ -275,4 +275,12 @@ utils.get_buf_handle = function(path)
   return buf
 end
 
+utils.tbl_merge = function(t1, t2)
+  local ret = vim.deepcopy(t1)
+  for _, p in ipairs(t2) do
+    table.insert(ret, p)
+  end
+  return ret
+end
+
 return utils
