@@ -528,25 +528,27 @@ mod_util.bind_merge_leader = function(opts) end
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
 mod_util.extend = function(filter)
-  -- todo: use system.config path here
-  local config_path = vim.fn.stdpath("config")
-
-  -- todo: append "init.lua" so that we know that we only get module
+  local config_path = vim.fn.stdpath("config") -- todo: use system.config path here
   local function glob_modules(cat)
-    if not vim.tbl_contains(spec.origins, cat) then
-      return
+    if vim.tbl_contains(spec.origins, cat) then
+      local glob = string.format(
+        [[%s/lua/%s/modules/%s]],
+        config_path,
+        cat,
+        spec.modules_max_depth
+        -- "init.lua"
+      )
+      return vim.split(vim.fn.glob(glob), "\n")
     end
-    local glob = config_path .. "/lua/" .. cat .. "/modules/" .. spec.modules_max_depth
-    return vim.split(vim.fn.glob(glob), "\n")
   end
-
   local glob_doom_modules = glob_modules("doom")
   local glob_user_modules = glob_modules("user")
   local all = glob_doom_modules
   for _, p in ipairs(glob_user_modules) do
     table.insert(all, p)
   end
-
+  -- TODO: print paths with `init.lua`
+  -- print(vim.inspect(all))
   local m_all = { doom = {}, user = {} }
   for _, p in ipairs(all) do
     local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$")
@@ -556,10 +558,13 @@ mod_util.extend = function(filter)
     tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
       type = "doom_module_single", -- todo: how is type used?
       enabled = false,
+      -- TODO: replace this with table path.
+      -- 1 = origin, #tp = mod name, all others are sections
       name = m_name,
       section = m_section,
       origin = m_origin,
       path = p, -- only the dir path
+      -- path_dir -- includes trailing slash
       -- path_init = module init file path
     })
   end

@@ -17,7 +17,14 @@ so it'll be vim.fn.win_gotoid(winnr)
 --        return all captures from get captures.
 --        leader func select capture
 
--- TODO: recursive mod dirs > rewrite mod_utils.extend()
+-- TODO: fix match
+--
+--    can we look for `init.file` w/glob
+--
+--     local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$")
+--
+--     use strip tail to get the dir and attach
+
 -- TODO: fix modules extend() > `user` show up in telescope.
 
 -- TODO: NEOGEN EVERYTHING
@@ -25,6 +32,10 @@ so it'll be vim.fn.win_gotoid(winnr)
 -- TODO: merge with my main PR
 
 -- what is the difference btw `type` and `component_type`
+
+-- todo: document TSNode
+
+-- todo: expand variable names into good meaningful terms
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
