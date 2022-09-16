@@ -594,28 +594,6 @@ mod_util.extend = function(filter)
       end,
     })
 
-    -- for section_name, section_modules in pairs(enabled_modules) do
-    --   for _, module_name in pairs(section_modules) do
-    --     local search_paths = {
-    --       ("user.modules.%s.%s"):format(section_name, module_name),
-    --       ("doom.modules.%s.%s"):format(section_name, module_name),
-    --     }
-    --     for _, path in ipairs(search_paths) do
-    --       local origin = path:sub(1, 4)
-    --       if m_all[origin][section_name] ~= nil then
-    --         if m_all[origin][section_name][module_name] ~= nil then
-    --           m_all[origin][section_name][module_name].enabled = true
-    --           for k, v in pairs(doom[section_name][module_name]) do
-    --             m_all[origin][section_name][module_name][k] = v
-    --           end
-    --           break
-    --         end
-    --       end
-    --     end
-    --     --------
-    --   end
-    -- end
-
     return m_all
   end
 
