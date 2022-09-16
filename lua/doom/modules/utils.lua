@@ -18,6 +18,16 @@ local compute_insertion_point = function() end
 
 local rmf = utils.find_config("modules.lua")
 
+local mod_glob_path = function(origin)
+  return string.format("%s/lua/%s/modules/**/init.lua", vim.fn.stdpath("config"), origin)
+end
+
+local function m_glob(cat)
+  if vim.tbl_contains(spec.origins, cat) then
+    return vim.split(vim.fn.glob(mod_glob_path(cat)), "\n")
+  end
+end
+
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
     return {
@@ -518,15 +528,8 @@ end
 
 mod_util.bind_merge_leader = function(opts) end
 
-local mod_glob_path = function(origin)
-  return string.format("%s/lua/%s/modules/**/init.lua", vim.fn.stdpath("config"), origin)
-end
-
-local function m_glob(cat)
-  if vim.tbl_contains(spec.origins, cat) then
-    return vim.split(vim.fn.glob(mod_glob_path(cat)), "\n")
-  end
-end
+--
+-- GET EXTENDED MODULES WITH META DATA
 
 mod_util.extend = function(filter)
   local all = utils.tbl_merge(m_glob("doom"), m_glob("user"))
