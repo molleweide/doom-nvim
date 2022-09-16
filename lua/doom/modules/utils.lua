@@ -531,58 +531,37 @@ mod_util.extend = function(filter)
   -- TODO: USE SYSTEM.CONFIG PATH HERE
   local config_path = vim.fn.stdpath("config")
 
-  -- m_glob_mod_paths_by_origin
+  -- todo: append "init.lua" so that we know that we only get module
   local function glob_modules(cat)
-    -- doom.specs.m_origins = { ... }
-    if cat ~= "doom" and cat ~= "user" then
+    if not vim.tbl_contains(spec.origins, cat) then
       return
     end
-
-    -- TODO:
-    -- append "init.lua" so that we know that we only get module
-    -- entry points
     local glob = config_path .. "/lua/" .. cat .. "/modules/" .. spec.modules_max_depth
     return vim.split(vim.fn.glob(glob), "\n")
   end
 
-  -- m_collect_all_paths
   local function get_all_module_paths()
     local glob_doom_modules = glob_modules("doom")
     local glob_user_modules = glob_modules("user")
-    -- i(glob_user_modules)
-    -- merge origin paths
     local all = glob_doom_modules
     for _, p in ipairs(glob_user_modules) do
-      -- print(p)
       table.insert(all, p)
     end
-    -- print(all[#all])
     return all
   end
 
-  -- make_table for each mod path
   local function add_meta_data(paths)
     local m_all = { doom = {}, user = {} }
-    -- print(paths[#paths])
     for _, p in ipairs(paths) do
       local match_str = "/([_%w]-)/modules/([_%w]-)/([_%w]-)/$"
 
-      -- todo: why is origin nil here for user??
+      -- todo: WHY IS ORIGIN NIL HERE FOR USER??
       local m_origin, m_section, m_name = p:match(match_str)
-      -- if user is empty for now..
       if m_origin == nil then
-        -- break
         m_origin = "user"
       end
-
-      -- print(m_origin, m_section, m_name)
-      -- if m_origin ~= "doom" then
-      --   print(m_origin)
-      -- end
-
       tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
-        -- todo: how is type used?
-        type = "doom_module_single",
+        type = "doom_module_single", -- todo: how is type used?
         enabled = false,
         name = m_name,
         section = m_section,
@@ -591,8 +570,6 @@ mod_util.extend = function(filter)
         -- path_init = module init file path
       })
     end
-
-    -- print(vim.inspect(m_all["user"]))
     return m_all
   end
 
@@ -600,69 +577,44 @@ mod_util.extend = function(filter)
   local function merge_with_enabled(m_all)
     local enabled_modules = require("doom.core.modules").enabled_modules
 
-    -- print(vim.inspect(m_all))
-
-    -- tree.traverse_table({
-    --   tree = enabled_modules,
-    --   leaf = function(stack, _, v)
-    --     local pc, path_concat = tree.flatten_stack(stack, v, ".")
-    --     for _, path in ipairs(spec.search_paths(path_concat)) do
-    --       local origin = path:sub(1, 4)
-    --       -- print(origin)
-    --       -- i(m_all["user"])
-    --       -- print(vim.inspect(pc))
-    --       -- tree.attach_table_path(m_all[origin], pc, true, "enabled", true)
-    --       -- local pce = pc
-    --       -- table.insert(pce, "enabled")
-    --
-    --       -- TODO: the problem is that here, in this case, i don't
-    --       -- want to attach path. i only want to get if it exists.
-    --
-    --       local p_enab = vim.deepcopy(pc)
-    --       table.insert(p_enab, "enabled")
-    --       local m = tree.attach_table_path(m_all[origin], p_enab, true, true, true)
-    --       -- tree.attach_table_path(m_all[origin], pc, function(head)
-    --       --   head.enabled = true
-    --       -- end)
-    --
-    --       -- print("xxxxxxxxxx")
-    --
-    --       tree.attach_table_path(doom.modules, pc, function(head)
-    --         -- i(head)
-    --         for i, j in pairs(head) do
-    --           m[i] = j
-    --           -- local pcn = vim.deepcopy(pc)
-    --           -- table.insert(pcn, i)
-    --           -- print(vim.inspect(pcn))
-    --           -- tree.attach_table_path(m_all[origin], pcn, j, true)
-    --         end
-    --       end, true)
-    --     end
-    --     return pc
-    --   end,
-    -- })
-
-    for section_name, section_modules in pairs(enabled_modules) do
-      for _, module_name in pairs(section_modules) do
-        local search_paths = {
-          ("user.modules.%s.%s"):format(section_name, module_name),
-          ("doom.modules.%s.%s"):format(section_name, module_name),
-        }
-        for _, path in ipairs(search_paths) do
+    tree.traverse_table({
+      tree = enabled_modules,
+      leaf = function(stack, _, v)
+        local pc, path_concat = tree.flatten_stack(stack, v, ".")
+        for _, path in ipairs(spec.search_paths(path_concat)) do
           local origin = path:sub(1, 4)
-          if m_all[origin][section_name] ~= nil then
-            if m_all[origin][section_name][module_name] ~= nil then
-              m_all[origin][section_name][module_name].enabled = true
-              for k, v in pairs(doom[section_name][module_name]) do
-                m_all[origin][section_name][module_name][k] = v
-              end
-              break
+          local m = tree.attach_table_path(m_all[origin], pc)
+          if m then
+            m.enabled = true
+            for i, j in pairs(tree.attach_table_path(doom.modules, pc)) do
+              m[i] = j
             end
           end
         end
-        --------
-      end
-    end
+      end,
+    })
+
+    -- for section_name, section_modules in pairs(enabled_modules) do
+    --   for _, module_name in pairs(section_modules) do
+    --     local search_paths = {
+    --       ("user.modules.%s.%s"):format(section_name, module_name),
+    --       ("doom.modules.%s.%s"):format(section_name, module_name),
+    --     }
+    --     for _, path in ipairs(search_paths) do
+    --       local origin = path:sub(1, 4)
+    --       if m_all[origin][section_name] ~= nil then
+    --         if m_all[origin][section_name][module_name] ~= nil then
+    --           m_all[origin][section_name][module_name].enabled = true
+    --           for k, v in pairs(doom[section_name][module_name]) do
+    --             m_all[origin][section_name][module_name][k] = v
+    --           end
+    --           break
+    --         end
+    --       end
+    --     end
+    --     --------
+    --   end
+    -- end
 
     return m_all
   end

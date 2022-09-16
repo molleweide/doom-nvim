@@ -327,37 +327,34 @@ end
 --
 -- TODO: rename > table_path_do
 --
+-- if no data supplies -> returns table path node
+--
 -- @param table list of path components
-M.attach_table_path = function(head, tp, data, return_on_nil, log)
+M.attach_table_path = function(head, tp, data)
   if not head then
     return false
   end
   local last = #tp
   for i, p in ipairs(tp) do
-    -- if log then
-    --   print(i, p)
-    -- end
     if i ~= last then
-      -- end
       if head[p] == nil then
-        if return_on_nil then
+        if not data then
+          -- if a nil occurs, this means the path does no exist >> return
           return false
         end
         head[p] = {}
       end
       head = head[p]
     else
-      if type(data) == "function" then
-        data(head[p])
+      if data then
+        if type(data) == "function" then
+          data(head[p])
+        else
+          head[p] = data
+        end
       else
-        head[p] = data
+        return head[p]
       end
-
-      -- if log then
-      --   print(vim.inspect(head[p]))
-      -- end
-
-      return head[p]
     end
   end
 end

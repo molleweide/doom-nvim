@@ -1,16 +1,16 @@
 return {
   -- move all of these into `core/modules`
-  module_origins = {
+  origins = {
     "user",
     "doom",
   },
-  module_categories = {
+  categories = {
     "core",
     "features",
     "langs",
     "themes",
   },
-  module_components = {
+  components = {
     "settings",
     "packages",
     "configs",
