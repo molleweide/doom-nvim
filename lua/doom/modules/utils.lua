@@ -531,41 +531,29 @@ mod_util.bind_merge_leader = function(opts) end
 --
 -- GET EXTENDED MODULES WITH META DATA
 
-local function get_table_path_from_string_path(p)
-    local org = p:match("lua/([_%w]-)/modules/")
-    local ss = "lua/" .. org .. "/modules/"
-    local sec_start = p:find(ss)
-    local section_dirs = p:sub(sec_start + string.len(ss), p:find("/init%.lua$")-1)
-    local sec_t = vim.fn.split(section_dirs, "/")
-    i(sec_t)
-    -- print(org, section_dirs, vim.)
-
-  return sec_t
+local function get_mod_tbl_path_from_string(p)
+  local org = p:match("lua/([_%w]-)/modules/")
+  local ss = "lua/" .. org .. "/modules/"
+  local sec_start = p:find(ss)
+  local section_dirs = p:sub(sec_start + string.len(ss), p:find("/init%.lua$") - 1)
+  local sec_t = vim.fn.split(section_dirs, "/")
+  local name = table.remove(sec_t, #sec_t)
+  return org, sec_t, name
 end
 
 mod_util.extend = function(filter)
   local all = utils.tbl_merge(m_glob("doom"), m_glob("user"))
   local m_all = { doom = {}, user = {} }
   for _, p in ipairs(all) do
-
-    local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/init%.lua$")
-
-    i(get_table_path_from_string_path(p))
-
-    if m_origin == nil then
-      m_origin = "user" -- todo: WHY IS ORIGIN NIL HERE FOR USER??
-    end
-    tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
+    local org, sec, name = get_mod_tbl_path_from_string(p)
+    tree.attach_table_path(m_all[org], { sec[1], name }, {
       type = "doom_module_single", -- todo: how is type used?
       enabled = false,
-      -- FIX: REPLACE THIS WITH TABLE PATH.
-      -- 1 = origin, #tp = mod name, all others are sections
-      name = m_name,
-      section = m_section,
-      origin = m_origin,
-      -- table_path = get_table_path_from_string_path(p),
+      name = name,
+      section = sec[1], -- only `sec` later
+      origin = org,
       path = string.sub(p, 1, -9), -- only the dir path
-      path_init = p
+      path_init = p,
     })
   end
 
