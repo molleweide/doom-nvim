@@ -528,7 +528,7 @@ mod_util.bind_merge_leader = function(opts) end
 -- can I shoe horn the usage of metatables into this file just so that I force myself to learn them?
 
 mod_util.extend = function(filter)
-  -- TODO: USE SYSTEM.CONFIG PATH HERE
+  -- todo: use system.config path here
   local config_path = vim.fn.stdpath("config")
 
   -- todo: append "init.lua" so that we know that we only get module
@@ -540,94 +540,75 @@ mod_util.extend = function(filter)
     return vim.split(vim.fn.glob(glob), "\n")
   end
 
-  local function get_all_module_paths()
-    local glob_doom_modules = glob_modules("doom")
-    local glob_user_modules = glob_modules("user")
-    local all = glob_doom_modules
-    for _, p in ipairs(glob_user_modules) do
-      table.insert(all, p)
-    end
-    return all
+  local glob_doom_modules = glob_modules("doom")
+  local glob_user_modules = glob_modules("user")
+  local all = glob_doom_modules
+  for _, p in ipairs(glob_user_modules) do
+    table.insert(all, p)
   end
 
-  local function add_meta_data(paths)
-    local m_all = { doom = {}, user = {} }
-    for _, p in ipairs(paths) do
-      local match_str = "/([_%w]-)/modules/([_%w]-)/([_%w]-)/$"
-
-      -- todo: WHY IS ORIGIN NIL HERE FOR USER??
-      local m_origin, m_section, m_name = p:match(match_str)
-      if m_origin == nil then
-        m_origin = "user"
-      end
-      tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
-        type = "doom_module_single", -- todo: how is type used?
-        enabled = false,
-        name = m_name,
-        section = m_section,
-        origin = m_origin,
-        path = p, -- only the dir path
-        -- path_init = module init file path
-      })
+  local m_all = { doom = {}, user = {} }
+  for _, p in ipairs(all) do
+    local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$")
+    if m_origin == nil then
+      m_origin = "user" -- todo: WHY IS ORIGIN NIL HERE FOR USER??
     end
-    return m_all
+    tree.attach_table_path(m_all[m_origin], { m_section, m_name }, {
+      type = "doom_module_single", -- todo: how is type used?
+      enabled = false,
+      name = m_name,
+      section = m_section,
+      origin = m_origin,
+      path = p, -- only the dir path
+      -- path_init = module init file path
+    })
   end
 
   -- add_enabled_states
-  local function merge_with_enabled(m_all)
-    local enabled_modules = require("doom.core.modules").enabled_modules
-
-    tree.traverse_table({
-      tree = enabled_modules,
-      leaf = function(stack, _, v)
-        local pc, path_concat = tree.flatten_stack(stack, v, ".")
-        for _, path in ipairs(spec.search_paths(path_concat)) do
-          local origin = path:sub(1, 4)
-          local m = tree.attach_table_path(m_all[origin], pc)
-          if m then
-            m.enabled = true
-            for i, j in pairs(tree.attach_table_path(doom.modules, pc)) do
-              m[i] = j
-            end
-          end
-        end
-      end,
-    })
-
-    return m_all
-  end
-
-  -- TODO: NEED TO DISABLE THIS UNTIL THE RECUSRIVE STRUCTURE IS FINNISHED.
-  --
-  -- NOTE: FILTER IS NOT REALLY USED, SO IT IS OKAY TO DISABLE IT
-
-  local function apply_filters(mods)
-    -- AND type(filter) == "table"
-    if filter and type(filter) == "table" then
-      if filter.origins then
-        for o, origin in pairs(mods) do
-          if vim.tbl_contains(filter.origins, o) then
-            table.remove(mods, o) -- filter origins
-          else
-            for s, section in pairs(origin) do
-              if not vim.tbl_contains(filter.sections, s) then
-                table.remove(mods[o], s) -- filter sections
-              else
-                for m, _ in pairs(section) do
-                  if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
-                    table.remove(mods[o][s], m) -- filter modules by name
-                  end
-                end
-              end
-            end
+  tree.traverse_table({
+    tree = require("doom.core.modules").enabled_modules,
+    leaf = function(stack, _, v)
+      local pc, path_concat = tree.flatten_stack(stack, v, ".")
+      for _, path in ipairs(spec.search_paths(path_concat)) do
+        local origin = path:sub(1, 4)
+        local m = tree.attach_table_path(m_all[origin], pc)
+        if m then
+          m.enabled = true
+          for i, j in pairs(tree.attach_table_path(doom.modules, pc)) do
+            m[i] = j
           end
         end
       end
-    end
-    return mods
-  end
+    end,
+  })
 
-  return apply_filters(merge_with_enabled(add_meta_data(get_all_module_paths())))
+  -- local function apply_filters(mods)
+  --   -- AND type(filter) == "table"
+  --   if filter and type(filter) == "table" then
+  --     if filter.origins then
+  --       for o, origin in pairs(mods) do
+  --         if vim.tbl_contains(filter.origins, o) then
+  --           table.remove(mods, o) -- filter origins
+  --         else
+  --           for s, section in pairs(origin) do
+  --             if not vim.tbl_contains(filter.sections, s) then
+  --               table.remove(mods[o], s) -- filter sections
+  --             else
+  --               for m, _ in pairs(section) do
+  --                 if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
+  --                   table.remove(mods[o][s], m) -- filter modules by name
+  --                 end
+  --               end
+  --             end
+  --           end
+  --         end
+  --       end
+  --     end
+  --   end
+  --   return mods
+  -- end
+
+  return m_all
 end
 
 return mod_util
