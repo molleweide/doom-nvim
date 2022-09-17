@@ -14,6 +14,9 @@ call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add after / create from line
+--
+-- now just finish the implementation so that we can get down to fucking
+-- business motherfucker. this is going to be quite cool.
 
 -- TODO: recursive dirs > test
 

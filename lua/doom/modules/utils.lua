@@ -6,8 +6,9 @@ local tscan = require("doom.utils.tree").traverse_table
 local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
-local q = require("doom.utils.queries")
-local nt = require("nvim-treesitter.ts_utils")
+local dq = require("doom.utils.queries")
+local tsq = require("vim.treesitter.query")
+local ntu = require("nvim-treesitter.ts_utils")
 
 -- TODO: apply formatting to file operated on. call null-ls method on buf??
 --
@@ -114,26 +115,21 @@ end
 
 local function has_leader(mpath, capture)
   print("has leader c:", capture)
-  local leader, buf = ts.get_captures(mpath, q.leader_t, capture or "leader_field")
+  local leader, buf = ts.get_captures(mpath, dq.leader_t, capture or "leader_field")
   return leader, buf
 end
 
 local function find_deepest_leader(ld_t, lhs_str)
-  print("::: find deepest leader for: \n    lt = "..tostring(ld_t) .. " \n    lhs = (" .. lhs_str .. ") :::")
+  print(
+    "::: find deepest leader for: \n    lt = "
+      .. tostring(ld_t)
+      .. " \n    lhs = ("
+      .. lhs_str
+      .. ") :::"
+  )
 
   local ret_str = lhs_str
   local leader_tbl = ld_t
-
-  -- get_next_node(node, allow_switch_parent, allow_next_parent)~
-  -- Returns the next node within the same parent.
-
-  -- get_previous_node(node, allow_switch_parents, allow_prev_parent)~
-  -- Returns the previous node within the same parent.
-
-  -- get_named_children(node)~
-  -- Returns a table of named children of `node`.
-
-  ------------------------------------------------------------------
 
   -- while(leader_tbl)
   -- do
@@ -159,8 +155,113 @@ end
 local function get_branch_parent(bind, buf)
   print("B. get br parent")
 
+  ------------------------------------------------------------------
+  -- vim.treesitter.query
+
+  -- get_node_text({node}, {source})                              *get_node_text()*
+  --                 Gets the text corresponding to a given node
+  --
+  --                 Parameters: ~
+  --                     {node}    the node
+  --                     {source}  The buffer or string from which the node is
+  --                               extracted
+
+  ------------------------------------------------------------------
+
+  -- tsnode:parent()						*tsnode:parent()*
+  -- 	Get the node's immediate parent.
+  --
+  -- tsnode:next_sibling()					*tsnode:next_sibling()*
+  -- 	Get the node's next sibling.
+  --
+  -- tsnode:prev_sibling()					*tsnode:prev_sibling()*
+  -- 	Get the node's previous sibling.
+  --
+  -- tsnode:next_named_sibling()                       *tsnode:next_named_sibling()*
+  -- 	Get the node's next named sibling.
+  --
+  -- tsnode:prev_named_sibling()			  *tsnode:prev_named_sibling()*
+  -- 	Get the node's previous named sibling.
+  --
+  -- tsnode:iter_children()				       *tsnode:iter_children()*
+  -- 	Iterates over all the direct children of {tsnode}, regardless of
+  -- 	whether they are named or not.
+  -- 	Returns the child node plus the eventual field name corresponding to
+  -- 	this child node.
+  --
+  -- tsnode:field({name})					*tsnode:field()*
+  -- 	Returns a table of the nodes corresponding to the {name} field.
+  --
+  -- tsnode:child_count()					*tsnode:child_count()*
+  -- 	Get the node's number of children.
+  --
+  -- tsnode:child({index})					*tsnode:child()*
+  -- 	Get the node's child at the given {index}, where zero represents the
+  -- 	first child.
+  --
+  -- tsnode:named_child_count()			   *tsnode:named_child_count()*
+  -- 	Get the node's number of named children.
+  --
+  -- tsnode:named_child({index})			         *tsnode:named_child()*
+  -- 	Get the node's named child at the given {index}, where zero represents
+  -- 	the first named child.
+  --
+  -- tsnode:start()						*tsnode:start()*
+  -- 	Get the node's start position. Return three values: the row, column
+  -- 	and total byte count (all zero-based).
+  --
+  -- tsnode:end_()						*tsnode:end_()*
+  -- 	Get the node's end position. Return three values: the row, column
+  -- 	and total byte count (all zero-based).
+  --
+  -- tsnode:range()						*tsnode:range()*
+  -- 	Get the range of the node. Return four values: the row, column
+  -- 	of the start position, then the row, column of the end position.
+  --
+  -- tsnode:type()						*tsnode:type()*
+  -- 	Get the node's type as a string.
+
+  ------------------------------------------------------------------
+  --  nvim-treesitter
+
+  -- get_next_node(node, allow_switch_parent, allow_next_parent)~
+  -- Returns the next node within the same parent.
+
+  -- get_previous_node(node, allow_switch_parents, allow_prev_parent)~
+  -- Returns the previous node within the same parent.
+
+  -- get_named_children(node)~
+  -- Returns a table of named children of `node`.
+
+  ------------------------------------------------------------------
+
+  -- todo: first check that we have recieved a binds with type == "table_constructor"
+
   local parent_table_constr
-  -- 1. get parent where [1] = string, and [2] = "^+"
+  -- get parent where [1] = string, and [2] = "^+"
+  --
+  --    - print type of bind node
+
+  --    - get parent()
+
+  --    - print type again.
+
+  --    - find table constructor
+
+  --    - get child count
+
+  --    - get first named child
+
+  --    - get second named child
+
+  --    - compare text strings
+
+  --    - if correct
+
+  --    - return or continue search
+
+  --    - if parent == "<leader>" ??
+
   return parent_table_constr
 end
 
@@ -245,14 +346,14 @@ mod_util.check_if_module_name_exists = function(m, new_name)
 end
 
 mod_util.root_new = function(opts)
-  local tables, buf = ts.get_captures(rmf, q.root_section(opts.section), "section_table")
-  local nt = #tables
-  b.insert_line(buf, tables[nt].range[3], '    "' .. opts.new_name .. '",')
+  local tables, buf = ts.get_captures(rmf, dq.root_section(opts.section), "section_table")
+  local ntu = #tables
+  b.insert_line(buf, tables[ntu].range[3], '    "' .. opts.new_name .. '",')
 end
 
 mod_util.root_rename = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
+  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(
     strings,
     comments,
@@ -263,15 +364,15 @@ mod_util.root_rename = function(opts)
 end
 
 mod_util.root_delete = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
+  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(strings, comments, selected_mod, buf)
   vim.api.nvim_buf_set_lines(buf, range[1], range[1] + 1, 0, {})
 end
 
 mod_util.root_toggle = function(opts)
-  local strings = ts.get_captures(rmf, q.root_mod(opts.module_name, opts.section), "module_string")
-  local comments, buf = ts.get_captures(rmf, q.root_comments(opts.section), "section_comment")
+  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
   local range, enabled, comment_start = get_replacement_range(
     strings,
     comments,
@@ -295,7 +396,7 @@ mod_util.setting_add = function(opts)
   act_on_capture(
     ts.get_captures(
       get_settings_file(opts.selected_module),
-      q.mod_tbl(opts.ui_input_comp_type),
+      dq.mod_tbl(opts.ui_input_comp_type),
       "rhs"
     )
   )
@@ -306,9 +407,9 @@ mod_util.setting_edit = function(opts)
   act_on_capture(
     ts.get_captures(
       get_settings_file(opts.selected_module),
-      q.mod_tbl(sc.component_type),
+      dq.mod_tbl(sc.component_type),
       "rhs",
-      q.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
+      dq.field(sc.data.table_path[#sc.data.table_path], sc.data.table_value),
       "value"
     )
   )
@@ -333,7 +434,7 @@ mod_util.package_add = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.selected_component.component_type),
+      dq.mod_tbl(opts.selected_component.component_type),
       "rhs"
     )
   )
@@ -343,9 +444,9 @@ mod_util.package_edit = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.selected_component.component_type),
+      dq.mod_tbl(opts.selected_component.component_type),
       "rhs",
-      q.pkg_table(opts.selected_component.data.table_path, opts.selected_component.data.spec[1]),
+      dq.pkg_table(opts.selected_component.data.table_path, opts.selected_component.data.spec[1]),
       "pkg_table"
     )
   )
@@ -379,7 +480,7 @@ end
 mod_util.config_add = function(opts)
   local captures, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
-    q.config_func(),
+    dq.config_func(),
     "rhs"
   )
   act_on_capture(captures, buf)
@@ -389,7 +490,7 @@ mod_util.config_edit = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.config_func(opts.selected_component.data),
+      dq.config_func(opts.selected_component.data),
       "rhs"
     )
   )
@@ -407,7 +508,7 @@ mod_util.cmd_add = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.selected_component.component_type),
+      dq.mod_tbl(opts.selected_component.component_type),
       "rhs"
     )
   )
@@ -416,9 +517,9 @@ end
 mod_util.cmd_edit = function(opts)
   act_on_capture(
     ts.get_captures(
-      q.mod_tbl(opts.selected_module.path .. "init.lua", opts.selected_component.component_type),
+      dq.mod_tbl(opts.selected_module.path .. "init.lua", opts.selected_component.component_type),
       "rhs",
-      q.cmd_table(opts.selected_component.data),
+      dq.cmd_table(opts.selected_component.data),
       "action"
     )
   )
@@ -436,7 +537,7 @@ mod_util.autocmd_add = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.ui_input_comp_type),
+      dq.mod_tbl(opts.ui_input_comp_type),
       "rhs"
     )
   )
@@ -446,9 +547,9 @@ mod_util.autocmd_edit = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.ui_input_comp_type),
+      dq.mod_tbl(opts.ui_input_comp_type),
       "rhs",
-      q.autocmd_table(opts.selected_component.data),
+      dq.autocmd_table(opts.selected_component.data),
       "action"
     )
   )
@@ -465,7 +566,7 @@ mod_util.autocmd_move = function(opts) end
 mod_util.bind_add = function(opts)
   local t, buf = ts.get_captures(
     opts.selected_module.path .. "init.lua",
-    q.mod_tbl(opts.selected_component.component_type),
+    dq.mod_tbl(opts.selected_component.component_type),
     "rhs"
   )
 
@@ -482,16 +583,19 @@ mod_util.bind_add_after = function(opts)
   -- REGULAR    -> get bind / enclosing with nvim treesitter cursor helpers.
   local binds_tbl, bind, buf = ts.get_captures(
     opts.selected_module.path_init,
-    q.mod_tbl(opts.selected_component.component_type),
+    dq.mod_tbl(opts.selected_component.component_type),
     "rhs",
-    q.binds_table(opts.selected_component.data),
+    dq.binds_table(opts.selected_component.data),
     "rhs"
   )
   local leader_tbl = has_leader(opts.selected_module.path_init, "leader_table")
-
-  -- use contains_node?
-  local new_leader = nt.is_parent(leader_tbl[1].node, bind[1].node) -- Nodes
+  print("after; path_init:", opts.selected_module.path_init)
+  -- print("leader_tbl:", vim.inspect(leader_tbl))
+  -- print("bind:", vim.inspect(bind))
+  local new_leader = ntu.is_parent(leader_tbl[1].node, bind[1].node) -- Nodes
   local captures = new_leader and branch_last_bind(bind[1].node, buf) or bind
+
+  print("new_leader:", new_leader)
   -- act_on_capture(captures, buf)
 end
 
@@ -500,9 +604,9 @@ mod_util.bind_edit = function(opts)
   act_on_capture(
     ts.get_captures(
       opts.selected_module.path .. "init.lua",
-      q.mod_tbl(opts.selected_component.component_type),
+      dq.mod_tbl(opts.selected_component.component_type),
       "rhs",
-      q.binds_table(opts.selected_component.data),
+      dq.binds_table(opts.selected_component.data),
       "rhs"
     )
   )
@@ -519,7 +623,7 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  local binds_table, buf = ts.get_captures(opts.sel_mod.path_init, q.mod_tbl(opts.sel_cmp), "rhs")
+  local binds_table, buf = ts.get_captures(opts.sel_mod.path_init, dq.mod_tbl(opts.sel_cmp), "rhs")
 
   check_base_table("binds")
 
