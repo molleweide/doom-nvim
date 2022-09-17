@@ -499,9 +499,7 @@ end
 -- wip / unused
 --
 -- Currently this is a treesitter func that parses a leader tree
--- recursively via TSNodes
---
--- it is poorly written in its current state. needs refact.
+-- recursively via TSNodes.
 --
 -- It expects the first `table_constructor` field within the
 -- <leader> table.
@@ -521,8 +519,10 @@ end
 -- this would also give us flexibility in the future. knowing that we
 -- have utils to easilly scan modules with ts.
 --
+-- nvim-treesitter has some recursive utils as well. check em out.
 --
 M.recurse_ts = function(buf, node, accumulated, level)
+  -- note: is level even used? should use the same stack pattern?
   if accumulated == nil then
     accumulated = {
       level = 0,
@@ -535,6 +535,7 @@ M.recurse_ts = function(buf, node, accumulated, level)
   if node:type() == nil or node:type() ~= "table_constructor" then
     return false
   end
+  -- FIX: put in state table
   local cnt = 1 -- child counter
   local special_cnt = 0
   local second_table
@@ -545,6 +546,7 @@ M.recurse_ts = function(buf, node, accumulated, level)
   local mode_found
   local opts_found
   local desc_found
+  -- FIX: redo with iter_named_children()
   for n in node:iter_children() do
     if n:named() then
       local the_node = n:named_child(0) -- table constructor

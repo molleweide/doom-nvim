@@ -79,6 +79,12 @@ config.load = function()
         result["is_module"] = true -- I don't think this one is used.
         result.type = "doom_module_single"
         tree.attach_table_path(doom.modules, pc, result)
+
+        -- TODO: handle doom module dependencies.
+        --
+        --    1. fore each in pairs result.require
+        --    2. require each module.
+        --    3. use `modules/utils.lua` to make sure each dep is enabled the module in `./settings.lua`
       else
         local log = require("doom.utils.logging")
         log.error(

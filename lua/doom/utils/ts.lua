@@ -65,4 +65,29 @@ ts.get_captures = function(path, q1, c1, q2, c2)
   end
 end
 
+ts.parent_n = function(tsnode, n)
+  local child = tsnode
+  local parent
+  local n = n or 1
+
+  for i = 1, n do
+    parent = child:parent()
+    print("get_parent_n:", i, child:type(), parent:type())
+    child = parent
+  end
+
+  return parent
+end
+
+ts.child_n = function(tsnode, child_path)
+  local current = tsnode
+  local child
+
+  for _, v in ipairs(child_path) do
+    child = current:named_child(v)
+    current = child
+  end
+  return child
+end
+
 return ts

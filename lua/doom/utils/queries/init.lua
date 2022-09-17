@@ -202,8 +202,8 @@ queries.binds_table = function(bind)
                 name: (identifier) @key (#eq? @key "name")
                 value: (string) @name (#eq? @name "\"%s\""))
         ] @name_field
-      )
-    )
+      ) @bind_table
+    ) @bind_field
     ]],
     bind[1],
     -- bind.rhs,

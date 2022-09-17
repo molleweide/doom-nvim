@@ -15,6 +15,62 @@ local ntu = require("nvim-treesitter.ts_utils")
 -- TODO: add good debug logs and messages
 --
 
+------------------------------------------------------------------
+-- tsnode:next_sibling()					*tsnode:next_sibling()*
+-- 	Get the node's next sibling.
+--
+-- tsnode:prev_sibling()					*tsnode:prev_sibling()*
+-- 	Get the node's previous sibling.
+--
+-- tsnode:next_named_sibling()                       *tsnode:next_named_sibling()*
+-- 	Get the node's next named sibling.
+--
+-- tsnode:prev_named_sibling()			  *tsnode:prev_named_sibling()*
+-- 	Get the node's previous named sibling.
+--
+-- tsnode:field({name})					*tsnode:field()*
+-- 	Returns a table of the nodes corresponding to the {name} field.
+--
+-- tsnode:child_count()					*tsnode:child_count()*
+-- 	Get the node's number of children.
+--
+-- tsnode:child({index})					*tsnode:child()*
+-- 	Get the node's child at the given {index}, where zero represents the
+-- 	first child.
+--
+-- tsnode:named_child({index})			         *tsnode:named_child()*
+-- 	Get the node's named child at the given {index}, where zero represents
+-- 	the first named child.
+--
+-- tsnode:start()						*tsnode:start()*
+-- 	Get the node's start position. Return three values: the row, column
+-- 	and total byte count (all zero-based).
+--
+-- tsnode:end_()						*tsnode:end_()*
+-- 	Get the node's end position. Return three values: the row, column
+-- 	and total byte count (all zero-based).
+--
+-- tsnode:range()						*tsnode:range()*
+-- 	Get the range of the node. Return four values: the row, column
+-- 	of the start position, then the row, column of the end position.
+--
+-- tsnode:type()						*tsnode:type()*
+-- 	Get the node's type as a string.
+
+------------------------------------------------------------------
+--  nvim-treesitter
+
+-- get_next_node(node, allow_switch_parent, allow_next_parent)~
+-- Returns the next node within the same parent.
+
+-- get_previous_node(node, allow_switch_parents, allow_prev_parent)~
+-- Returns the previous node within the same parent.
+
+-- get_named_children(node)~
+-- Returns a table of named children of `node`.
+
+------------------------------------------------------------------
+
 local compute_insertion_point = function() end
 
 local rmf = utils.find_config("modules.lua")
@@ -27,6 +83,10 @@ local function m_glob(cat)
   if vim.tbl_contains(spec.origins, cat) then
     return vim.split(vim.fn.glob(mod_glob_path(cat)), "\n")
   end
+end
+
+local function ts_text(node, buf)
+  return tsq.get_node_text(node, buf)
 end
 
 local function contains_node(outer, inner) end
@@ -119,14 +179,9 @@ local function has_leader(mpath, capture)
   return leader, buf
 end
 
+-- expects the leader table field
 local function find_deepest_leader(ld_t, lhs_str)
-  print(
-    "::: find deepest leader for: \n    lt = "
-      .. tostring(ld_t)
-      .. " \n    lhs = ("
-      .. lhs_str
-      .. ") :::"
-  )
+  print(tostring(ld_t), lhs_str)
 
   local ret_str = lhs_str
   local leader_tbl = ld_t
@@ -141,7 +196,6 @@ local function find_deepest_leader(ld_t, lhs_str)
   --
   --    leader_tbl = ...
   -- end
-
 end
 
 local function build_new_bind()
@@ -155,137 +209,52 @@ local function build_new_bind()
   --          +AAA, +BBB, +CCC, ...
 end
 
-local function get_branch_parent(bind, buf)
-  print("B. get br parent")
-
-  ------------------------------------------------------------------
-  -- vim.treesitter.query
-
-  -- get_node_text({node}, {source})                              *get_node_text()*
-  --                 Gets the text corresponding to a given node
-  --
-  --                 Parameters: ~
-  --                     {node}    the node
-  --                     {source}  The buffer or string from which the node is
-  --                               extracted
-
-  ------------------------------------------------------------------
-
-  -- tsnode:parent()						*tsnode:parent()*
-  -- 	Get the node's immediate parent.
-  --
-  -- tsnode:next_sibling()					*tsnode:next_sibling()*
-  -- 	Get the node's next sibling.
-  --
-  -- tsnode:prev_sibling()					*tsnode:prev_sibling()*
-  -- 	Get the node's previous sibling.
-  --
-  -- tsnode:next_named_sibling()                       *tsnode:next_named_sibling()*
-  -- 	Get the node's next named sibling.
-  --
-  -- tsnode:prev_named_sibling()			  *tsnode:prev_named_sibling()*
-  -- 	Get the node's previous named sibling.
-  --
-  -- tsnode:iter_children()				       *tsnode:iter_children()*
-  -- 	Iterates over all the direct children of {tsnode}, regardless of
-  -- 	whether they are named or not.
-  -- 	Returns the child node plus the eventual field name corresponding to
-  -- 	this child node.
-  --
-  -- tsnode:field({name})					*tsnode:field()*
-  -- 	Returns a table of the nodes corresponding to the {name} field.
-  --
-  -- tsnode:child_count()					*tsnode:child_count()*
-  -- 	Get the node's number of children.
-  --
-  -- tsnode:child({index})					*tsnode:child()*
-  -- 	Get the node's child at the given {index}, where zero represents the
-  -- 	first child.
-  --
-  -- tsnode:named_child_count()			   *tsnode:named_child_count()*
-  -- 	Get the node's number of named children.
-  --
-  -- tsnode:named_child({index})			         *tsnode:named_child()*
-  -- 	Get the node's named child at the given {index}, where zero represents
-  -- 	the first named child.
-  --
-  -- tsnode:start()						*tsnode:start()*
-  -- 	Get the node's start position. Return three values: the row, column
-  -- 	and total byte count (all zero-based).
-  --
-  -- tsnode:end_()						*tsnode:end_()*
-  -- 	Get the node's end position. Return three values: the row, column
-  -- 	and total byte count (all zero-based).
-  --
-  -- tsnode:range()						*tsnode:range()*
-  -- 	Get the range of the node. Return four values: the row, column
-  -- 	of the start position, then the row, column of the end position.
-  --
-  -- tsnode:type()						*tsnode:type()*
-  -- 	Get the node's type as a string.
-
-  ------------------------------------------------------------------
-  --  nvim-treesitter
-
-  -- get_next_node(node, allow_switch_parent, allow_next_parent)~
-  -- Returns the next node within the same parent.
-
-  -- get_previous_node(node, allow_switch_parents, allow_prev_parent)~
-  -- Returns the previous node within the same parent.
-
-  -- get_named_children(node)~
-  -- Returns a table of named children of `node`.
-
-  ------------------------------------------------------------------
-
-  -- todo: first check that we have recieved a binds with type == "table_constructor"
-
-  local parent_table_constr
-  --    - print type of bind node
-
-  --    - get parent()
-
-  --    - print type again.
-
-  --    - find table constructor
-
-  --    - get child count
-
-  --    - get first named child
-
-  --    - get second named child
-
-  --    - compare text strings
-  -- get parent where [1] = string, and [2] = "^+"
-
-  --    - if correct
-
-  --    - return or continue search
-
-  --    - if parent == "<leader>" ??
-
-  return parent_table_constr
+local function is_branch(ts_branch_field, buf)
+  local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+  return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
--- checks for child binds. NOT child branches
-local function get_last_bind_in_branch(branch, buf)
-  print("C. get last bind in branch")
-  local ccnt = branch:named_child_count()
-  -- local last_bind = branch:named_child(ccnt)
-  --
-  -- local child_tbl
-  -- for each child table
-  --    check if bind
-  --    child_tbl = tbl
-  return child_tbl
+-- expect bind enclosing field node
+local function get_branch_parent(ts_bind_field, buf)
+  -- if parent == "<leader>" ??
+
+  -- if ts_bind_field:type() ~= "table_constructor" then
+  --   return
+  -- end
+  local branch_field = ts.parent_n(ts_bind_field, 4)
+  if is_branch(branch_field, buf) then
+    return branch_field
+  end
 end
 
-local function get_child_branches_from_branch(branch) end
+-- TODO: redo below two functions into: get_all_bind_sub_tables && get_all_branch_sub_tables
 
-local function branch_last_bind(bind, buf)
-  print("A. branch_last_bind")
-  local branch_parent = get_branch_parent(bind)
-  return get_last_bind_in_branch(branch_parent)
+-- returns the last binds child table in a branch
+local function get_all_bind_sub_tables(ts_branch_field, buf)
+  local binds_tc = ts.child_n(ts_branch_field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local t_binds = {}
+  for n in binds_tc:iter_children() do
+    if n:named() then
+      local br_lhs = ts.child_n(branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+      local br_name = ts.child_n(branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+
+      if not is_branch(n, buf) then
+        table.insert(t_binds, n)
+      end
+    end
+  end
+  return t_binds
+end
+
+local function get_all_branch_sub_tables(branch) end
+
+---------
+-- get_all_sibling_binds
+
+local function get_all_sibling_binds(bind, buf)
+  local branch_parent = get_branch_parent(bind, buf)
+  return get_all_bind_sub_tables(branch_parent, buf)
 end
 
 local function get_branch_node_under_cursor()
@@ -588,14 +557,14 @@ mod_util.bind_add_after = function(opts)
     dq.mod_tbl(opts.selected_component.component_type),
     "rhs",
     dq.binds_table(opts.selected_component.data),
-    "rhs"
+    "bind_field"
   )
   local leader_tbl = has_leader(opts.selected_module.path_init, "leader_table")
   print("after; path_init:", opts.selected_module.path_init)
   -- print("leader_tbl:", vim.inspect(leader_tbl))
   -- print("bind:", vim.inspect(bind))
   local new_leader = ntu.is_parent(leader_tbl[1].node, bind[1].node) -- Nodes
-  local captures = new_leader and branch_last_bind(bind[1].node, buf) or bind
+  local captures = new_leader and get_all_sibling_binds(bind[1].node, buf) or bind
 
   print("new_leader:", new_leader)
   -- act_on_capture(captures, buf)
