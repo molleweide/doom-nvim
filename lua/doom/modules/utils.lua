@@ -128,14 +128,14 @@ local function is_branch(ts_branch_field, buf)
   return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
-local function is_branch_match(field, lhs, buf)
+local function is_leader_lhs_match(field, lhs, buf)
   local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-  local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-  if br_lhs and br_name then
-    -- print("is_branch_match:", ts_text(br_lhs, buf), "==", '"' .. lhs .. '"')
+  if br_lhs then
+    -- print("is_leader_lhs_match:", ts_text(br_lhs, buf), "==", '"' .. lhs .. '"')
     local check = '"' .. lhs .. '"'
-    return (ts_text(br_lhs, buf) == check and ts_text(br_name, buf):match('^"+'))
+    return ts_text(br_lhs, buf) == check
   end
+  return false
 end
 
 -- expects the leader table field
@@ -158,20 +158,19 @@ local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
     local first_char = lhs_str:sub(1, 1)
 
     for k, child_field in pairs(binds_tc_children) do
-      if is_branch_match(child_field, first_char, buf) then
-        -- local br_lhs = ts.child_n(child_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-        -- local br_name = ts.child_n(child_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-        -- print("deep >:", lhs_str)
-        -- print(ts_text(br_lhs, buf), ts_text(br_name, buf))
-
+      if is_leader_lhs_match(child_field, first_char, buf) then
         found = true
         field = child_field
-        lhs_str = lhs_str:sub(2, -1)
       end
     end
-    if not found then
+    if not found then -- or lhs_str == "" then
       break
     end
+    lhs_str = lhs_str:sub(2, -1)
+    -- local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+    -- local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+    -- local nt = br_name and ts_text(br_name, buf) or "bind"
+    -- print(ts_text(br_lhs, buf), nt, lhs_str)
   end
   return field, lhs_str
 end
@@ -590,6 +589,10 @@ mod_util.bind_create_from_line = function(opts)
       leader_tbl,
       lhs_str
     )
+  end
+
+  if new_lhs_subtracted == "" then
+    log.error("Create leader from line: leader `" .. lhs_str .. "` already exists.")
   end
 
   print("after: ", branch_target_field, new_lhs_subtracted)
