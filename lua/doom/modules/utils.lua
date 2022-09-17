@@ -13,7 +13,6 @@ local ntu = require("nvim-treesitter.ts_utils")
 -- TODO: apply formatting to file operated on. call null-ls method on buf??
 --
 -- TODO: add good debug logs and messages
---
 
 ------------------------------------------------------------------
 -- tsnode:next_sibling()					*tsnode:next_sibling()*
@@ -179,23 +178,42 @@ local function has_leader(mpath, capture)
   return leader, buf
 end
 
+local function is_branch(ts_branch_field, buf)
+  local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+  return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
+end
+
+local function is_branch_match(field, buf, lhs)
+  local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+  print("is_branch_match:", ts_text(br_lhs, buf), "==", lhs)
+  return (ts_text(br_lhs, buf) == lhs and ts_text(br_name, buf):match('^"+'))
+end
+
 -- expects the leader table field
-local function find_deepest_leader(ld_t, lhs_str)
-  print(tostring(ld_t), lhs_str)
-
+-- assumes no duplicate branches...
+local function find_deepest_leader_for_string(leader_table_field, lhs_str)
   local ret_str = lhs_str
-  local leader_tbl = ld_t
+  local field = leader_table_field
 
-  -- NOTE: this functionality has already been implemented in `recurse_ts`
+  while true do
+    local found = false
+    local binds_tc = ts.child_n(field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
+    local binds_tc_children = nvu.get_named_children(binds_tc)
 
-  -- while(leader_tbl)
-  -- do
-  --    -- assumes no duplicate branches
-  --    checks for child table with correct "lhs"
-  --    loop children
-  --
-  --    leader_tbl = ...
-  -- end
+    for k, child_field in pairs(binds_tc_children) do
+      if is_branch_match(child_field) then
+        found = true
+        field = child_field
+        lhs_str = lhs_str:sub(2, -1)
+      end
+    end
+    if not found then
+      break
+    end
+  end
+  return field, lhs_str
 end
 
 local function build_new_bind()
@@ -207,12 +225,6 @@ local function build_new_bind()
   --
   --      generate dummy branch names
   --          +AAA, +BBB, +CCC, ...
-end
-
-local function is_branch(ts_branch_field, buf)
-  local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-  local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-  return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
 -- expect bind enclosing field node
@@ -234,6 +246,7 @@ end
 local function get_all_bind_sub_tables(ts_branch_field, buf)
   local binds_tc = ts.child_n(ts_branch_field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
   local t_binds = {}
+  -- i could use nvu get_named_children() here as well
   for n in binds_tc:iter_children() do
     if n:named() then
       local br_lhs = ts.child_n(branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
@@ -614,7 +627,7 @@ mod_util.bind_create_from_line = function(opts)
   local leader_tbl, branch_target
   if leader[1] then
     leader_tbl = leader[1].node
-    branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
+    branch_target, new_lhs_subtracted = find_deepest_leader_for_string(leader_tbl, lhs_str)
   end
 
   local bind_new_compiled_str = build_new_bind(new_lhs_subtracted)
