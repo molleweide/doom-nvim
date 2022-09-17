@@ -131,6 +131,8 @@ local function find_deepest_leader(ld_t, lhs_str)
   local ret_str = lhs_str
   local leader_tbl = ld_t
 
+  -- NOTE: this functionality has already been implemented in `recurse_ts`
+
   -- while(leader_tbl)
   -- do
   --    -- assumes no duplicate branches
@@ -139,6 +141,7 @@ local function find_deepest_leader(ld_t, lhs_str)
   --
   --    leader_tbl = ...
   -- end
+
 end
 
 local function build_new_bind()
