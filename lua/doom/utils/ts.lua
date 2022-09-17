@@ -85,6 +85,9 @@ ts.child_n = function(tsnode, child_path)
 
   for _, v in ipairs(child_path) do
     child = current:named_child(v)
+    if not child then
+      return false
+    end
     current = child
   end
   return child

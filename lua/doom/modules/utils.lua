@@ -128,11 +128,14 @@ local function is_branch(ts_branch_field, buf)
   return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
-local function is_branch_match(field, buf, lhs)
+local function is_branch_match(field, lhs, buf)
   local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
   local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-  print("is_branch_match:", ts_text(br_lhs, buf), "==", lhs)
-  return (ts_text(br_lhs, buf) == lhs and ts_text(br_name, buf):match('^"+'))
+  if br_lhs and br_name then
+    -- print("is_branch_match:", ts_text(br_lhs, buf), "==", '"' .. lhs .. '"')
+    local check = '"' .. lhs .. '"'
+    return (ts_text(br_lhs, buf) == check and ts_text(br_name, buf):match('^"+'))
+  end
 end
 
 -- expects the leader table field
@@ -140,22 +143,30 @@ end
 --
 -- if no child leaders return leader field
 --    also now lhs_str == ""
-local function find_deepest_leader_for_string(leader_table_field, lhs_str)
+local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
   local field = leader_table_field
 
-  print("deep:", lhs_str)
+  -- print("deep:", lhs_str)
+  -- local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  -- local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+  -- print(ts_text(br_lhs, buf), ts_text(br_name, buf))
 
   while true do
     local found = false
     local binds_tc = ts.child_n(field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
-    local binds_tc_children = nvu.get_named_children(binds_tc)
+    local binds_tc_children = ntu.get_named_children(binds_tc)
+    local first_char = lhs_str:sub(1, 1)
 
     for k, child_field in pairs(binds_tc_children) do
-      if is_branch_match(child_field) then
+      if is_branch_match(child_field, first_char, buf) then
+        -- local br_lhs = ts.child_n(child_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+        -- local br_name = ts.child_n(child_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+        -- print("deep >:", lhs_str)
+        -- print(ts_text(br_lhs, buf), ts_text(br_name, buf))
+
         found = true
         field = child_field
         lhs_str = lhs_str:sub(2, -1)
-          print("deep >:", lhs_str)
       end
     end
     if not found then
@@ -188,8 +199,6 @@ local function get_branch_parent(ts_bind_field, buf)
     return branch_field
   end
 end
-
--- TODO: redo below two functions into: get_all_bind_sub_tables && get_all_branch_sub_tables
 
 -- returns the last binds child table in a branch
 local function get_all_bind_sub_tables(ts_branch_field, buf)
@@ -576,7 +585,11 @@ mod_util.bind_create_from_line = function(opts)
   local leader_tbl, branch_target
   if leader[1] then
     leader_tbl = leader[1].node
-    branch_target_field, new_lhs_subtracted = find_deepest_leader_for_string(leader_tbl, lhs_str)
+    branch_target_field, new_lhs_subtracted = find_deepest_leader_for_string(
+      buf,
+      leader_tbl,
+      lhs_str
+    )
   end
 
   print("after: ", branch_target_field, new_lhs_subtracted)
