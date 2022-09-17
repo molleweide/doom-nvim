@@ -4,7 +4,9 @@ local is_module_enabled = utils.is_module_enabled
 
 local M = {}
 
--- TODO: redo this with plenary.path
+-- TODO: if type(p) = table
+-- else
+-- single
 M.path_get_tail = function(p)
   local tail = vim.tbl_map(function(s)
     return s:match("/([_%w]-)$") -- capture only dirname

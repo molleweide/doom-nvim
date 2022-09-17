@@ -20,10 +20,11 @@ ts.get_captures = function(path, q1, c1, q2, c2)
   local t1 = {}
   local t2 = {}
 
+  print("Q1:", q1, "\n", "Q2:", q2)
+
   local return_both = q2 and c2
 
   -- NOTE: this prints long after I am expecting it to print??!
-  -- log.info(q1, "\n", q2)
 
   if q2 and c2 then
     local parsed1 = vim.treesitter.parse_query("lua", q1)
@@ -55,9 +56,11 @@ ts.get_captures = function(path, q1, c1, q2, c2)
   end
 
   if return_both then
+    print("TS both")
     -- if both queries are supplied
     return t1, t2, buf
   else
+    print("TS single")
     return t2, buf
   end
 end

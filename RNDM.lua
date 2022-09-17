@@ -14,22 +14,10 @@ call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: add after / create from line
---        return all captures from get captures.
---        leader func select capture
 
--- TODO: fix match
---
---    can we look for `init.file` w/glob
---
---     local m_origin, m_section, m_name = p:match("/([_%w]-)/modules/([_%w]-)/([_%w]-)/$")
---
---     use strip tail to get the dir and attach
-
--- TODO: fix modules extend() > `user` show up in telescope.
+-- TODO: recursive dirs > test
 
 -- TODO: NEOGEN EVERYTHING
-
--- TODO: merge with my main PR
 
 -- what is the difference btw `type` and `component_type`
 

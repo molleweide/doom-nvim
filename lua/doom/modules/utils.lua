@@ -7,11 +7,11 @@ local templ = require("doom.utils.templates")
 local ts = require("doom.utils.ts")
 local b = require("doom.utils.buf")
 local q = require("doom.utils.queries")
-local nt = require("nvim-treesitter.utils")
+local nt = require("nvim-treesitter.ts_utils")
 
--- TODO: apply formatting to file operated on. call null-ls method on buf.
+-- TODO: apply formatting to file operated on. call null-ls method on buf??
 --
--- TODO: add debug logs and messages
+-- TODO: add good debug logs and messages
 --
 
 local compute_insertion_point = function() end
@@ -27,6 +27,8 @@ local function m_glob(cat)
     return vim.split(vim.fn.glob(mod_glob_path(cat)), "\n")
   end
 end
+
+local function contains_node(outer, inner) end
 
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
@@ -56,6 +58,17 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
+-- TODO: IMPLEMENT
+local function check_base_table(type)
+  print("check base table")
+  if type == "settings" then
+  elseif type == "packages" then
+  elseif type == "configs" then
+  elseif type == "cmds" then
+  elseif type == "autocmds" then
+  elseif type == "binds" then
+  end
+end
 -- local validate = function(opts)
 --   -- DOESN'T DO MUCH AT THE MOMENT. DUNNO IF THIS IS NECESSARY ATM.
 --   --
@@ -80,7 +93,7 @@ local function act_on_capture(captures, buf)
   -- Sets cursor to the position of `node` in the current windows.
 
   if #captures > 0 then
-    if doom.settings.doom_ui.insert_templates == "templates" then
+    if doom.settings.doom_ui.use == "templates" then
       -- insert template
     elseif doom.settings.doom_ui.use == "luasnip" then
       -- init luasnippet
@@ -99,16 +112,17 @@ local function get_settings_file(mod_path)
   end
 end
 
-local function has_leader(opts, capture)
-  local leader, buf = ts.get_captures(
-    opts.selected_module.path .. "init.lua",
-    q.leader_t,
-    capture or "leader_field"
-  )
+local function has_leader(mpath, capture)
+  print("has leader c:", capture)
+  local leader, buf = ts.get_captures(mpath, q.leader_t, capture or "leader_field")
   return leader, buf
 end
 
-local function find_deepest_leader()
+local function find_deepest_leader(ld_t, lhs_str)
+  print("::: find deepest leader for: \n    lt = "..tostring(ld_t) .. " \n    lhs = (" .. lhs_str .. ") :::")
+
+  local ret_str = lhs_str
+  local leader_tbl = ld_t
 
   -- get_next_node(node, allow_switch_parent, allow_next_parent)~
   -- Returns the next node within the same parent.
@@ -132,6 +146,7 @@ local function find_deepest_leader()
 end
 
 local function build_new_bind()
+  print("build new bind")
   -- BUILD NEW LEADER
   --
   --
@@ -141,7 +156,34 @@ local function build_new_bind()
   --          +AAA, +BBB, +CCC, ...
 end
 
-local function get_branch_from_leader_bind() end
+local function get_branch_parent(bind, buf)
+  print("B. get br parent")
+
+  local parent_table_constr
+  -- 1. get parent where [1] = string, and [2] = "^+"
+  return parent_table_constr
+end
+
+-- checks for child binds. NOT child branches
+local function get_last_bind_in_branch(branch, buf)
+  print("C. get last bind in branch")
+  local ccnt = branch:named_child_count()
+  -- local last_bind = branch:named_child(ccnt)
+  --
+  -- local child_tbl
+  -- for each child table
+  --    check if bind
+  --    child_tbl = tbl
+  return child_tbl
+end
+
+local function get_child_branches_from_branch(branch) end
+
+local function branch_last_bind(bind, buf)
+  print("A. branch_last_bind")
+  local branch_parent = get_branch_parent(bind)
+  return get_last_bind_in_branch(branch_parent)
+end
 
 local function get_branch_node_under_cursor()
   -- 1. nvim treesitter get node under cursor.
@@ -427,7 +469,7 @@ mod_util.bind_add = function(opts)
     "rhs"
   )
 
-  local leader = has_leader(opts)
+  local leader = has_leader(opts.selected_module.path_init)
   if #leader > 0 then
     act_on_capture(leader, buf)
   else
@@ -439,20 +481,18 @@ mod_util.bind_add_after = function(opts)
   -- TELESCOPE  -> then get the bind under cursor with queries
   -- REGULAR    -> get bind / enclosing with nvim treesitter cursor helpers.
   local binds_tbl, bind, buf = ts.get_captures(
-    opts.selected_module.path .. "init.lua",
+    opts.selected_module.path_init,
     q.mod_tbl(opts.selected_component.component_type),
     "rhs",
     q.binds_table(opts.selected_component.data),
     "rhs"
   )
-  local leader = has_leader(opts, "leader_table")
-  local add_new_leader = nt.is_parent(leader[1].node, bind[1].node) -- Nodes
-  if add_new_leader then
-    local branch_table = get_branch_from_leader_bind(bind[1].node)
-    -- insert new bind above row_end
-  else
-    -- insert line after bind and before leader if leader
-  end
+  local leader_tbl = has_leader(opts.selected_module.path_init, "leader_table")
+
+  -- use contains_node?
+  local new_leader = nt.is_parent(leader_tbl[1].node, bind[1].node) -- Nodes
+  local captures = new_leader and branch_last_bind(bind[1].node, buf) or bind
+  -- act_on_capture(captures, buf)
 end
 
 mod_util.bind_edit = function(opts)
@@ -479,37 +519,45 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  local binds_table, buf = ts.get_captures(
-    opts.selected_module.path .. "init.lua",
-    q.mod_tbl(opts.ui_input_comp_type),
-    "rhs"
-  )
+  local binds_table, buf = ts.get_captures(opts.sel_mod.path_init, q.mod_tbl(opts.sel_cmp), "rhs")
+
+  check_base_table("binds")
+
   local line = opts.line
   local match_leader = line:match("^%s*")
-  local lhs_str = line.sub(white_space_range)
-  print("`" .. match_leader .. "`")
+  local first_char = line:find("%w")
+  print("fc:", first_char)
+  local lhs_str = line:sub(first_char, -1)
 
-  local leader = has_leader(opts, "leader_table")
+  print("match leader:", match_leader)
+  print("lhs_str: [" .. lhs_str .. "]")
 
-  local leader_tbl
+  local leader = has_leader(opts.sel_mod.path_init, "leader_table")
+
+  -- i(leader)
+
+  local leader_tbl, branch_target
   if leader[1] then
     leader_tbl = leader[1].node
-    local branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
+    branch_target, new_lhs_subtracted = find_deepest_leader(leader_tbl, lhs_str)
   end
-  local bind_new_compiled_str = build_new_bind()
-  -- it feels like this whole if statement could be
-  -- refactored into somekind of binds_insert helper
+
+  local bind_new_compiled_str = build_new_bind(new_lhs_subtracted)
+
   if #leader > 0 then
-    if is_leader then
-      --    append new leader bind
+    if match_leader then
+      print("1. leader exists;   append new leader")
+      -- branch_target add new leader
     else
-      --    insert after leader here.
+      print("2. leader exists;   insert new bind")
     end
   else
-    if is_leader then
-      --    need to create whole new leader table here.
+    if match_leader then
+      print("3. create new leader table + bind")
+      -- create leader table + new bind
+      -- insert
     else
-      --    just insert here
+      print("4. no leader; insert new bind last")
     end
   end
 end
@@ -556,8 +604,6 @@ mod_util.extend = function(filter)
       path_init = p,
     })
   end
-
-  -- add_enabled_states
   tree.traverse_table({
     tree = require("doom.core.modules").enabled_modules,
     leaf = function(stack, _, v)
@@ -575,6 +621,7 @@ mod_util.extend = function(filter)
     end,
   })
 
+  -- TODO: filter hasn't been adapted to recursive pattern yet. only pass through
   local function apply_filters(mods)
     -- AND type(filter) == "table"
     if filter and type(filter) == "table" then

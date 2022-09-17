@@ -68,7 +68,6 @@ config.load = function()
     leaf = function(stack, k, v)
       -- print(vim.inspect(stack), k, v)
       local pc, path_concat = tree.flatten_stack(stack, v, ".")
-      -- local path_concat = table.concat(pc, ".")
       local ok, result
       for _, path in ipairs(spec.search_paths(path_concat)) do
         ok, result = xpcall(require, debug.traceback, path)
