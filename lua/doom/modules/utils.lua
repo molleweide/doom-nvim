@@ -238,8 +238,6 @@ local function get_branch_parent(bind, buf)
   -- todo: first check that we have recieved a binds with type == "table_constructor"
 
   local parent_table_constr
-  -- get parent where [1] = string, and [2] = "^+"
-  --
   --    - print type of bind node
 
   --    - get parent()
@@ -255,6 +253,7 @@ local function get_branch_parent(bind, buf)
   --    - get second named child
 
   --    - compare text strings
+  -- get parent where [1] = string, and [2] = "^+"
 
   --    - if correct
 
