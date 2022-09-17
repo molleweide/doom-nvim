@@ -193,9 +193,13 @@ end
 
 -- expects the leader table field
 -- assumes no duplicate branches...
+--
+-- if no child leaders return leader field
+--    also now lhs_str == ""
 local function find_deepest_leader_for_string(leader_table_field, lhs_str)
-  local ret_str = lhs_str
   local field = leader_table_field
+
+  print("deep:", lhs_str)
 
   while true do
     local found = false
@@ -207,6 +211,7 @@ local function find_deepest_leader_for_string(leader_table_field, lhs_str)
         found = true
         field = child_field
         lhs_str = lhs_str:sub(2, -1)
+          print("deep >:", lhs_str)
       end
     end
     if not found then
@@ -620,15 +625,17 @@ mod_util.bind_create_from_line = function(opts)
   print("match leader:", match_leader)
   print("lhs_str: [" .. lhs_str .. "]")
 
-  local leader = has_leader(opts.sel_mod.path_init, "leader_table")
+  local leader = has_leader(opts.sel_mod.path_init, "leader_field")
 
   -- i(leader)
 
   local leader_tbl, branch_target
   if leader[1] then
     leader_tbl = leader[1].node
-    branch_target, new_lhs_subtracted = find_deepest_leader_for_string(leader_tbl, lhs_str)
+    branch_target_field, new_lhs_subtracted = find_deepest_leader_for_string(leader_tbl, lhs_str)
   end
+
+  print("after: ", branch_target_field, new_lhs_subtracted)
 
   local bind_new_compiled_str = build_new_bind(new_lhs_subtracted)
 
