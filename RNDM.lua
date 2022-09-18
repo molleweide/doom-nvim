@@ -20,6 +20,12 @@ so it'll be vim.fn.win_gotoid(winnr)
 --
 --          - merge `doom/utils/**`
 --
+
+queries
+buf.lua
+templates.lua
+ts.lua
+--
 --          - checkout
 -              modules/utils.lua
 --             modules/features/dui/
