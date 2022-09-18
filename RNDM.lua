@@ -13,11 +13,12 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: add after / create from line
---
---    ready to test move mouse.
-
 -- TODO: recursive dirs > test
+--
+-- utils.is_module_enabled = function(mod_path = {})
+
+
+-- TODO: add after / create from line
 
 -- TODO: NEOGEN EVERYTHING
 

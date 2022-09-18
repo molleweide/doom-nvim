@@ -326,7 +326,7 @@ end
 -- Helper for attaching data to a specific table path in `head` table. Eg. `doom.modules`
 -- could be a head if you want to append all modules upon loading doom.
 --
--- TODO: rename > table_path_do
+-- TODO: rename > get_set_table_path()
 --
 -- if no data supplies -> returns table path node
 --
