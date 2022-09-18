@@ -13,29 +13,6 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO:
---        1. pull PR branch. root-settings
---
---        2. tree > core recursive
---
---          - merge `doom/utils/**`
---
-
-queries
-buf.lua
-templates.lua
-ts.lua
---
---          - checkout
--              modules/utils.lua
---             modules/features/dui/
---             core/spec
---             core/config
---             core/modules
---             after/queries/lua/injections.scm
---
---        3.
-
 -- TODO: NEOGEN EVERYTHING
 
 -- what is the difference btw `type` and `component_type`
