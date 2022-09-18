@@ -1,4 +1,8 @@
 return {
+  --
+  -- My idea herer is to keep things related to doom specifications and
+  -- definitions in this file.
+  --
   -- TODO: where to put this??
   --
   --      under core/modules or in modules/utils??

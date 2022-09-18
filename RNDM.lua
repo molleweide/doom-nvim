@@ -13,12 +13,22 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: recursive dirs > test
+-- TODO:
+--        1. pull PR branch. root-settings
 --
--- utils.is_module_enabled = function(mod_path = {})
-
-
--- TODO: add after / create from line
+--        2. tree > core recursive
+--
+--          - merge `doom/utils/**`
+--
+--          - checkout
+-              modules/utils.lua
+--             modules/features/dui/
+--             core/spec
+--             core/config
+--             core/modules
+--             after/queries/lua/injections.scm
+--
+--        3.
 
 -- TODO: NEOGEN EVERYTHING
 

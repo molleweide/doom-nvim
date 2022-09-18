@@ -4,7 +4,9 @@ local utils = require("doom.utils")
 local query_utils = {}
 
 --
--- MOVE THESE TO REGEX UTILS > COMPOSABLE LIB
+-- THIS IS NOT USED
+--
+-- I ATTEMPTED TO MAKE A PARSER THAT CONVERTS LUA TABLE INTO TS QUERY STRING.
 --
 
 local function match(string, check_str)
