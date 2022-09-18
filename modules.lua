@@ -76,6 +76,7 @@ return {
     -- ::: UI COMPONENTS ::: --
     ------------------------------------------------------------------
 
+    "nui",
     "dui",                -- [WIP] Managen your doom config with Telescope.
     "lsp_progress",       -- Check status of LSP loading
     "tabline",            -- Tab bar buffer switcher
@@ -259,7 +260,6 @@ return {
     -- "ts_testing",
     -- "ts_testing_locals",
     -- "ts_treehopper",
-    "ui",
     -- "ui_pipeline",
     -- "ui_toggle_components",
     -- "vigoux_templar",
