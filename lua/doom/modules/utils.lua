@@ -146,17 +146,11 @@ end
 local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
   local field = leader_table_field
 
-  -- print("deep:", lhs_str)
-  -- local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-  -- local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-  -- print(ts_text(br_lhs, buf), ts_text(br_name, buf))
-
   while true do
     local found = false
     local binds_tc = ts.child_n(field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
     local binds_tc_children = ntu.get_named_children(binds_tc)
     local first_char = lhs_str:sub(1, 1)
-
     for k, child_field in pairs(binds_tc_children) do
       if is_leader_lhs_match(child_field, first_char, buf) then
         found = true
@@ -167,10 +161,6 @@ local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
       break
     end
     lhs_str = lhs_str:sub(2, -1)
-    -- local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-    -- local br_name = ts.child_n(field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
-    -- local nt = br_name and ts_text(br_name, buf) or "bind"
-    -- print(ts_text(br_lhs, buf), nt, lhs_str)
   end
   return field, lhs_str
 end
@@ -187,12 +177,28 @@ local function build_new_bind()
 end
 
 -- expect bind enclosing field node
-local function get_branch_parent(ts_bind_field, buf)
+--
+-- no actually if we rewrite this with a while loop it doesn't matter
+-- what you pass in.
+--
+-- want = "bind|branch"
+--
+local function get_bind_tree_parent(ts_bind_field, buf)
   -- if parent == "<leader>" ??
 
-  -- if ts_bind_field:type() ~= "table_constructor" then
-  --   return
-  -- end
+  -- FIND FIRST BIND OR BRANCH FIELD
+
+  -- three releval options to check for:
+  --
+  --    binds field
+  --
+  --    branch field
+  --
+  --    leader field
+
+
+
+
   local branch_field = ts.parent_n(ts_bind_field, 4)
   if is_branch(branch_field, buf) then
     return branch_field
@@ -223,15 +229,12 @@ local function get_all_branch_sub_tables(branch) end
 -- get_all_sibling_binds
 
 local function get_all_sibling_binds(bind, buf)
-  local branch_parent = get_branch_parent(bind, buf)
+  local branch_parent = get_bind_tree_parent(bind, buf)
   return get_all_bind_sub_tables(branch_parent, buf)
 end
 
 local function get_branch_node_under_cursor()
-  -- 1. nvim treesitter get node under cursor.
-  -- 2. iterate outwards.
-  -- 3. check for match pattern with spec.
-  -- 4. if match return most logical enclosing node
+
 end
 -- local get_text = function(node, bufnr)
 -- end

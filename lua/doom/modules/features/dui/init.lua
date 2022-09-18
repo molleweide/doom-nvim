@@ -400,12 +400,6 @@ local function reset()
 end
 
 doom_ui.cmds = {
-  -- {
-  --   "DoomCreateNewModule",
-  --   function()
-  --     ax.m_create()
-  --   end,
-  -- },
   {
     "DoomPickerMain",
     function()
@@ -449,26 +443,54 @@ doom_ui.cmds = {
       DOOM_UI_STATE.next()
     end,
   },
+  {
+    "DoomModuleCreateNew",
+    function()
+      -- open nui for new name input...
+      ax.m_create()
+    end,
+  },
 
-  -- -- 1. if current buf == module/init.lua file do action else open module browser.
-  -- -- 2. `leader d a (c|a|b|p)`
-  -- { "DoomModule_add_cmd", function() end },
-  -- { "DoomModule_add_autocmd", function() end },
-  -- { "DoomModule_add_bind", function() end },
-  -- { "DoomModule_add_package", function() end },
-  --
-  -- { "DoomModule_add_bind_to_cursor", function()
-  --   -- if inside of a branch -> then
-  --   -- add new bind within the branch.
-  -- end },
-  -- { "DoomModule_add_leader_bind", function()
-  -- open telescope with current modules binds
-  --
-  -- the `line` string that you input via telescope
-  -- will be the leader bind.
-  --
-  -- then <CR> will take you to the bind to add the rhs
-  -- end },
+  {
+    "DoomModuleAddSetting",
+    function()
+      -- a. if inside of module.init or settings.lua
+      --    open telescope settings picker for curr file.
+      --      line -> specify table path and insert last value
+      -- b. if outside of doom -> open doom menu
+    end,
+  },
+
+  {
+    "DoomModuleAddPackages",
+    function()
+      -- a. if inside of module.init
+      --    open telescope packages for current module.
+      --      process line str -> insert package
+      --
+      -- b. if outside of doom -> open doom modules browser
+    end,
+  },
+
+  {
+    "DoomModuleAddBind",
+    function()
+      -- INVESTIGATE DEFAULT CASES.
+      -- 1. if current buf == module/init.lua file do action else open module browser.
+      -- 2. `leader d a (c|a|b|p)`
+    end,
+  },
+
+  {
+    "DoomModuleCreateBindAtCursor",
+    function()
+      --  a. outside leader
+      --        insert new bind after.
+      --  b. inside leader
+      --        find first parent branch or bind_field
+      --          insert new bind after
+    end,
+  },
 
   { "DoomModuleCreateBindFromLine", function() end },
 
