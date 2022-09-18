@@ -2,6 +2,7 @@ local utils = {}
 
 local system = require("doom.core.system")
 local fs = require("doom.utils.fs")
+local tree = require("doom.utils.tree")
 
 --- Doom Nvim version
 utils.version = {
@@ -9,8 +10,12 @@ utils.version = {
   minor = 0,
   patch = 0,
 }
-utils.doom_version =
-  string.format("%d.%d.%d", utils.version.major, utils.version.minor, utils.version.patch)
+utils.doom_version = string.format(
+  "%d.%d.%d",
+  utils.version.major,
+  utils.version.minor,
+  utils.version.patch
+)
 
 -- Finds `filename` (where it is a doom config file).
 utils.find_config = function(filename)
@@ -25,8 +30,10 @@ utils.find_config = function(filename)
   if fs.file_exists(path) then
     return path
   end
-  local candidates =
-    vim.api.nvim_get_runtime_file(get_filepath("*" .. system.sep .. "doon-nvim"), false)
+  local candidates = vim.api.nvim_get_runtime_file(
+    get_filepath("*" .. system.sep .. "doon-nvim"),
+    false
+  )
   if not vim.tbl_isempty(candidates) then
     return candidates[1]
   end
@@ -196,7 +203,11 @@ end
 utils.is_module_enabled = function(section, plugin)
   local modules = require("doom.core.modules").enabled_modules
 
-  return modules[section] and vim.tbl_contains(modules[section], plugin)
+  if type(section) == "table" then
+    return tree.attach_table_path(modules, section)
+  else
+    return modules[section] and vim.tbl_contains(modules[section], plugin)
+  end
 end
 
 local modules_list_cache = {}
