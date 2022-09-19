@@ -100,11 +100,6 @@ return {
     "markdown",
     -- "terraform",       -- Terraform / hcl files support
     "dockerfile",
-
-    -- "fennel",
-    -- "latex",
-    -- "lisp",
-    -- "solidity",          -- ethereum lang
   },
   themes = {
     -- "apprentice",
@@ -302,6 +297,12 @@ return {
       -- "ts_treehopper",
     },
     tools = {},
+    langs = {
+      -- "fennel",
+      -- "latex",
+      -- "lisp",
+      -- "solidity",          -- ethereum lang
+    },
   },
 }
 
