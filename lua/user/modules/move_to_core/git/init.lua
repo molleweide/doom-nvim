@@ -253,7 +253,7 @@ git.packages = {
 git.configs = {}
 
 git.configs["gitsigns.nvim"] = function()
-  require("gitsigns").setup(doom.modules.features.git.settings.gitsigns)
+  require("gitsigns").setup(doom.modules.move_to_core.git.settings.gitsigns)
 end
 
 git.configs["vgit.nvim"] = function()

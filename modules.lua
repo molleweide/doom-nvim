@@ -21,7 +21,7 @@
 
 return {
   features = {
-    -- language features
+    -- Language features
     "annotations", -- Code annotation generator
     "auto_install", -- Auto install LSP providers
     "autopairs", -- Automatically close character pairs
@@ -30,17 +30,18 @@ return {
     "lsp", -- Code completion
     "extra_snippets", -- Code snippets for all languages
 
-    -- editor
+    -- Editor
     "auto_session", -- Remember sessions between loads
     "colorizer", -- Show colors in neovim
     "editorconfig", -- Support editorconfig files
+    -- "gitsigns", Show git changes in sidebar
     "illuminate", -- Highlight other copies of the word you're hovering on
     "indentlines", -- Show indent lines with special characters
     "range_highlight", -- Highlight selected range from commands
     "todo_comments", -- Highlight TODO: comments
     "doom_themes", -- Extra themes for doom
 
-    -- ui
+    -- UI Components
     "nui",
     "dui", -- [WIP] Managen your doom config with Telescope.
     "lsp_progress", -- Check status of LSP loading
@@ -55,20 +56,13 @@ return {
     "restclient", -- Test HTTP requests from neovim (TODO: Test)
     "show_registers", -- Show and navigate between registers
 
-    -- Version Control
-    -- "gitsigns",           -- Show git changes in sidebar
-    "git", -- git basic support
-    "github", -- github integration; requires `litee` module under `Editor`
-    "diffview", -- git diffview integration
-    "neogit", -- A git client for neovim
-    -- "repo_search",     -- Browse repos in Telescope.
-
     -- Tools
     -- "dap",             -- Debug code through neovim
     "repl",
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser
     "lazygit", -- Lazy git integration
+    "neogit", -- A git client for neovim
     -- "netrw",
     "neorg", -- Organise your life
     "projects", -- Quickly switch between projects
@@ -185,6 +179,11 @@ return {
     -- "zephyrium",
   },
   move_to_core = {
+    -- "gitsigns",           -- Show git changes in sidebar
+    "git", -- git basic support
+    "github", -- github integration; requires `litee` module under `Editor`
+    "diffview", -- git diffview integration
+    -- "repo_search",     -- Browse repos in Telescope.
 
     "litee", -- Litee IDE suite
     "leap", -- Replace `s` with advanced leap.nvim motion plugin.
