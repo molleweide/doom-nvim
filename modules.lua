@@ -56,7 +56,6 @@ return {
     "show_registers", -- Show and navigate between registers
 
     -- Version Control
-
     -- "gitsigns",           -- Show git changes in sidebar
     "git", -- git basic support
     "github", -- github integration; requires `litee` module under `Editor`
@@ -65,25 +64,19 @@ return {
     -- "repo_search",     -- Browse repos in Telescope.
 
     -- Tools
-
     -- "dap",             -- Debug code through neovim
-    -- "ssh",
-    -- "docker",          -- Docker tools
+    "repl",
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser
     "lazygit", -- Lazy git integration
-    "netrw",
+    -- "netrw",
     "neorg", -- Organise your life
-    -- "pandoc",
     "projects", -- Quickly switch between projects
-    -- "remote_dev",      -- ???
     "superman", -- Read unix man pages in neovim
-    -- "tmux",               -- ???
     -- "suda",            -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
     "whichkey", -- An interactive sheet
     "zen",
-    -- "repl",
   },
   langs = {
     "lua",
@@ -249,6 +242,11 @@ return {
     -- "flutter",
     -- "markdown_tools",  -- ??
     -- "google_docs",
+    -- "ssh",
+    -- "docker",          -- Docker tools
+    -- "pandoc",
+    -- "remote_dev",      -- ???
+    -- "tmux",               -- ???
   },
   personal = {
     "docs",
