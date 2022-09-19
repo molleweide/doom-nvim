@@ -1,3 +1,0 @@
--- https://github.com/ray-x/nvim
---
--- ray has a very nice looking config that would be nice to try to pull into doom and see how that feels.

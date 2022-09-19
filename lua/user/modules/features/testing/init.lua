@@ -1,3 +1,0 @@
-local testing = {}
-
-return testing

@@ -13,6 +13,8 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
+-- TODO: move all modules not from original core into `move_to_core`dir
+
 -- TODO: NEOGEN EVERYTHING
 
 -- what is the difference btw `type` and `component_type`

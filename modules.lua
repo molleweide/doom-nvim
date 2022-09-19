@@ -21,6 +21,7 @@
 
 return {
   features = {
+    -- language features
     "annotations", -- Code annotation generator
     "auto_install", -- Auto install LSP providers
     "autopairs", -- Automatically close character pairs
@@ -29,21 +30,7 @@ return {
     "lsp", -- Code completion
     "extra_snippets", -- Code snippets for all languages
 
-    ------------------------------------------------------------------
-    -- ::: EDITOR ::: --
-    ------------------------------------------------------------------
-
-    -- -- Editor
-    -- "auto_session", -- Remember sessions between loads
-    -- "colorizer", -- Show colors in neovim
-    -- "editorconfig", -- Support editorconfig files
-    -- "gitsigns", -- Show git changes in sidebar
-    -- "illuminate", -- Highlight other copies of the word you're hovering on
-    -- "indentlines", -- Show indent lines with special characters
-    -- "range_highlight", -- Highlight selected range from commands
-    -- "todo_comments", -- Highlight TODO: comments
-    -- -- "doom_themes",     -- Extra themes for doom
-
+    -- editor
     "auto_session", -- Remember sessions between loads
     "colorizer", -- Show colors in neovim
     "editorconfig", -- Support editorconfig files
@@ -52,30 +39,8 @@ return {
     "range_highlight", -- Highlight selected range from commands
     "todo_comments", -- Highlight TODO: comments
     "doom_themes", -- Extra themes for doom
-    "litee", -- Litee IDE suite
-    "leap", -- Replace `s` with advanced leap.nvim motion plugin.
-    "surround", -- Surround text objects, eg. {([])}
-    "cursor",
-    -- "gestures",        -- Mouse gestures
-    -- "tabs",            -- ???
-    "scroll",
-    "registers",
-    -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
-    "marks",
-    "undo",
-    "folds",
-    "increment", --  tools for incrementing stuff
-    "clipboard",
-    -- "regex",           -- Regex tools
-    -- "help",            -- Support for help with binds and stuff
-    -- "printer",
-    -- "sort",            -- extra binds that help with sorting lines/objects
-    -- "logging",         -- binds n stuff
 
-    ------------------------------------------------------------------
-    -- ::: UI COMPONENTS ::: --
-    ------------------------------------------------------------------
-
+    -- ui
     "nui",
     "dui", -- [WIP] Managen your doom config with Telescope.
     "lsp_progress", -- Check status of LSP loading
@@ -89,41 +54,20 @@ return {
     "ranger", -- File explorer in neovim (TODO: Test)
     "restclient", -- Test HTTP requests from neovim (TODO: Test)
     "show_registers", -- Show and navigate between registers
-    "cmdline", -- Floating cmdline at cursor
-    -- "wildmenu",
-    "quickfix", -- Extra quickfix capabilitieS
-    -- "images",        -- Image support
-    -- "legend",        -- ???
-    -- "vim_ui",            -- improved `vim.ui`
-    "virtual_types", -- ???
-    -- "code_outline",
-    -- "transparent",
 
-    ------------------------------------------------------------------
-    -- ::: VCS / GIT ::: --
-    ------------------------------------------------------------------
+    -- Version Control
 
     -- "gitsigns",           -- Show git changes in sidebar
     "git", -- git basic support
     "github", -- github integration; requires `litee` module under `Editor`
     "diffview", -- git diffview integration
     "neogit", -- A git client for neovim
-    "ghq", -- Support for `qhq` repo manager
     -- "repo_search",     -- Browse repos in Telescope.
 
-    ------------------------------------------------------------------
-    -- ::: TRANSFORM ::: --
-    ------------------------------------------------------------------
+    -- Tools
 
-    ------------------------------------------------------------------
-    -- ::: TOOLS ::: --
-    ------------------------------------------------------------------
-
-    "ai",
     -- "dap",             -- Debug code through neovim
-    "gpg",
     -- "ssh",
-    "collaborate", -- Google docs collaborative editing.
     -- "docker",          -- Docker tools
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser
@@ -131,7 +75,6 @@ return {
     "netrw",
     "neorg", -- Organise your life
     -- "pandoc",
-    "plugins_reloader", -- Watch local packages for changes during development
     "projects", -- Quickly switch between projects
     -- "remote_dev",      -- ???
     "superman", -- Read unix man pages in neovim
@@ -139,83 +82,8 @@ return {
     -- "suda",            -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
     "whichkey", -- An interactive sheet
-    "refactor", -- Code refactoring
-    -- "ripgrep",
-    -- "flutter",
-    -- "markdown_tools",  -- ??
-    -- "google_docs",
     "zen",
     -- "repl",
-
-    ------------------------------------------------------------------
-    -- ::: MOLLEWEIDE ::: --
-    ------------------------------------------------------------------
-
-    ------------------------------------------------------------------
-    -- ::: HOUSE CLEANING ::: --
-    ------------------------------------------------------------------
-
-    -- Molleweide
-    -- "async_jobs",
-    -- "autocmds",
-    -- "awk",
-    -- "binds_debug",
-    -- "binds_make_fn_under_cursor_into_bind",
-    -- "binds_mini_syntax",
-    -- "char_counter",
-    -- "codeql",
-    -- "coderunner",
-    -- "color_scheme_creation",
-    -- "community_configs",
-    -- "create_cmds",
-    -- "create_module_sync_root",
-    -- "create_plugin",
-    -- "create_snippet",
-    -- "debugging",
-    -- "diagnostics",
-    -- "dim_unused",
-    -- "doom_module_formatting",
-    -- "doom_queries_manager",
-    -- "doom_user_settings_ui",
-    -- "file_explorers",
-    -- "gdb",
-    -- "highlighting",
-    -- "indent",
-    -- "lang_nav",
-    -- "lsp_semantinc_tokens",
-    -- "lsp_testing",
-    -- "lua_table_commands",
-    -- "mappings",
-    -- "nvim_luadev",
-    -- "nvim_queries",
-    -- "open_module_for_bind",
-    -- "parse_module_cmd_args",
-    -- "plugin_template",
-    -- "plugins_fork",
-    -- "plugins_local_reloader",
-    -- "rayx",
-    -- "read_file",
-    -- "reaper_keys",
-    -- "refactor_fn_into_utils",
-    -- "repl",
-    -- "snipets_create_edit",
-    -- "startup",
-    -- "telescope_doom_reloader",
-    -- "telescope_mappings_legend",
-    -- "test",
-    -- "testing",
-    -- "todo",
-    -- "ts_jump_2_func",
-    -- "ts_jump_to_module_part",
-    -- "ts_mirror_doom_globals",
-    -- "ts_navigation",
-    -- "ts_query_monitor",
-    -- "ts_testing",
-    -- "ts_testing_locals",
-    -- "ts_treehopper",
-    -- "ui_pipeline",
-    -- "ui_toggle_components",
-    -- "vigoux_templar",
   },
   langs = {
     "lua",
@@ -324,6 +192,37 @@ return {
     -- "zephyrium",
   },
   move_to_core = {
+
+    "litee", -- Litee IDE suite
+    "leap", -- Replace `s` with advanced leap.nvim motion plugin.
+    "surround", -- Surround text objects, eg. {([])}
+    "cursor",
+    -- "gestures",        -- Mouse gestures
+    -- "tabs",            -- ???
+    "scroll",
+    "registers",
+    -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
+    "marks",
+    "undo",
+    "folds",
+    "increment", --  tools for incrementing stuff
+    "clipboard",
+    -- "regex",           -- Regex tools
+    -- "help",            -- Support for help with binds and stuff
+    -- "printer",
+    -- "sort",            -- extra binds that help with sorting lines/objects
+    -- "logging",         -- binds n stuff
+
+    "cmdline", -- Floating cmdline at cursor
+    -- "wildmenu",
+    "quickfix", -- Extra quickfix capabilitieS
+    -- "images",        -- Image support
+    -- "legend",        -- ???
+    -- "vim_ui",            -- improved `vim.ui`
+    "virtual_types", -- ???
+    -- "code_outline",
+    -- "transparent",
+
     "colors",
     "search_and_replace", -- Binds for search and replace
     -- "architext",
@@ -338,9 +237,20 @@ return {
     -- "readline",        -- ???
     -- "filetype",        -- ???
     -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
+
+    "ghq", -- Support for `qhq` repo manager
+
+    "ai",
+    "gpg",
+    "collaborate", -- Google docs collaborative editing.
+    "plugins_reloader", -- Watch local packages for changes during development
+    "refactor", -- Code refactoring
+    -- "ripgrep",
+    -- "flutter",
+    -- "markdown_tools",  -- ??
+    -- "google_docs",
   },
   personal = {
-    "binds_personal",
     "docs",
     "editing",
     "formatting",
@@ -350,7 +260,6 @@ return {
     -- "tmux",
 
     "telescope_extensions", -- move into categories
-    -- "audio",
     -- "crypto",            -- Crypto currency stuff
     -- "rename",            -- ??
     -- "spellcheck",
@@ -368,12 +277,35 @@ return {
     -- "statusline_misc",
     -- "utilities",         -- ??
     -- "math_calculator",
-
   },
   -- tabular = {
   --   -- "scim",              -- Spreadsheets
   --   -- "tabular",           -- Extended support for managing tabular data
   -- },
+  molleweide = {
+    binds = {
+      "binds_personal",
+      -- "binds_debug",
+      -- "binds_make_fn_under_cursor_into_bind",
+      -- "binds_mini_syntax",
+      -- "mappings",
+    },
+    music = {
+      -- "audio",
+      -- "reaper_keys",
+    },
+    ts = {
+      -- "ts_jump_2_func",
+      -- "ts_jump_to_module_part",
+      -- "ts_mirror_doom_globals",
+      -- "ts_navigation",
+      -- "ts_query_monitor",
+      -- "ts_testing",
+      -- "ts_testing_locals",
+      -- "ts_treehopper",
+    },
+    tools = {},
+  },
 }
 
 -- vim: sw=2 sts=2 ts=2 fdm=indent expandtab
