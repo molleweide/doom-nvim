@@ -21,35 +21,40 @@
 
 return {
   features = {
-    "annotations",        -- Code annotation generator
-    "auto_install",       -- Auto install LSP providers
-    "autopairs",          -- Automatically close character pairs
-    "comment",            -- Adds keybinds to comment in any language
-    "linter",             -- Linting and formatting for languages
-    "lsp",                -- Code completion
-    "extra_snippets",           -- Code snippets for all languages
-    "context",            -- Provides visual context via Treesitter
-    "args",               -- Provides highlighting and tools for managing function args
-    "textobjects",
-    "comments_frame",    -- Create big comments with a nice frame
-    "endwise",      -- ??
-    "ts_plugins",      -- walk through
+    "annotations", -- Code annotation generator
+    "auto_install", -- Auto install LSP providers
+    "autopairs", -- Automatically close character pairs
+    "comment", -- Adds keybinds to comment in any language
+    "linter", -- Linting and formatting for languages
+    "lsp", -- Code completion
+    "extra_snippets", -- Code snippets for all languages
 
     ------------------------------------------------------------------
     -- ::: EDITOR ::: --
     ------------------------------------------------------------------
 
-    "auto_session",       -- Remember sessions between loads
-    "colorizer",          -- Show colors in neovim
-    "editorconfig",       -- Support editorconfig files
-    "illuminate",         -- Highlight other copies of the word you're hovering on
-    "indentlines",        -- Show indent lines with special characters
-    "range_highlight",    -- Highlight selected range from commands
-    "todo_comments",      -- Highlight TODO: comments
-    "doom_themes",        -- Extra themes for doom
-    "litee",              -- Litee IDE suite
-    "leap",               -- Replace `s` with advanced leap.nvim motion plugin.
-    "surround",           -- Surround text objects, eg. {([])}
+    -- -- Editor
+    -- "auto_session", -- Remember sessions between loads
+    -- "colorizer", -- Show colors in neovim
+    -- "editorconfig", -- Support editorconfig files
+    -- "gitsigns", -- Show git changes in sidebar
+    -- "illuminate", -- Highlight other copies of the word you're hovering on
+    -- "indentlines", -- Show indent lines with special characters
+    -- "range_highlight", -- Highlight selected range from commands
+    -- "todo_comments", -- Highlight TODO: comments
+    -- -- "doom_themes",     -- Extra themes for doom
+
+    "auto_session", -- Remember sessions between loads
+    "colorizer", -- Show colors in neovim
+    "editorconfig", -- Support editorconfig files
+    "illuminate", -- Highlight other copies of the word you're hovering on
+    "indentlines", -- Show indent lines with special characters
+    "range_highlight", -- Highlight selected range from commands
+    "todo_comments", -- Highlight TODO: comments
+    "doom_themes", -- Extra themes for doom
+    "litee", -- Litee IDE suite
+    "leap", -- Replace `s` with advanced leap.nvim motion plugin.
+    "surround", -- Surround text objects, eg. {([])}
     "cursor",
     -- "gestures",        -- Mouse gestures
     -- "tabs",            -- ???
@@ -59,39 +64,34 @@ return {
     "marks",
     "undo",
     "folds",
-    "increment",       --  tools for incrementing stuff
+    "increment", --  tools for incrementing stuff
     "clipboard",
     -- "regex",           -- Regex tools
     -- "help",            -- Support for help with binds and stuff
     -- "printer",
     -- "sort",            -- extra binds that help with sorting lines/objects
     -- "logging",         -- binds n stuff
-    -- "buffers",
-    -- "readline",        -- ???
-    -- "filetype",        -- ???
-    -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
-    "root",               -- Auto switch root on-enter new git repo + useful commands
 
     ------------------------------------------------------------------
     -- ::: UI COMPONENTS ::: --
     ------------------------------------------------------------------
 
     "nui",
-    "dui",                -- [WIP] Managen your doom config with Telescope.
-    "lsp_progress",       -- Check status of LSP loading
-    "tabline",            -- Tab bar buffer switcher
-    "dashboard",          -- A pretty dashboard upon opening
-    "trouble",         -- A pretty diagnostic viewer
-    "statusline",         -- A pretty status line at the bottom of the buffer
+    "dui", -- [WIP] Managen your doom config with Telescope.
+    "lsp_progress", -- Check status of LSP loading
+    "tabline", -- Tab bar buffer switcher
+    "dashboard", -- A pretty dashboard upon opening
+    "trouble", -- A pretty diagnostic viewer
+    "statusline", -- A pretty status line at the bottom of the buffer
     -- "minimap",         -- Shows current position in document
-    "terminal",        -- Integrated terminal in neovim
-    "symbols",         -- Navigate between code symbols using telescope
-    "ranger",          -- File explorer in neovim (TODO: Test)
-    "restclient",      -- Test HTTP requests from neovim (TODO: Test)
-    "show_registers",  -- Show and navigate between registers
-    "cmdline",         -- Floating cmdline at cursor
+    "terminal", -- Integrated terminal in neovim
+    "symbols", -- Navigate between code symbols using telescope
+    "ranger", -- File explorer in neovim (TODO: Test)
+    "restclient", -- Test HTTP requests from neovim (TODO: Test)
+    "show_registers", -- Show and navigate between registers
+    "cmdline", -- Floating cmdline at cursor
     -- "wildmenu",
-    "quickfix",         -- Extra quickfix capabilitieS
+    "quickfix", -- Extra quickfix capabilitieS
     -- "images",        -- Image support
     -- "legend",        -- ???
     -- "vim_ui",            -- improved `vim.ui`
@@ -104,20 +104,16 @@ return {
     ------------------------------------------------------------------
 
     -- "gitsigns",           -- Show git changes in sidebar
-    "git",                -- git basic support
-    "github",             -- github integration; requires `litee` module under `Editor`
-    "diffview",           -- git diffview integration
-    "neogit",          -- A git client for neovim
-    "ghq",                -- Support for `qhq` repo manager
+    "git", -- git basic support
+    "github", -- github integration; requires `litee` module under `Editor`
+    "diffview", -- git diffview integration
+    "neogit", -- A git client for neovim
+    "ghq", -- Support for `qhq` repo manager
     -- "repo_search",     -- Browse repos in Telescope.
 
     ------------------------------------------------------------------
     -- ::: TRANSFORM ::: --
     ------------------------------------------------------------------
-
-    "search_and_replace", -- Binds for search and replace
-    -- "architext", -- todo
-
 
     ------------------------------------------------------------------
     -- ::: TOOLS ::: --
@@ -127,23 +123,23 @@ return {
     -- "dap",             -- Debug code through neovim
     "gpg",
     -- "ssh",
-    "collaborate",        -- Google docs collaborative editing.
+    "collaborate", -- Google docs collaborative editing.
     -- "docker",          -- Docker tools
-    "explorer",           -- An enhanced filetree explorer
-    "firenvim",           -- Embed neovim in your browser
-    "lazygit",            -- Lazy git integration
+    "explorer", -- An enhanced filetree explorer
+    "firenvim", -- Embed neovim in your browser
+    "lazygit", -- Lazy git integration
     "netrw",
-    "neorg",              -- Organise your life
+    "neorg", -- Organise your life
     -- "pandoc",
-    "plugins_reloader",   -- Watch local packages for changes during development
-    "projects",           -- Quickly switch between projects
+    "plugins_reloader", -- Watch local packages for changes during development
+    "projects", -- Quickly switch between projects
     -- "remote_dev",      -- ???
-    "superman",        -- Read unix man pages in neovim
+    "superman", -- Read unix man pages in neovim
     -- "tmux",               -- ???
     -- "suda",            -- Save using sudo when necessary
-    "telescope",          -- Fuzzy searcher to find files, grep code and more
-    "whichkey",           -- An interactive sheet
-    "refactor",           -- Code refactoring
+    "telescope", -- Fuzzy searcher to find files, grep code and more
+    "whichkey", -- An interactive sheet
+    "refactor", -- Code refactoring
     -- "ripgrep",
     -- "flutter",
     -- "markdown_tools",  -- ??
@@ -152,51 +148,8 @@ return {
     -- "repl",
 
     ------------------------------------------------------------------
-    -- ::: TABULAR ::: --
-    ------------------------------------------------------------------
-
-    -- "scim",              -- Spreadsheets
-    -- "tabular",           -- Extended support for managing tabular data
-
-    ------------------------------------------------------------------
-    -- ::: MISC ::: --
-    ------------------------------------------------------------------
-
-    "telescope_extensions", -- move into categories
-    -- "audio",
-    -- "crypto",            -- Crypto currency stuff
-    -- "rename",            -- ??
-    -- "spellcheck",
-    -- "diagrams",
-    -- "competitive",
-    -- "libmodal",          -- Tool for creating custom modes
-    -- "icons",             -- Extended various icons support
-    -- "figlet",            -- figlet fonts editor
-    -- "kmonad",            -- Support for kmonad keyboard remapper
-    -- "navigator",         -- ???
-    -- "games",
-    -- "websearch",
-    -- "data_science",
-    -- "stenography",
-    -- "statusline_misc",
-    -- "utilities",         -- ??
-    -- "math_calculator",
-
-
-
-    ------------------------------------------------------------------
     -- ::: MOLLEWEIDE ::: --
     ------------------------------------------------------------------
-
-    "binds_personal",
-    "colors",
-    "docs",
-    "editing",
-    "formatting",
-    "tweak",
-    "windows",
-    "wm",
-    -- "tmux",
 
     ------------------------------------------------------------------
     -- ::: HOUSE CLEANING ::: --
@@ -288,7 +241,7 @@ return {
     -- "kotlin",
     -- "java",
 
-    "config",          -- JSON, YAML, TOML
+    "config", -- JSON, YAML, TOML
     "markdown",
     -- "terraform",       -- Terraform / hcl files support
     "dockerfile",
@@ -369,13 +322,58 @@ return {
     -- "zenbones",
     -- "zephyr",
     -- "zephyrium",
-  }
+  },
+  move_to_core = {
+    "colors",
+    "search_and_replace", -- Binds for search and replace
+    -- "architext",
+    "context", -- Provides visual context via Treesitter
+    "args", -- Provides highlighting and tools for managing function args
+    "textobjects",
+    "comments_frame", -- Create big comments with a nice frame
+    "endwise", -- ??
+    "ts_plugins", -- walk through
+    "root", -- Auto switch root on-enter new git repo + useful commands
+    -- "buffers",
+    -- "readline",        -- ???
+    -- "filetype",        -- ???
+    -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
+  },
+  personal = {
+    "binds_personal",
+    "docs",
+    "editing",
+    "formatting",
+    "tweak",
+    "windows",
+    "wm",
+    -- "tmux",
+
+    "telescope_extensions", -- move into categories
+    -- "audio",
+    -- "crypto",            -- Crypto currency stuff
+    -- "rename",            -- ??
+    -- "spellcheck",
+    -- "diagrams",
+    -- "competitive",
+    -- "libmodal",          -- Tool for creating custom modes
+    -- "icons",             -- Extended various icons support
+    -- "figlet",            -- figlet fonts editor
+    -- "kmonad",            -- Support for kmonad keyboard remapper
+    -- "navigator",         -- ???
+    -- "games",
+    -- "websearch",
+    -- "data_science",
+    -- "stenography",
+    -- "statusline_misc",
+    -- "utilities",         -- ??
+    -- "math_calculator",
+
+  },
+  -- tabular = {
+  --   -- "scim",              -- Spreadsheets
+  --   -- "tabular",           -- Extended support for managing tabular data
+  -- },
 }
 
 -- vim: sw=2 sts=2 ts=2 fdm=indent expandtab
-
-
-
-
-
-

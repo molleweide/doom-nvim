@@ -221,8 +221,10 @@ table.insert(binds, {
 -- table.insert(binds, {
 -- })
 
+-- print("WH enabled:", require("doom.utils").is_module_enabled({ "features", "whichkey" }))
+
 -- quick file access
-if require("doom.utils").is_module_enabled("whichkey") then
+if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
   table.insert(binds, {
     "<leader>",
     name = "+prefix",
@@ -257,7 +259,7 @@ if require("doom.utils").is_module_enabled("whichkey") then
 end
 
 -- leader
-if require("doom.utils").is_module_enabled("features", "whichkey") then
+if require("doom.utils").is_module_enabled({"features", "whichkey"}) then
   table.insert(binds, {
     "<leader>",
     name = "+prefix",

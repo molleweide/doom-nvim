@@ -354,6 +354,7 @@ M.attach_table_path = function(head, tp, data)
           head[p] = data
         end
       else
+        -- print(vim.inspect(head), p)
         return head[p]
       end
     end
