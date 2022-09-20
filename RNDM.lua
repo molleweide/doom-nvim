@@ -13,15 +13,17 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: move all modules not from original core into `move_to_core`dir
+TODO: prepare mergeability with main
 
--- TODO: NEOGEN EVERYTHING
+  1. make sure the dir structure is the exact same.
+  2. clean up `config.lua`.
+  3. migrate `core module overrides` out to `config.lua`
 
--- what is the difference btw `type` and `component_type`
+  so this is actually quite fucking cool dude.
 
--- todo: document TSNode
+  4. so that core modules are kept completely in sync with main.
 
--- todo: expand variable names into good meaningful terms
+-- todo: NEOGEN EVERYTHING
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

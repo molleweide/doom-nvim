@@ -282,6 +282,12 @@ return {
       -- "binds_mini_syntax",
       -- "mappings",
     },
+    editor = {
+
+    },
+    git = {
+
+    },
     music = {
       -- "audio",
       -- "reaper_keys",
@@ -298,6 +304,7 @@ return {
     },
     tools = {},
     langs = {
+
       -- "fennel",
       -- "latex",
       -- "lisp",
