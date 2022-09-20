@@ -15,6 +15,9 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
+the right to it exists and if it existed then people would loose so
+many things just. that wouldn't be possible at all.
+
 -- TODO: prepare mergeability with main
 
   1. make sure the dir structure is the exact same.
@@ -36,6 +39,9 @@ make sure that it is something that you could go back to in the past.
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 
 - how to monitor autocommands easilly??
+
+setup cron jobs to push all of my repos in the back ground if
+possible so that I never have to worry.
 
 TODO: stretch band clip-on grips that you can hold.
     ball bearings clip-on grip

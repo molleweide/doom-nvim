@@ -2,15 +2,28 @@ local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local ax = require("doom.modules.features.dui.actions")
 
--- REFACTOR:
+-- GLOSSARY:
 --
---      - move helpers into utils.
 --      - entries_static
 --      - entries_dynamic (components)
+--          with dynamic I mean that instead of supplying the complete `results`
+--          lits, eg. `main_menu` below, instead we run `tree` on a target table
+--          and then each `leaf` is processed via the `opts.leaf` callback.
+--          Therefore module components below only specify each entry node, while
+--          the main menu defines the complete menu.
+--
+--          Please come with better naming convention ideas!
+
 
 -- TODO:
 --
 --  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
+--
+--  - custom highlight color per entry column
+--
+--  - custom separator color
+--
+--  - print full `very.facny.module` stack path instead of section
 --
 --  - modules -> origin / section hl
 --  - modules -> enabled hl
@@ -24,24 +37,18 @@ local ax = require("doom.modules.features.dui.actions")
 --  if settings/bind/config = function
 --      -> stringify contents and display as an exercise in how to retrieve stuff with treesitter
 --
---  - improve ordinals by making a smarter expression or function that computes something nice
---      >>> maybe come up with a few special begin chars for `origins/sections/etc`. Things that make sense to codify.
+--  - we need to come up with good `ordinals` (how entries are sorted/searched)
+--      so that the fuzzy searching becomes ideal.
 --
 --  - default separator highlighting ???
 --
---   try highlighting with hex colors.
+--  - what highlights should be used for colors / now I just picked some TS highlights.
 --
--- note: would entry.displayer = self.packages.displayer work?!?!
 
 --
 -- HELPERS
 --
 
--- todo: rename create entry and add metatable with the `surround char` and other features built into it
---
--- will this work with single-entry tables, eg. `packages` template below?
---
---
 -- TODO: move into utils
 local function entries_surround_with(start_char, end_char, t_entries, search_string)
   for i, _ in pairs(t_entries) do

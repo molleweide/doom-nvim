@@ -10,7 +10,14 @@ local dq = require("doom.utils.queries")
 local tsq = require("vim.treesitter.query")
 local ntu = require("nvim-treesitter.ts_utils")
 
+-- GLOSSARY:
+--
+--    root <file> refers to a file in the root. eg `./modules.lua`
+--
+
 -- TODO: add good debug logs and messages
+--
+-- todo: make sure that operations cannot be called unless the syntax of a file is valid
 
 ------------------------------------------------------------------
 
@@ -96,6 +103,7 @@ local function act_on_capture(captures, buf)
   -- goto_node(node, goto_end, avoid_set_jump)~
   -- Sets cursor to the position of `node` in the current windows.
 
+  -- todo: need to addthese settings to `main` branch
   if #captures > 0 then
     if doom.settings.doom_ui.use == "templates" then
       -- insert template
@@ -108,6 +116,8 @@ local function act_on_capture(captures, buf)
   end
 end
 
+-- if a module hasn't been supplied via selection in telescope, then
+-- it is a assumed that we'd want to operate on root settings.
 local function get_settings_file(mod_path)
   if mod_path then
     return mod_path .. "init.lua"
@@ -289,6 +299,8 @@ mod_util.check_if_module_name_exists = function(m, new_name)
   return false
 end
 
+-- rename these `root_` files. They operate on the `./modules.lua`
+-- but I am not sure exactly what to rename them to.
 mod_util.root_new = function(opts)
   local tables, buf = ts.get_captures(rmf, dq.root_section(opts.section), "section_table")
   local ntu = #tables

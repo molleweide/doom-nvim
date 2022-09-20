@@ -6,9 +6,12 @@ local nui = require("doom.modules.features.dui.nui")
 
 -- TODO: nui themeing and stylez
 
--- TODO: undo points for all actions!!!!!
+-- TODO: undo points for all actions
 
--- TODO: refactor everything NUI into util so that it becomes a bit nicer to handle
+-- TODO: refactor everything `nui.nvim` into the `nui` doom module.
+-- so that wecan  keep  reusable UI components. should they go as a sibling
+-- file under dui or go into the `nui/init.lua` file and then we can keep
+-- settings there?
 
 --  - open/edit (new) module in split / same win is default on <CR>
 
