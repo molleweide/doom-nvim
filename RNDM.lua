@@ -1,5 +1,7 @@
 --[[
 
+https://www.cpp-lang.net/
+
 -- WASHING MACHINE FILTER!!
 
 -- custom fonts with treesitter.
@@ -13,15 +15,13 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
-TODO: prepare mergeability with main
+-- TODO: prepare mergeability with main
 
   1. make sure the dir structure is the exact same.
   2. clean up `config.lua`.
   3. migrate `core module overrides` out to `config.lua`
-
-  so this is actually quite fucking cool dude.
-
   4. so that core modules are kept completely in sync with main.
+  5. merge root settings branch
 
 -- todo: NEOGEN EVERYTHING
 

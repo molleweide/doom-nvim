@@ -185,6 +185,8 @@ end
 ---       HELPERS       ---
 ---------------------------
 
+-- move these into utils.
+
 function i(x, pre)
   print(pre or "", vim.inspect(x))
 end
@@ -199,7 +201,6 @@ end
 -- https://neovim.discourse.group/t/function-that-return-visually-selected-text/1601/2
 -- https://github.com/kristijanhusak/neovim-config/blob/master/nvim/lua/partials/search.lua
 
--- TODO: MOVE INTO UTIL
 funcs.get_visual_selection = function()
   local s_start = vim.fn.getpos("'<")
   local s_end = vim.fn.getpos("'>")
