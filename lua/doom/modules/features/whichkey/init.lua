@@ -119,8 +119,13 @@ whichkey.configs["which-key.nvim"] = function()
   local keymaps_service = require("doom.services.keymaps")
   local whichkey_integration = get_whichkey_integration()
   local count = 0
-  for section_name, _ in pairs(doom.modules) do
-    for _, module in pairs(doom[section_name]) do
+
+
+  require("doom.utils.tree").traverse_table({
+    tree = doom.modules,
+    filter = "doom_module_single",
+    leaf = function(_, module_name, module)
+      -- print(module_name, module)
       if module.binds then
         count = count + 1
         vim.defer_fn(function()
@@ -132,8 +137,25 @@ whichkey.configs["which-key.nvim"] = function()
           )
         end, count)
       end
-    end
-  end
+
+    end,
+  })
+
+  -- for section_name, _ in pairs(doom.modules) do
+  --   for _, module in pairs(doom[section_name]) do
+  --     if module.binds then
+  --       count = count + 1
+  --       vim.defer_fn(function()
+  --         -- table.insert(all_keymaps, type(module.binds) == "function" and module.binds() or module.binds)
+  --         keymaps_service.applyKeymaps(
+  --           type(module.binds) == "function" and module.binds() or module.binds,
+  --           nil,
+  --           { whichkey_integration }
+  --         )
+  --       end, count)
+  --     end
+  --   end
+  -- end
 end
 
 return whichkey
