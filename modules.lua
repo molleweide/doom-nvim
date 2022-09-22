@@ -200,7 +200,7 @@ return {
     -- "sort",            -- extra binds that help with sorting lines/objects
     -- "logging",         -- binds n stuff
 
-    "cmdline", -- Floating cmdline at cursor
+    -- "cmdline", -- Floating cmdline at cursor
     -- "wildmenu",
     "quickfix", -- Extra quickfix capabilitieS
     -- "images",        -- Image support
@@ -225,7 +225,7 @@ return {
     -- "filetype",        -- ???
     -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
 
-    "ghq", -- Support for `qhq` repo manager
+    -- "ghq", -- Support for `qhq` repo manager
 
     -- "ai",
     "gpg",

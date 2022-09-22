@@ -32,29 +32,27 @@ surround.configs = {}
 --   require('mini.surround').setup()
 -- end
 
+surround.binds = {
 
-surround.binds = {}
+  -- https://github.com/justinmk/vim-sneak/issues/268
+  -- map ds       <Plug>Dsurround
+  -- nmap cs       <Plug>Csurround
+  -- nmap cS       <Plug>CSurround
+  -- nmap ys       <Plug>Ysurround
+  -- nmap yS       <Plug>YSurround
+  -- nmap yss      <Plug>Yssurround
+  -- nmap ySs      <Plug>YSsurround
+  -- nmap ySS      <Plug>YSsurround
+  -- xmap gs       <Plug>VSurround
+  -- xmap gS       <Plug>VgSurround
+  -- normal mode
 
--- https://github.com/justinmk/vim-sneak/issues/268
--- map ds       <Plug>Dsurround
--- nmap cs       <Plug>Csurround
--- nmap cS       <Plug>CSurround
--- nmap ys       <Plug>Ysurround
--- nmap yS       <Plug>YSurround
--- nmap yss      <Plug>Yssurround
--- nmap ySs      <Plug>YSsurround
--- nmap ySS      <Plug>YSsurround
--- xmap gs       <Plug>VSurround
--- xmap gS       <Plug>VgSurround
--- normal mode
-
--- TODO: move into `doom.settings`
-table.insert(surround.binds, {
+  -- TODO: move into `doom.settings`
   { "z", "<Plug>VSurround", mode = "x", name = "surr" },
   { "yzz", "<Plug>Yssurround", mode = "n", name = "surr" }, -- double ss
   { "yz", "<Plug>Ysurround", mode = "n", name = "surr" }, -- single s
   { "dz", "<Plug>Dsurround", mode = "n", name = "surr" },
   { "cz", "<Plug>Csurround", mode = "n", name = "surr" },
-})
+}
 
 return surround

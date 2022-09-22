@@ -15,10 +15,8 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
-i have to practice bracing bracing bracing bracing bracing krumma
-krumma benda bojja. this is fucking retarded and this is fucking
-funny as fuck you are the man i a mgoing to break.
-i have never even asked about it.
+for every word i shall brace krumma krumma krumma krumma so that seems to
+be a very interesting thing that i donfmt understand .
 
 -- TODO: -------
 
