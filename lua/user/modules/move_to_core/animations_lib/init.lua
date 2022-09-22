@@ -1,0 +1,1 @@
+-- https://github.com/anuvyklack/animation.nvim

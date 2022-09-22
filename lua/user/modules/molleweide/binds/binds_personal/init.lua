@@ -274,13 +274,13 @@ if require("doom.utils").is_module_enabled({"features", "whichkey"}) then
             name = "load luasnip-snippets",
           },
           { "r", [[<cmd>DoomReload<CR>]], name = "doomReload" },
-          {
-            "R",
-            function()
-              doom.moll.funcs.report_an_issue()
-            end,
-            name = "create_issue_from_templ",
-          },
+          -- {
+          --   "R",
+          --   function()
+          --     doom.moll.funcs.report_an_issue()
+          --   end,
+          --   name = "create_issue_from_templ",
+          -- },
           {
             "p",
             [[:lua doom.moll.funcs.inspect(doom.)<Left>]],

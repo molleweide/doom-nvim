@@ -15,11 +15,21 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
-the right to it exists and if it existed then people would loose so
-many things just. that wouldn't be possible at all.
+i have to practice bracing bracing bracing bracing bracing krumma
+krumma benda bojja. this is fucking retarded and this is fucking
+funny as fuck you are the man i a mgoing to break.
+i have never even asked about it.
 
--- TODO: prepare mergeability with main
+-- TODO: -------
 
+- fix bind whichkey
+
+- test all dui/results mappings
+    refactor
+
+- refactor dui
+
+- test merge `root-settings-v4`
   1. make sure the dir structure is the exact same.
   2. clean up `config.lua`.
   3. migrate `core module overrides` out to `config.lua`
@@ -27,6 +37,13 @@ many things just. that wouldn't be possible at all.
   5. merge root settings branch
 
 -- todo: NEOGEN EVERYTHING
+
+-- TODO: --------------- end
+
+this is going to be fucking awesome when everything is running perfectly well which will meanthat
+
+it is something that is quite fucking insane, and you could never fucking understand that
+eve.
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

@@ -25,6 +25,7 @@ local compute_insertion_point = function() end
 
 local rmf = utils.find_config("modules.lua")
 
+-- todo: redo this with core/sys path
 local mod_glob_path = function(origin)
   return string.format("%s/lua/%s/modules/**/init.lua", vim.fn.stdpath("config"), origin)
 end
@@ -69,17 +70,6 @@ local function get_replacement_range(strings, comments, module_name, buf)
   end
 end
 
--- TODO: IMPLEMENT
-local function check_base_table(type)
-  print("check base table")
-  if type == "settings" then
-  elseif type == "packages" then
-  elseif type == "configs" then
-  elseif type == "cmds" then
-  elseif type == "autocmds" then
-  elseif type == "binds" then
-  end
-end
 -- local validate = function(opts)
 --   -- DOESN'T DO MUCH AT THE MOMENT. DUNNO IF THIS IS NECESSARY ATM.
 --   --
@@ -91,9 +81,18 @@ end
 --   return true
 -- end
 
+----
+
 -- todo
---
 --    - insert before/after
+--
+--
+--    doom.settings.doom_ui.use = <option>
+--
+--    - 1. in nil -> just move cursor to config unit
+--    - 2. insert template string
+--    - 3. integrate LuaSnip with Dui.
+--
 --
 local function act_on_capture(captures, buf)
   -- TODO: USE THIS FUNCTION IN NVIM-TREESITTER.
@@ -118,6 +117,8 @@ end
 
 -- if a module hasn't been supplied via selection in telescope, then
 -- it is a assumed that we'd want to operate on root settings.
+--
+-- `load_settings_file`
 local function get_settings_file(mod_path)
   if mod_path then
     return mod_path .. "init.lua"
@@ -126,18 +127,39 @@ local function get_settings_file(mod_path)
   end
 end
 
+-- TODO:
+--
+--  1. make sure compenent table of type exists; eg make sure `binds` table exists.
+--  2. write base template `mod.xxx = { ... }`
+--  3. insert in correct position of module file
+--  4. refactor into utils/templates or core/spec
+local function has_base_table(type)
+  print("check base table")
+  if type == "settings" then
+  elseif type == "packages" then
+  elseif type == "configs" then
+  elseif type == "cmds" then
+  elseif type == "autocmds" then
+  elseif type == "binds" then
+  end
+end
+
+-- refactor: get module base component. components/leader/etc.. -> move everything into a core/spec
 local function has_leader(mpath, capture)
   print("has leader c:", capture)
   local leader, buf = ts.get_captures(mpath, dq.leader_t, capture or "leader_field")
   return leader, buf
 end
 
+-- refactor: generalized `match_node_pattern`
 local function is_branch(ts_branch_field, buf)
   local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
   local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
   return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
+
+-- refactor: utils/ts -> find lua_table_idx_node_match
 local function is_leader_lhs_match(field, lhs, buf)
   local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
   if br_lhs then
@@ -153,6 +175,8 @@ end
 --
 -- if no child leaders return leader field
 --    also now lhs_str == ""
+--
+-- refactor: util/ts -> lua_find_deepest_table_pattern
 local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
   local field = leader_table_field
 
@@ -175,6 +199,11 @@ local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
   return field, lhs_str
 end
 
+-- refactor: generate_table_str
+--
+-- refactor: create_bind_name / branch = bool
+-- refactor: create_leader_string_template
+-- refactor:
 local function build_new_bind()
   print("build new bind")
   -- BUILD NEW LEADER
@@ -193,6 +222,7 @@ end
 --
 -- want = "bind|branch"
 --
+-- refactor: get_first_table_match(buf,parent/child, match_cb)
 local function get_bind_tree_parent(ts_bind_field, buf)
   -- if parent == "<leader>" ??
 
@@ -205,9 +235,6 @@ local function get_bind_tree_parent(ts_bind_field, buf)
   --    branch field
   --
   --    leader field
-
-
-
 
   local branch_field = ts.parent_n(ts_bind_field, 4)
   if is_branch(branch_field, buf) then
@@ -243,9 +270,7 @@ local function get_all_sibling_binds(bind, buf)
   return get_all_bind_sub_tables(branch_parent, buf)
 end
 
-local function get_branch_node_under_cursor()
-
-end
+local function get_branch_node_under_cursor() end
 -- local get_text = function(node, bufnr)
 -- end
 
@@ -581,7 +606,7 @@ mod_util.bind_move = function(opts) end
 mod_util.bind_create_from_line = function(opts)
   local binds_table, buf = ts.get_captures(opts.sel_mod.path_init, dq.mod_tbl(opts.sel_cmp), "rhs")
 
-  check_base_table("binds")
+  has_base_table("binds")
 
   local line = opts.line
   local match_leader = line:match("^%s*")

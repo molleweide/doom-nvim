@@ -2,11 +2,10 @@ local tsq = require("vim.treesitter.query")
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 --
--- TODO
+-- TODO:
 --
--- ---
--- TODO: RENAME: NODE -> LEAF
--- TODO: PASS ACCUMULATOR TO BRANCH_POST
+-------
+-- pass accumulator to branch_post
 --
 --------------------------------------
 -- it would be nice if callbacks only recieve a single table and not mult
@@ -14,20 +13,19 @@ local tsq = require("vim.treesitter.query")
 --------------------------------------
 -- logger > print each inspect entry on new line \n
 --    so that it becomes extra easy to compare
+--    would it be possible to add colors?
 --
 --------------------------------------
--- use metatable?
+-- chaining
 --
---------------------------------------
--- functional chaining
+-- make it possible to do something like this?
 --
--- make it possible to
---
--- local res = crawl(opts).crawl()
+-- local res = tree(opts).tree(opts2)
 --
 --------------------------------------
 --  entry_counter, leaf_counter, edge_counter.
 --
+--  add various quantification stats
 --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -42,7 +40,9 @@ local tsq = require("vim.treesitter.query")
 -- # 0 --------------------------
 --
 --    crawl default tree > requires setup configuration
+--    would it make sense to allow a default tree in eg. core config?
 --
+--    NOTE: SOME OF THE BELOW MIGHT BE OUTDATED
 --
 -- # 1 -------------------------------------------------------
 --
@@ -86,7 +86,7 @@ local tsq = require("vim.treesitter.query")
 --
 -- -----------------------------------------------------------------------------
 --
--- _WARNING: if you are using a string filter arg, you have to make sure it is
+-- NOTE: if you are using a string filter arg, you have to make sure it is
 -- one of the special keywords, or it will be treated as a match string for
 -- computing nodes, see XXX.
 --
@@ -146,7 +146,7 @@ local tsq = require("vim.treesitter.query")
 -------------------------------------------------------------------------------
 
 --
--- WIP: TREE LOG/DEBUG HELPER
+-- TREE LOG/DEBUG HELPER
 --
 
 -- At the moment (1) below is probably the most reliable.
@@ -291,6 +291,7 @@ local function logger(is_node, opts, stack, k, v)
       end
     end
 
+    -- FIX: rd and sd are very bad undescriptive names
     if opts.log.inspect then
       print(pre .. " rd: " .. msg.rhs.data)
     end
@@ -309,7 +310,7 @@ local M = {}
 --
 
 --- conatenate path stack with node
---- rename: flatten_stack is a non descriptive name -> concat_node_path()
+--- rename: flatten_stack is a non descriptive name -> concat_table_path()
 M.flatten_stack = function(stack, v, concat)
   local pc = { v }
   if #stack > 0 then

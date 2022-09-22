@@ -227,7 +227,7 @@ return {
 
     "ghq", -- Support for `qhq` repo manager
 
-    "ai",
+    -- "ai",
     "gpg",
     "collaborate", -- Google docs collaborative editing.
     "plugins_reloader", -- Watch local packages for changes during development
@@ -241,6 +241,7 @@ return {
     -- "pandoc",
     -- "remote_dev",      -- ???
     -- "tmux",               -- ???
+
   },
   personal = {
     "docs",
