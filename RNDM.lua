@@ -20,7 +20,19 @@ be a very interesting thing that i donfmt understand .
 
 -- TODO: -------
 
-- fix bind whichkey
+-- a. settings
+      1. only checkout this commit
+      2. merge main.
+-- b. recursive core
+      1. utils/tree
+      2. core/config
+      3. core/modules
+      4. features/whichkey
+-- c. dui
+    1. after.
+    2. utils/queries, utils/ts, utils/buf, utils/
+    3. modules/utils.
+    4.
 
 - test all dui/results mappings
     refactor

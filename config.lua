@@ -92,13 +92,9 @@ P :
 
 vim.opt.keymap = "INSERT_COLEMAK"
 
-
 ---------------------------
 ---       OPTIONS       ---
 ---------------------------
-
-
-
 
 vim.opt.wrap = false
 vim.opt.number = true
@@ -344,5 +340,14 @@ vim.opt.guifont = { "Hack Nerd Font", "h12" }
 vim.cmd("let g:neovide_refresh_rate=60")
 vim.cmd("let g:neovide_cursor_animation_length=0.03")
 vim.cmd("set laststatus=3")
+
+--
+-- TELESCOPE OVERRIDES
+--
+
+local telescope_defaults = doom.modules.features.telescope.settings.defaults
+
+telescope_defaults.layout_config.width = 0.95
+telescope_defaults.winblend = 10
 
 -- vim: sw=2 sts=2 ts=2 expandtab
