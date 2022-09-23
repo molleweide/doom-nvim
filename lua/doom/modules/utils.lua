@@ -110,6 +110,7 @@ local function act_on_capture(captures, buf)
       -- init luasnippet
     else
       -- only move cursor
+      -- use nvim treesitter `goto_node` here
       b.set_cursor_to_buf(buf, captures[#captures].range)
     end
   end
