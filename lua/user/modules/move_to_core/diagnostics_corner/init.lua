@@ -1,0 +1,2 @@
+-- https://github.com/santigo-zero/right-corner-diagnostics.nvim
+--   https://github.com/Mofiqul/trld.nvim
