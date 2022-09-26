@@ -1,0 +1,1 @@
+-- git@github.com:vigoux/azy.nvim.git

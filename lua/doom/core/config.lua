@@ -60,8 +60,8 @@ config.load = function()
   vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
   -- Combine enabled modules (`modules.lua`) with core modules.
-  utils.recurse_enabled_modules(function(stack, _, v)
-      local pc, path_concat = tree.flatten_stack(stack, v, ".")
+  utils.recurse_enabled_modules(function(stack, _, module_name)
+      local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
       local ok, result
       for _, path in ipairs(spec.search_paths(path_concat)) do
         ok, result = xpcall(require, debug.traceback, path)
