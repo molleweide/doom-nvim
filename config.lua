@@ -348,6 +348,8 @@ vim.cmd("set laststatus=3")
 local telescope_defaults = doom.modules.features.telescope.settings.defaults
 
 telescope_defaults.layout_config.width = 0.95
+telescope_defaults.layout_config.horizontal.mirror = true
+telescope_defaults.layout_config.horizontal.preview_width = 0.45
 telescope_defaults.winblend = 10
 
 -- vim: sw=2 sts=2 ts=2 expandtab

@@ -21,7 +21,6 @@ telescope.settings = {
     layout_strategy = "horizontal",
     prompt_prefix = "   ",
     layout_config = {
-      -- TODO: add center prompt text on each key press
       width = 0.80,
       preview_cutoff = 120,
       prompt_position = "top",
