@@ -206,8 +206,6 @@ utils.is_module_enabled = function(section, plugin)
   if type(section) == "table" then
     local tp = section
     local name = table.remove(tp, #tp)
-    -- i(tp)
-    -- print(">>> name:", name)
     local subsec = tree.attach_table_path(modules, tp)
     return vim.tbl_contains(subsec, name)
   else
