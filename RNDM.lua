@@ -19,15 +19,24 @@ for every word i shall brace krumma krumma krumma krumma so that seems to
 be a very interesting thing that i donfmt understand .
 
 -- TODO: -------
+--
 
--- a. settings
-      1. only checkout this commit
-      2. merge main.
+so this is actually quite fucking insane and the reaons why they are doing
+thing  like the appreciation and so that is why they would never fucking.
+
+-- a. settings -> merge latest main.
+          >>> check if there are any extra settings that need
+          to be fixed.
+
 -- b. recursive core
       1. utils/tree
       2. core/config
       3. core/modules
       4. features/whichkey
+      5. utils -> recurse_enabled_modules()
+      6. utils -> recurse_global_modules()
+      7. move tree utils into utils?
+
 -- c. dui
     1. after.
     2. utils/queries, utils/ts, utils/buf, utils/

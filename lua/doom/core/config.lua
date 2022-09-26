@@ -60,13 +60,7 @@ config.load = function()
   vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
   -- Combine enabled modules (`modules.lua`) with core modules.
-  local enabled_modules = require("doom.core.modules").enabled_modules
-
-  -- Crawl the modules table and require all modules
-  tree.traverse_table({
-    tree = enabled_modules,
-    leaf = function(stack, k, v)
-      -- print(vim.inspect(stack), k, v)
+  utils.recurse_enabled_modules(function(stack, _, v)
       local pc, path_concat = tree.flatten_stack(stack, v, ".")
       local ok, result
       for _, path in ipairs(spec.search_paths(path_concat)) do
@@ -76,15 +70,8 @@ config.load = function()
         end
       end
       if ok then
-        result["is_module"] = true -- I don't think this one is used.
         result.type = "doom_module_single"
         tree.attach_table_path(doom.modules, pc, result)
-
-        -- TODO: handle doom module dependencies.
-        --
-        --    1. fore each in pairs result.require
-        --    2. require each module.
-        --    3. use `modules/utils.lua` to make sure each dep is enabled the module in `./settings.lua`
       else
         local log = require("doom.utils.logging")
         log.error(
@@ -95,9 +82,7 @@ config.load = function()
           )
         )
       end
-      return pc
-    end
-  })
+  end)
 
   -- Execute user's `config.lua` so they can modify the doom global object.
   local ok, err = xpcall(dofile, debug.traceback, config.source)

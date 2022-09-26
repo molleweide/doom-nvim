@@ -299,4 +299,19 @@ utils.tbl_merge = function(t1, t2)
   return ret
 end
 
+utils.recurse_enabled_modules = function(apply_function)
+  tree.traverse_table({
+    tree = require("doom.core.modules").enabled_modules,
+    leaf = apply_function
+  })
+end
+
+utils.recurse_global_modules = function(apply_function)
+  require("doom.utils.tree").traverse_table({
+    tree = doom.modules,
+    filter = "doom_module_single",
+    leaf = apply_function
+  })
+end
+
 return utils
