@@ -206,7 +206,7 @@ utils.is_module_enabled = function(section, plugin)
   if type(section) == "table" then
     local tp = section
     local name = table.remove(tp, #tp)
-    local subsec = tree.attach_table_path(modules, tp)
+    local subsec = tree.get_set_table_path(modules, tp)
     return vim.tbl_contains(subsec, name)
   else
     return modules[section] and vim.tbl_contains(modules[section], plugin)
@@ -295,21 +295,6 @@ utils.tbl_merge = function(t1, t2)
     table.insert(ret, p)
   end
   return ret
-end
-
-utils.recurse_enabled_modules = function(apply_function)
-  tree.traverse_table({
-    tree = require("doom.core.modules").enabled_modules,
-    leaf = apply_function,
-  })
-end
-
-utils.recurse_global_modules = function(apply_function)
-  require("doom.utils.tree").traverse_table({
-    tree = doom.modules,
-    filter = "doom_module_single",
-    leaf = apply_function,
-  })
 end
 
 return utils

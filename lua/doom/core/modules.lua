@@ -115,41 +115,46 @@ modules.load_modules = function()
   local use = require("packer").use
 
   -- Handle the Modules
-  utils.recurse_global_modules(function(_, module_name, module)
-    -- Import dependencies with packer from module.packages
-    if module.packages then
-      for dependency_name, packer_spec in pairs(module.packages) do
-        -- Set packer_spec to configure function
-        if module.configs and module.configs[dependency_name] then
-          packer_spec.config = module.configs[dependency_name]
+  require("doom.utils.tree").traverse_table({
+    tree = doom.modules,
+    filter = "doom_module_single",
+    leaf = function(_, module_name, module)
+      -- Import dependencies with packer from module.packages
+      if module.packages then
+        for dependency_name, packer_spec in pairs(module.packages) do
+          -- Set packer_spec to configure function
+          if module.configs and module.configs[dependency_name] then
+            packer_spec.config = module.configs[dependency_name]
+          end
+
+          -- Set/unset frozen packer dependencies
+          packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
+
+          -- Initialise packer
+          use(packer_spec)
         end
-
-        -- Set/unset frozen packer dependencies
-        packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
-
-        -- Initialise packer
-        use(packer_spec)
       end
-    end
 
-    -- Setup package autogroups
-    if module.autocmds then
-      local autocmds = type(module.autocmds) == "function" and module.autocmds() or module.autocmds
-      utils.make_augroup(module_name, autocmds)
-    end
-
-    if module.cmds then
-      for _, cmd_spec in ipairs(module.cmds) do
-        utils.make_cmd(cmd_spec[1], cmd_spec[2])
+      -- Setup package autogroups
+      if module.autocmds then
+        local autocmds = type(module.autocmds) == "function" and module.autocmds()
+          or module.autocmds
+        utils.make_augroup(module_name, autocmds)
       end
-    end
 
-    if module.binds then
-      keymaps_service.applyKeymaps(
-        type(module.binds) == "function" and module.binds() or module.binds
-      )
-    end
-  end)
+      if module.cmds then
+        for _, cmd_spec in ipairs(module.cmds) do
+          utils.make_cmd(cmd_spec[1], cmd_spec[2])
+        end
+      end
+
+      if module.binds then
+        keymaps_service.applyKeymaps(
+          type(module.binds) == "function" and module.binds() or module.binds
+        )
+      end
+    end,
+  })
 end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.

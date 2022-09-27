@@ -332,7 +332,7 @@ end
 -- if no data supplies -> returns table path node
 --
 -- @param table list of path components
-M.attach_table_path = function(head, tp, data)
+M.get_set_table_path = function(head, tp, data)
   if not head then
     return false
   end

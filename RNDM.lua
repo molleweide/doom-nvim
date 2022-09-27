@@ -15,10 +15,11 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
-for every word i shall brace krumma krumma krumma krumma so that seems to
-be a very interesting thing that i donfmt understand .
-
 -- TODO: -------
+
+with crypto I cannot send data without you getting it and that is pretty
+fucking cool and that is why they are doing that shit and hey are moving back
+and forward that were implementing this in local regions.
 
 -- a. settings -> merge latest main.
           >>> check if there are any extra settings that need
@@ -29,8 +30,6 @@ be a very interesting thing that i donfmt understand .
       2. core/config
       3. core/modules
       4. features/whichkey
-      5. recurse_enabled_modules
-      6. recurse_global_modules
       7. move tree utils into utils?
 
 -- c. dui

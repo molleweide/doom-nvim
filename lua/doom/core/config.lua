@@ -60,7 +60,9 @@ config.load = function()
   vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
   -- Combine enabled modules (`modules.lua`) with core modules.
-  utils.recurse_enabled_modules(function(stack, _, module_name)
+  require("doom.utils.tree").traverse_table({
+    tree = require("doom.core.modules").enabled_modules,
+    leaf = function(stack, _, module_name)
       local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
       local ok, result
       for _, path in ipairs(spec.search_paths(path_concat)) do
@@ -70,8 +72,9 @@ config.load = function()
         end
       end
       if ok then
+        -- Add string tag so that we can easilly target modules later.
         result.type = "doom_module_single"
-        tree.attach_table_path(doom.modules, pc, result)
+        tree.get_set_table_path(doom.modules, pc, result)
       else
         local log = require("doom.utils.logging")
         log.error(
@@ -82,7 +85,8 @@ config.load = function()
           )
         )
       end
-  end)
+    end,
+  })
 
   -- Execute user's `config.lua` so they can modify the doom global object.
   local ok, err = xpcall(dofile, debug.traceback, config.source)

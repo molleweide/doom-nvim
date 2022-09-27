@@ -690,7 +690,7 @@ mod_util.extend = function(filter)
   local m_all = { doom = {}, user = {} }
   for _, p in ipairs(all) do
     local org, sec, name = get_mod_tbl_path_from_string(p)
-    tree.attach_table_path(m_all[org], { sec[1], name }, {
+    tree.get_set_table_path(m_all[org], { sec[1], name }, {
       type = "doom_module_single", -- todo: how is type used?
       enabled = false,
       name = name,
@@ -706,10 +706,10 @@ mod_util.extend = function(filter)
       local pc, path_concat = tree.flatten_stack(stack, v, ".")
       for _, path in ipairs(spec.search_paths(path_concat)) do
         local origin = path:sub(1, 4)
-        local m = tree.attach_table_path(m_all[origin], pc)
+        local m = tree.get_set_table_path(m_all[origin], pc)
         if m then
           m.enabled = true
-          for i, j in pairs(tree.attach_table_path(doom.modules, pc)) do
+          for i, j in pairs(tree.get_set_table_path(doom.modules, pc)) do
             m[i] = j
           end
         end
