@@ -2,13 +2,13 @@ local log = require("doom.utils.logging")
 local utils = require("doom.utils")
 local spec = require("doom.core.spec")
 local tree = require("doom.utils.tree")
-local tscan = require("doom.utils.tree").traverse_table
-local templ = require("doom.utils.templates")
-local ts = require("doom.utils.ts")
-local b = require("doom.utils.buf")
-local dq = require("doom.utils.queries")
 local tsq = require("vim.treesitter.query")
 local ntu = require("nvim-treesitter.ts_utils")
+
+local templ = require("doom.modules.features.dui.templates")
+local ts = require("doom.modules.features.dui.ts")
+local b = require("doom.modules.features.dui.buf")
+local dq = require("doom.modules.features.dui.queries")
 
 -- GLOSSARY:
 --
@@ -158,7 +158,6 @@ local function is_branch(ts_branch_field, buf)
   local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
   return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
-
 
 -- refactor: utils/ts -> find lua_table_idx_node_match
 local function is_leader_lhs_match(field, lhs, buf)
@@ -310,7 +309,7 @@ end
 mod_util.check_if_module_name_exists = function(m, new_name)
   -- local orig = type(m) == "string" and m or m.section
   -- local sec = type(m) == "string" and m or m.section
-  local results = tscan({
+  local results = tree.traverse_table({
     tree = require("doom.modules.utils").extend(),
     filter = "doom_module_single", -- what makes a node in the tree
     leaf = function(_, _, v)

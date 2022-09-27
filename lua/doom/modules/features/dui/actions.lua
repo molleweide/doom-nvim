@@ -1,5 +1,5 @@
 local utils = require("doom.utils")
-local mod = require("doom.modules.utils")
+local mod = require("doom.modules.features.dui.mod_utils")
 local log = require("doom.utils.logging")
 local nui = require("doom.modules.features.dui.nui")
 -- local sh = require("user.modules.features.dui2.shell")

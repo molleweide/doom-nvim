@@ -188,7 +188,7 @@ local function make_results()
     })
   elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
     results = crawl({
-      tree = require("doom.modules.utils").extend(),
+      tree = require("doom.modules.features.dui.mod_utils").extend(),
       leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
       filter = "doom_module_single",
     })
