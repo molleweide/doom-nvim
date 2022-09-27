@@ -74,7 +74,7 @@ config.load = function()
       if ok then
         -- Add string tag so that we can easilly target modules later.
         result.type = "doom_module_single"
-        tree.get_set_table_path(doom.modules, pc, result)
+        utils.get_set_table_path(doom.modules, pc, result)
       else
         local log = require("doom.utils.logging")
         log.error(

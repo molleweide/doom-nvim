@@ -17,9 +17,8 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 -- TODO: -------
 
-with crypto I cannot send data without you getting it and that is pretty
-fucking cool and that is why they are doing that shit and hey are moving back
-and forward that were implementing this in local regions.
+the twenty fifty city is continuously coming up with these ideas and
+force them into large centers like that which is fucking vial.
 
 -- a. settings -> merge latest main.
           >>> check if there are any extra settings that need
@@ -30,7 +29,7 @@ and forward that were implementing this in local regions.
       2. core/config
       3. core/modules
       4. features/whichkey
-      7. move tree utils into utils?
+      5. utils/init.lua enabled
 
 -- c. dui
     1. after.
