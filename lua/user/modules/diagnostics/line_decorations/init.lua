@@ -1,0 +1,1 @@
+  -- https://github.com/mvllow/modes.nvim -- mode colors / decorations

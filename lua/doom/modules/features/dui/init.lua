@@ -127,6 +127,10 @@ doom_ui.settings = {
   },
 }
 
+doom_ui.packages = {
+  ["nui.nvim"] = { "MunifTanjim/nui.nvim" },
+}
+
 -- local function goback(prompt_bufnr, map)
 --   return map("i", "<C-z>", function(prompt_bufnr)
 --     require("telescope.actions").close(prompt_bufnr)

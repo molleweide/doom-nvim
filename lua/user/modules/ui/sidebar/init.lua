@@ -1,0 +1,1 @@
+  -- https://github.com/sidebar-nvim/sidebar.nvim

@@ -42,8 +42,6 @@ return {
     "doom_themes", -- Extra themes for doom
 
     -- UI Components
-    "nui",
-    "dui", -- [WIP] Managen your doom config with Telescope.
     "lsp_progress", -- Check status of LSP loading
     "tabline", -- Tab bar buffer switcher
     "dashboard", -- A pretty dashboard upon opening
@@ -55,6 +53,7 @@ return {
     "ranger", -- File explorer in neovim (TODO: Test)
     "restclient", -- Test HTTP requests from neovim (TODO: Test)
     "show_registers", -- Show and navigate between registers
+    "dui", -- [WIP] Managen your doom config with Telescope.
 
     -- Tools
     -- "dap",             -- Debug code through neovim
