@@ -15,12 +15,13 @@ local doom_ui = {}
 --
 -- TODO:
 --
+--    - requires module `nui`
+--
+--
 --    - NOTE: A LOT OF GOOD STUFF EXISTS IN `REFACTORING.NVIM`
 --            consider migrating to using refactoring for all ts operations and
 --            extend the plugin with our helpers.
 --            Or maintain own codebase?
---
---    - MOVE RESULTS INTO `DUI/INIT.LUA`
 --
 --    - center picker entries text
 --    - list packages across all modules

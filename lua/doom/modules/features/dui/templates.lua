@@ -1,9 +1,18 @@
 local utils = require("doom.utils")
 local is_module_enabled = utils.is_module_enabled
 
--- TODO: MOVE TO UNDER `MODULES/UTILS`??
-
 local templates = {}
+templates.setting = function(a)
+  -- local x = [[ aaa]]
+  return [[    new = value]]
+end
+templates.package = function() end
+templates.config = function() end
+templates.cmd = function() end
+templates.autocmd = function() end
+templates.bind = function() end
+
+-----------------------------------------------------------------------------
 
 templates.gen_temp_from_mod_name = function(mname)
   local header = string.format(

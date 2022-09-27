@@ -29,25 +29,18 @@ force them into large centers like that which is fucking vial.
       2. core/config
       3. core/modules
       4. features/whichkey
-      5. utils/init.lua enabled
+      5. utils/init.lua
 
--- c. dui
+-- c. dui / move all files into `dui`
     1. after.
-    2. utils/queries, utils/ts, utils/buf, utils/
-    3. modules/utils.
-    4.
 
-- test all dui/results mappings
-    refactor
 
-- refactor dui
-
-- test merge `root-settings-v4`
+-- d. merge root-settis back into molleweide.
   1. make sure the dir structure is the exact same.
   2. clean up `config.lua`.
   3. migrate `core module overrides` out to `config.lua`
   4. so that core modules are kept completely in sync with main.
-  5. merge root settings branch
+  5. merge root settings branch back into molleweide.
 
 -- todo: NEOGEN EVERYTHING
 

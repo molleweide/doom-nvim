@@ -2,7 +2,6 @@ local utils = {}
 
 local system = require("doom.core.system")
 local fs = require("doom.utils.fs")
-local tree = require("doom.utils.tree")
 
 --- Doom Nvim version
 utils.version = {
@@ -280,6 +279,10 @@ utils.iter_string_at = function(str, sep)
 end
 
 -- Get or Set a table path list.
+--
+-- Comes in handy with recursive module structures so that you can
+-- check if eg. a deep path exists or if you want to create/set data
+-- to a deep path.
 --
 -- if no data supplies -> returns table path node or false if not exists
 --

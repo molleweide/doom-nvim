@@ -1,3 +1,0 @@
-local regex = {}
-
-return regex
