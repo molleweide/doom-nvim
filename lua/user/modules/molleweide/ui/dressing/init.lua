@@ -1,0 +1,1 @@
+-- stevearc/dressing.nvim - Improve the built-in vim.ui interfaces with telescope, fzf, etc.

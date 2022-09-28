@@ -684,6 +684,13 @@ local function get_mod_tbl_path_from_string(p)
   return org, sec_t, name
 end
 
+local search_paths = function(path_str)
+  return {
+    ("user.modules.%s"):format(path_str),
+    ("doom.modules.%s"):format(path_str),
+  }
+end
+
 mod_util.extend = function(filter)
   local all = utils.tbl_merge(m_glob("doom"), m_glob("user"))
   local m_all = { doom = {}, user = {} }
@@ -703,7 +710,7 @@ mod_util.extend = function(filter)
     tree = require("doom.core.modules").enabled_modules,
     leaf = function(stack, _, v)
       local pc, path_concat = tree.flatten_stack(stack, v, ".")
-      for _, path in ipairs(spec.search_paths(path_concat)) do
+      for _, path in ipairs(search_paths(path_concat)) do
         local origin = path:sub(1, 4)
         local m = utils.get_set_table_path(m_all[origin], pc)
         if m then

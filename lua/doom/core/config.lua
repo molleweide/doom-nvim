@@ -65,7 +65,11 @@ config.load = function()
     leaf = function(stack, _, module_name)
       local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
       local ok, result
-      for _, path in ipairs(spec.search_paths(path_concat)) do
+      local search_paths = {
+        ("user.modules.%s"):format(path_concat),
+        ("doom.modules.%s"):format(path_concat),
+      }
+      for _, path in ipairs(search_paths) do
         ok, result = xpcall(require, debug.traceback, path)
         if ok then
           break

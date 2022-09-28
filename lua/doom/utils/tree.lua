@@ -332,11 +332,11 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- compute state of left and right hand sides of the key value pair for each table entry.
--- so that one can specify which `leaf` nodes one likes to process.
--- This is determined in the `filter` option.
--- opts.filter determines which nodes will be processed in the `opts.leaf` callback.
--- all others are passed to the `opts.branch` callbacks
+-- compute state of left and right hand sides of the key value pair for each
+-- table entry. so that one can specify which `leaf` nodes one likes to
+-- process. This is determined in the `filter` option. opts.filter determines
+-- which nodes will be processed in the `opts.leaf` callback. all others are
+-- passed to the `opts.branch` callbacks
 
 local function check_lhs(l)
   return {

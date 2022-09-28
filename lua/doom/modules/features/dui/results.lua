@@ -15,35 +15,39 @@ local ax = require("doom.modules.features.dui.actions")
 --          Please come with better naming convention ideas!
 
 
--- TODO:
+-- TODO: --------------------------------------------
 --
---  - NOTE: SEPARATOR HIGHLIGHTS DOES NOT WORK
+-- HIGHLIGHTING:
+--
+--  - create default styles.
 --
 --  - custom highlight color per entry column
 --
 --  - custom separator color
 --
---  - print full `very.facny.module` stack path instead of section
+--  - modules -> origin highlight
 --
---  - modules -> origin / section hl
---  - modules -> enabled hl
+--  - modules -> enabled/disabled highlight
 --
---  - settings -> make `path` pattern width dynamic.
---      >> add minimum width for safety.
---      >> shorten paths with `my.secret...prop.is.this`
+-- WIDTH:
 --
---  - create default styles.
+--  - set item width to widest item < max_width
+--
+--  - width based on the total width of all items < max_width_sum
+--
+-- MODULES:
+--
+--  - print full `very.fanc.module` path instead of section
+--
+--
+--  SINGLE_MODULE:
 --
 --  if settings/bind/config = function
 --      -> stringify contents and display as an exercise in how to retrieve stuff with treesitter
 --
---  - we need to come up with good `ordinals` (how entries are sorted/searched)
---      so that the fuzzy searching becomes ideal.
+-- SORTING:
 --
---  - default separator highlighting ???
---
---  - what highlights should be used for colors / now I just picked some TS highlights.
---
+--  - good `ordinals` (how entries are sorted/searched)
 
 --
 -- HELPERS
