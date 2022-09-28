@@ -5,7 +5,6 @@
 --  running the user's `config.lua` file.
 
 local utils = require("doom.utils")
-local spec = require("doom.core.spec")
 local tree = require("doom.utils.tree")
 local config = {}
 local filename = "config.lua"
@@ -157,3 +156,5 @@ end
 config.source = utils.find_config(filename)
 
 return config
+
+

@@ -28,7 +28,7 @@ so it'll be vim.fn.win_gotoid(winnr)
       4. features/whichkey
       5. utils/init.lua
 
-      git checkout -- \
+      git checkout molleweide -- \
           lua/doom/utils/tree.lua \
           lua/doom/utils/init.lua \
           lua/doom/core/config.lua \
@@ -600,3 +600,5 @@ bbb
 --
 --
 --
+
+
