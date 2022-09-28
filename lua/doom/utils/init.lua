@@ -286,9 +286,9 @@ end
 --
 -- if no data supplies -> returns table path node or false if not exists
 --
----@param head    the table to which you want target
----@param tp      path that you wish to check in head
----@param data    if supplied, attaches this data to tp tip.
+---@param head  table   The table to which you want target
+---@param tp    table   Path that you wish to check in head
+---@param data  any     If supplied, attaches this data to tp tip.
 utils.get_set_table_path = function(head, tp, data)
   if not head or not tp then
     return false
@@ -317,25 +317,6 @@ utils.get_set_table_path = function(head, tp, data)
       end
     end
   end
-end
-
-
-utils.get_buf_handle = function(path)
-  local buf
-  if path ~= nil then
-    buf = vim.uri_to_bufnr(vim.uri_from_fname(path))
-  else
-    buf = vim.api.nvim_get_current_buf()
-  end
-  return buf
-end
-
-utils.tbl_merge = function(t1, t2)
-  local ret = vim.deepcopy(t1)
-  for _, p in ipairs(t2) do
-    table.insert(ret, p)
-  end
-  return ret
 end
 
 return utils
