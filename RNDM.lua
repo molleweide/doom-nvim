@@ -22,21 +22,7 @@ so it'll be vim.fn.win_gotoid(winnr)
           to be fixed.
 
 -- b. recursive core
-      1. utils/tree
-      2. core/config
-      3. core/modules
-      4. features/whichkey
-      5. utils/init.lua
-
       fix the `requires_modules`
-
-      git checkout molleweide -- \
-          lua/doom/utils/tree.lua \
-          lua/doom/utils/init.lua \
-          lua/doom/core/config.lua \
-          lua/doom/core/modules.lua \
-          lua/doom/modules/features/whichkey/ \
-
 
 -- c. dui / move all files into `dui`
     1. after.
