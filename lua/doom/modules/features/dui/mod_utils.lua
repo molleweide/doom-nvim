@@ -9,6 +9,7 @@ local templ = require("doom.modules.features.dui.templates")
 local ts = require("doom.modules.features.dui.ts")
 local b = require("doom.modules.features.dui.buf")
 local dq = require("doom.modules.features.dui.queries")
+local mutils = require("doom.modules.features.dui.utils")
 
 -- GLOSSARY:
 --
@@ -692,7 +693,7 @@ local search_paths = function(path_str)
 end
 
 mod_util.extend = function(filter)
-  local all = utils.tbl_merge(m_glob("doom"), m_glob("user"))
+  local all = mutils.tbl_merge(m_glob("doom"), m_glob("user"))
   local m_all = { doom = {}, user = {} }
   for _, p in ipairs(all) do
     local org, sec, name = get_mod_tbl_path_from_string(p)
@@ -754,3 +755,5 @@ mod_util.extend = function(filter)
 end
 
 return mod_util
+
+

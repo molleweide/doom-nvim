@@ -15,34 +15,6 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
--- TODO: -------
-
--- a. settings -> merge latest main.
-          >>> check if there are any extra settings that need
-          to be fixed.
-
--- b. recursive core
-      fix the `requires_modules`
-
--- c. dui / move all files into `dui`
-    1. after.
-
--- d. merge root-settis back into molleweide.
-  1. make sure the dir structure is the exact same.
-  2. clean up `config.lua`.
-  3. migrate `core module overrides` out to `config.lua`
-  4. so that core modules are kept completely in sync with main.
-  5. merge root settings branch back into molleweide.
-
--- todo: NEOGEN EVERYTHING
-
--- TODO: --------------- end
-
-this is going to be fucking awesome when everything is running perfectly well which will meanthat
-
-it is something that is quite fucking insane, and you could never fucking understand that
-eve.
-
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -588,5 +560,7 @@ bbb
 --
 --
 --
+
+
 
 
