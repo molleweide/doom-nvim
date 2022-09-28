@@ -28,6 +28,8 @@ so it'll be vim.fn.win_gotoid(winnr)
       4. features/whichkey
       5. utils/init.lua
 
+      >>>> need to do this manually and make sure it works together with
+      is required.
       git checkout molleweide -- \
           lua/doom/utils/tree.lua \
           lua/doom/utils/init.lua \
