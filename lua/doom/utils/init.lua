@@ -7,8 +7,9 @@ local fs = require("doom.utils.fs")
 utils.version = {
   major = 4,
   minor = 0,
-  patch = 0,
+  patch = 4,
 }
+
 utils.doom_version = string.format(
   "%d.%d.%d",
   utils.version.major,
@@ -288,7 +289,7 @@ end
 --
 ---@param head  table   The table to which you want target
 ---@param tp    table   Path that you wish to check in head
----@param data  any     If supplied, attaches this data to tp tip.
+---@param data  any     If supplied, attaches this data to tp tip, eg. `{"a", "b"} -> b = data`
 utils.get_set_table_path = function(head, tp, data)
   if not head or not tp then
     return false

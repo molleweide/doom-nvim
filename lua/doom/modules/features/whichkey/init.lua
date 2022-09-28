@@ -123,7 +123,7 @@ whichkey.configs["which-key.nvim"] = function()
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     filter = "doom_module_single",
-    leaf = function(_, module_name, module)
+    leaf = function(_, _, module)
       if module.binds then
         count = count + 1
         vim.defer_fn(function()

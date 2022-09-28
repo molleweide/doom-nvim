@@ -1,8 +1,8 @@
 local auto_install = {}
 
 auto_install.settings = {
-  lsp_dir = vim.fn.stdpath("data") .. "/lsp-install",
-  dap_dir = vim.fn.stdpath("data") .. "/dap-install",
+  lsp_dir = nil, -- Change to a custom path such as `vim.fn.stdpath("data") .. "/lsp-install"`
+  dap_dir = nil, -- Change to a custom path such as `vim.fn.stdpath("data") .. "/dap-install"`
 }
 
 local is_module_enabled = require("doom.utils").is_module_enabled
@@ -23,7 +23,7 @@ auto_install.packages = {
   },
   ["nvim-lsp-installer"] = {
     "williamboman/nvim-lsp-installer",
-    commit = "b8c168ccb30529a11404e5f71525502ec6288ccf",
+    commit = "ae913cb4fd62d7a84fb1582e11f2e15b4d597123",
     -- disabled = not is_module_enabled("features", "lsp"),
   },
 }

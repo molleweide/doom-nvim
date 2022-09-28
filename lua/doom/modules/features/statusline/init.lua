@@ -60,6 +60,9 @@ statusline._safe_get_highlight = function(...)
       local id = vim.fn.synIDtrans(vim.api.nvim_get_hl_id_by_name(hlname))
       local foreground = vim.fn.synIDattr(id, "fg")
       local background = vim.fn.synIDattr(id, "bg")
+      if vim.fn.synIDattr(id, "reverse") == "1" then
+        foreground, background = background, foreground
+      end
       if foreground and foreground:find("^#") then
         return { foreground = foreground, background = background }
       end
@@ -75,12 +78,18 @@ statusline._generate_colorscheme = function()
       rgb = hex2rgb(hl),
     }
   end, {
-    statusline._safe_get_highlight("luaTSField", "TSField").foreground,
-    statusline._safe_get_highlight("luaTSConditional", "TSConditional").foreground,
-    statusline._safe_get_highlight("luaTSFunction", "TSFunction").foreground,
-    statusline._safe_get_highlight("luaTSKeywordFunction", "TSKeywordFunction").foreground,
-    statusline._safe_get_highlight("luaTSString", "TSString").foreground,
-    statusline._safe_get_highlight("luaTSNumber", "TSNumber").foreground,
+    statusline._safe_get_highlight("luaTSField", "TSField", "TSVariable", "Field", "Variable").foreground,
+    statusline._safe_get_highlight(
+      "luaTSConditional",
+      "TSConditional",
+      "TSConstant",
+      "Conditional",
+      "Constant"
+    ).foreground,
+    statusline._safe_get_highlight("luaTSFunction", "TSFunction", "Function").foreground,
+    statusline._safe_get_highlight("luaTSKeywordFunction", "TSKeywordFunction", "Function").foreground,
+    statusline._safe_get_highlight("luaTSString", "TSString", "String").foreground,
+    statusline._safe_get_highlight("luaTSNumber", "TSNumber", "Number").foreground,
   })
 
   local rate_color = function(hsv)
@@ -133,7 +142,7 @@ end
 statusline.packages = {
   ["heirline.nvim"] = {
     "rebelot/heirline.nvim",
-    commit = "805a158b2b44b015f7966b03cd9def489984be8f",
+    commit = "5b5ef268a80c2c241f16b03268b4498f214ecf66",
   },
 }
 
@@ -166,9 +175,9 @@ statusline.configs["heirline.nvim"] = function()
       info = safe_get_highlight("DiagnosticInfo").foreground,
     },
     git = {
-      del = safe_get_highlight("diffRemoved", "DiffAdded").foreground,
-      add = safe_get_highlight("diffAdded", "DiffAdded").foreground,
-      change = safe_get_highlight("diffChanged", "DiffChange", "DiffAdded").foreground,
+      del = safe_get_highlight("diffRemoved", "DiffRemoved", "DiffDelete").foreground,
+      add = safe_get_highlight("diffAdded", "DiffAdded", "DiffAdd").foreground,
+      change = safe_get_highlight("diffChanged", "DiffChange", "DiffChange").foreground,
     },
   }
 

@@ -1,4 +1,3 @@
-local tsq = require("vim.treesitter.query")
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 --
@@ -305,16 +304,13 @@ end
 
 local M = {}
 
+--- Conatenate path stack with node / Only used inside of tree..
 --
--- A COUPLE OF HELPER FUNCTIONS THAT SHOULD BE CONSIDERED MOVAL INTO SOME OTHER LOCATION MAYBE.
---
-
---- conatenate path stack with node
 --- RENAME: flatten_stack is a non descriptive name -> concat_table_path()
 ---
----@param stack   tree internal stack
----@param v       ??
----@param concat  separator string; returns concatenatd string as second ret val.
+---@param stack   table Internal stack
+---@param v       any
+---@param concat  string String; returns concatenatd string as second ret val.
 M.flatten_stack = function(stack, v, concat)
   local pc = { v }
   if #stack > 0 then

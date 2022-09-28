@@ -6,6 +6,7 @@
 --   Later on it executes all of the enabled modules, loading their packer dependencies, autocmds and cmds.
 
 local utils = require("doom.utils")
+local tree = require("doom.utils.tree")
 local filename = "modules.lua"
 
 local modules = {}
@@ -113,45 +114,67 @@ local keymaps_service = require("doom.services.keymaps")
 --- Applies commands, autocommands, packages from enabled modules (`modules.lua`).
 modules.load_modules = function()
   local use = require("packer").use
+  local logger = require("doom.utils.logging")
 
   -- Handle the Modules
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     filter = "doom_module_single",
-    leaf = function(_, module_name, module)
-      -- Import dependencies with packer from module.packages
-      if module.packages then
-        for dependency_name, packer_spec in pairs(module.packages) do
-          -- Set packer_spec to configure function
-          if module.configs and module.configs[dependency_name] then
-            packer_spec.config = module.configs[dependency_name]
+    leaf = function(stack, module_name, module)
+      -- Flag to continue enabling module
+      local should_enable_module = true
+
+      local _, module_tp_concat = tree.flatten_stack(stack, module_name, ".")
+
+      -- Check module has necessary dependencies
+      if module.requires_modules then
+        for _, dependent_module in ipairs(module.requires_modules) do
+          if not utils.get_set_table_path(doom.modules, vim.split(dependent_module, "%.")) then
+            should_enable_module = false
+            logger.error(
+              (
+                'Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'
+              ):format(module_tp_concat, dependent_module, dependent_module)
+            )
           end
-
-          -- Set/unset frozen packer dependencies
-          packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
-
-          -- Initialise packer
-          use(packer_spec)
         end
       end
 
-      -- Setup package autogroups
-      if module.autocmds then
-        local autocmds = type(module.autocmds) == "function" and module.autocmds()
-          or module.autocmds
-        utils.make_augroup(module_name, autocmds)
-      end
+      if should_enable_module then
+        -- Import dependencies with packer from module.packages
+        if module.packages then
+          for dependency_name, packer_spec in pairs(module.packages) do
+            -- Set packer_spec to configure function
+            if module.configs and module.configs[dependency_name] then
+              packer_spec.config = module.configs[dependency_name]
+            end
 
-      if module.cmds then
-        for _, cmd_spec in ipairs(module.cmds) do
-          utils.make_cmd(cmd_spec[1], cmd_spec[2])
+            -- Set/unset frozen packer dependencies
+            packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
+
+            -- Initialise packer
+            use(packer_spec)
+          end
         end
-      end
 
-      if module.binds then
-        keymaps_service.applyKeymaps(
-          type(module.binds) == "function" and module.binds() or module.binds
-        )
+        -- Setup package autogroups
+        if module.autocmds then
+          local autocmds = type(module.autocmds) == "function" and module.autocmds()
+            or module.autocmds
+          utils.make_augroup(module_name, autocmds)
+        end
+
+        if module.cmds then
+          for _, cmd_spec in ipairs(module.cmds) do
+            utils.make_cmd(cmd_spec[1], cmd_spec[2])
+          end
+        end
+
+        if module.binds then
+          keymaps_service.applyKeymaps(
+            type(module.binds) == "function" and module.binds() or module.binds
+          )
+        end
       end
     end,
   })

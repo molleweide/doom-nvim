@@ -11,12 +11,12 @@ required.packages = {
   -- Required by some treesitter modules
   ["aniseed"] = {
     "Olical/aniseed",
-    commit = "bfaefa11c9e6b36b17a7fe11f8f005198411c3e5",
+    commit = "411d81776d996f3d6afee07469ebe58248fe9e36",
     module_pattern = "aniseed",
   },
   ["plenary.nvim"] = {
     "nvim-lua/plenary.nvim",
-    commit = "986ad71ae930c7d96e812734540511b4ca838aa2",
+    commit = "31807eef4ed574854b8a53ae40ea3292033a78ea",
     module = "plenary",
   },
   ["popup.nvim"] = {
@@ -40,9 +40,6 @@ required.packages = {
 required.configs = {}
 
 required.binds = function()
-  local utils = require("doom.utils")
-  local is_module_enabled = utils.is_module_enabled
-
   local binds = {
     { "ZZ", require("doom.core.functions").quit_doom, name = "Fast exit" },
     { "<ESC>", ":noh<CR>", name = "Remove search highlight" },
@@ -120,23 +117,6 @@ required.binds = function()
   -- Exit insert mode fast
   for _, esc_seq in pairs(doom.settings.escape_sequences) do
     table.insert(binds, { esc_seq, "<ESC>", mode = "i" })
-  end
-
-  if is_module_enabled("features", "explorer") then
-    table.insert(binds, { "<F3>", ":Lexplore%s<CR>", name = "Toggle explorer" })
-    table.insert(binds, {
-      "<leader>",
-      name = "+prefix",
-      {
-        {
-          "o",
-          name = "+open/close",
-          {
-            { "e", ":Lexplore%s<CR>", name = "Explorer" },
-          },
-        },
-      },
-    })
   end
 
   local split_modes = {

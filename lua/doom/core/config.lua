@@ -59,7 +59,7 @@ config.load = function()
   vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
   -- Combine enabled modules (`modules.lua`) with core modules.
-  require("doom.utils.tree").traverse_table({
+  tree.traverse_table({
     tree = require("doom.core.modules").enabled_modules,
     leaf = function(stack, _, module_name)
       local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
@@ -125,9 +125,6 @@ config.load = function()
     vim.opt.undodir = nil
   end
 
-  --   vim.g.mapleader = doom.settings.leader_key
-  -- end
-
   if doom.settings.global_statusline then
     vim.opt.laststatus = 3
   end
@@ -137,10 +134,19 @@ config.load = function()
     vim.opt.clipboard = "unnamedplus"
   end
 
+  if doom.ignorecase then
+    vim.cmd("set ignorecase")
+  else
+    vim.cmd("set noignorecase")
+  end
+  if doom.smartcase then
+    vim.cmd("set smartcase")
+  else
+    vim.cmd("set nosmartcase")
+  end
+
   -- Color column
-  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
-      and tostring(doom.settings.max_columns)
-    or ""
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering
