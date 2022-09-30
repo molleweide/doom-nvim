@@ -17,8 +17,9 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
-because now this is mergeable with main which is awesome so that I can stay
-on track. which is pretty fucking sweet.
+defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
+
+that is why I got fucking science involved.
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
