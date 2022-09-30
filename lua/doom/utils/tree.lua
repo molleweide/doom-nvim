@@ -324,7 +324,6 @@ M.flatten_stack = function(stack, v, concat)
   end
 end
 
-
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
@@ -392,7 +391,9 @@ M.recurse = function(opts, tree, stack, accumulator)
     local is_node = opts.filter(opts, left, right)
     logger(is_node, opts, stack, left, right)
     if not is_node then
-      -- branch pre
+      --
+      -- BRANCH PRE
+      --
       local pre = opts.branch(stack, k, v)
       if pre then
         table.insert(accumulator, pre)
@@ -405,17 +406,19 @@ M.recurse = function(opts, tree, stack, accumulator)
       -- BRANCH POST (wip)
       --
       -- not really used apart from in `queries/utils` which attempts
-      -- to converst a table into a ts query syntax string.
+      -- to convert a table into a ts query syntax string.
       --
       -- allows you to enclose the branch conditionally based on data bubbling
-      -- up from child branches/leaves
+      -- up from child branches/leaves. This is not fully working/teste at the moment
       -- TODO: test pass accumulator to branch_post
       local post = opts.branch_post(stack, k, v, p)
       if post then
         table.insert(accumulator, post)
       end
     else
-      -- leaf
+      --
+      -- LEAF
+      --
       local ret = opts.leaf(stack, k, v)
       if ret then
         if ret.pass_up then
@@ -435,22 +438,6 @@ end
 -- TREE ENTRY POINT -------
 --
 
--- TODO: USE ... TO MANAGE VARIABLE ARGS
---
--- ARGS SYNTAX EXAMPLE
---
--- function minimumvalue (...)
---    local mi = 1 -- maximum index
---    local m = 100 -- maximum value
---    local args = {...}
---    for i,val in ipairs(args) do
---       if val < m then
---          mi = i
---          m = val
---       end
---    end
---    return m, mi
--- end
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
   tree = opts.tree or tree

@@ -2,6 +2,7 @@ local utils = require("doom.utils")
 local mod = require("doom.modules.features.dui.mod_utils")
 local log = require("doom.utils.logging")
 local nui = require("doom.modules.features.dui.nui")
+local mutils = require("doom.modules.features.dui.utils")
 -- local sh = require("user.modules.features.dui2.shell")
 
 -- TODO: nui themeing and stylez
@@ -68,7 +69,7 @@ local confirm_alternatives = { "yes", "no" }
 
 actions.m_edit = function(m)
   if m.type == "doom_module_single" then
-    local buf = utils.get_buf_handle(m.path .. "init.lua")
+    local buf = mutils.get_buf_handle(m.path .. "init.lua")
     vim.api.nvim_win_set_buf(0, buf)
     -- vim.fn.cursor(er+1,ec)
   end

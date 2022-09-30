@@ -232,11 +232,10 @@ return {
   local_plugins_path = "",
   fork_package_cmd = "",
 
-
   doom_ui = {
     -- if false only moves cursor to file setting/data.
     use = "move_cursor",
     -- prefer updating text via Nui popups rather than entering text in the targeted file.
     prefer_nui = false,
-  }
+  },
 }

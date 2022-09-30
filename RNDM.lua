@@ -1,5 +1,7 @@
 --[[
 
+https://publish.obsidian.md/danymat/index
+
 https://www.cpp-lang.net/
 
 -- WASHING MACHINE FILTER!!
@@ -15,13 +17,16 @@ vim.cmd.colorscheme("onedark") <-> vim.cmd("colorscheme onedark")
 call win_gotoid(wins[0])
 so it'll be vim.fn.win_gotoid(winnr)
 
+because now this is mergeable with main which is awesome so that I can stay
+on track. which is pretty fucking sweet.
+
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-i want learn how to customize anything inside of telescope and it is very
-important and something that I really want to be able to fucking do and
-make sure that it is something that you could go back to in the past.
+not a single fucking journalist gave a fucking critical question and so they
+can all go fuck themselves so fucking hard that it is just fucking insaneand
+that is one of the most insane things that you could ever fucking do.
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 

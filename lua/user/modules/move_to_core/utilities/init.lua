@@ -13,7 +13,6 @@ local utilities = {}
 -- max397574/better-escape.nvim - Create shortcuts to escape insert mode without getting delay.
 -- rcarriga/nvim-notify - A fancy, configurable, notification manager for NeoVim.
 -- saifulapm/chartoggle.nvim - Toggle any character at end of line for Neovim.
--- stevearc/dressing.nvim - Improve the built-in vim.ui interfaces with telescope, fzf, etc.
 -- gaborvecsei/cryptoprice.nvim - Check the price of the defined cryptocurrencies.
 -- jghauser/fold-cycle.nvim - Cycle folds open or closed.
 -- rgroli/other.nvim - Open alternative files for the current buffer.
