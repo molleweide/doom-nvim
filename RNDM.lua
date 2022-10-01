@@ -19,15 +19,14 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
 
-that is why I got fucking science involved.
+1. merge root settings into mason feat branch.
+2. merge mason + root settings into molleweide.
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-not a single fucking journalist gave a fucking critical question and so they
-can all go fuck themselves so fucking hard that it is just fucking insaneand
-that is one of the most insane things that you could ever fucking do.
+
 
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 
