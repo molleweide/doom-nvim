@@ -180,6 +180,9 @@ return {
     -- "repo_search",     -- Browse repos in Telescope.
 
     "litee", -- Litee IDE suite
+    "litee_symboltree",
+    "litee_github", -- Litee IDE suite
+
     "leap", -- Replace `s` with advanced leap.nvim motion plugin.
     "surround", -- Surround text objects, eg. {([])}
     "cursor",
@@ -205,14 +208,14 @@ return {
     -- "images",        -- Image support
     -- "legend",        -- ???
     -- "vim_ui",            -- improved `vim.ui`
-    "virtual_types", -- ???
+    -- "virtual_types", -- ???
     -- "code_outline",
     -- "transparent",
 
     "colors",
     "search_and_replace", -- Binds for search and replace
     -- "architext",
-    "context", -- Provides visual context via Treesitter
+    -- "context", -- Provides visual context via Treesitter
     "args", -- Provides highlighting and tools for managing function args
     "textobjects",
     "comments_frame", -- Create big comments with a nice frame

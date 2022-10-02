@@ -89,11 +89,11 @@ treesitter.configs["nvim-treesitter"] = function()
     })
     local version = vim.fn.systemlist(compiler .. (compiler == "cl" and "" or " --version"))[1]
 
-    if version:match("clang") then
-      log.warn(
-        "doom-treesitter:  clang has poor compatibility compiling treesitter parsers.  We recommend using gcc, see issue #246 for details.  (https://github.com/NTBBloodbath/doom-nvim/issues/246)"
-      )
-    end
+    -- if version:match("clang") then
+    --   log.warn(
+    --     "doom-treesitter:  clang has poor compatibility compiling treesitter parsers.  We recommend using gcc, see issue #246 for details.  (https://github.com/NTBBloodbath/doom-nvim/issues/246)"
+    --   )
+    -- end
   end, 1000)
 end
 
