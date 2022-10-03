@@ -3,7 +3,7 @@ local themes = {}
 themes.settings = {}
 
 themes.packages = {
-  ["catpuccin"] = { "catpuccing/nvim" },
+  ["spaceduck"] = { "pineapplegiant/spaceduck" },
 }
 
 return themes
