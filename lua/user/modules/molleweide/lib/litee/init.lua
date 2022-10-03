@@ -9,9 +9,9 @@ litee.packages = {
   },
 }
 
-litee.config = {}
+litee.configs = {}
 
-litee.config["litee.nvim"] = function()
+litee.configs["litee.nvim"] = function()
   require("litee.lib").setup({
     tree = {
       icon_set = "codicons",

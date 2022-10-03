@@ -175,32 +175,7 @@ return {
   move_to_core = {
     -- "gitsigns",           -- Show git changes in sidebar
     "git", -- git basic support
-    "github", -- github integration; requires `litee` module under `Editor`
     "diffview", -- git diffview integration
-    -- "repo_search",     -- Browse repos in Telescope.
-
-    "litee", -- Litee IDE suite
-    "litee_symboltree",
-    "litee_github", -- Litee IDE suite
-
-    "leap", -- Replace `s` with advanced leap.nvim motion plugin.
-    "surround", -- Surround text objects, eg. {([])}
-    "cursor",
-    -- "gestures",        -- Mouse gestures
-    -- "tabs",            -- ???
-    "scroll",
-    "registers",
-    -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
-    "marks",
-    "undo",
-    "folds",
-    "increment", --  tools for incrementing stuff
-    "clipboard",
-    -- "regex",           -- Regex tools
-    -- "help",            -- Support for help with binds and stuff
-    -- "printer",
-    -- "sort",            -- extra binds that help with sorting lines/objects
-    -- "logging",         -- binds n stuff
 
     -- "cmdline", -- Floating cmdline at cursor
     -- "wildmenu",
@@ -243,7 +218,6 @@ return {
     -- "pandoc",
     -- "remote_dev",      -- ???
     -- "tmux",               -- ???
-
   },
   personal = {
     "docs",
@@ -285,12 +259,44 @@ return {
       -- "binds_mini_syntax",
       -- "mappings",
     },
+    lib = {
+      "litee", -- Litee IDE suite
+    },
     editor = {
-
+      "surround", -- Surround text objects, eg. {([])}
+      "cursor",
+      -- "gestures",        -- Mouse gestures
+      -- "tabs",            -- ???
+      "scroll",
+      "registers",
+      -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
+      "marks",
+      "undo",
+      "folds",
+      "increment", --  tools for incrementing stuff
+      "clipboard",
+      -- "regex",           -- Regex tools
+      -- "help",            -- Support for help with binds and stuff
+      -- "printer",
+      -- "sort",            -- extra binds that help with sorting lines/objects
+      -- "logging",         -- binds n stuff
+      "litee_symboltree",
+      "litee_bookmarks",
+      "litee_calltree",
+    },
+    tabs = {},
+    windows = {},
+    motion = {
+      "lightspeed", -- Replace `s` with advanced leap.nvim motion plugin.
+      -- "leap",
+      -- "sneak",
     },
     git = {
-
+      -- "repo_search",     -- Browse repos in Telescope.
+      "github_octo",
+      "github_litee", -- Litee IDE suite
     },
+    transform = {},
     music = {
       -- "audio",
       -- "reaper_keys",
@@ -317,5 +323,3 @@ return {
 }
 
 -- vim: sw=2 sts=2 ts=2 fdm=indent expandtab
-
-
