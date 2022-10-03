@@ -26,8 +26,6 @@ defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-
-
 TODO: REUPLOAD GUITAR FOR SALE BLOCKET
 
 - how to monitor autocommands easilly??
