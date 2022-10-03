@@ -101,15 +101,28 @@ return {
     "dockerfile",
   },
   themes = {
+    popular = {
+      "aurora",
+      "cassiopeia",
+      "fly",
+      "github",
+      "tokyonight",
+      "material",
+      "gruvbox",
+      "monokai",
+      "nightfox",
+      "oceanic_next",
+      "catpuccin",
+      "nord",
+    },
+    new = {},
     -- "apprentice",
     -- "aquarium",
     -- "ariake",
-    "aurora",
     -- "base16",
     -- "blue_moon",
     -- "boo",
     -- "calvera",
-    "cassiopeia",
     -- "catpuccino",
     -- "cobalt",
     -- "codeschool",
@@ -117,10 +130,7 @@ return {
     -- "edge",
     -- "everforest",
     -- "falcon",
-    "fly",
-    "github",
     -- "gloombuddy",
-    "gruvbox",
     -- "gruvbox-baby",
     -- "gruvbox-material",
     "gruvbuddy",
@@ -130,19 +140,14 @@ return {
     -- "kanagawa",
     -- "kosmikoa",
     -- "kyoto",
-    "material",
     -- "modus",
     -- "monochrome",
-    "monokai",
     -- "moonlight",
     -- "neon",
-    "nightfox",
-    "nord",
     -- "nordic",
     -- "nvcode",
     -- "nvim_deus",
     -- "oak",
-    "oceanic_next",
     -- "omni",
     -- "one",
     -- "one_monokai",
@@ -161,7 +166,6 @@ return {
     -- "substrata",
     -- "sunflower",
     -- "tokyodark",
-    "tokyonight",
     -- "uwu",
     -- "vim_code_dark",
     -- "vimdark",
@@ -177,19 +181,8 @@ return {
     "git", -- git basic support
     "diffview", -- git diffview integration
 
-    -- "cmdline", -- Floating cmdline at cursor
-    -- "wildmenu",
-    "quickfix", -- Extra quickfix capabilitieS
-    -- "images",        -- Image support
-    -- "legend",        -- ???
-    -- "vim_ui",            -- improved `vim.ui`
-    -- "virtual_types", -- ???
     -- "code_outline",
-    -- "transparent",
 
-    "colors",
-    "search_and_replace", -- Binds for search and replace
-    -- "architext",
     -- "context", -- Provides visual context via Treesitter
     "args", -- Provides highlighting and tools for managing function args
     "textobjects",
@@ -197,72 +190,68 @@ return {
     "endwise", -- ??
     "ts_plugins", -- walk through
     "root", -- Auto switch root on-enter new git repo + useful commands
-    -- "buffers",
     -- "readline",        -- ???
-    -- "filetype",        -- ???
-    -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
 
-    -- "ghq", -- Support for `qhq` repo manager
-
-    -- "ai",
     "gpg",
     "collaborate", -- Google docs collaborative editing.
     "plugins_reloader", -- Watch local packages for changes during development
-    "refactor", -- Code refactoring
-    -- "ripgrep",
-    -- "flutter",
-    -- "markdown_tools",  -- ??
-    -- "google_docs",
-    -- "ssh",
-    -- "docker",          -- Docker tools
-    -- "pandoc",
-    -- "remote_dev",      -- ???
-    -- "tmux",               -- ???
   },
   personal = {
-    "docs",
     "editing",
     "formatting",
     "tweak",
     "windows",
     "wm",
-    -- "tmux",
 
     "telescope_extensions", -- move into categories
-    -- "crypto",            -- Crypto currency stuff
-    -- "rename",            -- ??
-    -- "spellcheck",
-    -- "diagrams",
-    -- "competitive",
-    -- "libmodal",          -- Tool for creating custom modes
-    -- "icons",             -- Extended various icons support
     -- "figlet",            -- figlet fonts editor
     -- "kmonad",            -- Support for kmonad keyboard remapper
     -- "navigator",         -- ???
-    -- "games",
-    -- "websearch",
-    -- "data_science",
-    -- "stenography",
     -- "statusline_misc",
-    -- "utilities",         -- ??
-    -- "math_calculator",
+    -- "markdown_tools",  -- ??
   },
-  -- tabular = {
-  --   -- "scim",              -- Spreadsheets
-  --   -- "tabular",           -- Extended support for managing tabular data
-  -- },
   molleweide = {
+    ai = {
+      -- "ai",
+    },
     binds = {
       "binds_personal",
       -- "binds_debug",
       -- "binds_make_fn_under_cursor_into_bind",
       -- "binds_mini_syntax",
+      -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
       -- "mappings",
+      -- "legend",        -- ???
+    },
+    language_features = {
+      -- "virtual_types", -- ???
     },
     lib = {
       "litee", -- Litee IDE suite
+      -- "libmodal",          -- Tool for creating custom modes
+    },
+    buffers = {
+      -- "buffers",
+    },
+    cmdline = {
+      -- "cmdline", -- Floating cmdline at cursor
+      -- "wildmenu",
+    },
+    colors = {
+      "colors",
+    },
+    competitive = {
+      -- "competitive",
+    },
+    docs = {
+      "docs",
+    },
+    filetype = {
+
+      -- "filetype",        -- ???
     },
     editor = {
+      -- "spellcheck",
       "surround", -- Surround text objects, eg. {([])}
       "cursor",
       -- "gestures",        -- Mouse gestures
@@ -284,22 +273,51 @@ return {
       "litee_bookmarks",
       "litee_calltree",
     },
+    icons = {
+      -- "icons",             -- Extended various icons support
+    },
+    images = {
+      -- "images",        -- Image support
+    },
+    jobs = {},
+    data_science = {
+      -- "data_science",
+    },
     tabs = {},
     windows = {},
     motion = {
       "lightspeed", -- Replace `s` with advanced leap.nvim motion plugin.
       -- "leap",
       -- "sneak",
+      -- "tree_hopper",
     },
     git = {
-      -- "repo_search",     -- Browse repos in Telescope.
+      -- "repo_search",
       "github_octo",
-      "github_litee", -- Litee IDE suite
+      "github_litee",
+      -- "ghq",
     },
-    transform = {},
+    transform = {
+      -- "architext",
+      "refactor",
+      -- "rename",            -- ??
+      -- "ripgrep",
+      "search_and_replace",
+    },
+    misc = {
+      -- "websearch",
+      -- "stenography",
+      -- "utilities",         -- ??
+      -- "math_calculator",
+      -- "games",
+    },
     music = {
       -- "audio",
       -- "reaper_keys",
+    },
+    tabular = {
+      -- "scim",              -- Spreadsheets
+      -- "tabular",           -- Extended support for managing tabular data
     },
     ts = {
       -- "ts_jump_2_func",
@@ -311,9 +329,27 @@ return {
       -- "ts_testing_locals",
       -- "ts_treehopper",
     },
-    tools = {},
+    tools = {
+      -- "flutter",
+      -- "google_docs",
+      -- "ssh",
+      -- "docker",          -- Docker tools
+      -- "pandoc",
+      -- "remote_dev",      -- ???
+    },
+    tmux = {
+      -- "tmux",               -- ???
+    },
+    quickfix = {
+      "quickfix", -- Extra quickfix capabilitieS
+    },
+    ui = {
+      -- "crypto",            -- Crypto currency stuff
+      -- "diagrams",
+      -- "vim_ui",            -- improved `vim.ui`
+      -- "transparent",
+    },
     langs = {
-
       -- "fennel",
       -- "latex",
       -- "lisp",

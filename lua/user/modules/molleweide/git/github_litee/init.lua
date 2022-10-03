@@ -1,8 +1,9 @@
 local litee_gh = {}
 
--- TODO: !!!
--- It's highly recommended to use gh.nvim with either fzf.lua or telescope to override vim.ui.select. If you use telescope, it will work out of the box. If you want to use fzf.lua, add the following snippet to your config:
--- vim.cmd("FzfLua register_ui_select")
+-- TODO: !!! It's highly recommended to use gh.nvim with either fzf.lua or
+-- telescope to override vim.ui.select. If you use telescope, it will work out
+-- of the box. If you want to use fzf.lua, add the following snippet to your
+-- config: vim.cmd("FzfLua register_ui_select")
 
 litee_gh.requires_modules = { "molleweide.lib.litee" }
 
