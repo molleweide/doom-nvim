@@ -19,6 +19,9 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
 
+so now if I merge that into my main branch it will work so that you can do that shit you know.
+and also it will work in a way that is quite fucking retarded.
+
 1. merge root settings into mason feat branch.
 2. merge mason + root settings into molleweide.
 
