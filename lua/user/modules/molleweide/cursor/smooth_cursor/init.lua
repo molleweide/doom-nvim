@@ -1,0 +1,1 @@
+-- https://github.com/gen740/SmoothCursor.nvim
