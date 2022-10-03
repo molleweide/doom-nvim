@@ -101,6 +101,8 @@ return {
     "dockerfile",
   },
   themes = {
+    nvim = {},
+    vim = {},
     "aurora",
     "cassiopeia",
     "fly",
