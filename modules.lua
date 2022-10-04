@@ -6,19 +6,6 @@
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
 -- Once done, restart doom-nvim and run `:PackerInstall`.
 
--- TODO: REDO COMMENT HEADERS WITH FIGLET
-
--- TODO: AUTOMATICALLY SYNC THIS FILE WITH THE MODULES DIR.
---
--- requires
---  - recurse modules dir
---  - rewrite this file with an additional `category` dir that gives
---      you higher clarity
---  - maintain `enabled` states, ie. check if TSComment contains `module name` pattern.
-
--- TODO: collect sections programmatically instead of using
---      create sync command that syncs new modules to here.
-
 return {
   features = {
     -- Language features
@@ -101,6 +88,7 @@ return {
     "dockerfile",
   },
   themes = {
+    -- Themes designed for neovim
     nvim = {
       "apprentice",
       "aurora",
@@ -170,6 +158,7 @@ return {
       -- "zephyr",
       -- "zephyrium",
     },
+    -- Themes designed for original Vim
     vim = {
       "ariake",
       "iceberg",
@@ -179,25 +168,6 @@ return {
       "omni",
     },
   },
-  move_to_core = {
-    -- "gitsigns",           -- Show git changes in sidebar
-    "git", -- git basic support
-    "diffview", -- git diffview integration
-
-    -- "code_outline",
-
-    "args", -- Provides highlighting and tools for managing function args
-    "textobjects",
-    "comments_frame", -- Create big comments with a nice frame
-    "endwise", -- ??
-    "ts_plugins", -- walk through
-    "root", -- Auto switch root on-enter new git repo + useful commands
-    -- "readline",        -- ???
-
-    "gpg",
-    "collaborate", -- Google docs collaborative editing.
-    "plugins_reloader", -- Watch local packages for changes during development
-  },
   personal = {
     "editing",
     "formatting",
@@ -205,11 +175,9 @@ return {
     "windows",
     "wm",
     "telescope_extensions", -- move into categories
-    -- "figlet",            -- figlet fonts editor
     -- "kmonad",            -- Support for kmonad keyboard remapper
     -- "navigator",         -- ???
     -- "statusline_misc",
-    -- "markdown_tools",  -- ??
   },
   molleweide = {
     ai = {
@@ -230,6 +198,10 @@ return {
     },
     language_features = {
       -- "virtual_types", -- ???
+      "args", -- Provides highlighting and tools for managing function args
+      "textobjects",
+      "endwise", -- ??
+      "ts_plugins", -- walk through
     },
     lib = {
       "litee", -- Litee IDE suite
@@ -248,8 +220,10 @@ return {
     competitive = {
       -- "competitive",
     },
-    docs = {
+    documentation = {
       "docs",
+      "figlet",
+      "comments_frame",
     },
     filetype = {
 
@@ -269,7 +243,6 @@ return {
       "folds",
       "increment", --  tools for incrementing stuff
       "clipboard",
-      -- "regex",           -- Regex tools
       -- "help",            -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
@@ -277,6 +250,9 @@ return {
       "litee_symboltree",
       "litee_bookmarks",
       "litee_calltree",
+      -- "code_outline",
+      "root", -- Auto switch root on-enter new git repo + useful commands
+      -- "readline",        -- ???
     },
     icons = {
       -- "icons",             -- Extended various icons support
@@ -288,6 +264,9 @@ return {
     data_science = {
       -- "data_science",
     },
+    nvim_dev = {
+      "plugins_reloader", -- Watch local packages for changes during development
+    },
     tabs = {},
     windows = {},
     motion = {
@@ -297,12 +276,17 @@ return {
       -- "tree_hopper",
     },
     git = {
+      "git", -- git basic support
+      -- "gitsigns",
+      -- "vgit",
+      "diffview", -- git diffview integration
       -- "repo_search",
       "github_octo",
       "github_litee",
       -- "ghq",
     },
     transform = {
+      -- "regex",           -- Regex tools
       -- "architext",
       "refactor",
       -- "rename",            -- ??
@@ -310,6 +294,8 @@ return {
       "search_and_replace",
     },
     misc = {
+      -- "markdown_tools",  -- ??
+      -- "figlet",            -- figlet fonts editor
       -- "websearch",
       -- "stenography",
       -- "utilities",         -- ??
@@ -341,6 +327,8 @@ return {
       -- "docker",          -- Docker tools
       -- "pandoc",
       -- "remote_dev",      -- ???
+      "gpg",
+      "collaborate", -- Google docs collaborative editing.
     },
     tmux = {
       -- "tmux",               -- ???
