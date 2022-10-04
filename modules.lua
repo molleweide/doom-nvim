@@ -211,7 +211,8 @@ return {
       -- "buffers",
     },
     cmdline = {
-      -- "cmdline", -- Floating cmdline at cursor
+      -- "floating_cmdline", -- Floating cmdline at cursor
+      -- "floating_search", -- Floating cmdline at cursor
       -- "wildmenu",
     },
     colors = {
