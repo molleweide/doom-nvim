@@ -168,20 +168,10 @@ return {
       "omni",
     },
   },
-  personal = {
-    "editing",
-    "formatting",
-    "tweak",
-    "windows",
-    "wm",
-    "telescope_extensions", -- move into categories
-    -- "kmonad",            -- Support for kmonad keyboard remapper
-    -- "navigator",         -- ???
-    -- "statusline_misc",
-  },
   molleweide = {
     ai = {
-      -- "ai",
+      -- "copilot",
+      -- "magic",
     },
     binds = {
       "binds_personal",
@@ -195,6 +185,9 @@ return {
     context = {
       -- "winbar_statusline_context",
       -- "context", -- Provides visual context via Treesitter
+    },
+    finance = {
+      -- "crypto_prices",
     },
     language_features = {
       -- "virtual_types", -- ???
@@ -227,7 +220,6 @@ return {
       "comments_frame",
     },
     filetype = {
-
       -- "filetype",        -- ???
     },
     editor = {
@@ -254,6 +246,9 @@ return {
       -- "code_outline",
       "root", -- Auto switch root on-enter new git repo + useful commands
       -- "readline",        -- ???
+      "editing",
+      "formatting",
+      "tweak",
     },
     icons = {
       -- "icons",             -- Extended various icons support
@@ -269,7 +264,11 @@ return {
       "plugins_reloader", -- Watch local packages for changes during development
     },
     tabs = {},
-    windows = {},
+    windows = {
+      "focus",
+      -- "window_binds",
+      "wm",
+    },
     motion = {
       "lightspeed", -- Replace `s` with advanced leap.nvim motion plugin.
       -- "leap",
@@ -295,6 +294,10 @@ return {
       "search_and_replace",
     },
     misc = {
+      "telescope_extensions", -- move into categories
+      -- "kmonad",            -- Support for kmonad keyboard remapper
+      -- "navigator",         -- ???
+      -- "statusline_misc",
       -- "markdown_tools",  -- ??
       -- "figlet",            -- figlet fonts editor
       -- "websearch",
