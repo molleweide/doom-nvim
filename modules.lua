@@ -250,6 +250,7 @@ return {
       "formatting",
       "tweak",
     },
+    games = {},
     icons = {
       -- "icons",             -- Extended various icons support
     },
