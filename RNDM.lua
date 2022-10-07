@@ -21,10 +21,9 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
 
-that is pertty fucking insane dude. and how the fuck could you ever do that
+twitter thread -> ankle mobility and shoulders. -> buy stand.
 
 trump.nvim -> based motivational quotes. winning!!
-
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

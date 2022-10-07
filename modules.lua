@@ -196,6 +196,10 @@ return {
       "endwise", -- ??
       "ts_plugins", -- walk through
     },
+    lang_binds = {
+      -- "rust_binds",
+    },
+
     lib = {
       "litee", -- Litee IDE suite
       -- "libmodal",          -- Tool for creating custom modes
