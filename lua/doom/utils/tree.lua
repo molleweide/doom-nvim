@@ -28,121 +28,6 @@
 --
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
---
---  ARGS | HOW YOU CAN USE CALL `TRAVERSE()`
---
--- print(minimumvalue(8,10,23,12,5))
---
--- print(minimumvalue(1,2,3))
---
---
--- # 0 --------------------------
---
---    crawl default tree > requires setup configuration
---    would it make sense to allow a default tree in eg. core config?
---
---    NOTE: SOME OF THE BELOW MIGHT BE OUTDATED
---
--- # 1 -------------------------------------------------------
---
---    1 table = options
---
---    1 string = filter default
---      load `string` defaults
---
---    1 func = returns options table
---
---
--- # 2 -------------------------------------------------------
---
---      1 table = options,
---      2 table = accumulator
---
---      1 table = opts
---      2 string = filter
---
---      1 table
---      2 function
---
---
--- # 3 -------------------------------------------------------
---
---      acc = crawl(tree, filter, acc)
---
---      1 table = tree
---      2 function|string' =
---      3 table = accumulator
---
---      allows for quickly traversing a tree and flattening out all nodes
---      to a list easilly
---
--- # 4 -------------------------------------------------------
---
---      1 table = tree
---      2 function|string' =
---      3 table = accumulator
---      4
---
--- -----------------------------------------------------------------------------
---
--- NOTE: if you are using a string filter arg, you have to make sure it is
--- one of the special keywords, or it will be treated as a match string for
--- computing nodes, see XXX.
---
---
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
---
---
---  OPTIONS
---
---  ::: option (new name ideas) :::
---
---  ::: tree (required) :::
---
---  ::: max_level :::
---
---  ::: acc :::
---
---  ::: leaf
---
---  ::: branch
---
---  ::: branch_next -> next_subtable (edge_next|subtable) :::
---
---  ::: branch_post
---
---    if there is a specific way that you access the next entry to analyze
---    within RHS if rhs == table
---
---
---  ::: filter (filter/separator/determine_node) :::
---
---      callback determine if tree entry is node or branch
---
---      FUNCTION
---
---      TABLE
---
---      STRING
---        special keyword  := string|list
---
---  ::: filter_ids -> node_ids (filter_props|node_ids|filter_ids) :::
---
---      IS THIS A SPECIAL CASE OF `FILTER` BELOW WHERE THE TYPE(ARG) == "TABLE"???.
---      THIS WOULD SIMPLIFY THINGS QUITE A LOT...
---
---      table array containing predefined properties that you know identifies a leaf.
---      Eg. doom module parts. See `core/spec.module_parts`
---      pass a list of specific attributes that you know constitutes a leaf node
---      and filter on this
---
--- -- callback function used to identify a leaf
--- --
--- -- special keywords: (string, list)
---
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 
 --
 -- TREE LOG/DEBUG HELPER
@@ -438,6 +323,98 @@ end
 -- TREE ENTRY POINT -------
 --
 
+-- Documenting / Brainstorming patterns for how you can call the
+-- traverse function. # indicates the number of args passed.
+--
+--
+-- # 1 -------------------------------------------------------
+--
+--    1 table = options
+--
+--    OR
+--
+--    1 string = filter default
+--      load `string` defaults
+--
+--    OR
+--
+--    1 func = returns options table
+--
+--    ...
+--
+--
+-- # 2 -------------------------------------------------------
+--
+--      1 table = options,
+--      2 table = accumulator
+--
+--      1 table = opts
+--      2 string = filter
+--
+--      1 table
+--      2 function
+--
+-- # 3 -------------------------------------------------------
+--
+--      acc = crawl(tree, filter, acc)
+--
+--      1 table = tree
+--      2 function|string' =
+--      3 table = accumulator
+--
+--      allows for quickly traversing a tree and flattening out all nodes
+--      to a list easilly
+--
+-- # 4 -------------------------------------------------------
+--
+--      1 table = tree
+--      2 function|string' =
+--      3 table = accumulator
+--      4
+--
+-- -----------------------------------------------------------------------------
+--
+-- NOTE: if you are using a string filter arg, you have to make sure it is
+-- one of the special keywords, or it will be treated as a match string for
+-- computing nodes, see XXX.
+
+--- param: opts
+--
+--- @field  tree         table
+---         (required) table you wish to traverse
+--
+--- @field  max_level    int|nil
+---         prevent traversing a table that is too large
+--
+--- @field  acc          table|nil
+---         You can pass an existing accumulator array to which the leaf
+---         callback return is appended.
+--
+--- @field  leaf         func|string|nil
+---         The return value is appended to the accumulator array
+--
+--- @field  branch       func|nil
+--
+--- @field  branch_post  func|nil
+--
+--- @field  branch_next  func|nil
+---         allows you to specify an expected subtable to recurse into
+---         An example of this is in `dui` where I traverse each modules
+--          binds table.
+--
+--- @field  branch_post  func|nil
+--
+--- @field  filter       func|table|string|nil
+---         callback determine if tree entry is node or branch
+--          special keyword  := string|list
+--
+--- @field  filter_ids   table|nil
+--          table array containing predefined properties that you know identifies a node.
+--          Eg. doom module parts. See `core/spec.module_parts`
+--
+--          iirc filter == table (ie. rhs = table), then you can specify a set of subkeys
+--          that together would identify as a leaf node.
+
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
   tree = opts.tree or tree
@@ -445,12 +422,6 @@ M.traverse_table = function(opts, tree, acc)
     opts.log = {}
   end
 
-  --
-  -- HANDLE DEFAULTS AND NILS
-  --
-
-  -- TREE -----------------------------------------------------------------------------
-  --
   if not tree then
     -- assert tree here to make sure it is passed.
     print("TREE ERROR > tree is required")
@@ -464,33 +435,19 @@ M.traverse_table = function(opts, tree, acc)
     tree = tree()
   end
 
-  -- OPTS.MAX_LEVEL -----------------------------------------------------------------------------
-
   opts.max_level = opts.max_level or 10
 
-  -- ACCUMULATOR -----------------------------------------------------------------------------
-  --
-  ---     if you want to continue accumulating to an already existing list, then pass this
-  ---     option.
   if opts.acc then
     acc = opts.acc or acc
     -- remove acc prop
   end
 
-  -- LEAF DEFAULT CALLBACK -----------------------------------------------------------------------------
-  --
-  ---     how to process each node node
-  ---     return appens to accumulator
   if not opts.leaf then
     opts.leaf = function(_, _, v)
       return v
     end
   end
 
-  -- BRANCH DEFAULT CALLBACK -----------------------------------------------------------------------------
-  --
-  ---     how to process each branch node
-  ---       return appens to accumulator
   if not opts.branch then
     opts.branch = function()
       return false
@@ -510,21 +467,8 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  -- LEAF IDS -----------------------------------------------------------------------------
-  --
-  --      table array containing predefined properties that you know identifies a node.
-  --      Eg. doom module parts. See `core/spec.module_parts`
-  --
-  -- pass a list of specific attributes that you know constitutes a node node
-  -- and filter on this
-  opts.filter_ids = opts.filter_ids or false
+   opts.filter_ids = opts.filter_ids or false
 
-  -- OPTS.EDGE -----------------------------------------------------------------------------
-  --
-  -- callback function used to identify a node
-  --
-  -- special keywords: (string, list)
-  --
   if type(opts.filter) == "string" then
     if opts.filter == "list" then
       opts.filter = function()
@@ -542,23 +486,14 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  -- default case if you leave filter empty.
   if not opts.filter then
     opts.filter = function(_, _, r)
       return not r.is_tbl
     end
   end
 
-  --
-  -- RECURSE MAIN FUNC
-  --
-
-  -- MOVE RECURSE TO HERE...
-
-  --
-  -- MAIN CALL
-  --
-
+  -- This is a bit stupid but I added this so that I could easier
+  -- differentiate log outputs..
   if opts.log.frame then
     print("[---------" .. opts.log.name_string .. "---------]")
   end
