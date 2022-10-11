@@ -21,9 +21,16 @@ so it'll be vim.fn.win_gotoid(winnr)
 
 defer_fn -> https://www.youtube.com/watch?v=GMS0JvS7W1Y
 
-twitter thread -> ankle mobility and shoulders. -> buy stand.
+TWITTER THREAD -> ANKLE MOBILITY AND SHOULDERS. -> BUY STAND.
 
-trump.nvim -> based motivational quotes. winning!!
+winning.nvim -> based motivational quotes from Trump.
+
+i need to look into how i can make collect twitter thread s with neorg.
+so that i don't fucking do this shit like a motherfukcer.
+
+need to make neorg dir telescope searcheable from anywhere.
+
+
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

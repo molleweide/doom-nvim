@@ -45,15 +45,15 @@ neorg.settings = {
     ["core.presenter"] = {
       config = {
         zen_mode = "truezen",
-      }
+      },
     },
     ["core.norg.journal"] = {
       config = {
         main = "~/neorg",
-        journal_folder = "~/neorg/journal"
+        journal_folder = "~/neorg/journal",
       },
     },
-  }
+  },
 }
 
 neorg.packages = {
@@ -150,15 +150,22 @@ neorg.binds = {
           "n",
           name = "+neorg",
           {
-            { 'd', ':Neorg workspace main<cr>', name = "neorg workspace main" },
-            { 'G', ':Neorg workspace gtd<cr>', name = "neorg gtd" },
-            { 'E', ':Neorg workspace example_gtd<cr>', name = "neorg example" },
-            { 'g', ':Neorg gtd ', name = "neorg gtd <insert>" },
-            { 'c', ':Neorg gtd capture<cr>', name = "neorg capture" },
-            { 'e', ':Neorg gtd edit<cr>', name = "neorg gtd edit" },
-            { 'v', ':Neorg gtd views<cr>', name = "neorg gtd views" },
-            { 't', ':Neorg journal today<cr>', name = "neorg journal today" },
-            { 'n', ':Neorg present<cr>', name = "neorg present" },
+            { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
+            { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
+            { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
+            { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
+            { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
+            { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
+            { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
+            { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
+            { "n", ":Neorg present<cr>", name = "neorg present" },
+            {
+              "f",
+              function()
+                require("telescope.builtin").find_files({ cwd = "~/neorg" })
+              end,
+              name = "Search Neorg notes/files",
+            },
             -- { 'f', ':Neorg gtd views<cr>', name = "neorg telescope" },
             -- Telescope neorg find_linkable
             -- Telescope neorg search_headings
