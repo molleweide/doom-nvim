@@ -49,8 +49,8 @@ neorg.settings = {
     },
     ["core.norg.journal"] = {
       config = {
-        main = "~/neorg",
-        journal_folder = "~/neorg/journal",
+        workspace = "main",
+        journal_folder = "journal",
       },
     },
   },
@@ -166,7 +166,6 @@ neorg.binds = {
               end,
               name = "Search Neorg notes/files",
             },
-            -- { 'f', ':Neorg gtd views<cr>', name = "neorg telescope" },
             -- Telescope neorg find_linkable
             -- Telescope neorg search_headings
             -- Telescope neorg find_project_tasks

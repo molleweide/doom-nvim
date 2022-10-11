@@ -31,6 +31,12 @@ so that i don't fucking do this shit like a motherfukcer.
 need to make neorg dir telescope searcheable from anywhere.
 
 
+1. need to update names for my heroku dynos
+2. update heroku stack for PM
+
+
+
+
 
 ----------------------------------------------------------------------------
 -----------------------------------------------------------------------------

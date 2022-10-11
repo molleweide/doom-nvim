@@ -349,7 +349,7 @@ return {
       -- "crypto",            -- Crypto currency stuff
       -- "diagrams",
       -- "vim_ui",            -- improved `vim.ui`
-      -- "transparent",
+      "transparent",
     },
     langs = {
       -- "fennel",
