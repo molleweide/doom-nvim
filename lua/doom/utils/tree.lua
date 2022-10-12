@@ -1,33 +1,4 @@
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
---
--- TODO:
---
--------
--- pass accumulator to branch_post
---
---------------------------------------
--- it would be nice if callbacks only recieve a single table and not mult
--- params so that it looks nicer.
---------------------------------------
--- logger > print each inspect entry on new line \n
---    so that it becomes extra easy to compare
---    would it be possible to add colors?
---
---------------------------------------
--- chaining
---
--- make it possible to do something like this?
---
--- local res = tree(opts).tree(opts2)
---
---------------------------------------
---  entry_counter, leaf_counter, edge_counter.
---
---  add various quantification stats
---
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+local M = {}
 
 --
 -- TREE LOG/DEBUG HELPER
@@ -187,7 +158,10 @@ local function logger(is_node, opts, stack, k, v)
   end
 end
 
-local M = {}
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
 
 --- Conatenate path stack with node / Only used inside of tree..
 --
@@ -212,8 +186,8 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- compute state of left and right hand sides of the key value pair for each
--- table entry. so that one can specify which `leaf` nodes one likes to
+-- Compute state of left and right hand sides of the key value pair for each
+-- table entry - so that one can specify which `leaf` nodes one likes to
 -- process. This is determined in the `filter` option. opts.filter determines
 -- which nodes will be processed in the `opts.leaf` callback. all others are
 -- passed to the `opts.branch` callbacks
@@ -256,16 +230,8 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- todos: vars that would allow more fine grained control
---  - move recurse into traversal.
---  - add counters that keep track of all kinds of relevan data for a table
---  - increment `counter_leaf`
---  - increment `counter_branch`
---  - increment `counter_entry`
---  - assert tree == table or return and run logger on the previous entry
---
---  - treesitter TSNode compatible
---
+-- Main recursive function
+
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
@@ -323,61 +289,6 @@ end
 -- TREE ENTRY POINT -------
 --
 
--- Documenting / Brainstorming patterns for how you can call the
--- traverse function. # indicates the number of args passed.
---
---
--- # 1 -------------------------------------------------------
---
---    1 table = options
---
---    OR
---
---    1 string = filter default
---      load `string` defaults
---
---    OR
---
---    1 func = returns options table
---
---    ...
---
---
--- # 2 -------------------------------------------------------
---
---      1 table = options,
---      2 table = accumulator
---
---      1 table = opts
---      2 string = filter
---
---      1 table
---      2 function
---
--- # 3 -------------------------------------------------------
---
---      acc = crawl(tree, filter, acc)
---
---      1 table = tree
---      2 function|string' =
---      3 table = accumulator
---
---      allows for quickly traversing a tree and flattening out all nodes
---      to a list easilly
---
--- # 4 -------------------------------------------------------
---
---      1 table = tree
---      2 function|string' =
---      3 table = accumulator
---      4
---
--- -----------------------------------------------------------------------------
---
--- NOTE: if you are using a string filter arg, you have to make sure it is
--- one of the special keywords, or it will be treated as a match string for
--- computing nodes, see XXX.
-
 --- param: opts
 --
 --- @field  tree         table
@@ -407,6 +318,9 @@ end
 --- @field  filter       func|table|string|nil
 ---         callback determine if tree entry is node or branch
 --          special keyword  := string|list
+--          There is a set of special string keywords that you can pass to filter
+--          that are often recuring patterns that you want to recurse, eg.
+--          `settigs` table or perform a regular loop over a table.
 --
 --- @field  filter_ids   table|nil
 --          table array containing predefined properties that you know identifies a node.
