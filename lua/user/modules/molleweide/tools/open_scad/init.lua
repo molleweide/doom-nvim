@@ -1,0 +1,1 @@
+-- https://github.com/salkin-mada/openscad.nvim
