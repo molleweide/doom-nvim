@@ -4,47 +4,7 @@ local M = {}
 -- TREE LOG/DEBUG HELPER
 --
 
--- At the moment (1) below is probably the most reliable.
--- The goal is to make `large_pretty` for debugging large trees with colors n stuff.
---
--- i. within count range. always keep a count and only print nodes [x - y]
--- ii. levels range
--- iii. print colors
---
--- eg.
--- log = {
---   use = true,
---   mult = 8,
---   name_string = "test list modules",
---   cat = 1,
---   inspect = true,
---   new_line = true,
---   frame = true,
---   separate = true,
--- },
-
--- 1 = log all
--- 2 = log only branch and leaf
--- 3 = only leaves
--- 4 = only branches
--- 5 = only edge data
---
--- ::: LOGGING DEFAULTS :::
---
--- nodes
--- edge
--- mini | minimal
--- all | both | base | default
--- full | inspect
--- pretty
--- large_pretty: large prints where each entry is printed with a nice frame and colors so that
---    you can truly see what is happening.
---    Or open up a split that writes this as a temporary file with highlights and everything so that you can truly debug easilly.
---
---
---  create a frame around the tree so that you can make very descriptive logs on large screens
---
-
+-- TODO: better var names
 local function compute_indentation(stack, sep, mult)
   local a = ""
   local b = ""
@@ -57,6 +17,17 @@ local function compute_indentation(stack, sep, mult)
   end
   return b
 end
+
+--- opts
+--
+---  @use           = true,
+---  @mult          = 8,
+---  @name_string   = "test list modules",
+---  @cat           = 1,
+---  @inspect       = true,
+---  @new_line      = true,
+---  @frame         = true,
+---  @separate      = true,
 
 local function logger(is_node, opts, stack, k, v)
   -- use table pattern to make the messages more variable and dynamic.
@@ -328,6 +299,8 @@ end
 --
 --          iirc filter == table (ie. rhs = table), then you can specify a set of subkeys
 --          that together would identify as a leaf node.
+--
+--- @log    table
 
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
