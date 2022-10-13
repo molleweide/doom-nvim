@@ -333,6 +333,7 @@ return {
       -- "flutter",
       -- "google_docs",
       -- "ssh",
+      -- "open_scad",
       -- "docker",          -- Docker tools
       -- "pandoc",
       -- "remote_dev",      -- ???

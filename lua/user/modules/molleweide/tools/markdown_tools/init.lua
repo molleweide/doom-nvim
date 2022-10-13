@@ -1,10 +1,13 @@
 local md = {}
 
+-- https://github.com/iamcco/markdown-preview.nvim
+--  has something called mermaid which allows you to do
+--  UML diagrams.
+
 -- https://github.com/jakewvincent/mkdnflow.nvim
 -- https://github.com/jbyuki/carrot.nvim -- evaluate lua in markdown
 -- https://github.com/oknozor/illumination
 -- https://github.com/ellisonleao/glow.nvim
--- https://github.com/iamcco/markdown-preview.nvim
 -- https://github.com/davidgranstrom/nvim-markdown-preview
 -- https://github.com/mjlbach/babelfish.nvim -- md 2 vimdoc
 -- ellisonleao/glow.nvim - Markdown preview using glow.
