@@ -1,25 +1,35 @@
+---
+-- MIT License
+--
+-- Copyright (c) 2022 Hjalmar Jakobsson
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 local M = {}
 
 --
 -- TREE LOG/DEBUG HELPER
 --
 
--- TODO: better var names
-local function compute_indentation(stack, sep, mult)
-  local a = ""
-  local b = ""
-  mult = mult or 1
-  for _ = 1, #stack do
-    a = a .. sep
-  end
-  for _ = 1, mult do
-    b = b .. a
-  end
-  return b
-end
-
---- opts
+--- Tree logger options
 --
+--   @class LoggerOptions
 ---  @use           = true,
 ---  @mult          = 8,
 ---  @name_string   = "test list modules",
@@ -30,6 +40,20 @@ end
 ---  @separate      = true,
 
 local function logger(is_node, opts, stack, k, v)
+  local function compute_indentation(stack, sep, mult)
+    -- TODO: better var names
+    local a = ""
+    local b = ""
+    mult = mult or 1
+    for _ = 1, #stack do
+      a = a .. sep
+    end
+    for _ = 1, mult do
+      b = b .. a
+    end
+    return b
+  end
+
   -- use table pattern to make the messages more variable and dynamic.
   --
   -- NOTE: FRAME -> LOOK AT HOW VENN.NVIM IS WRITTEN
@@ -129,10 +153,8 @@ local function logger(is_node, opts, stack, k, v)
   end
 end
 
-
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
-
 
 --- Conatenate path stack with node / Only used inside of tree..
 --
@@ -156,6 +178,8 @@ end
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
+
+-- NOTE: If I move these state funcs inside of the `recurse` func, will this re-instatiate the funcions for each recursive loop?? If not, then it makes sense to move them inside.
 
 -- Compute state of left and right hand sides of the key value pair for each
 -- table entry - so that one can specify which `leaf` nodes one likes to
@@ -202,6 +226,8 @@ end
 -----------------------------------------------------------------------------
 
 -- Main recursive function
+
+-- TODO: should I redo this function with a single opts table, that also holds vars so that I can minimize the number of parameters?
 
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
@@ -260,47 +286,20 @@ end
 -- TREE ENTRY POINT -------
 --
 
---- param: opts
---
---- @field  tree         table
----         (required) table you wish to traverse
---
---- @field  max_level    int|nil
----         prevent traversing a table that is too large
---
---- @field  acc          table|nil
----         You can pass an existing accumulator array to which the leaf
----         callback return is appended.
---
---- @field  leaf         func|string|nil
----         The return value is appended to the accumulator array
---
+--- @class  Tree traversal options
+--- @field  tree         table            (required) table you wish to traverse
+--- @field  max_level    int|nil          prevent traversing a table that is too large
+--- @field  acc          table|nil        You can pass an existing accumulator array to which the leaf callback return is appended.
+--- @field  leaf         func|string|nil  The return value is appended to the accumulator array
 --- @field  branch       func|nil
---
 --- @field  branch_post  func|nil
---
---- @field  branch_next  func|nil
----         allows you to specify an expected subtable to recurse into
----         An example of this is in `dui` where I traverse each modules
---          binds table.
---
+--- @field  branch_next  func|nil         Allows you to specify an expected subtable to recurse into -         An example of this is in `dui` where I traverse each modules binds table.
 --- @field  branch_post  func|nil
---
---- @field  filter       func|table|string|nil
----         callback determine if tree entry is node or branch
---          special keyword  := string|list
---          There is a set of special string keywords that you can pass to filter
---          that are often recuring patterns that you want to recurse, eg.
---          `settigs` table or perform a regular loop over a table.
---
---- @field  filter_ids   table|nil
---          table array containing predefined properties that you know identifies a node.
---          Eg. doom module parts. See `core/spec.module_parts`
---
+--- @field  filter       func|list|string|nil   Callback determine if tree entry is node or branch. There is a set of special string keywords that you can pass to filter that are often recuring patterns that you want to recurse, eg. `settigs` table or perform a regular loop over a table.
+--- @field  filter_ids   table|nil    Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`
 --          iirc filter == table (ie. rhs = table), then you can specify a set of subkeys
 --          that together would identify as a leaf node.
---
---- @log    table
+--- @log    table       See logger func.
 
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
@@ -308,6 +307,8 @@ M.traverse_table = function(opts, tree, acc)
   if not opts.log then
     opts.log = {}
   end
+
+  -- Add sensible defaults
 
   if not tree then
     -- assert tree here to make sure it is passed.
@@ -354,7 +355,7 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-   opts.filter_ids = opts.filter_ids or false
+  opts.filter_ids = opts.filter_ids or false
 
   if type(opts.filter) == "string" then
     if opts.filter == "list" then
