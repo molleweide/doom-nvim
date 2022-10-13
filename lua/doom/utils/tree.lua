@@ -233,15 +233,16 @@ M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
   stack = stack or {}
   local pass_up = {}
+
   for k, v in pairs(tree) do
     local left = check_lhs(k)
     local right = check_rhs(v, opts)
     local is_node = opts.filter(opts, left, right)
+
     logger(is_node, opts, stack, left, right)
+
     if not is_node then
-      --
       -- BRANCH PRE
-      --
       local pre = opts.branch(stack, k, v)
       if pre then
         table.insert(accumulator, pre)
@@ -249,6 +250,8 @@ M.recurse = function(opts, tree, stack, accumulator)
       table.insert(stack, k)
       -- recurse down
       local p
+
+      -- recurse down
       accumulator, p = M.recurse(opts, opts.branch_next(v), stack, accumulator)
 
       -- BRANCH POST (wip)
@@ -263,10 +266,9 @@ M.recurse = function(opts, tree, stack, accumulator)
       if post then
         table.insert(accumulator, post)
       end
+
     else
-      --
       -- LEAF
-      --
       local ret = opts.leaf(stack, k, v)
       if ret then
         if ret.pass_up then
@@ -283,9 +285,10 @@ M.recurse = function(opts, tree, stack, accumulator)
 end
 
 --
--- TREE ENTRY POINT -------
+-- TREE ENTRY POINT
 --
 
+--- Tree traversal options
 --- @class  Tree traversal options
 --- @field  tree         table            (required) table you wish to traverse
 --- @field  max_level    int|nil          prevent traversing a table that is too large
@@ -296,10 +299,8 @@ end
 --- @field  branch_next  func|nil         Allows you to specify an expected subtable to recurse into -         An example of this is in `dui` where I traverse each modules binds table.
 --- @field  branch_post  func|nil
 --- @field  filter       func|list|string|nil   Callback determine if tree entry is node or branch. There is a set of special string keywords that you can pass to filter that are often recuring patterns that you want to recurse, eg. `settigs` table or perform a regular loop over a table.
---- @field  filter_ids   table|nil    Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`
---          iirc filter == table (ie. rhs = table), then you can specify a set of subkeys
---          that together would identify as a leaf node.
---- @log    table       See logger func.
+--- @field  filter_ids   table|nil    Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`. iirc filter == table (ie. rhs = table), then you can specify a set of subkeys that together would identify as a leaf node.
+--- @field    table       See logger func.
 
 M.traverse_table = function(opts, tree, acc)
   opts = opts or {}
