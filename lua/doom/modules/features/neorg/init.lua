@@ -74,6 +74,8 @@ neorg.configs["neorg-telescope"] = function()
   require("telescope").load_extension("neorg")
 end
 
+-- TODO: add norg bindings > look at Max's config
+
 neorg.autocmds = {
   {
     "BufWinEnter",
