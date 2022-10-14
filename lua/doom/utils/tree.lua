@@ -308,7 +308,7 @@ end
 
 M.traverse_table = function(opts)
   opts = opts or {}
-  tree = opts.tree or tree
+  local tree = opts.tree or tree
 
   if not opts.log then
     opts.log = {}
@@ -386,9 +386,8 @@ M.traverse_table = function(opts)
     end
   end
 
-  acc = M.recurse(opts, tree, {}, acc)
-
-  return acc
+  -- returns the accumulator
+  return M.recurse(opts, tree, {}, acc)
 end
 
 return M
