@@ -1,0 +1,2 @@
+-- https://github.com/jbyuki/ntangle.nvim
+-- ["ntangle-ts.nvim"] = {"jbyuki/ntangle-ts.nvim "},

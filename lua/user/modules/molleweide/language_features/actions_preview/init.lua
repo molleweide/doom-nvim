@@ -1,0 +1,1 @@
+-- https://github.com/aznhe21/actions-preview.nvim

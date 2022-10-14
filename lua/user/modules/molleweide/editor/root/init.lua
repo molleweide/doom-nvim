@@ -1,6 +1,28 @@
 local root = {}
 
+--
+-- Module for managing pwd
+--
+
 -- TODO: add command switch previous repo.
+--
+--  - nvim-rooter > to toggle dir / file dir
+--  - if projects.nvim -> cmd to switch root
+--
+--  look at vsedovs conf for inspiration.
+--
+--  https://github.com/josephsdavid/neovim2
+-- local clever_tcd = function()
+--     local root = require('lspconfig').util.root_pattern('Project.toml', '.git')(vim.api.nvim_buf_get_name(0))
+--     if root == nil then
+--         root = " %:p:h"
+--     end
+--     vim.cmd("tcd " .. root)
+--     vim.cmd("pwd")
+-- end
+--
+--
+--
 
 root.packages = {
   ["vim-rooter"] = { "airblade/vim-rooter" },
