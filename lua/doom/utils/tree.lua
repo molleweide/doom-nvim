@@ -28,18 +28,23 @@ local M = {}
 --
 
 --- Tree logger options
---
---   @class LoggerOptions
----  @use           = true,
----  @mult          = 8,
----  @name_string   = "test list modules",
----  @cat           = 1,
----  @inspect       = true,
----  @new_line      = true,
----  @frame         = true,
----  @separate      = true,
+---
+---  @class LoggerOptions
+---  @use           bool
+---  @mult          int
+---  @name_string   string
+---  @cat           int<1,5>
+---  @inspect       bool
+---  @new_line      bool
+---  @frame         bool
+---  @separate      bool
+
+-- TODO: clean up
 
 local function logger(is_node, opts, stack, k, v)
+  if not opts.log.use then
+    return
+  end
   local function compute_indentation(stack, sep, mult)
     -- TODO: better var names
     local a = ""
@@ -59,10 +64,6 @@ local function logger(is_node, opts, stack, k, v)
   -- NOTE: FRAME -> LOOK AT HOW VENN.NVIM IS WRITTEN
 
   local msg = { entry = {}, rhs = { data = "", state = "" } }
-
-  if not opts.log.use then
-    return
-  end
 
   local iters = opts.log.iters or (#stack + 1)
   if #stack + 1 ~= iters then
@@ -227,7 +228,10 @@ end
 
 -- Main recursive function
 
--- TODO: should I redo this function with a single opts table, that also holds vars so that I can minimize the number of parameters?
+-- TODO: should I redo this function with a single opts table, that also holds
+-- vars so that I can minimize the number of parameters passed around?
+-- It would be nice to only use a single `opts` table and then keep all
+-- data inside of it.
 
 M.recurse = function(opts, tree, stack, accumulator)
   accumulator = accumulator or {}
@@ -290,7 +294,7 @@ end
 
 --- Tree traversal options
 --- @class  Tree traversal options
---- @field  tree         table            (required) table you wish to traverse
+--- @field  tree         table|func       (required) table you wish to traverse. If function then the return value is used.
 --- @field  max_level    int|nil          prevent traversing a table that is too large
 --- @field  acc          table|nil        You can pass an existing accumulator array to which the leaf callback return is appended.
 --- @field  leaf         func|string|nil  The return value is appended to the accumulator array
@@ -302,9 +306,10 @@ end
 --- @field  filter_ids   table|nil    Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`. iirc filter == table (ie. rhs = table), then you can specify a set of subkeys that together would identify as a leaf node.
 --- @field    table       See logger func.
 
-M.traverse_table = function(opts, tree, acc)
+M.traverse_table = function(opts)
   opts = opts or {}
   tree = opts.tree or tree
+
   if not opts.log then
     opts.log = {}
   end
@@ -381,17 +386,7 @@ M.traverse_table = function(opts, tree, acc)
     end
   end
 
-  -- This is a bit stupid but I added this so that I could easier
-  -- differentiate log outputs..
-  if opts.log.frame then
-    print("[---------" .. opts.log.name_string .. "---------]")
-  end
-
   acc = M.recurse(opts, tree, {}, acc)
-
-  if opts.log.frame then
-    print("[------------------------------------------------]")
-  end
 
   return acc
 end
