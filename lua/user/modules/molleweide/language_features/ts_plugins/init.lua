@@ -21,7 +21,6 @@ tsp.packages = {
   -- ["templar.nvim"] = {"vigoux/templar.nvim"},
   -- ["module-template"] = {"nvim-treesitter/module-template"},
   -- ["jump-from-treesitter.nvim"] = {"kizza/jump-from-treesitter.nvim"},
-  -- ["ntangle-ts.nvim"] = {"jbyuki/ntangle-ts.nvim "},
   -- ["ts-word-wrapper.nvim"] = {"aaronma37/ts-word-wrapper.nvim"},
   -- ["proofreader.nvim"] = {"vigoux/proofreader.nvim"},
   -- ["sintax-tree-surfer"] = {"ziontee113/syntax-tree-surfer"},
