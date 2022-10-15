@@ -24,6 +24,10 @@
 local M = {}
 
 --
+-- THIS FILE HOSTS A GENERALIZED UTIL FOR RECURSIVELY TRAVERSING LUA TABLES.
+--
+
+--
 -- TREE LOG/DEBUG HELPER
 --
 
@@ -39,7 +43,7 @@ local M = {}
 ---  @frame         bool
 ---  @separate      bool
 
--- TODO: clean up
+-- TODO: aggresively clean up
 
 local function logger(is_node, opts, stack, k, v)
   if not opts.log.use then
@@ -161,9 +165,9 @@ end
 --
 --- RENAME: flatten_stack is a non descriptive name -> concat_table_path()
 ---
----@param stack   table Internal stack
----@param v       any
----@param concat  string String; returns concatenatd string as second ret val.
+---@param stack   table   Internal stack
+---@param v       any     Right hand side value of each node
+---@param concat  string  String; returns concatenatd string as second ret val.
 M.flatten_stack = function(stack, v, concat)
   local pc = { v }
   if #stack > 0 then
@@ -179,6 +183,10 @@ end
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
+
+--
+-- COMPUTE NODE STATES
+--
 
 -- NOTE: If I move these state funcs inside of the `recurse` func, will this re-instatiate the funcions for each recursive loop?? If not, then it makes sense to move them inside.
 
@@ -226,7 +234,9 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
--- Main recursive function
+--
+-- MAIN RECURSIVE FUNCTION
+--
 
 -- TODO: should I redo this function with a single opts table, that also holds
 -- vars so that I can minimize the number of parameters passed around?
@@ -289,22 +299,21 @@ M.recurse = function(opts, tree, stack, accumulator)
 end
 
 --
--- TREE ENTRY POINT
+-- ENTRY POINT
 --
 
 --- Tree traversal options
 --- @class  Tree traversal options
---- @field  tree         table|func       (required) table you wish to traverse. If function then the return value is used.
---- @field  max_level    int|nil          prevent traversing a table that is too large
---- @field  acc          table|nil        You can pass an existing accumulator array to which the leaf callback return is appended.
---- @field  leaf         func|string|nil  The return value is appended to the accumulator array
---- @field  branch       func|nil
---- @field  branch_post  func|nil
---- @field  branch_next  func|nil         Allows you to specify an expected subtable to recurse into -         An example of this is in `dui` where I traverse each modules binds table.
---- @field  branch_post  func|nil
---- @field  filter       func|list|string|nil   Callback determine if tree entry is node or branch. There is a set of special string keywords that you can pass to filter that are often recuring patterns that you want to recurse, eg. `settigs` table or perform a regular loop over a table.
---- @field  filter_ids   table|nil    Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`. iirc filter == table (ie. rhs = table), then you can specify a set of subkeys that together would identify as a leaf node.
---- @field    table       See logger func.
+--- @field  tree         table|function       (required) table you wish to traverse. If function then the return value is used.
+--- @field  max_level    number|nil           prevent traversing a table that is too large
+--- @field  acc          table|nil            You can pass an existing accumulator array to which the leaf callback return is appended.
+--- @field  leaf         function|string|nil  The return value is appended to the accumulator array
+--- @field  branch       function|nil
+--- @field  branch_post  function|nil
+--- @field  branch_next  function|nil         Allows you to specify an expected subtable to recurse into -         An example of this is in `dui` where I traverse each modules binds table.
+--- @field  filter       function|list|string|nil   Callback determine if tree entry is node or branch. There is a set of special string keywords that you can pass to filter that are often recuring patterns that you want to recurse, eg. `settigs` table or perform a regular loop over a table.
+--- @field  filter_ids   table|nil            Table array containing predefined properties that you know identifies a node. Eg. doom module parts. See `core/spec.module_parts`. iirc filter == table (ie. rhs = table), then you can specify a set of subkeys that together would identify as a leaf node.
+--- @field  table                             See logger func.
 
 M.traverse_table = function(opts)
   opts = opts or {}
@@ -363,6 +372,7 @@ M.traverse_table = function(opts)
 
   opts.filter_ids = opts.filter_ids or false
 
+  -- A set of predefined filters, eg. "settings" for easilly flatten out settings table.
   if type(opts.filter) == "string" then
     if opts.filter == "list" then
       opts.filter = function()
@@ -380,6 +390,7 @@ M.traverse_table = function(opts)
     end
   end
 
+  -- Default recurse down all tables
   if not opts.filter then
     opts.filter = function(_, _, r)
       return not r.is_tbl
