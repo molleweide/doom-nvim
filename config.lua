@@ -329,11 +329,11 @@ require("nightfox").setup({
 doom.use_package(
   "rafcamlet/nvim-luapad",
   "nvim-treesitter/playground",
-  "tpope/vim-surround",
+  -- "tpope/vim-surround",
   "dstein64/vim-startuptime"
 )
 
-doom.langs.lua.packages["lua-dev.nvim"] = { "max397574/lua-dev.nvim", ft = "lua" }
+-- doom.langs.lua.packages["lua-dev.nvim"] = { "max397574/lua-dev.nvim", ft = "lua" }
 
 vim.opt.guifont = { "Hack Nerd Font", "h12" }
 
