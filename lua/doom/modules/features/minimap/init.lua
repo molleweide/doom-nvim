@@ -2,6 +2,9 @@ local minimap = {}
 
 minimap.settings = {}
 
+-- https://github.com/gorbit99/codewindow.nvim
+--
+
 minimap.packages = {
   ["minimap.vim"] = {
     "wfxr/minimap.vim",

@@ -1,5 +1,9 @@
 --[[
 
+it gives me an edge
+
+
+
 MERGE MASON INTO MOLLEWEIDE.
 
 https://publish.obsidian.md/danymat/index

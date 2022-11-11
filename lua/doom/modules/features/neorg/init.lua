@@ -140,6 +140,8 @@ neorg.autocmds = {
 --     })
 -- end)
 
+-- todo: telescope find neorg files in notes -> only dirs > on enter create new file in dir.
+
 neorg.binds = {
   {
     "<leader>",
