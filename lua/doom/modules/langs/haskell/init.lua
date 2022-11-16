@@ -1,5 +1,13 @@
 local haskell = {}
 
+-- GENERAL
+--  https://github.com/MrcJkb/haskell-tools.nvim
+
+-- FORMATTING
+--  https://github.com/haskell/stylish-haskell
+--  https://github.com/nbouscal/vim-stylish-haskell
+
+
 haskell.settings = {
   language_server_name = "hls",
 }
