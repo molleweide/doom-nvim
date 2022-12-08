@@ -1,6 +1,21 @@
 --[[
 
-it gives me an edge
+PLUGINS TO CHECK OUT
+  - glepnir/hlsearch.nvim
+  - nullchilly/fsread.nvim
+  - nvim-zh/colorful-winsep.nvim
+  - Yggdroot/hiPairs
+  - yioneko/nvim-yati > yioneko/vim-tmindent
+  - folke/paint.nvim
+  - lambdalisue/suda.vim
+  - ttibsi/pre-commit.nvim
+  - barklan/capslock.nvim
+  - stevearc/three.nvim for those that use bufferline but also fucking hate it
+  - gaborvecsei/memento.nvim -> harpoon -> grapple and portal
+  - https://github.com/elihunter173/dirbuf.nvim
+
+
+
 
 
 

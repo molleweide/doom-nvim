@@ -5,6 +5,8 @@ cc.settings = {
   language_server_name = utils.get_sysname() == "Darwin" and "clangd" or "ccls",
 }
 
+-- https://github.com/ryanmjacobs/c
+
 -- -- https://github.com/Badhi/nvim-treesitter-cpp-tools
 -- lua.packages = {
 --   ["lua-dev.nvim"] = {

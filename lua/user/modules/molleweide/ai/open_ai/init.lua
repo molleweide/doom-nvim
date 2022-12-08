@@ -1,0 +1,3 @@
+-- https://github.com/jessfraz/openai.vim
+-- https://github.com/tom-doerr/vim_codex
+-- https://github.com/naps62/pair-gpt.nvim

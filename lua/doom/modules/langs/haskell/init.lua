@@ -6,6 +6,7 @@ local haskell = {}
 -- FORMATTING
 --  https://github.com/haskell/stylish-haskell
 --  https://github.com/nbouscal/vim-stylish-haskell
+--  need to add cabal bin path to dorothy
 
 
 haskell.settings = {
