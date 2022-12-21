@@ -172,7 +172,11 @@ table.insert(binds, {
   -- -- {'v', '/', '/\\v'},
 })
 
--- insert
+-- INSERT MODE / CORRECTING TYPOS & BACKWARDS JUMPING
+--
+-- TODO:
+--
+--  - quickly jumpy back the cursor without deleting text.
 table.insert(binds, {
   -- { "i", "zm", "<ESC>:w<cr>", opts_s, "Editor", "exit_insert", "Exit insert mode" },
   -- { "i", "zD", "<ESC>dF", opts_s, "Editor", "exit_insert_delete_bkw", "Exit insert mode and delete Backwards" },

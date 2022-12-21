@@ -1,1 +1,5 @@
+-- https://github.com/jackMort/ChatGPT.nvim -- 450 stars!
 -- https://github.com/terror/chatgpt.nvim
+--
+--
+-- https://github.com/f/awesome-chatgpt-prompts

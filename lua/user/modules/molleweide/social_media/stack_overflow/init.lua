@@ -1,0 +1,2 @@
+-- https://github.com/jackMort/so.nvim
+-- https://github.com/samtay/so
