@@ -1,5 +1,9 @@
 local paths = require("user.utils").paths
 
+-- TODO:
+--
+--  - move this to the base config file
+
 -------------------------
 ---       PATHS       ---
 -------------------------
@@ -29,7 +33,6 @@ local paths = require("user.utils").paths
 -- local conf_yabai = xdg_cfg .. "yabai/yabairc"
 -- local notes_rndm = home_notes .. "RNDM.norg"
 -- local notes_todo = home_notes .. "TODO.md"
-
 
 -----------------------------
 ---       READ FILE       ---
@@ -90,7 +93,6 @@ local paths = require("user.utils").paths
 -- -- 2. unstage all and stagu hunk under cursor
 -- -- 3. triple -> unstage all, select at cursor, and commit
 -- -- 4. unstage all and commit only current buffer.
-
 
 -- -- -- GITSIGNS
 -- { 'n', '<leader>lsn', '<cmd>lua require("gitsigns").next_hunk()<CR>', opts.s},
@@ -181,7 +183,7 @@ table.insert(binds, {
   -- { "i", "zm", "<ESC>:w<cr>", opts_s, "Editor", "exit_insert", "Exit insert mode" },
   -- { "i", "zD", "<ESC>dF", opts_s, "Editor", "exit_insert_delete_bkw", "Exit insert mode and delete Backwards" },
   -- { "i", "zh", "<ESC>yF", opts_s, "Editor", "exit_insert_yank_bkw", "Exit insert mode and yank Backwards" },
-  { "zf", "<ESC>cF", mode = "i", name = "esc search back", options = { silent = true } },
+  { "zf", "<ESC>cvF", mode = "i", name = "esc search back", options = { silent = true } },
   -- { "i", "zt", "<ESC>cT", opts_s, "Editor", "exit_insert_till_bkw", "Exit insert mode and change Until Backwards" },
   {
     "zp",
@@ -263,7 +265,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
 end
 
 -- leader
-if require("doom.utils").is_module_enabled({"features", "whichkey"}) then
+if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
   table.insert(binds, {
     "<leader>",
     name = "+prefix",

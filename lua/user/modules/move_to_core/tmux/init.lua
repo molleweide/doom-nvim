@@ -1,5 +1,7 @@
 local tmux = {}
 
+-- https://github.com/yazgoo/vmux
+
 tmux.settings = {}
 -- https://github.com/hkupty/nvimux
 tmux.packages = {

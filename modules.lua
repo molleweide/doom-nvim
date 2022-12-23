@@ -168,6 +168,9 @@ return {
       "omni",
     },
   },
+  move_to_core = {
+    "execute_anything_tj_style",
+  },
   molleweide = {
     ai = {
       -- "copilot",
