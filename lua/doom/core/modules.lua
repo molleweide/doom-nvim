@@ -5,6 +5,7 @@
 --
 --   Later on it executes all of the enabled modules, loading their packer dependencies, autocmds and cmds.
 
+local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
 local tree = require("doom.utils.tree")
 local filename = "modules.lua"
@@ -110,6 +111,8 @@ modules.start = function()
 end
 
 local keymaps_service = require("doom.services.keymaps")
+local commands_service = require("doom.services.commands")
+local autocmds_service = require("doom.services.autocommands")
 
 --- Applies commands, autocommands, packages from enabled modules (`modules.lua`).
 modules.load_modules = function()
@@ -121,6 +124,9 @@ modules.load_modules = function()
     tree = doom.modules,
     filter = "doom_module_single",
     leaf = function(stack, module_name, module)
+      local profile_msg = ("modules|init `%s.%s`"):format(section_name, module_name)
+      profiler.start(profile_msg)
+
       -- Flag to continue enabling module
       local should_enable_module = true
 
@@ -149,11 +155,21 @@ modules.load_modules = function()
               packer_spec.config = module.configs[dependency_name]
             end
 
+            local spec = vim.deepcopy(packer_spec)
+
             -- Set/unset frozen packer dependencies
-            packer_spec.commit = doom.settings.freeze_dependencies and packer_spec.commit or nil
+            if type(spec.commit) == "table" then
+              -- Commit can be a table of values, where the keys indicate
+              -- which neovim version is required.
+              spec.commit = utils.pick_compatible_field(spec.commit)
+            end
+
+            if not doom.settings.freeze_dependencies then
+              spec.commit = nil
+            end
 
             -- Initialise packer
-            use(packer_spec)
+            use(spec)
           end
         end
 
@@ -161,12 +177,14 @@ modules.load_modules = function()
         if module.autocmds then
           local autocmds = type(module.autocmds) == "function" and module.autocmds()
             or module.autocmds
-          utils.make_augroup(module_name, autocmds)
+          for _, autocmd_spec in ipairs(autocmds) do
+            autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
+          end
         end
 
         if module.cmds then
           for _, cmd_spec in ipairs(module.cmds) do
-            utils.make_cmd(cmd_spec[1], cmd_spec[2])
+            commands_service.set(cmd_spec[1], cmd_spec[2], cmd_spec[3] or cmd_spec.opts)
           end
         end
 
@@ -176,6 +194,7 @@ modules.load_modules = function()
           )
         end
       end
+      profiler.stop(profile_msg)
     end,
   })
 end
@@ -191,15 +210,13 @@ modules.handle_user_config = function()
 
   -- Handle extra user cmds
   for _, cmd_spec in pairs(doom.cmds) do
-    utils.make_cmd(cmd_spec[1], cmd_spec[2])
+    commands_service.set(cmd_spec[1], cmd_spec[2], cmd_spec[3] or cmd_spec.opts)
   end
 
   -- Handle extra user autocmds
-  local autocmds = {}
-  for _, cmd_spec in pairs(doom.autocmds) do
-    table.insert(autocmds, cmd_spec)
+  for _, autocmd_spec in pairs(doom.autocmds) do
+    autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
   end
-  utils.make_augroup("user", autocmds)
 
   -- Handle extra user keybinds
   for _, keybinds in ipairs(doom.binds) do

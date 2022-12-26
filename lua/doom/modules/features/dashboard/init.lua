@@ -67,7 +67,7 @@ dashboard.settings = {
 dashboard.packages = {
   ["dashboard-nvim"] = {
     "glepnir/dashboard-nvim",
-    commit = "b7e9f65bb259e52c29770e3c6cca32dd8519c76f",
+    commit = "1676ebeb334a644dd68f7858f9e993602dd8577c",
     cmd = "Dashboard",
     opt = true,
   },
@@ -89,7 +89,7 @@ dashboard.configs["dashboard-nvim"] = function()
     doom.features.dashboard.settings.entries.a = {
       icon = "  ",
       desc = "Load Last Session              ",
-      shortcut = "SPC s r",
+      shortcut = "SPC q r",
       action = "lua require('persistence').load({ last = true })",
     }
   end

@@ -22,7 +22,7 @@ explorer.settings = {
     },
   },
   filters = {
-    custom = { ".git", "node_modules.editor", ".cache", "__pycache__" },
+    custom = { "^\\.git", "node_modules.editor", "^\\.cache", "__pycache__" },
   },
   renderer = {
     indent_markers = {
@@ -94,7 +94,7 @@ explorer.settings = {
 explorer.packages = {
   ["nvim-tree.lua"] = {
     "kyazdani42/nvim-tree.lua",
-    commit = "09a51266bca28dd87febd63c66bdbd74f7764a63",
+    commit = "7282f7de8aedf861fe0162a559fc2b214383c51c",
     module = "nvim-tree.api",
     cmd = {
       "NvimTreeClipboard",
@@ -114,7 +114,7 @@ explorer.configs["nvim-tree.lua"] = function()
 
   local tree_cb = require("nvim-tree.config").nvim_tree_callback
 
-  local override_table
+  local override_table = {}
   if is_module_enabled("features", "lsp") then
     override_table = {
       diagnostics = {

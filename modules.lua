@@ -63,6 +63,10 @@ return {
     "python",
     "bash",
     -- "fish",
+    -- "gdscript",
+    -- "gdscript",
+    -- "php",
+    -- "ruby",
 
     -- Web
     "javascript",
@@ -70,22 +74,27 @@ return {
     "css",
     "vue",
     -- "tailwindcss",
-    "glsl",
+    -- "glsl",
+    -- "svelte",
 
     -- Compiled
     "rust",
     "cc",
     -- "ocaml",
+    -- "haskell",
 
     -- JIT
     -- "c_sharp",
     -- "kotlin",
     -- "java",
 
-    "config", -- JSON, YAML, TOML
     "markdown",
     -- "terraform",       -- Terraform / hcl files support
     "dockerfile",
+    -- "json",
+    -- "yaml",
+    -- "toml",
+    -- "nix",             -- Nix declarations
   },
   themes = {
     -- Themes designed for neovim

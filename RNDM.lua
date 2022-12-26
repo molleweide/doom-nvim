@@ -1,5 +1,25 @@
 --[[
 
+config.lua XXX
+lua/doom/core/config.lua XXX
+lua/doom/core/doom_global.lua XXX
+lua/doom/core/functions.lua XXX
+lua/doom/core/init.lua XXX
+lua/doom/core/modules.lua XXX
+lua/doom/modules/core/treesitter/init.lua XXX
+lua/doom/modules/features/lsp/init.lua XXX
+lua/doom/modules/langs/cc/init.lua XXX
+lua/doom/modules/langs/config/init.lua XXX
+lua/doom/modules/langs/go/init.lua XXX
+lua/doom/modules/langs/haskell/init.lua XXX
+lua/doom/modules/langs/python/init.lua XXX
+lua/doom/modules/langs/ruby/init.lua XXX
+lua/doom/modules/langs/rust/init.lua XXX
+lua/doom/modules/langs/tailwindcss/init.lua XXX
+lua/doom/modules/langs/typescript/init.lua XXX
+lua/doom/utils/init.lua XXX
+modules.lua
+
 PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim
   - nullchilly/fsread.nvim

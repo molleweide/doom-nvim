@@ -4,6 +4,8 @@
 --  config options, pre-configuring the user's modules from `modules.lua`, and
 --  running the user's `config.lua` file.
 
+
+local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
 local tree = require("doom.utils.tree")
 local config = {}
@@ -58,16 +60,21 @@ config.load = function()
   vim.opt.foldenable = true
   vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
+  profiler.start("framework|import modules")
+
   -- Combine enabled modules (`modules.lua`) with core modules.
   tree.traverse_table({
     tree = require("doom.core.modules").enabled_modules,
     leaf = function(stack, _, module_name)
       local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
-      local ok, result
+      local profiler_message = ("modules|import `%s.%s`"):format(path_concat, module_name)
+      profiler.start(profiler_message)
+      -- If the section is `user` resolves from `lua/user/modules`
       local search_paths = {
         ("user.modules.%s"):format(path_concat),
         ("doom.modules.%s"):format(path_concat),
       }
+      local ok, result
       for _, path in ipairs(search_paths) do
         ok, result = xpcall(require, debug.traceback, path)
         if ok then
@@ -88,15 +95,19 @@ config.load = function()
           )
         )
       end
+      profiler.stop(profiler_message)
     end,
   })
+  profiler.stop("framework|import modules")
 
+  profiler.start("framework|config.lua (user)")
   -- Execute user's `config.lua` so they can modify the doom global object.
   local ok, err = xpcall(dofile, debug.traceback, config.source)
   local log = require("doom.utils.logging")
   if not ok and err then
     log.error("Error while running `config.lua. Traceback:\n" .. err)
   end
+  profiler.stop("framework|config.lua (user)")
 
   -- Apply the necessary `doom.field_name` options
   vim.opt.shiftwidth = doom.settings.indent

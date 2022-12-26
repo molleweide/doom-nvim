@@ -6,9 +6,12 @@ local fs = require("doom.utils.fs")
 --- Doom Nvim version
 utils.version = {
   major = 4,
-  minor = 0,
-  patch = 4,
+  minor = 1,
+  patch = 0,
 }
+
+--- Currently supported version of neovim for this build of doom-nvim
+utils.nvim_latest_supported = "nvim-0.8"
 
 utils.doom_version = string.format(
   "%d.%d.%d",
@@ -22,6 +25,7 @@ utils.find_config = function(filename)
   local function get_filepath(dir)
     return table.concat({ dir, filename }, system.sep)
   end
+
   local path = get_filepath(system.doom_configs_root)
   if fs.file_exists(path) then
     return path
@@ -74,68 +78,6 @@ utils.safe_require = function(path)
   else
     log.debug(string.format("Successfully loaded '%s' module", path))
     return result
-  end
-end
-
---- Stores a function in a global table, returns a string to execute the function
--- @param  fn function
--- @return string
-utils.commandify_function = function(fn)
-  if not _G._doom then
-    _G._doom = {}
-  end
-  if not _doom.cmd_funcs then
-    _doom.cmd_funcs = {}
-  end
-  -- Nobody is going to need more than a million of these, right?
-  local unique_number = utils.unique_index()
-  _doom.cmd_funcs[unique_number] = fn
-  return ("lua _doom.cmd_funcs[%d]()"):format(unique_number)
-end
-
---- Creates a new command that can be executed from the neovim command line
--- @param  cmd_name string The name of the command, i.e. `:DoomReload`
--- @param  action string|function The action to execute when the cmd is entered.
-utils.make_cmd = function(cmd_name, action)
-  local cmd = "command! " .. cmd_name .. " "
-  cmd = type(action) == "function" and cmd .. utils.commandify_function(action) or cmd .. action
-  vim.cmd(cmd)
-end
-
-utils.make_autocmd = function(event, pattern, action, group, nested, once)
-  local cmd = "autocmd "
-
-  if group then
-    cmd = cmd .. group .. " "
-  end
-
-  cmd = cmd .. event .. " "
-  cmd = cmd .. pattern .. " "
-
-  if nested then
-    cmd = cmd .. "++nested "
-  end
-  if once then
-    cmd = cmd .. "++once "
-  end
-
-  cmd = type(action) == "function" and cmd .. utils.commandify_function(action) or cmd .. action
-
-  vim.cmd(cmd)
-end
-
-utils.make_augroup = function(group_name, cmds, existing_group)
-  if not existing_group then
-    vim.cmd("augroup " .. group_name)
-    vim.cmd("autocmd!")
-  end
-
-  for _, cmd in ipairs(cmds) do
-    utils.make_autocmd(cmd[1], cmd[2], cmd[3], existing_group and group_name, cmd.nested, cmd.once)
-  end
-
-  if not existing_group then
-    vim.cmd("augroup END")
   end
 end
 
@@ -213,45 +155,6 @@ utils.is_module_enabled = function(section, plugin)
   end
 end
 
-local modules_list_cache = {}
-
-utils.get_all_modules_as_list = function()
-  if doom then
-    if #modules_list_cache ~= 0 then
-      return modules_list_cache
-    end
-    local all_modules = {}
-    for section_name, _ in pairs(doom.modules) do
-      for k, module in pairs(doom[section_name]) do
-        all_modules[k] = module
-        all_modules[k].name = section_name
-      end
-    end
-    modules_list_cache = table.sort(all_modules, function(a, b)
-      return (a.priority or 100) < (b.priority or 100)
-    end)
-    return modules_list_cache
-  end
-  return nil
-end
-
-utils.clear_module_cache = function()
-  modules_list_cache = {}
-end
-
---- Returns a function that can only be run once
----@param fn function
----@return function
-utils.make_run_once_function = function(fn)
-  local has_run = false
-  return function(...)
-    if not has_run then
-      fn(...)
-      has_run = true
-    end
-  end
-end
-
 --- Rounds a number, optionally to the nearest decimal place
 --- @param num number - Value to round
 --- @param decimalplace number|nil - Number of decimal places
@@ -270,13 +173,48 @@ utils.find_executable_in_path = function(executables)
   end, executables)[1]
 end
 
---- Returns an iterator over the string str whose next function returns until
---- the next sep is reached.
---- @param str string String to iterate over
---- @param sep string Separator to look for
---- @return fun(string, string),string,string
-utils.iter_string_at = function(str, sep)
-  return string.gmatch(str, "([^" .. sep .. "]+)")
+--- Picks a field from a table by checking the keys if it's compatible
+---@generic T
+---@param compatibility_table table<string,T>
+---@return T
+---@example
+---```lua
+---local val = utils.pick_compatible_field({
+---  ['nvim-0.5'] = 'this will be picked',
+---  ['nvim-9.9'] = 'version too high, wont be picked'
+---})
+---print(val) -- > 'this will be picked'
+---```
+utils.pick_compatible_field = function(compatibility_table)
+  -- Sort the keys in order of neovim version
+  local sorted = vim.tbl_keys(compatibility_table)
+  table.sort(sorted, function(a, b)
+    return a < b
+  end)
+  -- Need "latest" to be last as it is a catch all for the default behaviour
+  if sorted[1] == "latest" then
+    table.remove(sorted, 1)
+    table.insert(sorted, "latest")
+  end
+
+  -- Find the last key that is compatible with this neovim version
+  local last_field = nil
+  for _, version in ipairs(sorted) do
+    local field = compatibility_table[version]
+    local ver = version == "latest" and utils.nvim_latest_supported or version
+
+    if vim.fn.has(ver) == 1 then
+      last_field = field
+    else
+      break
+    end
+  end
+
+  -- Must always return a value.
+  if last_field == nil then
+    error("Error getting compatible field.")
+  end
+  return last_field
 end
 
 -- Get or Set a table path list.
@@ -318,6 +256,27 @@ utils.get_set_table_path = function(head, tp, data)
       end
     end
   end
+end
+
+--- Pads a string with chars on the right hand side.
+---@param str string String to pad
+---@param length number Intended length of string
+---@param char string|nil Single char to fill with
+---@return string,boolean Padded string,Flag if padding was needed
+utils.right_pad = function(str, length, char)
+  local res = str .. string.rep(char or " ", length - #str)
+
+  return res, res ~= str
+end
+--- Pads a string with chars on the left hand side.
+---@param str string String to pad
+---@param length number Intended length of string
+---@param char string|nil Single char to fill with
+---@return string,boolean Padded string,Flag if padding was needed
+utils.left_pad = function(str, length, char)
+  local res = string.rep(char or " ", length - #str) .. str
+
+  return res, res ~= str
 end
 
 return utils

@@ -100,12 +100,12 @@ lsp.settings = {
 lsp.packages = {
   ["nvim-lspconfig"] = {
     "neovim/nvim-lspconfig",
-    commit = "da7461b596d70fa47b50bf3a7acfaef94c47727d",
+    commit = "334cc8601ce5f04384ebe79527284fd177938412",
     module = "lspconfig",
   },
   ["nvim-cmp"] = {
     "hrsh7th/nvim-cmp",
-    commit = "b1ebdb0a17daaad13606b802780313a32e59781b",
+    commit = "0e436ee23abc6c3fe5f3600145d2a413703e7272",
     requires = {
       "L3MON4D3/LuaSnip",
       commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
@@ -124,7 +124,7 @@ lsp.packages = {
   },
   ["cmp-path"] = {
     "hrsh7th/cmp-path",
-    commit = "447c87cdd6e6d6a1d2488b1d43108bfa217f56e1",
+    commit = "91ff86cd9c29299a64f968ebb45846c485725f23",
     after = "nvim-cmp",
   },
   ["cmp-buffer"] = {
@@ -246,7 +246,6 @@ lsp.configs["nvim-cmp"] = function()
       format = function(entry, item)
         item.kind =
           string.format("%s %s", doom.features.lsp.settings.completion.kinds[item.kind], item.kind)
-        item.menu = source_map[entry.source.name]
         item.dup = vim.tbl_contains({ "path", "buffer" }, entry.source.name)
         return item
       end,
@@ -308,93 +307,95 @@ lsp.configs["lsp_signature.nvim"] = function()
   }))
 end
 
-lsp.binds = {
-  { "K", vim.lsp.buf.hover, name = "Show hover doc" },
-  { "[d", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
-  { "]d", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
-  {
-    "g",
+lsp.binds = function()
+  return {
+    { "K", vim.lsp.buf.hover, name = "Show hover doc" },
+    { "[d", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
+    { "]d", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
     {
-      { "D", vim.lsp.buf.declaration, "Jump to declaration" },
-      { "d", vim.lsp.buf.definition, name = "Jump to definition" },
-      { "r", vim.lsp.buf.references, name = "Jump to references" },
-      { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
-      { "a", vim.lsp.buf.code_action, name = "Do code action" },
-    },
-  },
-  {
-    "<C-",
-    {
-      { "p>", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
-      { "n>", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
-      { "k>", vim.lsp.buf.signature_help, name = "Show signature help" },
-    },
-  },
-  {
-    "<leader>",
-    name = "+prefix",
-    {
+      "g",
       {
-        "c",
-        name = "+code",
+        { "D", vim.lsp.buf.declaration, "Jump to declaration" },
+        { "d", vim.lsp.buf.definition, name = "Jump to definition" },
+        { "r", vim.lsp.buf.references, name = "Jump to references" },
+        { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
+        { "a", vim.lsp.buf.code_action, name = "Do code action" },
+      },
+    },
+    {
+      "<C-",
+      {
+        { "p>", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
+        { "n>", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
+        { "k>", vim.lsp.buf.signature_help, name = "Show signature help" },
+      },
+    },
+    {
+      "<leader>",
+      name = "+prefix",
+      {
         {
-          { "r", vim.lsp.buf.rename, name = "Rename" },
-          { "a", vim.lsp.buf.code_action, name = "Do action" },
-          { "t", vim.lsp.buf.type_definition, name = "Jump to type" },
-          { "D", vim.lsp.buf.declaration, "Jump to declaration" },
-          { "d", vim.lsp.buf.definition, name = "Jump to definition" },
-          { "R", vim.lsp.buf.references, name = "Jump to references" },
-          { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
+          "c",
+          name = "+code",
           {
-            "l",
-            name = "+lsp",
+            { "r", vim.lsp.buf.rename, name = "Rename" },
+            { "a", vim.lsp.buf.code_action, name = "Do action" },
+            { "t", vim.lsp.buf.type_definition, name = "Jump to type" },
+            { "D", vim.lsp.buf.declaration, "Jump to declaration" },
+            { "d", vim.lsp.buf.definition, name = "Jump to definition" },
+            { "R", vim.lsp.buf.references, name = "Jump to references" },
+            { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
             {
-              { "i", "<cmd>LspInfo<CR>", name = "Inform" },
-              { "r", "<cmd>LspRestart<CR>", name = "Restart" },
-              { "s", "<cmd>LspStart<CR>", name = "Start" },
-              { "d", "<cmd>LspStop<CR>", name = "Disconnect" },
-            },
-          },
-          {
-            "d",
-            name = "+diagnostics",
-            {
-              { "[", vim.diagnostic.goto_prev, name = "Jump to prev" },
-              { "]", vim.diagnostic.goto_next, name = "Jump to next" },
-              { "p", vim.diagnostic.goto_prev, name = "Jump to prev" },
-              { "n", vim.diagnostic.goto_next, name = "Jump to next" },
+              "l",
+              name = "+lsp",
               {
-                "L",
-                function()
-                  vim.diagnostic.open_float(0, {
-                    focusable = false,
-                    border = doom.settings.border_style,
-                  })
-                end,
-                name = "Line",
+                { "i", "<cmd>LspInfo<CR>", name = "Inform" },
+                { "r", "<cmd>LspRestart<CR>", name = "Restart" },
+                { "s", "<cmd>LspStart<CR>", name = "Start" },
+                { "d", "<cmd>LspStop<CR>", name = "Disconnect" },
               },
-              { "l", vim.diagnostic.setloclist, name = "Loclist" },
+            },
+            {
+              "d",
+              name = "+diagnostics",
+              {
+                { "[", vim.diagnostic.goto_prev, name = "Jump to prev" },
+                { "]", vim.diagnostic.goto_next, name = "Jump to next" },
+                { "p", vim.diagnostic.goto_prev, name = "Jump to prev" },
+                { "n", vim.diagnostic.goto_next, name = "Jump to next" },
+                {
+                  "L",
+                  function()
+                    vim.diagnostic.open_float(0, {
+                      focusable = false,
+                      border = doom.border_style,
+                    })
+                  end,
+                  name = "Line",
+                },
+                { "l", vim.diagnostic.setloclist, name = "Loclist" },
+              },
+            },
+          },
+        },
+        {
+          "t",
+          name = "+tweak",
+          {
+            {
+              "c",
+              function()
+                lsp.__completions_enabled = not lsp.__completions_enabled
+                local bool2str = require("doom.utils").bool2str
+                print(string.format("completion=%s", bool2str(lsp.__completions_enabled)))
+              end,
+              name = "Toggle completion",
             },
           },
         },
       },
-      {
-        "t",
-        name = "+tweak",
-        {
-          {
-            "c",
-            function()
-              lsp.__completions_enabled = not lsp.__completions_enabled
-              local bool2str = require("doom.utils").bool2str
-              print(string.format("completion=%s", bool2str(lsp.__completions_enabled)))
-            end,
-            name = "Toggle completion",
-          },
-        },
-      },
     },
-  },
-}
+  }
+end
 
 return lsp

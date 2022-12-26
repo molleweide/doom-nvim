@@ -59,7 +59,11 @@ neorg.settings = {
 neorg.packages = {
   ["neorg"] = {
     "nvim-neorg/neorg",
-    commit = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
+    commit = {
+      ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
+      ["latest"] = "07eafea0312379f6adb327cbdb69594108e2dd57",
+    },
+    cmd = "Neorg",
     after = "nvim-treesitter",
     requires = "nvim-neorg/neorg-telescope", -- https://github.com/nvim-neorg/neorg-telescope#installation
   },

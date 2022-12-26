@@ -56,13 +56,13 @@ telescope.settings = {
 telescope.packages = {
   ["telescope.nvim"] = {
     "nvim-telescope/telescope.nvim",
-    commit = "d793de0f12d874c463e81edabee741b802c1a37a",
+    commit = "f174a0367b4fc7cb17710d867e25ea792311c418",
     cmd = "Telescope",
     opt = true,
   },
   ["telescope-file-browser.nvim"] = {
     "nvim-telescope/telescope-file-browser.nvim",
-    commit = "4272c52078cc457dfaabce6fa3545e7495651d04",
+    commit = "6b4e22777bfa6a31787a4ac8e086b062ef241ede",
     cmd = "Telescope browse_files",
     key = "<leader>.",
     after = "telescope.nvim",
@@ -88,7 +88,7 @@ telescope.configs["telescope.nvim"] = function()
           ["<C-j>"] = actions.move_selection_next,
           ["<C-k>"] = actions.move_selection_previous,
           ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
-          ["<CR>"] = actions.select_default + actions.center,
+          -- ["<CR>"] = actions.select_default + actions.center, -- Currently breaks telescope-file-browser
         },
         n = {
           ["<C-j>"] = actions.move_selection_next,
@@ -176,16 +176,12 @@ telescope.binds = function()
     },
   }
   if is_module_enabled("features", "lsp") then
-    table.insert(binds, {
-      "<leader>",
-      name = "+prefix",
-      {
+    table.insert(binds[2], {
         {
           "c",
           name = "+code",
           {
-            { "s", "<cmd>Telescope lsp_document_symbols<CR>", name = "Lsp symbols" },
-          },
+          { "s", "<cmd>Telescope lsp_document_symbols<CR>", name = "Lsp symbols", remap = true },
         },
       },
     })
