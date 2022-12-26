@@ -271,7 +271,7 @@ vim.diagnostic.config({
 })
 
 -- doom.modules.linter.settings.format_on_save = true
-doom.core.reloader.settings.reload_on_save = true
+doom.core.reloader.settings.reload_on_save = false
 
 if doom.modules.tabline then
   doom.modules.tabline.settings.options.diagnostics_indicator = function(_, _, diagnostics_dict, _)
