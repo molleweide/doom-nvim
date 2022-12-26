@@ -4,6 +4,7 @@ nvim_lua_dev.settings = {}
 
 
 nvim_lua_dev.packages = {
+  -- https://github.com/folke/neodev.nvim
   -- folke/lua-dev.nvim -- already in core!!
   -- ["nlua.nvim"] = { "tjdevries/nlua.nvim" },
   -- ["vimpeccable"] = { "svermeulen/vimpeccable" },

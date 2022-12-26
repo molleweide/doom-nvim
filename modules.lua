@@ -43,7 +43,7 @@ return {
     "dui", -- [WIP] Managen your doom config with Telescope.
 
     -- Tools
-    -- "dap",             -- Debug code through neovim
+    "dap",             -- Debug code through neovim
     "repl",
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser

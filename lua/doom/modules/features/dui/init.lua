@@ -515,7 +515,7 @@ doom_ui.binds = {
         options = { silent = false },
       },
       {
-        "d",
+        "z",
         name = "+test",
         {
           { "m", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false } },
