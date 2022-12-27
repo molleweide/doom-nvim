@@ -176,7 +176,7 @@ table.insert(binds, {
 
 -- INSERT MODE / CORRECTING TYPOS & BACKWARDS JUMPING
 --
--- TODO:
+-- TODO:: MODULE INSERT MODE HELPERS
 --
 --  - quickly jumpy back the cursor without deleting text.
 table.insert(binds, {
@@ -239,6 +239,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
         "M",
         name = "+moll",
         {
+          -- TODO: QUICK FILE ACCESS BINDS MODULE
           {
             "g",
             name = "+go",
@@ -287,6 +288,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           --   end,
           --   name = "create_issue_from_templ",
           -- },
+          -- TODO: MOVE THESE INSPECT BINDS TO NVIM_DEV_BINDS
           {
             "p",
             [[:lua doom.moll.funcs.inspect(doom.)<Left>]],
