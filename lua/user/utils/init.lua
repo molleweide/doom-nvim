@@ -36,6 +36,7 @@ local xdg_cfg = ghq_github_moll .. "xdg_configs/"
 user_utils.paths = {
   ghq = {
     github = "~/code/repos/github.com/",
+    molleweide = ghq_github_moll
   },
   home_notes = "$HOME/notes/",
   doom_log_path = "$HOME/.local/share/nvim/doom.log",
