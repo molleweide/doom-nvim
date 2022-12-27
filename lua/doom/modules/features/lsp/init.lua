@@ -36,6 +36,7 @@ lsp.settings = {
     info = "",
   },
   severity_sort = true,
+  virtual_text = true,
   completion = {
     kinds = {
       Text = " ",
