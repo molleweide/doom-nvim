@@ -35,14 +35,19 @@ if ok then
   reloader = plenary_reload.reload_module
 end
 
--- TODO: can I use lsp to rename all instances of i()?
-function i(x, pre)
-  print(pre or "", vim.inspect(x))
+-- -- TODO: can I use lsp to rename all instances of i()?
+-- function i(x, pre)
+--   print(pre or "", vim.inspect(x))
+-- end
+
+P = function(v, pre)
+  print(pre or "", vim.inspect(v))
+  return v
 end
 
-P = function(v)
-  print(vim.inspect(v))
-  return v
+-- D for debug
+D = function(v, pre)
+  log.debug(pre or "", v)
 end
 
 RELOAD = function(...)
@@ -123,6 +128,19 @@ P :
 ]]
 
 vim.opt.keymap = "INSERT_COLEMAK"
+
+---------------------------------
+---       DOOM SETTINGS       ---
+---------------------------------
+
+doom.core.treesitter.settings.show_compiler_warning_message = false
+
+doom.core.reloader.settings.reload_on_save = true
+
+-- vim.opt.guifont = { 'Hack Nerd Font', 'h12' }
+-- Editor config
+-- doom.border_style = { "", "", "", "", "", "", "", "" }
+-- doom.impatient_enabled = true
 
 ---------------------------
 ---       OPTIONS       ---
@@ -276,19 +294,26 @@ end
 
 doom.moll.funcs = funcs
 
----------------------------
----------------------------
----       PLUGINS       ---
----------------------------
----------------------------
+-----------------------
+---       LSP       ---
+-----------------------
 
-doom.settings.colorscheme = "tokyonight"
+-- TODO: try some stuff here.
+--
+--  - learn how customizing handlers work.
 
--- vim.opt.guifont = { 'Hack Nerd Font', 'h12' }
--- Editor config
--- doom.border_style = { "", "", "", "", "", "", "", "" }
--- doom.impatient_enabled = true
 -- vim.lsp.set_log_level('trace')
+
+
+--
+-- LINTING
+--
+
+-- doom.modules.linter.settings.format_on_save = true
+
+-------------------------------
+---       DIAGNOSTICS       ---
+-------------------------------
 
 vim.diagnostic.config({
   float = {
@@ -296,8 +321,9 @@ vim.diagnostic.config({
   },
 })
 
--- doom.modules.linter.settings.format_on_save = true
-doom.core.reloader.settings.reload_on_save = true
+---------------------------
+---       TABLINE       ---
+---------------------------
 
 if doom.modules.tabline then
   doom.modules.tabline.settings.options.diagnostics_indicator = function(_, _, diagnostics_dict, _)
@@ -311,7 +337,10 @@ if doom.modules.tabline then
   end
 end
 
--- Colourscheme
+--------------------------
+---       COLORS       ---
+--------------------------
+
 doom.use_package("sainnhe/sonokai", "EdenEast/nightfox.nvim")
 
 local options = {
@@ -351,9 +380,12 @@ require("nightfox").setup({
   all = all,
 })
 
--- doom.colorscheme = "dawnfox"
+doom.settings.colorscheme = "tokyonight"
 
+--
 -- Extra packages
+--
+
 doom.use_package(
   "rafcamlet/nvim-luapad",
   "nvim-treesitter/playground",
@@ -370,7 +402,7 @@ vim.cmd("let g:neovide_cursor_animation_length=0.03")
 vim.cmd("set laststatus=3")
 
 --
--- TELESCOPE OVERRIDES
+-- TELESCOPE
 --
 
 local telescope_defaults = doom.modules.features.telescope.settings.defaults
@@ -381,7 +413,7 @@ telescope_defaults.layout_config.horizontal.preview_width = 0.45
 telescope_defaults.winblend = 10
 
 --
--- WHICHKEY OVERRIDES
+-- WHICHKEY
 --
 
 -- vim: sw=2 sts=2 ts=2 expandtab

@@ -85,6 +85,11 @@ reloader._reload_doom = function()
     vim.cmd("silent! LspRestart")
   end
 
+  -- TODO:
+  --
+  --  - toggle chunks and see what causes `cmp` to stop working
+  --  - narrow it down to specific line
+
   -- Remember which modules/packages installed to check if user needs to `:PackerSync`
   local old_modules = require("doom.core.modules").enabled_modules
   local old_packages = vim.tbl_map(function(t)
@@ -97,7 +102,14 @@ reloader._reload_doom = function()
   require("doom.services.profiler").reset()
 
   -- Unload doom.modules/doom.core lua files
+  local pat = "cmp"
   for k, _ in pairs(package.loaded) do
+
+    -- -- testing
+    -- if string.match(k,pat) then
+    --   print("has pat '" .. pat .."'", k)
+    -- end
+
     if
       -- this is just so you can toggle/test more easilly
       string.match(k, "^doom%.core")
@@ -107,8 +119,12 @@ reloader._reload_doom = function()
       or string.match(k, "^user%.utils")
       then
       package.loaded[k] = nil
+      -- print("unload path: ", k)
     end
   end
+
+
+  -- P("after unloading modules/core", package.loaded)
 
   -- Reload core entry point
   reloader.reload_lua_module("doom.core", true)

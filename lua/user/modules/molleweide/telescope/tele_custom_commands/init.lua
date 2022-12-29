@@ -1,8 +1,11 @@
 local user_utils = require "user.utils"
 
-M = {}
+local M = {}
 
 function M.edit_xdg()
+end
+
+function M.edit_doom()
 end
 
 function M.edit_dotfiles()
@@ -34,6 +37,6 @@ function M.my_ghq_user()
 end
 
 
-M.cmds
+-- M.cmds
 
 return M
