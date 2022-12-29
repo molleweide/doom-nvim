@@ -252,18 +252,18 @@ lsp.configs["nvim-cmp"] = function()
       end,
     },
     mapping = {
-      [doom.settings.cmp_binds.select_prev_item] = cmp.mapping.select_prev_item(),
-      [doom.settings.cmp_binds.select_next_item] = cmp.mapping.select_next_item(),
-      [doom.settings.cmp_binds.scroll_docs_bkw] = cmp.mapping.scroll_docs(-4),
-      [doom.settings.cmp_binds.scroll_docs_fwd] = cmp.mapping.scroll_docs(4),
-      [doom.settings.cmp_binds.complete] = cmp.mapping.complete(),
-      [doom.settings.cmp_binds.close] = cmp.mapping.close(),
+      [doom.settings.mappings.cmp.select_prev_item] = cmp.mapping.select_prev_item(),
+      [doom.settings.mappings.cmp.select_next_item] = cmp.mapping.select_next_item(),
+      [doom.settings.mappings.cmp.scroll_docs_bkw] = cmp.mapping.scroll_docs(-4),
+      [doom.settings.mappings.cmp.scroll_docs_fwd] = cmp.mapping.scroll_docs(4),
+      [doom.settings.mappings.cmp.complete] = cmp.mapping.complete(),
+      [doom.settings.mappings.cmp.close] = cmp.mapping.close(),
       -- ["<ESC>"] = cmp.mapping.close(),
-      [doom.settings.cmp_binds.confirm] = cmp.mapping.confirm({
+      [doom.settings.mappings.cmp.confirm] = cmp.mapping.confirm({
         behavior = cmp.ConfirmBehavior.Replace,
         select = true,
       }),
-      [doom.settings.cmp_binds.tab] = cmp.mapping(function(fallback)
+      [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
         elseif luasnip.expand_or_jumpable() then
@@ -277,7 +277,7 @@ lsp.configs["nvim-cmp"] = function()
         "i",
         "s",
       }),
-      [doom.settings.cmp_binds.stab] = cmp.mapping(function(fallback)
+      [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
         elseif luasnip.jumpable(-1) then

@@ -296,7 +296,7 @@ doom.moll.funcs = funcs
 ---       CMP       ---
 -----------------------
 
-doom.settings.cmp_binds = {
+doom.settings.mappings.cmp = {
   select_prev_item = "<C-p>",
   select_next_item = "<C-n>",
   scroll_docs_fwd = "<C-d>",

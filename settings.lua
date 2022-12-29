@@ -182,7 +182,7 @@ return {
 
   -- Completion bindings
   --
-  -- defaults:
+  -- cmp defaults:
   --    select_prev_item  = "<C-p>",
   --    select_next_item  = "<C-n>",
   --    scroll_docs_fwd   = "<C-d>",
@@ -192,25 +192,24 @@ return {
   --    confirm           = "<CR>",
   --    tab               = "<Tab>",
   --    stab              = "<S-Tab>",
-  cmp_binds = {
-    select_prev_item = "<C-p>",
-    select_next_item = "<C-n>",
-    scroll_docs_fwd = "<C-d>",
-    scroll_docs_bkw = "<C-f>",
-    complete = "<C-Space>",
-    close = "<C-e>",
-    confirm = "<CR>",
-    tab = "<Tab>",
-    stab = "<S-Tab>",
-  },
-
-  -- TODO: PUT MAPPINGS IN MAPPINGS TABLE??
+  --
+  -- luasnip defaults:
+  --    ...
   mappings = {
-    completion_binds = {},
-    telescope = {
-      -- i = {
-      --   ["<esc>"] = require("telescope.actions").close,
-      -- },
+    cmp = {
+      select_prev_item = "<C-p>",
+      select_next_item = "<C-n>",
+      scroll_docs_fwd = "<C-d>",
+      scroll_docs_bkw = "<C-f>",
+      complete = "<C-Space>",
+      close = "<C-e>",
+      confirm = "<CR>",
+      tab = "<Tab>",
+      stab = "<S-Tab>",
+    },
+    luasnip = {
+      next_choice = "<C-k>",
+      prev_choice = "<C-j>",
     },
   },
 

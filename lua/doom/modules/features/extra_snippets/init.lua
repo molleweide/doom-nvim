@@ -29,10 +29,11 @@ extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   })
 end
 
--- -- set keybinds for both INSERT and VISUAL.
--- vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
--- vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
--- vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
--- vim.api.nvim_set_keymap("s", "<C-p>", "<Plug>luasnip-prev-choice", {})
+extra_snippets.binds = {
+  { doom.settings.mappings.luasnip.next_choice, "<Plug>luasnip-next-choice", name = "Luasnip next choice", mode = "i" },
+  { doom.settings.mappings.luasnip.next_choice, "<Plug>luasnip-next-choice", name = "Luasnip next choice s", mode = "s" },
+  { doom.settings.mappings.luasnip.prev_choice, "<Plug>luasnip-prev-choice", name = "Luasnip prev choice", mode = "i" },
+  { doom.settings.mappings.luasnip.prev_choice, "<Plug>luasnip-prev-choice", name = "Luasnip prev choice s", mode = "s" },
+}
 
 return extra_snippets
