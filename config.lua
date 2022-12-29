@@ -142,6 +142,14 @@ doom.core.reloader.settings.reload_on_save = true
 -- doom.border_style = { "", "", "", "", "", "", "", "" }
 -- doom.impatient_enabled = true
 
+--   · trace
+--   · debug
+--   · info
+--   · warn
+--   · error
+--   · fatal
+-- doom.settings.logging = "trace"
+
 ---------------------------
 ---       OPTIONS       ---
 ---------------------------
@@ -149,14 +157,6 @@ doom.core.reloader.settings.reload_on_save = true
 vim.opt.wrap = false
 vim.opt.number = true
 vim.opt.relativenumber = true
-
---   · trace
---   · debug
---   · info
---   · warn
---   · error
---   · fatal
--- doom.settings.logging = "error"
 
 vim.opt.winwidth = 95
 

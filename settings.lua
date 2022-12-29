@@ -143,7 +143,7 @@ return {
   --   · error
   --   · fatal
   -- @default = 'info'
-  logging = "trace",
+  logging = "info",
 
   -- Default colorscheme
   -- @default = doom-one

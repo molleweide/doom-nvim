@@ -1,0 +1,4 @@
+-- Interesting video on how to use neovim to help
+-- with writing in various languages and learning new
+-- languages.
+-- https://www.youtube.com/watch?v=eAFDcq1_hf4
