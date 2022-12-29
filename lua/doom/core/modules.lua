@@ -124,13 +124,12 @@ modules.load_modules = function()
     tree = doom.modules,
     filter = "doom_module_single",
     leaf = function(stack, module_name, module)
-      local profile_msg = ("modules|init `%s.%s`"):format(section_name, module_name)
+      local _, module_tp_concat = tree.flatten_stack(stack, module_name, ".")
+      local profile_msg = ("modules|init `%s.%s`"):format(module_tp_concat, module_name)
       profiler.start(profile_msg)
 
       -- Flag to continue enabling module
       local should_enable_module = true
-
-      local _, module_tp_concat = tree.flatten_stack(stack, module_name, ".")
 
       -- Check module has necessary dependencies
       if module.requires_modules then
@@ -138,9 +137,11 @@ modules.load_modules = function()
           if not utils.get_set_table_path(doom.modules, vim.split(dependent_module, "%.")) then
             should_enable_module = false
             logger.error(
-              (
-                'Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'
-              ):format(module_tp_concat, dependent_module, dependent_module)
+              ('Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'):format(
+                module_tp_concat,
+                dependent_module,
+                dependent_module
+              )
             )
           end
         end
