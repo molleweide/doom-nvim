@@ -279,6 +279,7 @@ return {
     },
     nvim_dev = {
       "plugins_reloader", -- Watch local packages for changes during development
+      "nvim_dev_binds"
     },
     tabs = {},
     windows = {

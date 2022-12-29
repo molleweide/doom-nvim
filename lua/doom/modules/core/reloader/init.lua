@@ -1,6 +1,14 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
+-- TODO: move to config globals so that it is easier to reuse and debug
+--    packages
+local function test_print_package_pattern(k, pat)
+  if string.match(k, pat) then
+    print("has pat '" .. pat .. "'", k)
+  end
+end
+
 local reloader = {}
 
 --- Only show error reloading message once per session
@@ -102,14 +110,8 @@ reloader._reload_doom = function()
   require("doom.services.profiler").reset()
 
   -- Unload doom.modules/doom.core lua files
-  local pat = "cmp"
   for k, _ in pairs(package.loaded) do
-
-    -- -- testing
-    -- if string.match(k,pat) then
-    --   print("has pat '" .. pat .."'", k)
-    -- end
-
+    -- test_print_package_pattern(k, "cmp")
     if
       -- this is just so you can toggle/test more easilly
       string.match(k, "^doom%.core")
@@ -117,12 +119,11 @@ reloader._reload_doom = function()
       or string.match(k, "^doom%.utils")
       or string.match(k, "^user%.modules")
       or string.match(k, "^user%.utils")
-      then
+    then
       package.loaded[k] = nil
       -- print("unload path: ", k)
     end
   end
-
 
   -- P("after unloading modules/core", package.loaded)
 
@@ -204,8 +205,10 @@ reloader.autocmds = function()
       "BufWritePost",
       "*/modules.lua,*/config.lua,*/settings.lua",
       function()
-        if vim.fn.getcwd() == vim.fn.stdpath("config")
-            or system.doom_configs_root == vim.fn.stdpath("config") then
+        if
+          vim.fn.getcwd() == vim.fn.stdpath("config")
+          or system.doom_configs_root == vim.fn.stdpath("config")
+        then
           reloader.reload()
         end
       end,

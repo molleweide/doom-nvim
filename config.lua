@@ -28,7 +28,6 @@ doom.moll = {}
 ---       GLOBALS       ---
 ---------------------------
 
-
 local ok, plenary_reload = pcall(require, "plenary.reload")
 local reloader = require
 if ok then
@@ -205,7 +204,6 @@ vim.opt.guifont = { "Hack Nerd Font", "h12" }
 -- Editor config
 doom.settings.indent = 2
 
-
 doom.settings.escape_sequences = { "zm" }
 
 -- vim.lsp.set_log_level('info')
@@ -295,6 +293,29 @@ end
 doom.moll.funcs = funcs
 
 -----------------------
+---       CMP       ---
+-----------------------
+
+doom.settings.cmp_binds = {
+  select_prev_item = "<C-p>",
+  select_next_item = "<C-n>",
+  scroll_docs_fwd = "<C-d>",
+  scroll_docs_bkw = "<C-f>",
+  complete = "<C-Space>",
+  close = "<C-e>",
+  confirm = "<C-l>",
+  tab = "<Tab>",
+  stab = "<S-Tab>",
+}
+
+-- TODO: CUSTOMIZE SNIPPET BINDS
+
+-- doom.settings.mappings.luasnip = {
+--   next_choice = "",
+--   prev_choice = "",
+-- }
+
+-----------------------
 ---       LSP       ---
 -----------------------
 
@@ -303,7 +324,6 @@ doom.moll.funcs = funcs
 --  - learn how customizing handlers work.
 
 -- vim.lsp.set_log_level('trace')
-
 
 --
 -- LINTING
