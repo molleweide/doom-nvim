@@ -48,11 +48,9 @@ diffview.packages = {
 -- Restoring Files
 -- If the right side of the diff is showing the local state of a file, you can restore the file to the state from the left side of the diff (key binding X from the file panel by default). The current state of the file is stored in the git object database, and a command is echoed that shows how to undo the change.
 
-
 -- use({ "sindrets/diffview.nvim", config = require("molleweide.configs.diffview") })
 diffview.configs = {
   ["diffview.nvim"] = function()
-
     local cb = require("diffview.config").diffview_callback
 
     require("diffview").setup({
@@ -86,12 +84,14 @@ diffview.configs = {
           height = 16,
         },
         log_options = {
-          single_file = {
-            diff_merges = "combined"
+          git = {
+            single_file = {
+              diff_merges = "combined",
+            },
+            multi_file = {
+              diff_merges = "first-parent",
+            },
           },
-          multi_file = {
-            diff_merges = "first-parent"
-          }
         },
       },
       default_args = { -- Default args prepended to the arg-list for the listed commands
