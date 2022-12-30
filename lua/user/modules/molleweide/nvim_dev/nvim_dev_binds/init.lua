@@ -12,7 +12,15 @@ local nvim_dev = {}
 --  - https://neovim.discourse.group/t/reload-init-lua-and-all-require-d-scripts/971/11
 --  - https://www.lua.org/pil/8.1.html
 
--- todo: I need a function to
+-- TODO: I need a function to
+
+
+-- TODO: bind that runs the lua code in visual selection.
+--
+-- or use treesitter and run current chunk under cursor
+--
+-- :[range]luado {body}    Executes Lua chunk "function(line, linenr) {body} end"
+
 
 nvim_dev.binds = {
   {

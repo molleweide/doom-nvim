@@ -29,6 +29,10 @@ extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   })
 end
 
+-- The active choice for a choiceNode can be changed by calling
+-- `ls.change_choice(1)` (forwards) or `ls.change_choice(-1)` (backwards), for
+-- example via
+
 extra_snippets.binds = {
   { doom.settings.mappings.luasnip.next_choice, "<Plug>luasnip-next-choice", name = "Luasnip next choice", mode = "i" },
   { doom.settings.mappings.luasnip.next_choice, "<Plug>luasnip-next-choice", name = "Luasnip next choice s", mode = "s" },

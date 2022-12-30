@@ -364,7 +364,7 @@ return {
       -- "diagrams",
       -- "vim_ui",            -- improved `vim.ui`
       "transparent",
-      -- "noice"
+      "noice"
     },
     langs = {
       -- "fennel",

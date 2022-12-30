@@ -1,6 +1,13 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
+-- BUG: if you reload in Dashboard win, then line numbers become visible
+-- on the left side but they should not be visible in Dashboard
+
+-- TODO: Make sure reload cannot occur until you have fixed explicit LSP
+--      errors, then on-lsp-okay event go ahead and reload. So that we
+--      try break the config as few times as possible when reloading
+
 -- TODO: move to config globals so that it is easier to reuse and debug
 --    packages
 local function test_print_package_pattern(k, pat)
@@ -93,10 +100,8 @@ reloader._reload_doom = function()
     vim.cmd("silent! LspRestart")
   end
 
-  -- TODO:
-  --
-  --  - toggle chunks and see what causes `cmp` to stop working
-  --  - narrow it down to specific line
+  -- NOTE: Comparing `enabled_modules` only works if there is a new module,
+  -- but internals of a module will fall through.
 
   -- Remember which modules/packages installed to check if user needs to `:PackerSync`
   local old_modules = require("doom.core.modules").enabled_modules
@@ -111,7 +116,6 @@ reloader._reload_doom = function()
 
   -- Unload doom.modules/doom.core lua files
   for k, _ in pairs(package.loaded) do
-    -- test_print_package_pattern(k, "cmp")
     if
       -- this is just so you can toggle/test more easilly
       string.match(k, "^doom%.core")
@@ -125,8 +129,6 @@ reloader._reload_doom = function()
     end
   end
 
-  -- P("after unloading modules/core", package.loaded)
-
   -- Reload core entry point
   reloader.reload_lua_module("doom.core", true)
   -- Reload which modules are enabled
@@ -134,11 +136,12 @@ reloader._reload_doom = function()
   -- Prepare the enabled modules, reload the user config.lua
   reloader.reload_lua_module("doom.core.config", true)
   require("doom.core.config"):load()
+
   -- Install, bind, add autocmds etc for all modules and user configs
   require("doom.core.modules"):load_modules()
   require("doom.core.modules"):handle_user_config()
-  -- VimEnter to emulate loading neovim
 
+  -- Post reload modules comparison
   local modules = require("doom.core.modules").enabled_modules
   local packages = vim.tbl_map(function(t)
     return t[1]
@@ -156,6 +159,7 @@ reloader._reload_doom = function()
     log.warn("reloader: Run `:PackerSync` to install and configure new plugins.")
   end
 
+  -- VimEnter to emulate loading neovim
   vim.cmd("doautocmd VimEnter")
   -- vim.cmd("doautocmd BufEnter")
   vim.cmd("doautocmd ColorScheme")

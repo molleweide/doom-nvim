@@ -4,6 +4,8 @@ local lsp = {}
 -- Flag to enable/disable completions for <leader>tc keybind.
 lsp.__completions_enabled = true
 
+-- TODO: Create a handler that ignores global variables from your doom config
+
 lsp.settings = {
   snippets = {
     history = true,
