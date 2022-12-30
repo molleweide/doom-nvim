@@ -36,9 +36,6 @@ profiler.start("framework|doom.utils")
 local utils = require("doom.utils")
 profiler.stop("framework|doom.utils")
 
--- -- Load user settings
--- doom[ "settings" ] = dofile(utils.find_config("settings.lua"))
-
 -- Boostraps the doom-nvim framework, runs the user's `config.lua` file.
 profiler.start("framework|doom.core.config (setup + user)")
 local config = utils.safe_require("doom.core.config")
