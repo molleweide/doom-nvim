@@ -45,7 +45,9 @@
 
 -- From here on, we have a hidden global `_doom` that holds state the user
 -- shouldn't mess with.
-_G._doom = {}
+if not doom then
+  _G._doom = {}
+end
 
 --- Global object
 doom = {
