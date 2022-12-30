@@ -266,7 +266,7 @@ lsp.configs["nvim-cmp"] = function()
         select = true,
       }),
       [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
-        if cmp.visible() then
+        if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_next_item()
         elseif luasnip.expand_or_jumpable() then
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
@@ -280,7 +280,7 @@ lsp.configs["nvim-cmp"] = function()
         "s",
       }),
       [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
-        if cmp.visible() then
+        if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab  then
           cmp.select_prev_item()
         elseif luasnip.jumpable(-1) then
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")

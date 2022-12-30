@@ -266,6 +266,8 @@ doom = {
       },
     },
 
+    cmp_cycle_entries_with_tab = false,
+
     -- Automatically reload local plugins during development
     reload_doom = true,
     reload_local_plugins = true,
