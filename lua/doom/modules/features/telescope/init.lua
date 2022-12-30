@@ -1,6 +1,8 @@
 local telescope = {}
 
--- todo: configure with select_ui prompt -> default to open telescope.
+-- TODO: import TJs pickers and add those to binds table
+
+-- TODO: configure with select_ui prompt -> default to open telescope.
 --
 -- TODO: center everything in telescope so that you are always looking with you head
 -- in center position.

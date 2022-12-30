@@ -2,6 +2,8 @@ local user_utils = require "user.utils"
 
 local M = {}
 
+M.requires_modules = { "features.telescope" }
+
 function M.edit_xdg()
 end
 
