@@ -3,10 +3,21 @@ local use_floating_win_packer = doom.settings.use_floating_win_packer
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 
--- TODO: compare to source git@github.com:notomo/lreload.nvim.git
+-- compare to source git@github.com:notomo/lreload.nvim.git
+
+-- TODO: use `tree` to traverse modules
 
 local pr = {}
 
+pr.settings = {
+  watch_plugin_dirs = {
+    "lua",
+    "after",
+    "plugins",
+    "syntax",
+  },
+  -- watch_ignore_dirs = {}, -- ???
+}
 local function is_local_path(s)
   return s:match("^~") or s:match("^/")
 end
@@ -63,7 +74,17 @@ local function spawn_autocmds(name, repo_path)
   )
 end
 
+-- Check which packages need autocmd for reloading
 local function check_packages()
+  local local_package_specs = {}
+
+  -- TODO: break the below into two
+  --  1. add specs to sum table
+  --  2. add autocmds to specs
+
+  -- TODO: log.info("Reloaded package: " .. pname)
+  --    -- if dependency > show `pname (dependency for pmain)`
+
   for _, module in pairs(doom.modules) do
     if module.packages then
       for name, spec in pairs(module.packages) do
@@ -72,6 +93,7 @@ local function check_packages()
           spawn_autocmds(name, repo_path)
         end
 
+        -- Handle package dependencies
         -- NOTE: will there be duplicates if multiple plugins require the same package?
         if spec.requires ~= nil then
           for _, rspec in pairs(spec.requires) do
@@ -80,6 +102,7 @@ local function check_packages()
               rspec_repo_path = rspec[1]
             end
             if is_local_path(rspec_repo_path) then
+              -- what is this?
               spawn_autocmds(rspec[1]:match("/([_%w%.%-]-)$"), rspec[1])
             end
           end
@@ -170,5 +193,30 @@ pr.cmds = {
 -- pr.autocmds = {
 --   { "DoomStarted", "", }
 -- }
+
+-- TODO: toggle binds
+pr.binds = {
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      {
+        "t",
+        name = "+tweak",
+        {
+          {
+            "pr",
+            function()
+              -- lsp.__completions_enabled = not lsp.__completions_enabled
+              -- local bool2str = require("doom.utils").bool2str
+              -- print(string.format("completion=%s", bool2str(lsp.__completions_enabled)))
+            end,
+            name = "Toggle reload plugins on change",
+          },
+        },
+      },
+    },
+  },
+}
 
 return pr
