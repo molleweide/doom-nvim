@@ -1,0 +1,1 @@
+-- https://github.com/alexherbo2/kakoune.vim/blob/master/plugin/kakoune.vim

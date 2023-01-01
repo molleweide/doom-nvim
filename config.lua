@@ -292,9 +292,20 @@ end
 
 doom.moll.funcs = funcs
 
------------------------
----       CMP       ---
------------------------
+------------------------------
+---       COMPLETION       ---
+------------------------------
+
+-- sources
+-- TODO: add all of my custom sources here or in a special module where I
+-- handle all of my personal cmp additions
+-- https://github.com/hrsh7th/nvim-cmp/wiki/List-of-sources
+
+-- menu appearance
+-- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance
+
+-- advanced techniques
+-- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
 
 doom.settings.mappings.cmp = {
   select_prev_item = "<C-p>",

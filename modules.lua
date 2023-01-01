@@ -252,7 +252,7 @@ return {
       "folds",
       "increment", --  tools for incrementing stuff
       "clipboard",
-      -- "help",            -- Support for help with binds and stuff
+      "help",            -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
       -- "logging",         -- binds n stuff

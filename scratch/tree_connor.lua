@@ -33,6 +33,7 @@ local tree_traverser = {
       table.remove(stack, #stack)
       table.remove(stack, #stack)
     end
+
     -- Error does not add to result or anything
     local err = function(message)
       table.remove(stack, #stack)

@@ -1,6 +1,9 @@
 local uut = require("user.utils")
 local extra_snippets = {}
 
+-- https://github.com/utilyre/spoon.nvim/tree/main/lua/spoon
+-- https://github.com/madskjeldgaard/cheeky-snippets.nvim
+
 extra_snippets.settings = {}
 
 extra_snippets.packages = {

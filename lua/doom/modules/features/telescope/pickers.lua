@@ -37,6 +37,7 @@ local _ = pcall(require, "nvim-nonicons")
 
 local M = {}
 
+-- TODO: modify this one to use doom system vars
 function M.edit_neovim()
   local opts_with_preview, opts_without_preview
 
@@ -83,64 +84,51 @@ function M.edit_neovim()
   require("telescope.builtin").find_files(opts_with_preview)
 end
 
-function M.find_nvim_source()
-  require("telescope.builtin").find_files {
-    prompt_title = "~ nvim ~",
-    shorten_path = false,
-    cwd = "~/build/neovim/",
+-- function M.sourcegraph_find()
+--   require("telescope.builtin").find_files {
+--     prompt_title = "~ sourcegraph ~",
+--     shorten_path = false,
+--     cwd = "~/sourcegraph/",
+--
+--     layout_strategy = "horizontal",
+--     layout_config = {
+--       width = 0.25,
+--       preview_width = 0.65,
+--     },
+--   }
+-- end
 
-    layout_strategy = "horizontal",
-    layout_config = {
-      preview_width = 0.35,
-    },
-  }
-end
-
-function M.sourcegraph_find()
-  require("telescope.builtin").find_files {
-    prompt_title = "~ sourcegraph ~",
-    shorten_path = false,
-    cwd = "~/sourcegraph/",
-
-    layout_strategy = "horizontal",
-    layout_config = {
-      width = 0.25,
-      preview_width = 0.65,
-    },
-  }
-end
-
-function M.sourcegraph_main_find()
-  require("telescope.builtin").find_files {
-    prompt_title = "~ main: sourcegraph ~",
-    shorten_path = false,
-    cwd = "~/sourcegraph/sourcegraph.git/main/",
-
-    layout_strategy = "horizontal",
-    layout_config = {
-      width = 0.95,
-      preview_width = 0.65,
-    },
-  }
-end
-
-function M.sourcegraph_about_find()
-  require("telescope.builtin").find_files {
-    prompt_tiles = [[\ Sourcegraph About: Files /]],
-    cwd = "~/sourcegraph/about/handbook/",
-
-    sorter = require("telescope").extensions.fzy_native.native_fzy_sorter(),
-  }
-end
-
-function M.sourcegraph_about_grep()
-  require("telescope.builtin").live_grep {
-    prompt_tiles = [[\ Sourcegraph About: Files /]],
-    cwd = "~/sourcegraph/about/",
-
-    -- sorter = require('telescope').extensions.fzy_native.native_fzy_sorter(),
-  }
-end
+-- function M.sourcegraph_main_find()
+--   require("telescope.builtin").find_files {
+--     prompt_title = "~ main: sourcegraph ~",
+--     shorten_path = false,
+--     cwd = "~/sourcegraph/sourcegraph.git/main/",
+--
+--     layout_strategy = "horizontal",
+--     layout_config = {
+--       width = 0.95,
+--       preview_width = 0.65,
+--     },
+--   }
+-- end
+--
+-- function M.sourcegraph_about_find()
+--   require("telescope.builtin").find_files {
+--     prompt_tiles = [[\ Sourcegraph About: Files /]],
+--     cwd = "~/sourcegraph/about/handbook/",
+--
+--     sorter = require("telescope").extensions.fzy_native.native_fzy_sorter(),
+--   }
+-- end
+--
+-- function M.sourcegraph_about_grep()
+--   require("telescope.builtin").live_grep {
+--     prompt_tiles = [[\ Sourcegraph About: Files /]],
+--     cwd = "~/sourcegraph/about/",
+--
+--     -- sorter = require('telescope').extensions.fzy_native.native_fzy_sorter(),
+--   }
+-- end
 
 -- TODO: Should work on a wiki at some point....
 --function M.sourcegraph_tips()
@@ -191,15 +179,18 @@ function M.find_files()
   }
 end
 
+-- TODO: use this one
 function M.fs()
   local opts = themes.get_ivy { hidden = false, sorting_strategy = "descending" }
   require("telescope.builtin").find_files(opts)
 end
 
+-- NOTE: what is this?
 function M.builtin()
   require("telescope.builtin").builtin()
 end
 
+-- NOTE: what is this?
 function M.git_files()
   local path = vim.fn.expand "%:h"
   if path == "" then

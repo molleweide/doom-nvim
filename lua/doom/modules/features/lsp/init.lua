@@ -168,6 +168,9 @@ lsp.configs["nvim-lspconfig"] = function()
     })
   end
 
+  -- TODO: add custom diagnostic handler here
+  --  move custom handlers into their own file.
+
   vim.diagnostic.config({
     virtual_text = doom.features.lsp.settings.virtual_text,
     severity_sort = doom.features.lsp.settings.severity_sort,
@@ -271,6 +274,7 @@ lsp.configs["nvim-cmp"] = function()
         elseif luasnip.expand_or_jumpable() then
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
         elseif check_backspace() then
+          -- TODO: print here to see if this is the action that is taken
           vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
         else
           fallback()
