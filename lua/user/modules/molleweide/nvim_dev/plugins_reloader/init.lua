@@ -1,18 +1,10 @@
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
-
--- compare to source git@github.com:notomo/lreload.nvim.git
-
 local autocmds_service = require("doom.services.autocommands")
 
--- TODO: the autocmd also needs to check for lsp errors in each
---        respective plugin to make sure that we don't reload
---        until the errors have been resolved
-
--- _G._doom_plugins_reloader_started = _G._doom_plugins_reloader_started ~= nil and _G._doom_plugins_reloader_started or {}
---
-
 local pr = {}
+
+-- TODO: how can I use autocommands service to remove all of them here?
 
 pr.settings = {
   startup = true, -- should this be moved into the `doom.settings`
@@ -24,45 +16,38 @@ pr.settings = {
   },
   watch_ignore_dirs = {},
 }
+
 local function is_local_path(s)
   local match = s:match("^~") or s:match("^/")
-  -- if match then
-  --   print("is_local:", s, match)
-  -- end
   return match
 end
 
-pr.settings = {}
-
-local function spawn_autocmds(name, repo_path, dep_of)
+local function spawn_autocmds(name, repo_path, dep)
   local repo_lua_path = string.format("%s%slua", repo_path, system.sep)
   local scan_dir_opts = { search_pattern = ".", depth = 1, only_dirs = true }
-  log.info(
-    string.format([[[PLUGINS_RELOADER]: Spawn watcher for: %s%s]], name, dep_of and dep_of or "")
+  log.debug(string.format([[[PKG_WATCH]: Spawn watcher: %s%s]], name, dep and dep or ""))
+  autocmds_service.set(
+    "BufWritePost",
+    string.format("%s%s%s", repo_path, system.sep, "**/*.lua"), -- pattern
+    function()
+      local t_lua_module_paths =
+        require("plenary.scandir").scan_dir(vim.fn.expand(repo_lua_path), scan_dir_opts)
+      local t_lua_module_names = vim.tbl_map(function(s)
+        return s:match("/([_%w]-)$") -- capture only dirname
+      end, t_lua_module_paths)
+      for _, mname in ipairs(t_lua_module_names) do
+        require("plenary.reload").reload_module(mname)
+        log.info(
+          "[PKG_WATCH]: Reloaded module: " .. mname,
+          dep and "(dependency of `" .. dep .. "`)" or ""
+        )
+      end
+    end
   )
-
-  -- autocmds_service.set({
-  --   "BufWritePost",
-  --   string.format("%s%s%s", repo_path, system.sep, "**/*.lua"), -- pattern
-  --   function()
-  --     -- if doom.settings.reload_local_plugins then
-  --     local t_lua_module_paths =
-  --       require("plenary.scandir").scan_dir(vim.fn.expand(repo_lua_path), scan_dir_opts)
-  --     local t_lua_module_names = vim.tbl_map(function(s)
-  --       return s:match("/([_%w]-)$") -- capture only dirname
-  --     end, t_lua_module_paths)
-  --     -- for _, mname in ipairs(t_lua_module_names) do
-  --     log.info("Reloaded package: " .. mname)
-  --     require("plenary.reload").reload_module(mname)
-  --     -- end
-  --     -- end
-  --   end,
-  -- })
 end
 
 local function find_local_package_paths()
   local local_package_specs = {}
-  -- TODO: here I could utilize the result accumulator.
   require("doom.utils.tree").traverse_table({
     tree = doom.modules,
     filter = "doom_module_single",
@@ -100,18 +85,18 @@ local function find_local_package_paths()
 end
 
 local function setup_package_watchers()
-  log.debug("[PLUGINS_RELOADER]: Setting up local package watchers..")
+  log.debug("[PKG_WATCH]: Setting up local package watchers..")
   local lp = find_local_package_paths()
   for name, path in pairs(lp) do
     spawn_autocmds(name, path[1], path[2])
   end
 end
 
--- TODO: how can I use autocommands service to remove all of them here?
 local function remove_package_watchers()
   log.debug("remove_package_watchers")
 end
 
+-- RUN RELOADER ON STARTUP
 -- if doom.settings.reload_local_plugins then
 --   -- print("watch_plugin_changes_enabled", _doom.watch_plugin_changes_enabled)
 --   -- if _doom.watch_plugin_changes_enabled == nil then --or _doom.watch_plugin_changes_enabled == false then
@@ -142,23 +127,21 @@ pr.cmds = {
   },
 }
 
--- autocmds_service.set = function(event, pattern, action, opts)
 pr.autocmds = {
   {
     "User",
     "*", -- Patterns can be ignored for this autocmd
     function()
       -- print("watch_plugin_changes_enabled", _doom.watch_plugin_changes_enabled)
-      if
-        _doom.watch_plugin_changes_enabled == nil or _doom.watch_plugin_changes_enabled == false
-      then
-        -- print("doom watch if nil/false")
-        _doom.watch_plugin_changes_enabled = true
-        setup_package_watchers()
+      if doom.settings.reload_local_plugins then
+        if
+          _doom.watch_plugin_changes_enabled == nil or _doom.watch_plugin_changes_enabled == false
+        then
+          -- print("doom watch if nil/false")
+          _doom.watch_plugin_changes_enabled = true
+          setup_package_watchers()
+        end
       end
-      -- DoomWatchLocalPackages
-
-      -- print("autocommand: plugins autoreloader")
     end,
   },
 }
