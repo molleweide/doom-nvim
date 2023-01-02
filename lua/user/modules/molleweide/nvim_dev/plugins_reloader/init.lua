@@ -24,7 +24,12 @@ pr.settings = {
   watch_ignore_dirs = {},
 }
 local function is_local_path(s)
-  return s:match("^~") or s:match("^/")
+  -- print("s", s)
+  local match = s:match("^~") or s:match("^/")
+  if match then
+    print("is_local:", s, match)
+  end
+  return match
 end
 
 pr.settings = {}
@@ -33,49 +38,93 @@ local function spawn_autocmds(name, repo_path)
   local repo_lua_path = string.format("%s%slua", repo_path, system.sep)
   local scan_dir_opts = { search_pattern = ".", depth = 1, only_dirs = true }
   log.info(string.format([[Spawn watcher for: %s]], repo_path:match("/([_%w%.%-]-)$")))
-  autocmds_service.set({
-    "BufWritePost",
-    string.format("%s%s%s", repo_path, system.sep, "**/*.lua"), -- pattern
-    function()
-      -- if doom.settings.reload_local_plugins then
-      local t_lua_module_paths =
-        require("plenary.scandir").scan_dir(vim.fn.expand(repo_lua_path), scan_dir_opts)
-      local t_lua_module_names = vim.tbl_map(function(s)
-        return s:match("/([_%w]-)$") -- capture only dirname
-      end, t_lua_module_paths)
-      -- for _, mname in ipairs(t_lua_module_names) do
-      log.info("Reloaded package: " .. mname)
-      require("plenary.reload").reload_module(mname)
-      -- end
-      -- end
-    end,
-  })
+
+  -- autocmds_service.set({
+  --   "BufWritePost",
+  --   string.format("%s%s%s", repo_path, system.sep, "**/*.lua"), -- pattern
+  --   function()
+  --     -- if doom.settings.reload_local_plugins then
+  --     local t_lua_module_paths =
+  --       require("plenary.scandir").scan_dir(vim.fn.expand(repo_lua_path), scan_dir_opts)
+  --     local t_lua_module_names = vim.tbl_map(function(s)
+  --       return s:match("/([_%w]-)$") -- capture only dirname
+  --     end, t_lua_module_paths)
+  --     -- for _, mname in ipairs(t_lua_module_names) do
+  --     log.info("Reloaded package: " .. mname)
+  --     require("plenary.reload").reload_module(mname)
+  --     -- end
+  --     -- end
+  --   end,
+  -- })
 end
 
+-- TODO: needs better checking for local paths. Atm some paths slip through..
 local function find_local_package_paths()
   local local_package_specs = {}
-  for _, module in pairs(doom.modules) do
-    if module.packages then
-      for name, spec in pairs(module.packages) do
-        if is_local_path(spec[1]) then
-          local_package_specs[name] = spec[1]
-        end
-        -- For each dependency spec
-        if spec.requires ~= nil then
-          for _, rspec in pairs(spec.requires) do
-            local rspec_repo_path = rspec
-            if type(rspec) == "table" then
-              rspec_repo_path = rspec[1]
-            end
-            if is_local_path(rspec_repo_path) then
-              local rname = rspec[1]:match("/([_%w%.%-]-)$")
-              local_package_specs[rname] = rspec_repo_path
+
+  require("doom.utils.tree").traverse_table({
+    tree = doom.modules,
+    filter = "doom_module_single",
+    leaf = function(_, _, module)
+      if module.packages then
+        for name, spec in pairs(module.packages) do
+          if is_local_path(spec[1]) then
+            -- print(name, " -> ", spec[1])
+            local_package_specs[name] = spec[1]
+          end
+          if spec.requires ~= nil then
+            if type(spec.requires) == "table" then
+              for _, rspec in pairs(spec.requires) do
+                -- print(":", vim.inspect(rspec))
+                -- P(rspec)
+
+                if type(rspec) == "table" then
+                  local rname = rspec[1]:match("/([_%w%.%-]-)$")
+                  local_package_specs[rname] = rspec[1]
+                  -- print(rname, " -> ", rspec[1])
+                elseif is_local_path(rspec) then
+                  local rname = rspec:match("/([_%w%.%-]-)$")
+                  local_package_specs[rname] = rspec
+                  -- print(rname, " -> ", rspec)
+                end
+              end
+            else
+              -- Single string name dependency; requires = "xxx",
+              -- print("pre: ", spec.requires)
+              if is_local_path(spec.requires) then
+                local rname = spec.requires:match("/([_%w%.%-]-)$")
+                local_package_specs[rname] = spec.requires
+                -- print(rname, " -> ", spec.requires)
+              end
             end
           end
         end
       end
-    end
-  end
+    end,
+  })
+
+  -- for _, module in pairs(doom.modules) do
+  --   if module.packages then
+  --     for name, spec in pairs(module.packages) do
+  --       if is_local_path(spec[1]) then
+  --         local_package_specs[name] = spec[1]
+  --       end
+  --       -- For each dependency spec
+  --       if spec.requires ~= nil then
+  --         for _, rspec in pairs(spec.requires) do
+  --           local rspec_repo_path = rspec
+  --           if type(rspec) == "table" then
+  --             rspec_repo_path = rspec[1]
+  --           end
+  --           if is_local_path(rspec_repo_path) then
+  --             local rname = rspec[1]:match("/([_%w%.%-]-)$")
+  --             local_package_specs[rname] = rspec_repo_path
+  --           end
+  --         end
+  --       end
+  --     end
+  --   end
+  -- end
   return local_package_specs
 end
 
@@ -84,9 +133,15 @@ local function setup_package_watchers()
   print("setup_package_watchers")
   log.info("Setting up local package watchers..")
 
+  print("1")
+
   local lp = find_local_package_paths()
 
+  print("2")
+
   P(lp)
+
+  print("3")
 
   for name, path in pairs(lp) do
     spawn_autocmds(name, path)
@@ -112,6 +167,7 @@ pr.cmds = {
     "DoomWatchLocalPackagesEnable",
     function()
       print("cmd: Doom Watch Pkg Enable")
+      -- _doom.watch_plugin_changes_enabled = false
       if
         _doom.watch_plugin_changes_enabled == nil or _doom.watch_plugin_changes_enabled == false
       then
