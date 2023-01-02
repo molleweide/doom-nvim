@@ -30,9 +30,7 @@ end
 --
 -- the default is to check for plugins under `lua/snippets/*`
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
-  print("xx!")
-
-  -- NOTE: should setup() return all snippets?
+  print("extra_snippets config luasnip snippets!!!!!")
   require("luasnip_snippets").setup({
     paths = doom.modules.features.extra_snippets.settings.doom_snippet_paths,
     use_default_path = true,
@@ -43,12 +41,17 @@ extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   })
 end
 
--- TODO: watch snippet paths and reload snippets if doom snippets have been
---        changed
---
---      Do reloading of internal snippets inside of `LuaSnip-snippets`
+-- NOTE: currently this reloads via the doom reloader command
 -- extra_snippets.autocmds = {
---   {}
+--   {
+--     "BufWritePost",
+--     "*/doom/snippets/**/*.lua, */user/snippets/**/*.lua",
+--     function()
+--       -- BUG: why doesn't this print
+--       print("::: reload snips :::")
+--       require("plenary.reload").reload_module("luasnip_snippets")
+--     end,
+--   },
 -- }
 
 -- The active choice for a choiceNode can be changed by calling
