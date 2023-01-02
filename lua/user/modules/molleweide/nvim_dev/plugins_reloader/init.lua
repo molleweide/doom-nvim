@@ -37,6 +37,11 @@ local function spawn_autocmds(name, repo_path, dep)
       end, t_lua_module_paths)
       for _, mname in ipairs(t_lua_module_names) do
         require("plenary.reload").reload_module(mname)
+
+        -- TODO: if need to pass along the whole `doom.modules....` table
+        --        so that I can get access to see if there is a config function.
+        --        so that the config can be rerun.
+
         log.info(
           "[PKG_WATCH]: Reloaded module: " .. mname,
           dep and "(dependency of `" .. dep .. "`)" or ""

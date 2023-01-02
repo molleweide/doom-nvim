@@ -69,6 +69,11 @@ profiler.stop("framework|user settings")
 modules.try_sync()
 profiler.stop("framework|doom.core.modules")
 
+-- TODO: shouldn't there also be a `Doom` autocmd here that allows you
+--      to execute a set of options for a specific module.
+--
+--      Remember also that this is ran on each reload as well.
+
 -- Execute autocommand for user to hook custom config into
 vim.api.nvim_exec_autocmds("User", {
   pattern = "DoomStarted",

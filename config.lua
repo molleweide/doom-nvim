@@ -39,9 +39,19 @@ end
 --   print(pre or "", vim.inspect(x))
 -- end
 
-P = function(v, pre)
-  print(pre or "", vim.inspect(v))
+P = function(...)
+  print(vim.inspect(...))
   return v
+end
+
+GGG = function()
+  local t = {}
+  for k, v in pairs(_G) do
+    if k:match("^_doom") then
+      t[k] = v
+    end
+  end
+  print("inspect `_doom`", vim.inspect(t, { depth = 1 }))
 end
 
 -- D for debug
