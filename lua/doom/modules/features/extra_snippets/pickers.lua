@@ -36,6 +36,10 @@ local settings = {
   prompt_prefix = "LUASNIP (custom): ",
 }
 
+local basic_mapping = function(prompt_bufnr)
+  require("telescope.actions").close(prompt_bufnr)
+end
+
 local filter_null = function(str, default)
   return str and str or (default and default or "")
 end
@@ -126,9 +130,28 @@ M.luasnip_fn = function(opts)
       -- SELECT FILETYPE
       --
 
-      print("telescope luasnip filetype")
+      -- TODO: if you pass a filetype, then you will go to next stage
+      --        for supplied filetype
 
       local available_filetypes = get_available_filetypes()
+
+      require("telescope.pickers")
+        .new(opts, {
+          prompt_title = settings.prompt_prefix .. "select filetype to act on",
+          finder = require("telescope.finders").new_table({
+            results = available_filetypes,
+          }),
+          sorter = require("telescope.config").values.generic_sorter(opts),
+          attach_mappings = function(_, map)
+            -- TODO:
+            --    - open picker for filetype
+            --    - personal / all_available
+            map("i", "<CR>", basic_mapping)
+            map("n", "<CR>", basic_mapping)
+            return true
+          end,
+        })
+        :find()
     elseif opts.picker_to_use == "all_available" then
       --
       -- ALL AVAILABLE
@@ -217,6 +240,26 @@ M.luasnip_fn = function(opts)
       -- PERSONAL SNIPPETS
       --
       print("telescope luasnip personal")
+
+      -- TODO:
+      --
+      --      - personal: allow editing current snippet
+      --      - personal: allow deleting...
+      --      - personal: allow deleting...
+      --
+      pickers
+        .new(opts, {
+          prompt_title = settings.prompt_prefix .. "personal snippets",
+          finder = finders.new_table({
+            results = { "aaa", "bbb", "ccc" },
+          }),
+          attach_mappings = function(_, map)
+            map("i", "<CR>", basic_mapping)
+            map("n", "<CR>", basic_mapping)
+            return true
+          end,
+        })
+        :find()
     end
   else
     print("LuaSnips is not available")
