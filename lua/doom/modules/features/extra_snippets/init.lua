@@ -10,11 +10,6 @@ local extra_snippets = {}
 --    2. plugin internal reload
 --    3. rerun setup on user snippet files changed
 
--- TODO: picker research
---
--- https://github.com/benfowler/telescope-luasnip.nvim
--- https://github.com/fhill2/telescope-ultisnips.nvim
-
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
   luasnip_snippets = {
