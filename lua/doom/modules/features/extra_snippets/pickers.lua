@@ -14,21 +14,21 @@ local entry_display = require("telescope.pickers.entry_display")
 local conf = require("telescope.config").values
 local ext_conf = require("telescope._extensions")
 
--- TODO: expose these:
+-- TODO:
 --
---      - Telescope luasnip_insert
+--  FILETYPE
 --
---      - Telescope luasnip_manage_locals
---                    mappings:
---                      - insert
---                      - delete
---                      - edit
---                      - add new snippet to same file
+--  ~ <CR>: open personal for selected filetypes
+--  ~ mapping: add new for selected filetype
+--  ~ create new snippet file for `line` string
+--  ~ picker: lift all files that host snippets for the selected filetypes
 --
---      - Telescope filetype
---                    mappings
---                      - add new
---                      - open list
+--  PERSONAL
+--
+--  ~ fix run only personal
+--  ~ mapping: edit selected snippet
+--  ~ mapping: add new snippet for same filetype
+--  ~ mapping: delete snippet y/n
 
 local M = {}
 
@@ -104,21 +104,6 @@ local default_search_text = function(entry)
     .. " "
     .. filter_description(entry.context.name, entry.context.description)
 end
-
--- TODO: luasnip filetype
---
---    1. open filetype picker.
---    2. if select filetype > open below picker with only snippets coming
---          from the corresponding filetype.
---          confige -> set which paths one want to source snippets from.
---                so tha you don't accidentally start editing internal snippets.
---                only user snippets by default.
---
---
---
---    3. if delete snippet -> open nui popup yes/no
---
---    :echo getcompletion('', 'filetype')
 
 local function get_available_filetypes()
   return vim.fn.getcompletion("", "filetype")
@@ -251,18 +236,17 @@ M.luasnip_fn = function(opts)
 
       local prev_fuzzy = opts.luasnip_picker_filetype_selected
       local prev_line = opts.luasnip_picker_filetype_line
-
       local personal_snippets_by_ft = require("luasnip_snippets").get_snippets_flat(
         {
           paths = { "doom/snippets", "user/snippets" },
           use_default_path = true,
-          -- use_personal = true,
-          -- use_internal = true, -- load snippets provided by `luasnip_snippets`
+          use_personal = true,
+          use_internal = true, -- load snippets provided by `luasnip_snippets`
           -- ft_use_only = { "*" }, -- which filetypes do I want to have load
           -- ft_filter = { "python" },
         } --
       )
-      P(personal_snippets_by_ft)
+      -- P(personal_snippets_by_ft)
 
       local displayer = entry_display.create({
         separator = " ",
@@ -274,6 +258,8 @@ M.luasnip_fn = function(opts)
           { remaining = true },
         },
       })
+
+      -- todo: dynamic number of items here
 
       local make_display = function(entry)
         return displayer({
