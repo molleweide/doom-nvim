@@ -278,6 +278,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           {
             "l",
             function()
+              require("plenary.reload").reload_module("luasnip_snippets")
               require("luasnip_snippets").setup(
                 doom.modules.features.extra_snippets.settings.luasnip_snippets
               )

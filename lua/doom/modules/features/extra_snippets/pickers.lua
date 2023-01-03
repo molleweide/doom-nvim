@@ -269,16 +269,17 @@ M.luasnip_fn = function(opts)
         items = {
           { width = 12 },
           { width = 24 },
+          { width = 24 },
           { width = 16 },
           { remaining = true },
         },
       })
 
       local make_display = function(entry)
-
         return displayer({
-          entry.value.filetype,
-          "xxx",
+          entry.value.snip.filetype,
+          { entry.value.snip.name, "TelescopeResultsNumber" },
+          entry.value.snip.origin_file_mod_path,
           { "context", "TelescopeResultsNumber" },
           "description",
         })
@@ -310,6 +311,8 @@ M.luasnip_fn = function(opts)
           attach_mappings = function(_, map)
             map("i", "<CR>", basic_mapping)
             map("n", "<CR>", basic_mapping)
+            -- <CR>    -> edit current snippet
+            -- <C-x>    -> delete snippet > promt y/n
             return true
           end,
         })

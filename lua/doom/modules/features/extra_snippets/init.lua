@@ -15,7 +15,10 @@ local pp = "doom.modules.features.extra_snippets.pickers"
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
   luasnip_snippets = {
-    paths = { "doom/snippets", "user/snippets" },
+    paths = { --
+      "doom/snippets",
+      "user/snippets",
+    },
     use_default_path = true,
     use_personal = true,
     use_internal = true, -- load snippets provided by `luasnip_snippets`
@@ -43,6 +46,7 @@ extra_snippets.configs["friendly-snippets"] = function()
 end
 
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
+  -- require("luasnip.loaders.from_lua").load({ paths = "./lua/doom/snippets/" })
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
 end
 
@@ -153,6 +157,14 @@ extra_snippets.binds = {
               })
             end,
             name = "Snippets picker -> personal (custom)",
+          },
+          {
+            "E",
+            function()
+              -- NOTE: this opens the `lua.json` under friendly snippets
+              require("luasnip.loaders").edit_snippet_files()
+            end,
+            name = "LuaSnip edit snippet files",
           },
         },
       },
