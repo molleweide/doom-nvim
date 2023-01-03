@@ -10,7 +10,10 @@ local extra_snippets = {}
 --    2. plugin internal reload
 --    3. rerun setup on user snippet files changed
 
--- TODO: put the picker as an extension of the luasnip_snippets plugin.
+-- TODO: picker research
+--
+-- https://github.com/benfowler/telescope-luasnip.nvim
+-- https://github.com/fhill2/telescope-ultisnips.nvim
 
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
@@ -21,7 +24,7 @@ extra_snippets.settings = {
     use_internal = true, -- load snippets provided by `luasnip_snippets`
     -- ft_use_only = { "*" }, -- which filetypes do I want to have load
     -- ft_filter = { "python" },
-  }
+  },
 }
 
 extra_snippets.packages = {
@@ -33,6 +36,7 @@ extra_snippets.packages = {
     uut.paths.ghq.github .. "molleweide/LuaSnip-snippets.nvim",
     after = "LuaSnip",
   },
+  ["telescope-luasnip.nvim"] = { "benfowler/telescope-luasnip.nvim" },
 }
 
 extra_snippets.requires_modules = { "features.lsp" }
@@ -43,6 +47,14 @@ end
 
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
+end
+
+-- vim.cmd [[ Telescope luasnip ]]
+extra_snippets.configs["telescope-luasnip.nvim"] = function()
+  local ok, telescope = pcall(require, "telescope")
+  if ok then
+    telescope.load_extension("luasnip")
+  end
 end
 
 -- NOTE: currently this reloads via the doom reloader command
@@ -69,7 +81,7 @@ end
 extra_snippets.autocmds = {
   {
     "BufWritePost",
-    "*/snippets/**/*.lua",-- */user/snippets/**/*.lua",
+    "*/snippets/**/*.lua", -- */user/snippets/**/*.lua",
     function()
       print("::: reload snips :::")
       -- require("plenary.reload").reload_module("luasnip_snippets")
@@ -102,7 +114,20 @@ extra_snippets.binds = {
     name = "Luasnip prev choice s",
     mode = "s",
   },
-  -- TODO: picker crud binds
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+
+      {
+        "f",
+        name = "+file",
+        {
+          { "i", require("telescope").extensions.luasnip.luasnip, name = "Open snippets picker" },
+        },
+      },
+    },
+  },
 }
 
 return extra_snippets

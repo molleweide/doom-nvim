@@ -1,8 +1,10 @@
 local root = {}
 
 --
--- Module for managing pwd
+-- MODULE FOR MANAGING CURRENT WORKING DIR
 --
+
+-- TODO: read -> `https://www.reddit.com/r/neovim/comments/zy5s0l/you_dont_need_vimrooter_usually_or_how_to_set_up/`
 
 -- TODO: add command switch previous repo.
 --
