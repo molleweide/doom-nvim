@@ -36,16 +36,23 @@ local settings = {
   prompt_prefix = "LUASNIP (custom): ",
 }
 
+local function picker_get_state(prompt_bufnr)
+  local state = require("telescope.actions.state")
+  local line = state.get_current_line(prompt_bufnr)
+  local fuzzy = state.get_selected_entry(prompt_bufnr)
+  return fuzzy, line
+end
+
 local basic_mapping = function(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
 end
+
 local filetype_callback_mapping = function(prompt_bufnr)
-  -- spawn picker with
-  --
-  --    TODO: picker_to_use = "personal"
+  local fuzzy, line = picker_get_state(prompt_bufnr)
   M.luasnip_fn({
     picker_to_use = "personal_snippets",
-    -- luasnip_picker_filetype_selected = ??
+    luasnip_picker_filetype_selected = fuzzy,
+    luasnip_picker_filetype_line = line,
   })
 end
 
@@ -139,52 +146,21 @@ M.luasnip_fn = function(opts)
       -- SELECT FILETYPE
       --
 
-      -- TODO: if you pass a filetype, then you will go to next stage
-      --        for supplied filetype
-
-      local available_filetypes = get_available_filetypes()
-
-
-      local available = luasnip.available()
-
-      P(#available)
-      print("xxxxxxx")
-      P(available)
-
-      -- for filename, file in pairs(available) do
-      --   for _, snippet in ipairs(file) do
-      --     table.insert(objs, {
-      --       ft = filename ~= "" and filename or "-",
-      --       context = snippet,
-      --     })
-      --   end
-      -- end
-
-
-
       require("telescope.pickers")
         .new(opts, {
           prompt_title = settings.prompt_prefix .. "select filetype to act on",
           finder = require("telescope.finders").new_table({
-            results = available_filetypes,
+            results = get_available_filetypes(),
           }),
           sorter = require("telescope.config").values.generic_sorter(opts),
           attach_mappings = function(_, map)
-            -- TODO:
-            --    - open picker for filetype
-            --    - personal / all_available
-            --
-            --    - choose:
-            --        show personal snippets for filetype
-            --
-            --        filetype_callback_mapping
-            map("i", "<CR>", filetype_callback_mapping)
+            map("i", "<CR>", filetype_callback_mapping) -- show snippets for fuzzy selection
             map("n", "<CR>", filetype_callback_mapping)
+            -- <C-e>    -> create new snippet for selected filetype/line in user default dir
             return true
           end,
         })
         :find()
-
     elseif opts.picker_to_use == "all_available" then
       --
       -- ALL AVAILABLE
@@ -223,7 +199,7 @@ M.luasnip_fn = function(opts)
 
       pickers
         .new(opts, {
-          prompt_title = settings.prompt_prefix .. opts.picker_to_use,
+          prompt_title = settings.prompt_prefix .. "all available (loaded) for current filetype(s)",
           finder = finders.new_table({
             results = objs,
             entry_maker = function(entry)
@@ -272,17 +248,27 @@ M.luasnip_fn = function(opts)
       --
       -- PERSONAL SNIPPETS
       --
-      print("telescope luasnip personal")
 
-      -- TODO:
-      --
-      --      - personal: allow editing current snippet
-      --      - personal: allow deleting...
-      --      - personal: allow deleting...
-      --
+      local prev_fuzzy = opts.luasnip_picker_filetype_selected
+      local prev_line = opts.luasnip_picker_filetype_line
+      local personal_snippets_by_ft = require("luasnip_snippets").get_all_snippets_final(
+        {
+          paths = { "doom/snippets", "user/snippets" },
+          use_default_path = true,
+          use_personal = true,
+          use_internal = true, -- load snippets provided by `luasnip_snippets`
+          -- ft_use_only = { "*" }, -- which filetypes do I want to have load
+          -- ft_filter = { "python" },
+        } --
+      )
+      -- P(personal_snippets_by_ft)
+
       pickers
         .new(opts, {
-          prompt_title = settings.prompt_prefix .. "personal snippets",
+          prompt_title = settings.prompt_prefix
+            .. "personal snippets for `"
+            .. prev_fuzzy[1]
+            .. "`",
           finder = finders.new_table({
             results = { "aaa", "bbb", "ccc" },
           }),

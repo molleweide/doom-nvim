@@ -1,5 +1,14 @@
 --[[
 
+mappings.map(
+  "artarst",
+  "sss",
+  "ss",
+  "ssrstrst",
+  "r",
+  "rrr",
+  "r",
+  )
 config.lua XXX
 lua/doom/core/config.lua XXX
 lua/doom/core/doom_global.lua XXX
