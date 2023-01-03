@@ -10,7 +10,7 @@ local extra_snippets = {}
 --    2. plugin internal reload
 --    3. rerun setup on user snippet files changed
 
--- TODO: picker for creating/editing snippet files
+-- TODO: put the picker as an extension of the luasnip_snippets plugin.
 
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
@@ -69,9 +69,8 @@ end
 extra_snippets.autocmds = {
   {
     "BufWritePost",
-    "*/doom/snippets/**/*.lua, */user/snippets/**/*.lua",
+    "*/snippets/**/*.lua",-- */user/snippets/**/*.lua",
     function()
-      -- BUG: why doesn't this print
       print("::: reload snips :::")
       -- require("plenary.reload").reload_module("luasnip_snippets")
     end,

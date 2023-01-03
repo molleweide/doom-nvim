@@ -103,6 +103,9 @@ reloader._reload_doom = function()
   -- NOTE: Comparing `enabled_modules` only works if there is a new module,
   -- but internals of a module will fall through.
 
+  -- TODO: more finegrained collection of doom.modules packages so that we
+  -- can auto determine whether or not to run PackerSync and PackerCompile.
+
   -- Remember which modules/packages installed to check if user needs to `:PackerSync`
   local old_modules = require("doom.core.modules").enabled_modules
   local old_packages = vim.tbl_map(function(t)
@@ -184,6 +187,7 @@ end
 
 reloader.settings = {
   reload_on_save = true,
+  packer_sync_and_compile = true,
   autocmd_patterns = {
     basic = "*/doom/**/*.lua,*/user/**/*.lua",
     detailed = {
@@ -191,7 +195,6 @@ reloader.settings = {
       "*/doom/core/**/*.lua",
       "*/doom/modules/**/*.lua",
       "*/doom/services/**/*.lua",
-      -- "*/doom/snippets/**/*.lua",
       "*/doom/tools/**/*.lua",
       "*/doom/utils/**/*.lua",
       -- user
@@ -227,10 +230,7 @@ reloader.autocmds = function()
   local watch_patterns = concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.detailed)
 
   -- TODO: settigs.disable_reload_for_patterns
-  --
   --      https://stackoverflow.com/questions/6496778/vim-run-autocmd-on-all-filetypes-except
-
-  -- TODO: need to improve this for core,utils, etc. so that you can develop on the core
 
   -- RELOAD DOOM ON SAVE
   if reloader.settings.reload_on_save then
