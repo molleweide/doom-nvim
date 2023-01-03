@@ -14,22 +14,6 @@ local entry_display = require("telescope.pickers.entry_display")
 local conf = require("telescope.config").values
 local ext_conf = require("telescope._extensions")
 
--- TODO:
---
---  FILETYPE
---
---  ~ <CR>: open personal for selected filetypes
---  ~ mapping: add new for selected filetype
---  ~ create new snippet file for `line` string
---  ~ picker: lift all files that host snippets for the selected filetypes
---
---  PERSONAL
---
---  ~ fix run only personal
---  ~ mapping: edit selected snippet
---  ~ mapping: add new snippet for same filetype
---  ~ mapping: delete snippet y/n
-
 local M = {}
 
 local settings = {
@@ -43,12 +27,17 @@ local function picker_get_state(prompt_bufnr)
   return fuzzy, line
 end
 
+local function close(prompt_bufnr)
+  require("telescope.actions").close(prompt_bufnr)
+end
+
 local basic_mapping = function(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
 end
 
 local filetype_callback_mapping = function(prompt_bufnr)
   local fuzzy, line = picker_get_state(prompt_bufnr)
+  close(prompt_bufnr)
   M.luasnip_fn({
     picker_to_use = "personal_snippets",
     luasnip_picker_filetype_selected = fuzzy,
@@ -141,7 +130,17 @@ M.luasnip_fn = function(opts)
           attach_mappings = function(_, map)
             map("i", "<CR>", filetype_callback_mapping) -- show snippets for fuzzy selection
             map("n", "<CR>", filetype_callback_mapping)
-            -- <C-e>    -> create new snippet for selected filetype/line in user default dir
+            map("i", "<C-e>", function()
+              print("create new snip for selected filetype(s)")
+            end)
+            map("i", "<C-s>", function(prompt_bufnr)
+              local fuzzy, _ = picker_get_state(prompt_bufnr)
+              print("open picker for all files hosting selected ft: " .. fuzzy.value)
+            end)
+            map("i", "<C-a>", function(prompt_bufnr)
+              local _, line = picker_get_state(prompt_bufnr)
+              print("add new snippet file for `" .. line .. "` filetype")
+            end)
             return true
           end,
         })
@@ -295,10 +294,25 @@ M.luasnip_fn = function(opts)
             end,
           }),
           attach_mappings = function(_, map)
+            --  PERSONAL
+            --
+            --  ~ fix run only personal
+            --  ~ mapping: edit selected snippet
+            --  ~ mapping: add new snippet for same filetype
+            --  ~ mapping: delete snippet y/n
             map("i", "<CR>", basic_mapping)
             map("n", "<CR>", basic_mapping)
-            -- <CR>    -> edit current snippet
-            -- <C-x>    -> delete snippet > promt y/n
+            -- map("i", "<C-e>", function()
+            --   print("create new snip for selected filetype(s)")
+            -- end)
+            -- map("i", "<C-s>", function(prompt_bufnr)
+            --   local fuzzy, _ = picker_get_state(prompt_bufnr)
+            --   print("open picker for all files hosting selected ft: " .. fuzzy.value)
+            -- end)
+            -- map("i", "<C-a>", function(prompt_bufnr)
+            --   local _, line = picker_get_state(prompt_bufnr)
+            --   print("add new snippet file for `" .. line .. "` filetype")
+            -- end)
             return true
           end,
         })
