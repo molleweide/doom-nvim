@@ -39,6 +39,15 @@ local settings = {
 local basic_mapping = function(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
 end
+local filetype_callback_mapping = function(prompt_bufnr)
+  -- spawn picker with
+  --
+  --    TODO: picker_to_use = "personal"
+  M.luasnip_fn({
+    picker_to_use = "personal_snippets",
+    -- luasnip_picker_filetype_selected = ??
+  })
+end
 
 local filter_null = function(str, default)
   return str and str or (default and default or "")
@@ -135,6 +144,24 @@ M.luasnip_fn = function(opts)
 
       local available_filetypes = get_available_filetypes()
 
+
+      local available = luasnip.available()
+
+      P(#available)
+      print("xxxxxxx")
+      P(available)
+
+      -- for filename, file in pairs(available) do
+      --   for _, snippet in ipairs(file) do
+      --     table.insert(objs, {
+      --       ft = filename ~= "" and filename or "-",
+      --       context = snippet,
+      --     })
+      --   end
+      -- end
+
+
+
       require("telescope.pickers")
         .new(opts, {
           prompt_title = settings.prompt_prefix .. "select filetype to act on",
@@ -146,12 +173,18 @@ M.luasnip_fn = function(opts)
             -- TODO:
             --    - open picker for filetype
             --    - personal / all_available
-            map("i", "<CR>", basic_mapping)
-            map("n", "<CR>", basic_mapping)
+            --
+            --    - choose:
+            --        show personal snippets for filetype
+            --
+            --        filetype_callback_mapping
+            map("i", "<CR>", filetype_callback_mapping)
+            map("n", "<CR>", filetype_callback_mapping)
             return true
           end,
         })
         :find()
+
     elseif opts.picker_to_use == "all_available" then
       --
       -- ALL AVAILABLE

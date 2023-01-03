@@ -8,7 +8,13 @@ help.binds = {
       "h",
       name = "+help",
       {
-        { "t", [[ :lua require"telescope.builtin".help_tags<CR>]], name = "Telescope Help" },
+        {
+          "t",
+          function()
+            require("telescope.builtin").help_tags()
+          end,
+          name = "Telescope Help",
+        },
         { "m", ":Man ", name = "Man Page" },
         {
           "l",
