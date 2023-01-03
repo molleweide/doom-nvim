@@ -136,7 +136,7 @@ M.luasnip_fn = function(opts)
 
     -- stylua: ignore
     pickers.new(opts, {
-        prompt_title = "LUASNIP CUSTOM",
+        prompt_title = "LUASNIP CUSTOM: " .. opts.picker_to_use,
         finder = finders.new_table({
 
             results = objs,
