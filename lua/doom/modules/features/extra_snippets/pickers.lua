@@ -31,20 +31,6 @@ local function close(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
 end
 
-local basic_mapping = function(prompt_bufnr)
-  require("telescope.actions").close(prompt_bufnr)
-end
-
-local filetype_callback_mapping = function(prompt_bufnr)
-  local fuzzy, line = picker_get_state(prompt_bufnr)
-  close(prompt_bufnr)
-  M.luasnip_fn({
-    picker_to_use = "personal_snippets",
-    luasnip_picker_filetype_selected = fuzzy,
-    luasnip_picker_filetype_line = line,
-  })
-end
-
 local filter_null = function(str, default)
   return str and str or (default and default or "")
 end
@@ -128,6 +114,16 @@ M.luasnip_fn = function(opts)
           }),
           sorter = require("telescope.config").values.generic_sorter(opts),
           attach_mappings = function(_, map)
+            local filetype_callback_mapping = function(prompt_bufnr)
+              local fuzzy, line = picker_get_state(prompt_bufnr)
+              close(prompt_bufnr)
+              M.luasnip_fn({
+                picker_to_use = "personal_snippets",
+                luasnip_picker_filetype_selected = fuzzy,
+                luasnip_picker_filetype_line = line,
+              })
+            end
+
             map("i", "<CR>", filetype_callback_mapping) -- show snippets for fuzzy selection
             map("n", "<CR>", filetype_callback_mapping)
             map("i", "<C-e>", function()
@@ -247,6 +243,13 @@ M.luasnip_fn = function(opts)
       )
       -- P(personal_snippets_by_ft)
 
+      local prompt_title
+      if prev_fuzzy then
+        prompt_title = settings.prompt_prefix .. "personal snippets for:" .. prev_fuzzy[1]
+      else
+        prompt_title = settings.prompt_prefix .."personal snippets for: all"
+      end
+
       local displayer = entry_display.create({
         separator = " ",
         items = {
@@ -258,7 +261,10 @@ M.luasnip_fn = function(opts)
         },
       })
 
-      -- todo: dynamic number of items here
+      -- TODO: dynamic number of items here
+      --
+      --
+      -- filetype | name | mod_path
 
       local make_display = function(entry)
         return displayer({
@@ -272,10 +278,7 @@ M.luasnip_fn = function(opts)
 
       pickers
         .new(opts, {
-          prompt_title = settings.prompt_prefix
-            .. "personal snippets for `"
-            .. prev_fuzzy[1]
-            .. "`",
+          prompt_title = prompt_title,
           finder = finders.new_table({
             results = personal_snippets_by_ft,
             entry_maker = function(entry)
@@ -294,25 +297,24 @@ M.luasnip_fn = function(opts)
             end,
           }),
           attach_mappings = function(_, map)
-            --  PERSONAL
-            --
-            --  ~ fix run only personal
-            --  ~ mapping: edit selected snippet
-            --  ~ mapping: add new snippet for same filetype
-            --  ~ mapping: delete snippet y/n
-            map("i", "<CR>", basic_mapping)
-            map("n", "<CR>", basic_mapping)
-            -- map("i", "<C-e>", function()
-            --   print("create new snip for selected filetype(s)")
-            -- end)
-            -- map("i", "<C-s>", function(prompt_bufnr)
-            --   local fuzzy, _ = picker_get_state(prompt_bufnr)
-            --   print("open picker for all files hosting selected ft: " .. fuzzy.value)
-            -- end)
-            -- map("i", "<C-a>", function(prompt_bufnr)
-            --   local _, line = picker_get_state(prompt_bufnr)
-            --   print("add new snippet file for `" .. line .. "` filetype")
-            -- end)
+            local filetype_callback_mapping = function(prompt_bufnr)
+              local fuzzy, line = picker_get_state(prompt_bufnr)
+
+              P(fuzzy.value, { depth = 1 })
+              close(prompt_bufnr)
+            end
+            map("i", "<CR>", filetype_callback_mapping)
+            map("n", "<CR>", filetype_callback_mapping)
+            map("i", "<C-e>", function()
+              print("add new snippet to same file as snippet")
+            end)
+            map("i", "<C-s>", function(prompt_bufnr)
+              -- local fuzzy, _ = picker_get_state(prompt_bufnr)
+              print("edit selected snippet")
+            end)
+            map("i", "<C-x>", function(prompt_bufnr)
+              print("delete selected snippet")
+            end)
             return true
           end,
         })
