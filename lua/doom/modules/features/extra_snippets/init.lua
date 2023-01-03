@@ -120,12 +120,18 @@ extra_snippets.binds = {
         "f",
         name = "+file",
         {
-          { "i", require("telescope").extensions.luasnip.luasnip, name = "Snippets picker" },
+          {
+            "i",
+            function()
+              require("telescope").extensions.luasnip.luasnip()
+            end,
+            name = "Snippets picker",
+          },
           {
             "I",
             function()
               require(pp).luasnip_fn({
-                picker_to_use = "all_available"
+                picker_to_use = "all_available",
               })
             end,
             name = "Snippets picker (custom)",
@@ -134,7 +140,7 @@ extra_snippets.binds = {
             "U",
             function()
               require(pp).luasnip_fn({
-                picker_to_use = "filetype"
+                picker_to_use = "filetype",
               })
             end,
             name = "Snippets picker -> filetype (custom)",
@@ -143,7 +149,7 @@ extra_snippets.binds = {
             "L",
             function()
               require(pp).luasnip_fn({
-                picker_to_use = "personal_snippets"
+                picker_to_use = "personal_snippets",
               })
             end,
             name = "Snippets picker -> personal (custom)",
