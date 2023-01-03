@@ -227,7 +227,7 @@ reloader.autocmds = function()
     end
   end
 
-  local watch_patterns = concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.detailed)
+  local watch_patterns = concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.basic)
 
   -- TODO: settigs.disable_reload_for_patterns
   --      https://stackoverflow.com/questions/6496778/vim-run-autocmd-on-all-filetypes-except

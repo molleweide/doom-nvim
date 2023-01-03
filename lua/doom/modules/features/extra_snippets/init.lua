@@ -10,6 +10,8 @@ local extra_snippets = {}
 --    2. plugin internal reload
 --    3. rerun setup on user snippet files changed
 
+local pp = "doom.modules.features.extra_snippets.pickers"
+
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
   luasnip_snippets = {
@@ -118,7 +120,14 @@ extra_snippets.binds = {
         "f",
         name = "+file",
         {
-          { "i", require("telescope").extensions.luasnip.luasnip, name = "Open snippets picker" },
+          { "i", require("telescope").extensions.luasnip.luasnip, name = "Snippets picker" },
+          {
+            "I",
+            function()
+              require(pp).luasnip_fn()
+            end,
+            name = "Snippets picker (custom)",
+          },
         },
       },
     },
