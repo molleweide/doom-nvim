@@ -251,17 +251,38 @@ M.luasnip_fn = function(opts)
 
       local prev_fuzzy = opts.luasnip_picker_filetype_selected
       local prev_line = opts.luasnip_picker_filetype_line
-      local personal_snippets_by_ft = require("luasnip_snippets").get_all_snippets_final(
+
+      local personal_snippets_by_ft = require("luasnip_snippets").get_snippets_flat(
         {
           paths = { "doom/snippets", "user/snippets" },
           use_default_path = true,
-          use_personal = true,
-          use_internal = true, -- load snippets provided by `luasnip_snippets`
+          -- use_personal = true,
+          -- use_internal = true, -- load snippets provided by `luasnip_snippets`
           -- ft_use_only = { "*" }, -- which filetypes do I want to have load
           -- ft_filter = { "python" },
         } --
       )
-      -- P(personal_snippets_by_ft)
+      P(personal_snippets_by_ft)
+
+      local displayer = entry_display.create({
+        separator = " ",
+        items = {
+          { width = 12 },
+          { width = 24 },
+          { width = 16 },
+          { remaining = true },
+        },
+      })
+
+      local make_display = function(entry)
+
+        return displayer({
+          entry.value.filetype,
+          "xxx",
+          { "context", "TelescopeResultsNumber" },
+          "description",
+        })
+      end
 
       pickers
         .new(opts, {
@@ -270,7 +291,21 @@ M.luasnip_fn = function(opts)
             .. prev_fuzzy[1]
             .. "`",
           finder = finders.new_table({
-            results = { "aaa", "bbb", "ccc" },
+            results = personal_snippets_by_ft,
+            entry_maker = function(entry)
+              -- search_fn = ext_conf._config.luasnip and ext_conf._config.luasnip.search
+              --   or default_search_text
+              return {
+                value = entry,
+                display = make_display,
+                ordinal = entry.filetype,
+                -- preview_command = function(_, bufnr)
+                --   local snippet = get_docstring(luasnip, entry.ft, entry.context)
+                --   vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
+                --   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
+                -- end,
+              }
+            end,
           }),
           attach_mappings = function(_, map)
             map("i", "<CR>", basic_mapping)
