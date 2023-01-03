@@ -184,7 +184,23 @@ end
 
 reloader.settings = {
   reload_on_save = true,
+  autocmd_patterns = {
+    basic = "*/doom/**/*.lua,*/user/**/*.lua",
+    detailed = {
+      -- doom
+      "*/doom/core/**/*.lua",
+      "*/doom/modules/**/*.lua",
+      "*/doom/services/**/*.lua",
+      -- "*/doom/snippets/**/*.lua",
+      "*/doom/tools/**/*.lua",
+      "*/doom/utils/**/*.lua",
+      -- user
+      "*/user/modules/**/*.lua",
+      "*/user/utils/**/*.lua",
+    },
+  },
 }
+
 reloader.packages = {}
 reloader.configs = {}
 
@@ -200,11 +216,25 @@ reloader.cmds = {
 reloader.autocmds = function()
   local autocmds = {}
 
+  local concat_pattern = function(t_patterns)
+    if type(t_patterns) == "table" then
+      return table.concat(t_patterns, ", ")
+    else
+      return t_patterns
+    end
+  end
+
+  local watch_patterns = concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.detailed)
+
+  -- TODO: settigs.disable_reload_for_patterns
+  --
+  --      https://stackoverflow.com/questions/6496778/vim-run-autocmd-on-all-filetypes-except
+
   -- TODO: need to improve this for core,utils, etc. so that you can develop on the core
 
   -- RELOAD DOOM ON SAVE
   if reloader.settings.reload_on_save then
-    table.insert(autocmds, { "BufWritePost", "*/doom/**/*.lua,*/user/**/*.lua", reloader.reload })
+    table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload })
     table.insert(autocmds, {
       "BufWritePost",
       "*/modules.lua,*/config.lua,*/settings.lua",
