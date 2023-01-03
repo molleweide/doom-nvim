@@ -278,14 +278,9 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           {
             "l",
             function()
-              require("luasnip_snippets").setup({
-                paths = doom.modules.features.extra_snippets.settings.doom_snippet_paths,
-                use_default_path = true,
-                use_personal = true,
-                use_internal = true, -- load snippets provided by `luasnip_snippets`
-                -- ft_use_only = { "lua" }, -- which filetypes do I want to have load
-                -- ft_filter = { "python", "rust" },
-              })
+              require("luasnip_snippets").setup(
+                doom.modules.features.extra_snippets.settings.luasnip_snippets
+              )
             end,
             name = "Setup luasnip-snippets",
           },
