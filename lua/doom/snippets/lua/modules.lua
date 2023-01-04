@@ -9,90 +9,133 @@ local i = ls.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
 
 return {
-  -- s("xxx", t("bbb")),
-  -- s("doom_plugins_add_simple", {
-  --   t("{ '"),
-  --   i(1, "plugin_name"),
-  --   t("' },"),
-  -- }),
-  -- s("doom_user_binding", {
-  --   t("{ '"),
-  --   i(1, "mode"),
-  --   t("', '"),
-  --   i(2, "binding"),
-  --   t("', '"),
-  --   i(3, "command"),
-  --   t("', '"),
-  --   i(4, "option"),
-  --   t("'},"),
-  -- }),
-  -- s("doom_map_oneline", {
-  --   t('mappings.map( "'),
-  --   i(1, "mode"),
-  --   t('", "'),
-  --   i(2, "mapping"),
-  --   t('", "'),
-  --   i(3, "command"),
-  --   t('", "'),
-  --   i(4, "options"),
-  --   t('", "'),
-  --   i(5, "category"),
-  --   t('", "'),
-  --   i(6, "id"),
-  --   t('", "'),
-  --   i(7, "desrc"),
-  --   t('" )'),
-  -- }),
-  -- s("doom_map_multline", {
-  --   t({ "mappings.map(", '\t"' }),
-  --   i(1, "mode"),
-  --   t({ '",', '\t"' }),
-  --   i(2, "mapping"),
-  --   t({ '",', '\t"' }),
-  --   i(3, "command"),
-  --   t({ '",', '\t"' }),
-  --   i(4, "options"),
-  --   t({ '",', '\t"' }),
-  --   i(5, "category"),
-  --   t({ '",', '\t"' }),
-  --   i(6, "id"),
-  --   t({ '",', '\t"' }),
-  --   i(7, "desrc"),
-  --   t({ '",', "\t" }),
-  --   t(")"),
-  -- }),
-  --
-  --
-  --
-  -- MODULES
-  --
-  --
-
   -- TODO: USE TREESITTER TO GET THE MODULE NAME
+
+  --
+  -- DOOM MODULE REQUIRES -----------------------------------------------------
+  --
+  s(
+    "doom_module_settings",
+    fmt([[
+
+      {).requires_modules = { "{}" }
+
+    ]], {
+      i(1, "mod name"),
+      i(2, "req mods list"),
+    })
+  ),
 
   --
   -- DOOM MODULE SETTINGS -----------------------------------------------------
   --
+  s(
+    "doom_module_settings",
+    fmt([[
+
+    {}.settings = {{
+      {}
+    }}
+
+    ]], {
+      i(1, "mod name"),
+      i(2, "settings"),
+    })
+  ),
 
   --
   -- DOOM MODULE PACKAGES -----------------------------------------------------
   --
+  s(
+    "doom_module_packages",
+    fmt([[
+
+    {}.packages = {{
+      {}
+    }}
+
+    ]], {
+      i(1, "mod name"),
+      i(2, "packages"),
+    })
+  ),
+
+  s(
+    "doom_module_pkg_single",
+    fmt([[
+    ["{}"] = {{
+      "{}"
+    }}
+    ]], {
+      i(1, "pkg key"),
+      i(2, "pkg repo string"),
+    })
+  ),
 
   --
   -- DOOM MODULE CONFIGS ------------------------------------------------------
   --
 
+  s(
+    "doom_module_config_single",
+    fmt([[
+    {}.configs = function()
+      {}
+    end
+    ]], {
+      i(1, "mod name"),
+      i(2, "config body"),
+    })
+  ),
+
   --
   -- DOOM MODULE CMDS ---------------------------------------------------------
   --
+
+  s(
+    "doom_module_cmds_table",
+    fmt([[
+    {}.cmds = {{
+      {}
+    }}
+    ]], {
+      i(1, "mod name"),
+      i(2, "cmds insert"),
+    })
+  ),
 
   --
   -- DOOM MODULE AUTOCMDS -----------------------------------------------------
   --
 
+  s(
+    "doom_module_autocmds_table",
+    fmt([[
+    {}.autocmds = {{
+      {}
+    }}
+    ]], {
+      i(1, "mod name"),
+      i(2, "autocmds insert"),
+    })
+  ),
+
   --
   -- DOOM BINDS ---------------------------------------------------------------
   --
+
+  -- binds table
+  s(
+    "doom_module_binds_table",
+    fmt([[
+    {}.binds = {{
+      {}
+    }}
+    ]], {
+      i(1, "mod name"),
+      i(2, "binds insert"),
+    })
+  ),
 
   -- bind leaf
   s(
