@@ -231,31 +231,28 @@ M.luasnip_fn = function(opts)
 
       local prev_fuzzy = opts.luasnip_picker_filetype_selected
       local prev_line = opts.luasnip_picker_filetype_line
-      local personal_snippets_by_ft = require("luasnip_snippets").get_snippets_flat(
-        {
-          paths = { "doom/snippets", "user/snippets" },
-          use_default_path = true,
-          use_personal = true,
-          use_internal = true, -- load snippets provided by `luasnip_snippets`
-          -- ft_use_only = { "*" }, -- which filetypes do I want to have load
-          -- ft_filter = { "python" },
-        } --
-      )
-      -- P(personal_snippets_by_ft)
+
+      local personal_snippets_by_ft = require("luasnip_snippets").get_snippets_flat({
+        paths = { "doom/snippets", "user/snippets" },
+        use_default_path = true,
+        use_personal = true,
+        use_internal = true,
+        ft_use_only = { prev_fuzzy and prev_fuzzy.value },
+      })
 
       local prompt_title
       if prev_fuzzy then
         prompt_title = settings.prompt_prefix .. "personal snippets for:" .. prev_fuzzy[1]
       else
-        prompt_title = settings.prompt_prefix .."personal snippets for: all"
+        prompt_title = settings.prompt_prefix .. "personal snippets for: all"
       end
 
       local displayer = entry_display.create({
         separator = " ",
         items = {
-          { width = 12 },
+          { width = 8 },
           { width = 24 },
-          { width = 24 },
+          { width = 40 },
           { width = 16 },
           { remaining = true },
         },
@@ -264,7 +261,13 @@ M.luasnip_fn = function(opts)
       -- TODO: dynamic number of items here
       --
       --
-      -- filetype | name | mod_path
+      -- filetype | name | mod_path | trig:? |
+      --
+
+      -- NOTE: i should be able to reuse the same previewer,
+      --    ->>> i believe that the available func just exposes a subset
+      --          of all params so it should be possible to improve the
+      --          previewer and use it for both cases.
 
       local make_display = function(entry)
         return displayer({
