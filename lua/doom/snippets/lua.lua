@@ -58,90 +58,98 @@ return {
     t(")"),
   }),
 
+  -- --
+  -- --
+  -- -- MODULES
+  -- --
+  -- --
   --
-  -- DOOM MODULE SETTINGS -----------------------------------------------------
+  -- -- TODO: USE TREESITTER TO GET THE MODULE NAME
   --
-
+  -- --
+  -- -- DOOM MODULE SETTINGS -----------------------------------------------------
+  -- --
   --
-  -- DOOM MODULE PACKAGES -----------------------------------------------------
+  -- --
+  -- -- DOOM MODULE PACKAGES -----------------------------------------------------
+  -- --
   --
-
+  -- --
+  -- -- DOOM MODULE CONFIGS ------------------------------------------------------
+  -- --
   --
-  -- DOOM MODULE CONFIGS ------------------------------------------------------
+  -- --
+  -- -- DOOM MODULE CMDS ---------------------------------------------------------
+  -- --
   --
-
+  -- --
+  -- -- DOOM MODULE AUTOCMDS -----------------------------------------------------
+  -- --
   --
-  -- DOOM MODULE CMDS ---------------------------------------------------------
+  -- --
+  -- -- DOOM BINDS ---------------------------------------------------------------
+  -- --
   --
-
+  -- -- bind leaf
+  -- s(
+  --   "doom_binds_leaf",
+  --   fmt([[ {{ "{}", {}, name = "{}" }}, ]], {
+  --     i(1, "bind_seq"),
+  --     i(2, "bind_command"),
+  --     i(3, "bind_name"),
+  --   })
+  -- ),
   --
-  -- DOOM MODULE AUTOCMDS -----------------------------------------------------
+  -- -- regular branch
+  -- s(
+  --   "doom_binds_branch_regular",
+  --   fmt(
+  --     [[{{
+  --       "{}",
+  --       {{
+  --         {}
+  --       }},
+  --     }},]],
+  --     {
+  --       i(1, "branch_sequence"),
+  --       i(3, "branch_inner"),
+  --     }
+  --   )
+  -- ),
   --
-
+  -- -- leader branch regular
+  -- s(
+  --   "doom_binds_branch_leader",
+  --   fmt(
+  --     [[{{
+  --       "{}",
+  --       name = "+{}",
+  --       {{
+  --         {}
+  --       }},
+  --     }},]],
+  --     {
+  --       i(1, "branch_sequence"),
+  --       i(2, "branch_name"),
+  --       i(3, "branch_inner"),
+  --     }
+  --   )
+  -- ),
   --
-  -- DOOM BINDS ---------------------------------------------------------------
-  --
-
-  -- bind leaf
-  s(
-    "doom_binds_leaf",
-    fmt([[ {{ "{}", {}, name = "{}" }}, ]], {
-      i(1, "bind_seq"),
-      i(2, "bind_command"),
-      i(3, "bind_name"),
-    })
-  ),
-
-  -- regular branch
-  s(
-    "doom_binds_branch_regular",
-    fmt(
-      [[{{
-        "{}",
-        {{
-          {}
-        }},
-      }},]],
-      {
-        i(1, "branch_sequence"),
-        i(3, "branch_inner"),
-      }
-    )
-  ),
-
-  -- leader branch regular
-  s(
-    "doom_binds_branch_leader",
-    fmt(
-      [[{{
-        "{}",
-        name = "+{}",
-        {{
-          {}
-        }},
-      }},]],
-      {
-        i(1, "branch_sequence"),
-        i(2, "branch_name"),
-        i(3, "branch_inner"),
-      }
-    )
-  ),
-
-  -- leader branch prefix
-  s(
-    "doom_binds_branch_leader_prefix",
-    fmt(
-      [[{{
-        "<leader>",
-        name = "+prefix",
-        {{
-          {}
-        }},
-      }},]],
-      {
-        i(1, "insert_bind"),
-      }
-    )
-  ),
+  -- -- leader branch prefix
+  -- s(
+  --   "doom_binds_branch_leader_prefix",
+  --   fmt(
+  --     [[{{
+  --       "<leader>",
+  --       name = "+prefix",
+  --       {{
+  --         {}
+  --       }},
+  --     }},]],
+  --     {
+  --       i(1, "insert_bind"),
+  --     }
+  --   )
+  -- ),
 }
