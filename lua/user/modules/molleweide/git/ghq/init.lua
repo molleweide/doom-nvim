@@ -22,4 +22,11 @@ ghq.configs["telescope-github.nvim"] = function()
   require("telescope").load_extension("repo")
 end
 
+   -- TODO: picker -> search doom under ghq
+   --   Just create a basic picker for all directories under ghq that contain
+   --   a git file -> on enter find_files for selected directory
+
+-- ghq.binds = {}
+
+
 return ghq

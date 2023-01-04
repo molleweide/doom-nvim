@@ -626,4 +626,42 @@ bbb
 -- MODULE STRUCTURE > dynamically collect module category dirs instead of having them hard coded.
 --
 --
---
+
+local x = {
+  {
+    "g",
+    name = "+prefix",
+    {
+      {
+        "s",
+        name = "+prefix",
+        {
+          { "rrr", "", "command", "option" },
+        },
+      },
+    },
+  },
+}
+
+local x = {
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      {
+        "x",
+        function()
+          print("!")
+        end,
+        name = "the name",
+      },
+      {
+        "g",
+        name = "+goodstuff",
+        {
+          { "a", [[<cmd> do something<CR>]], name = "the name" },
+        },
+      },
+    },
+  },
+}

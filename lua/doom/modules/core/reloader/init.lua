@@ -1,15 +1,32 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
--- BUG: if you reload in Dashboard win, then line numbers become visible
--- on the left side but they should not be visible in Dashboard
+-- BUG: reload in Dashboard -> line numbers become visible
 
--- TODO: Make sure reload cannot occur until you have fixed explicit LSP
---      errors, then on-lsp-okay event go ahead and reload. So that we
---      try break the config as few times as possible when reloading
+-- TODO: Prevent reloading if there are LSP errors in the current buffer.
 
 -- TODO: move to config globals so that it is easier to reuse and debug
 --    packages
+
+-- TODO: PackerCompile
+--
+--      how do I check if a config is dirty
+--
+--      if _doom.has_dirty_configs then
+--        :PackerCompile
+--      end
+
+-- TODO: PackerSync -> PackerCompile
+--
+--
+--  get list of packages pre/post reload.
+--      if #pre ~= #post -> run PackerSync.
+--
+--      on PackerSync.complete -> run PackerCompile
+--
+--
+
+
 local function test_print_package_pattern(k, pat)
   if string.match(k, pat) then
     print("has pat '" .. pat .. "'", k)
