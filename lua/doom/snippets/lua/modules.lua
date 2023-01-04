@@ -1,10 +1,6 @@
-
-
-
--- TODO: all snippets that one needs in order to build modules quickly
 local ls = require("luasnip")
 local s = ls.snippet
-local t = ls.text_node
+-- local t = ls.text_node
 local i = ls.insert_node
 local fmt = require("luasnip.extras.fmt").fmt
 
@@ -14,13 +10,10 @@ return {
   --
   -- DOOM MODULE REQUIRES -----------------------------------------------------
   --
+
   s(
-    "doom_module_settings",
-    fmt([[
-
-      {).requires_modules = { "{}" }
-
-    ]], {
+    "doom_requires_modules",
+    fmt([[{{ {}.requires_modules = {{ "{}" }}]], {
       i(1, "mod name"),
       i(2, "req mods list"),
     })
@@ -29,47 +22,91 @@ return {
   --
   -- DOOM MODULE SETTINGS -----------------------------------------------------
   --
+
   s(
     "doom_module_settings",
-    fmt([[
-
+    fmt(
+      [[
     {}.settings = {{
       {}
     }}
-
-    ]], {
-      i(1, "mod name"),
-      i(2, "settings"),
-    })
+    ]],
+      {
+        i(1, "mod name"),
+        i(2, "settings"),
+      }
+    )
   ),
+
+
+  -- -- TODO: table key = {{ {} }}
+  --         this should also be a choice node so that you can
+  --         cycle through relevant key/value pair types
+  --         key -> {} or ["{}"]
+  --         val -> {{}} or function() end
+  --
+  --    NOTE: this snippet can allow you to stay inside of a snippet
+  --    throughout the whole composing of a table which is pretty fucking
+  --    neat.
+  -- s(
+  --   "doom_key_val",
+  --   fmt(
+  --     [[
+  --   ["{}"] = {{
+  --     "{}"
+  --   }}
+  --   ]],
+  --     {
+  --       i(1, "pkg key"),
+  --       i(2, "pkg repo string"),
+  --     }
+  --   )
+  -- ),
+  s(
+    "key_val_pair",
+    fmt(
+      [[ {} = {}, ]],
+      {
+        i(1, "key"),
+        i(2, "val"),
+      }
+    )
+  ),
+
+
 
   --
   -- DOOM MODULE PACKAGES -----------------------------------------------------
   --
+
   s(
     "doom_module_packages",
-    fmt([[
-
+    fmt(
+      [[
     {}.packages = {{
       {}
     }}
-
-    ]], {
-      i(1, "mod name"),
-      i(2, "packages"),
-    })
+    ]],
+      {
+        i(1, "mod name"),
+        i(2, "packages"),
+      }
+    )
   ),
 
   s(
     "doom_module_pkg_single",
-    fmt([[
+    fmt(
+      [[
     ["{}"] = {{
       "{}"
     }}
-    ]], {
-      i(1, "pkg key"),
-      i(2, "pkg repo string"),
-    })
+    ]],
+      {
+        i(1, "pkg key"),
+        i(2, "pkg repo string"),
+      }
+    )
   ),
 
   --
@@ -78,14 +115,19 @@ return {
 
   s(
     "doom_module_config_single",
-    fmt([[
-    {}.configs = function()
-      {}
+    fmt(
+      [[
+    {}.configs["{}"] = function()
+      require("{}").setup({})
     end
-    ]], {
-      i(1, "mod name"),
-      i(2, "config body"),
-    })
+    ]],
+      {
+        i(1, "mod_name"),
+        i(2, "package_name"),
+        i(3, "setup"),
+        i(4, "opts"),
+      }
+    )
   ),
 
   --
@@ -94,15 +136,32 @@ return {
 
   s(
     "doom_module_cmds_table",
-    fmt([[
+    fmt(
+      [[
     {}.cmds = {{
       {}
     }}
-    ]], {
-      i(1, "mod name"),
-      i(2, "cmds insert"),
-    })
+    ]],
+      {
+        i(1, "mod name"),
+        i(2, "cmds insert"),
+      }
+    )
   ),
+
+  s(
+    "doom_cmd_single",
+    fmt(
+      [[ {{ "{}", function()
+        {}
+      end}} ]],
+      {
+        i(1, "cmd_name"),
+        i(2, "action_body"),
+      }
+    )
+  ),
+
 
   --
   -- DOOM MODULE AUTOCMDS -----------------------------------------------------
@@ -110,15 +169,33 @@ return {
 
   s(
     "doom_module_autocmds_table",
-    fmt([[
+    fmt(
+      [[
     {}.autocmds = {{
       {}
     }}
-    ]], {
-      i(1, "mod name"),
-      i(2, "autocmds insert"),
-    })
+    ]],
+      {
+        i(1, "mod name"),
+        i(2, "autocmds insert"),
+      }
+    )
   ),
+
+  s(
+    "doom_autocmd_single",
+    fmt(
+      [[ {{ "{}", "{}", function()
+        {}
+      end}} ]],
+      {
+        i(1, "event"),
+        i(2, "pattern"),
+        i(3, "action_body"),
+      }
+    )
+  ),
+
 
   --
   -- DOOM BINDS ---------------------------------------------------------------
@@ -127,14 +204,17 @@ return {
   -- binds table
   s(
     "doom_module_binds_table",
-    fmt([[
+    fmt(
+      [[
     {}.binds = {{
       {}
     }}
-    ]], {
-      i(1, "mod name"),
-      i(2, "binds insert"),
-    })
+    ]],
+      {
+        i(1, "mod name"),
+        i(2, "binds insert"),
+      }
+    )
   ),
 
   -- bind leaf

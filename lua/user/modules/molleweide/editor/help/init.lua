@@ -1,5 +1,8 @@
 local help = {}
 
+-- TODO: Display nvim version corresponding to core features
+--    https://github.com/tweekmonster/helpful.vim
+
 help.binds = {
   {
     "<leader>",
