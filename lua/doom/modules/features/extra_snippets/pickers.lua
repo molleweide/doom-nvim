@@ -128,14 +128,21 @@ M.luasnip_fn = function(opts)
             map("n", "<CR>", filetype_callback_mapping)
             map("i", "<C-e>", function()
               print("create new snip for selected filetype(s)")
+              -- TODO: ....
+              --
+              --    -- what does [0] return?
+              --    use the doom.modules.features.extra_snippets.settings.luasnip_snippets.paths[1]
+              --
+              --    find filetype dir -> enter ft base file ->
             end)
             map("i", "<C-s>", function(prompt_bufnr)
               local fuzzy, _ = picker_get_state(prompt_bufnr)
               print("open picker for all files hosting selected ft: " .. fuzzy.value)
-            end)
-            map("i", "<C-a>", function(prompt_bufnr)
-              local _, line = picker_get_state(prompt_bufnr)
-              print("add new snippet file for `" .. line .. "` filetype")
+              -- TODO: ....
+              --
+              --
+              --   just filter unique source files by ft.
+              --    return list -> run file picker with preview. + custom prompt title.
             end)
             return true
           end,
@@ -306,17 +313,35 @@ M.luasnip_fn = function(opts)
               P(fuzzy.value, { depth = 1 })
               close(prompt_bufnr)
             end
+
+            -- TODO: it would be nice if I could run the snippets from here as
+            -- well. ls.execute or ls.pares/run???
             map("i", "<CR>", filetype_callback_mapping)
             map("n", "<CR>", filetype_callback_mapping)
+            -- map("i", "<C-b>", go_back_to_filetype_selection) -- this one could be pretty nice
             map("i", "<C-e>", function()
-              print("add new snippet to same file as snippet")
+              print("add new snippet to same file as fuzzy snippet")
+              -- TODO: ....
+              --
+              --  get source file
+              --    find return table
+              --      if prepend_new_snippets
+              --        insert first/last
+              --          execute snippet_creator_snippet
             end)
+            map("i", "<C-a>", function()
+              print("add snippet to same file right after fuzzy sel")
+            end)
+
             map("i", "<C-s>", function(prompt_bufnr)
               -- local fuzzy, _ = picker_get_state(prompt_bufnr)
               print("edit selected snippet")
-            end)
-            map("i", "<C-x>", function(prompt_bufnr)
-              print("delete selected snippet")
+              -- TODO: ....
+              --
+              -- get source file
+              --    open source file
+              --      find location of snippet
+              --        put cursor to snip location
             end)
             return true
           end,

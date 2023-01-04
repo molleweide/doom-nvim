@@ -1,3 +1,4 @@
+local log = require("doom.utils.logging")
 local uut = require("user.utils")
 local extra_snippets = {}
 
@@ -10,14 +11,31 @@ local extra_snippets = {}
 --    2. plugin internal reload
 --    3. rerun setup on user snippet files changed
 
+-- TODO: fix reloader so that it reloads all snippets from scratch...
+
 local pp = "doom.modules.features.extra_snippets.pickers"
+
+-- TODO: reload snippets by id so that it reloads faster.
+extra_snippets.reload_all_snippets = function()
+  log.info("Reloading all snippets..")
+  require("plenary.reload").reload_module("luasnip")
+  require("plenary.reload").reload_module("luasnip_snippets")
+  require("luasnip.loaders.from_vscode").lazy_load()
+  require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
+end
 
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
+  watch_dirs = {
+    "*/lua/snippets/*.lua", -- default dir
+    "*/lua/user/snippets/*.lua",
+    "*/lua/doom/snippets/*.lua",
+  },
   luasnip_snippets = {
+    prepend_new_snippets = true, -- add first/last in snip table..
     paths = { --
+      "user/snippets", -- first index path is used when adding new snips
       "doom/snippets",
-      "user/snippets",
     },
     use_default_path = true,
     use_personal = true,
@@ -48,6 +66,7 @@ end
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
   -- require("luasnip.loaders.from_lua").load({ paths = "./lua/doom/snippets/" })
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
+  -- extra_snippets.reload_all_snippets()
 end
 
 -- vim.cmd [[ Telescope luasnip ]]
@@ -58,34 +77,15 @@ extra_snippets.configs["telescope-luasnip.nvim"] = function()
   end
 end
 
--- NOTE: currently this reloads via the doom reloader command
-
--- 							*file-pattern*
--- The pattern is interpreted like mostly used in file names:
--- 	*	matches any sequence of characters; Unusual: includes path
--- 		separators
--- 	?	matches any single character
--- 	\?	matches a '?'
--- 	.	matches a '.'
--- 	~	matches a '~'
--- 	,	separates patterns
--- 	\,	matches a ','
--- 	{ }	like \( \) in a |pattern|
--- 	,	inside { }: like \| in a |pattern|
--- 	\}	literal }
--- 	\{	literal {
--- 	\\\{n,m\}  like \{n,m} in a |pattern|
--- 	\	special meaning like in a |pattern|
--- 	[ch]	matches 'c' or 'h'
--- 	[^ch]   match any character but 'c' and 'h'
-
 extra_snippets.autocmds = {
   {
     "BufWritePost",
-    "*/snippets/**/*.lua", -- */user/snippets/**/*.lua",
+    -- todo: move to settigs and use table.concat here.
+    -- "*/lua/doom/snippets/*.lua",
+    -- "*/lua/snippets/*.lua,*/lua/user/snippets/*.lua,*/lua/doom/snippets/*.lua", -- */user/snippets/**/*.lua",
+    table.concat(extra_snippets.settings.watch_dirs, ","),
     function()
-      print("::: reload snips :::")
-      -- require("plenary.reload").reload_module("luasnip_snippets")
+      extra_snippets.reload_all_snippets()
     end,
   },
 }

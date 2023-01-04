@@ -189,17 +189,37 @@ reloader.settings = {
   reload_on_save = true,
   packer_sync_and_compile = true,
   autocmd_patterns = {
+
+    -- 							*file-pattern*
+    -- The pattern is interpreted like mostly used in file names:
+    -- 	*	matches any sequence of characters; Unusual: includes path
+    -- 		separators
+    -- 	?	matches any single character
+    -- 	\?	matches a '?'
+    -- 	.	matches a '.'
+    -- 	~	matches a '~'
+    -- 	,	separates patterns
+    -- 	\,	matches a ','
+    -- 	{ }	like \( \) in a |pattern|
+    -- 	,	inside { }: like \| in a |pattern|
+    -- 	\}	literal }
+    -- 	\{	literal {
+    -- 	\\\{n,m\}  like \{n,m} in a |pattern|
+    -- 	\	special meaning like in a |pattern|
+    -- 	[ch]	matches 'c' or 'h'
+    -- 	[^ch]   match any character but 'c' and 'h'
+
     basic = "*/doom/**/*.lua,*/user/**/*.lua",
     detailed = {
       -- doom
-      "*/doom/core/**/*.lua",
-      "*/doom/modules/**/*.lua",
-      "*/doom/services/**/*.lua",
-      "*/doom/tools/**/*.lua",
-      "*/doom/utils/**/*.lua",
+      "*/lua/doom/core/**/*.lua",
+      "*/lua/doom/modules/**/*.lua",
+      "*/lua/doom/services/**/*.lua",
+      "*/lua/doom/tools/**/*.lua",
+      "*/lua/doom/utils/**/*.lua",
       -- user
-      "*/user/modules/**/*.lua",
-      "*/user/utils/**/*.lua",
+      "*lua/user/modules/**/*.lua",
+      "*lua/user/utils/**/*.lua",
     },
   },
 }

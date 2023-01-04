@@ -4,6 +4,7 @@ local t = ls.text_node
 local i = ls.insert_node
 
 return {
+  s("xxx", t("bbb")),
   s("doom_plugins_add_simple", {
     t("{ '"),
     i(1, "plugin_name"),

@@ -136,6 +136,9 @@ P :
 : O
 ]]
 
+
+-- TODO: move this into custom keymaps functionality
+-- doom.settings.keymap.insert = "colemak_dh"
 vim.opt.keymap = "INSERT_COLEMAK"
 
 ---------------------------------
