@@ -4,7 +4,7 @@ local t = ls.text_node
 
 return {
   s("str test init", {
-    t("-- XXXXXX"),
+    t("-- YYYYYY"),
   }),
   s("aaaa", {
     t("-- XXXXXX"),

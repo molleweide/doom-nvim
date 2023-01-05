@@ -1,11 +1,86 @@
 local ls = require("luasnip")
 local s = ls.snippet
--- local t = ls.text_node
+local sn = ls.snippet_node
+local t = ls.text_node
 local i = ls.insert_node
+local f = ls.function_node
+local c = ls.choice_node
+local d = ls.dynamic_node
+local r = ls.restore_node
+local l = require("luasnip.extras").lambda
+-- local rep = require("luasnip.extras").rep
+-- local p = require("luasnip.extras").partial
+-- local m = require("luasnip.extras").match
+-- local n = require("luasnip.extras").nonempty
+-- local dl = require("luasnip.extras").dynamic_lambda
 local fmt = require("luasnip.extras.fmt").fmt
+-- local fmta = require("luasnip.extras.fmt").fmta
+-- local types = require("luasnip.util.types")
+-- local conds = require("luasnip.extras.conditions")
+-- local conds_expand = require("luasnip.extras.conditions.expand")
+
+-- TODO: USE TREESITTER TO GET THE MODULE NAME
+local function reused_func(_, _, user_arg1)
+  return user_arg1
+end
 
 return {
-  -- TODO: USE TREESITTER TO GET THE MODULE NAME
+  s({
+    trig = "st",
+    name = "SNIP_TEST",
+    dscr = "trying out as many luasnip nodes as possible",
+    wordTrig = true, -- how does this work if `false`?
+    priority = 10000,
+  }, {
+    t("(s1): finish here: "),
+    i(0),
+    t("::: [snip test] -> "),
+    i(1, "insertion_point_one", "with_line_two"),
+    t("", ""),
+    sn(2, {
+      t("(s2): "),
+      i(1, "Second jump"),
+      t(" : "),
+      i(2, "Third jump but second inside of the `sn` node"),
+      t(""), -- new line?
+      t("xxx"), -- new line?
+      t(""), -- new line?
+      f(reused_func, {}, {
+        user_args = { "func node text" },
+      }),
+      f(reused_func, {}, {
+        user_args = { "func node different text" },
+      }),
+    }),
+  }, {}),
+
+  -- ls.parser.parse_snippet({ name = "NUM", trig = "%d", regTrig = true }, "A Number!!"),
+
+  s(
+    { trig = "b(%d)", regTrig = true },
+    f(function(_, snip)
+      return "Captured Text: " .. snip.captures[1] .. "."
+    end, {})
+  ),
+
+	s({ trig = "trafo(%d+)", regTrig = true }, {
+		-- env-variables and captures can also be used:
+		l(l.CAPTURE1:gsub("1", l.TM_FILENAME), {}),
+	}),
+  --
+  -- USEFUL DOOM CHOICES TEST
+  --
+
+  -- testing choice nodes
+  s(
+    { trig = "dv", "doom_vars" },
+    c(1, {
+      t("doom.modules.molleweide"),
+      t("doom.modules.core"),
+      t("doom.modules.features"),
+      t("doom.modules.langs"),
+    })
+  ),
 
   --
   -- DOOM MODULE REQUIRES -----------------------------------------------------
@@ -38,7 +113,6 @@ return {
     )
   ),
 
-
   -- -- TODO: table key = {{ {} }}
   --         this should also be a choice node so that you can
   --         cycle through relevant key/value pair types
@@ -64,16 +138,11 @@ return {
   -- ),
   s(
     "key_val_pair",
-    fmt(
-      [[ {} = {}, ]],
-      {
-        i(1, "key"),
-        i(2, "val"),
-      }
-    )
+    fmt([[ {} = {}, ]], {
+      i(1, "key"),
+      i(2, "val"),
+    })
   ),
-
-
 
   --
   -- DOOM MODULE PACKAGES -----------------------------------------------------
@@ -162,7 +231,6 @@ return {
     )
   ),
 
-
   --
   -- DOOM MODULE AUTOCMDS -----------------------------------------------------
   --
@@ -195,7 +263,6 @@ return {
       }
     )
   ),
-
 
   --
   -- DOOM BINDS ---------------------------------------------------------------

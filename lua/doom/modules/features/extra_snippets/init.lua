@@ -2,8 +2,9 @@ local log = require("doom.utils.logging")
 local uut = require("user.utils")
 local extra_snippets = {}
 
--- https://github.com/utilyre/spoon.nvim/tree/main/lua/spoon
--- https://github.com/madskjeldgaard/cheeky-snippets.nvim
+-- TODO: READ THE SOURCE FOR THESE AND UNDERSTAND HOW THEY LOAD SNIPS
+--      NOTE: https://github.com/utilyre/spoon.nvim/tree/main/lua/spoon
+--      NOTE: https://github.com/madskjeldgaard/cheeky-snippets.nvim
 
 -- NOTE: three reload locations for snippets
 --
@@ -26,6 +27,10 @@ end
 
 extra_snippets.settings = {
   -- doom_snippet_paths = { "doom/snippets", "user/snippets" },
+  luasnip_watch_dirs = {
+    "./lua/doom/snips/luasnippets",
+    "./lua/user/snips/luasnippets",
+  },
   watch_dirs = {
     "*/lua/snippets/*.lua", -- default dir
     "*/lua/user/snippets/*.lua",
@@ -33,10 +38,10 @@ extra_snippets.settings = {
   },
   luasnip_snippets = {
     prepend_new_snippets = true, -- add first/last in snip table..
-    paths = { --
-      "user/snippets", -- first index path is used when adding new snips
-      "doom/snippets",
-    },
+    -- paths = { --
+    --   -- "user/snippets", -- first index path is used when adding new snips
+    --   -- "doom/snippets",
+    -- },
     use_default_path = true,
     use_personal = true,
     use_internal = true, -- load snippets provided by `luasnip_snippets`
@@ -64,7 +69,11 @@ extra_snippets.configs["friendly-snippets"] = function()
 end
 
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
-  -- require("luasnip.loaders.from_lua").load({ paths = "./lua/doom/snippets/" })
+  require("luasnip.loaders.from_lua").load({
+    paths = doom.modules.features.extra_snippets.settings.luasnip_watch_dirs,
+  })
+
+  -- NOTE: only using internal snippets and defaults atm
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
   -- extra_snippets.reload_all_snippets()
 end
