@@ -30,7 +30,7 @@ local root = {}
 
 local toggle_root_conditional = function()
   if doom.settings.rooter_or_project then
-    vim.cmd([[RooterToggle]])
+    vim.cmd([[Rooter]])
   else
     -- project.nvim toggle root. the command might be incorrect
     vim.cmd([[ProjRoot]])
@@ -44,6 +44,9 @@ root.packages = {
 }
 
 -- TODO: autocmd for setting proj root
+--
+--    if file is outside of $pwd then run [[Rooter]]
+
 -- root.autocmds = {
 --   {
 --     "BufEnter????",
