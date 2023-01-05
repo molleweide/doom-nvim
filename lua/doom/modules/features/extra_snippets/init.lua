@@ -99,6 +99,14 @@ extra_snippets.autocmds = {
   },
 }
 
+-- TODO: create file picker for doom snippet dirs
+--
+--    if doom.settings.dev then
+--      include doom/snips/luasnips
+--    else
+--      only use user snip dir
+--    end
+
 extra_snippets.binds = {
   {
     doom.settings.mappings.luasnip.next_choice,
