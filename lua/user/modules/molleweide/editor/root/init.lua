@@ -1,3 +1,5 @@
+local log = require("doom.utils.logging")
+
 local root = {}
 
 --
@@ -26,67 +28,79 @@ local root = {}
 --
 --
 
+local toggle_root_conditional = function()
+  if doom.settings.rooter_or_project then
+    vim.cmd([[RooterToggle]])
+  else
+    -- project.nvim toggle root. the command might be incorrect
+    vim.cmd([[ProjRoot]])
+  end
+end
+
 root.packages = {
   ["vim-rooter"] = { "airblade/vim-rooter" },
   -- { 'oberblastmeister/nvim-rooter' },
   -- https://github.com/tzachar/cmp-fuzzy-path
 }
 
--- root.binds = {}
+-- TODO: autocmd for setting proj root
+-- root.autocmds = {
+--   {
+--     "BufEnter????",
+--     "*???",
+--     function()
+--       log.info("Module: root -> autocmd set: project root")
+--       toggle_root_conditional()
+--     end,
+--   },
+-- }
 
--- if require("doom.utils").is_module_enabled("whichkey") then
---   table.insert(windows.binds, {
---     "<leader>",
---     name = "+prefix",
---     {
---       {
---         "P",
---         name = "+path",
---         { -- https://stackoverflow.com/questions/38081927/vim-cding-to-git-root
---           -- - file path to global
---           -- - file git root global nvim
---           -- - active file buffer
---           -- https://stackoverflow.com/questions/38081927/vim-cding-to-git-root
---           {
---             "n",
---             "<leader>fpa",
---             "<cmd>cd %:p:h<CR><cmd>pwd<CR>",
---             options = { silent = true },
---             "Editor",
---             "cwd_to_active_file",
---             ":cd active file",
---           },
---           {
---             "n",
---             "<leader>fpg",
---             "<cmd>cd %:h | cd `git rev-parse --show-toplevel`<CR><cmd>pwd<CR>",
---             options = { silent = true },
---             "Editor",
---             "cwd_to_current_git_root",
---             ":cd active git root",
---           },
---           -- {
---           -- 	"n",
---           -- 	"<leader>fpa",
---           -- 	"<cmd>cd %:p:h<CR><cmd>pwd<CR>",
---           -- 	options = { silent = true },
---           -- 	"Editor",
---           -- 	"cwd_to_active_file",
---           -- 	":cd active file",
---           -- },
---           -- {
---           -- 	"n",
---           -- 	"<leader>fpg",
---           -- 	"<cmd>cd %:h | cd `git rev-parse --show-toplevel`<CR><cmd>pwd<CR>",
---           -- 	options = { silent = true },
---           -- 	"Editor",
---           -- 	"cwd_to_current_git_root",
---           -- 	":cd active git root",
---           -- },
---         },
---       },
---     },
---   })
--- end
+-- TODO: toggle auto set root
+root.binds = {
+  "<leader>",
+  name = "+prefix",
+  {
+    {
+      "f",
+      name = "+files",
+      {
+        {
+          "p",
+          name = "+project",
+          {
+            {
+              "r",
+              function()
+                log.info("Toggle root!")
+                toggle_root_conditional()
+              end,
+              name = "Rooter toggle",
+            },
+          },
+        },
+      },
+    },
+    {
+      "P",
+      name = "+path",
+      { -- https://stackoverflow.com/questions/38081927/vim-cding-to-git-root
+        -- - file path to global
+        -- - file git root global nvim
+        -- - active file buffer
+        -- https://stackoverflow.com/questions/38081927/vim-cding-to-git-root
+        {
+          "a",
+          "<cmd>cd %:p:h<CR><cmd>pwd<CR>",
+          name = "cwd_to_active_file",
+        },
+        {
+          "g",
+          "<cmd>cd %:h | cd `git rev-parse --show-toplevel`<CR><cmd>pwd<CR>",
+          name = "cwd_to_current_git_root",
+        },
+      },
+    },
+  },
+}
 
 return root

@@ -75,6 +75,10 @@ doom = {
     -- @default = false
     autosave = true,
 
+    -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
+    -- @default true
+    rooter_or_project = true,
+
     -- TODO: format on save
 
     -- Disable Vim macros

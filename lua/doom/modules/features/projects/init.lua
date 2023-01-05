@@ -54,7 +54,7 @@ projects.configs["project.nvim"] = function()
 end
 
 projects.binds = {
-  { "<leader>fp", "<cmd>Telescope projects<CR>", name = "Switch project" },
+  { "<leader>fps", "<cmd>Telescope projects<CR>", name = "Switch project" },
 }
 
 return projects

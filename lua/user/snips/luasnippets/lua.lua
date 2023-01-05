@@ -4,7 +4,7 @@ local t = ls.text_node
 local i = ls.insert_node
 
 return {
-  -- s("abc", { t("xxxxxxxxx") }),
+  s("abc", { t("yyyyyyyyy") }),
   -- s("ccc", { t("abcdefghijklmnopqrstuvwxyz") }),
 
   s("ctodo", { t("-- TODO: "), i(1, "todo_body") }),
