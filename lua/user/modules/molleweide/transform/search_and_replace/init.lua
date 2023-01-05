@@ -1,5 +1,11 @@
 local search_and_replace = {}
 
+-- TODO: escape the word captured under cursor with iw/iW
+--
+--      This would be quite easy but first I would have to rewrite
+--      all of the commands below in lua so that the string data
+--      can be processed first and then concatenated into the command
+
 search_and_replace.packages = {
   ["nvim-search-and-replace"] = { "s1n7ax/nvim-search-and-replace" },
   ["nvim-spectre"] = { "nvim-pack/nvim-spectre" },
@@ -62,7 +68,7 @@ search_and_replace.binds = {
   },
 }
 
-if require("doom.utils").is_module_enabled({"features","whichkey"}) then
+if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
   table.insert(search_and_replace.binds, {
     "<leader>",
     name = "+prefix",
@@ -82,13 +88,13 @@ if require("doom.utils").is_module_enabled({"features","whichkey"}) then
               {
                 "p",
                 "<cmd>lua require('spectre').open()<CR>",
-                name = "spectre open",
+                name = "Open Spectre",
                 options = { silent = false },
               },
               {
                 "P",
                 "<cmd>lua require('spectre').open_visual({select_word=true})<CR>",
-                name = "spectre word",
+                name = "Spectre on word",
                 options = { silent = false },
               },
               { "l", ":s//g<Left><Left>", name = "line", options = { silent = false } },
@@ -96,13 +102,13 @@ if require("doom.utils").is_module_enabled({"features","whichkey"}) then
               {
                 "L",
                 '"zyiw:s/<c-r>z//g<Left><Left>',
-                name = "line iw",
+                name = "Line iw",
                 options = { silent = false },
               },
               {
                 "o",
                 '"zyiW:s/<c-r>z//g<Left><Left>',
-                name = "line iW",
+                name = "Line iW",
                 options = { silent = false },
               },
               {
@@ -113,30 +119,29 @@ if require("doom.utils").is_module_enabled({"features","whichkey"}) then
               },
               { "a", ":%s//g<Left><Left>", name = "file", options = { silent = false } },
               {
+                "A",
+                ":%s/\\<\\>/g<Left><Left><Left><Left>",
+                name = "\\<file\\>",
+                options = { silent = false },
+              },
+              {
                 "w",
                 '"zyiw:%s/<c-r>z//g<Left><Left>',
                 name = "word",
                 options = { silent = false },
               },
-              --
-              -- {
-              --    "n",
-              --    "<leader>rfs",
-              --    "\"zyiw:%s/\\<<c-r>z\\>//g<Left><Left>",
-              --    { silent = false },
-              --    "Replace Inner (w)ord Solo",
-              --    "replace_inner_word_solo",
-              --    "Replace (w)ord Solo"
-              -- },
-              -- {
-              --    "n",
-              --    "<leader>rfW",
-              --    "\"zyiW:%s/<c-r>z//g<Left><Left>",
-              --    { silent = false },
-              --    "Replace Inner (W)ord",
-              --    "replace_inner_word_big",
-              --    "Replace (W)ord"
-              -- },
+              {
+                "e",
+                 "\"zyiw:%s/\\<<c-r>z\\>//g<Left><Left>",
+                name = "Replace Inner (w)ord Solo",
+                options = { silent = false },
+              },
+              {
+                "E",
+                 "\"zyiW:%s/<c-r>z//g<Left><Left>",
+                name = "Replace Inner (W)ord",
+                option = { silent = false },
+              },
             },
           }, -- search > replace
           -- {
