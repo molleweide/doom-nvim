@@ -202,6 +202,8 @@ required.binds = function()
         "g",
         name = "+git",
         {
+          -- TODO: add quick save and push command
+          -- TODO: move to git helpers module
           { "p", [[<cmd>TermExec cmd="git pull"<CR>]], name = "Pull" },
           { "P", [[<cmd>TermExec cmd="git push"<CR>]], name = "Push" },
           {
@@ -215,6 +217,7 @@ required.binds = function()
         },
       },
       {
+        -- TODO: move to help module
         "h",
         name = "+help",
         {
@@ -252,6 +255,7 @@ required.binds = function()
         "t",
         name = "+tweak",
         {
+          -- TODO: add toggle linebreak
           { "b", require("doom.core.functions").toggle_background, name = "Toggle background" },
           { "s", require("doom.core.functions").toggle_signcolumn, name = "Toggle sigcolumn" },
           { "i", require("doom.core.functions").set_indent, name = "Set indent" },
@@ -274,6 +278,9 @@ required.binds = function()
           { "j", "<C-w>j", name = "Jump down" },
           { "k", "<C-w>k", name = "Jump up" },
           { "l", "<C-w>l", name = "Jump right" },
+
+          -- TODO: modify these so that if you are at left edge and move left
+          --        again -> end up on the opposite side, ie. rightmost window.
           { "H", "<C-w>H", name = "Move left" },
           { "J", "<C-w>J", name = "Move down" },
           { "K", "<C-w>K", name = "Move up" },
