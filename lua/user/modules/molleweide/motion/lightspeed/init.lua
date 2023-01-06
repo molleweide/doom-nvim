@@ -1,23 +1,25 @@
-local motion = {}
+local lightspeed = {}
 
 -- todo: abort timeout
 -- todo: leap enter/leave disable neorg rendered
 --
 -- TODO: jump across windows would be very nice!!!!!!!
 
-motion.settings = {
+-- NOTE: cross window motions with `gs/gS`
+
+lightspeed.settings = {
   timeoutlen = 500,
 }
 
-motion.packages = {
+lightspeed.packages = {
   -- ["leap.nvim"] = {"ggandor/leap.nvim" },
   ["lightspeed.nvim"] = { "ggandor/lightspeed.nvim" },
   -- https://github.com/mfussenegger/nvim-treehopper
 }
 
-motion.configs = {}
+lightspeed.configs = {}
 
--- motion.configs["leap.nvim"] = function()
+-- lightspeed.configs["leap.nvim"] = function()
 --   require('leap').setup {
 --     case_insensitive = true,
 --     -- Leaving the appropriate list empty effectively disables "smart" mode,
@@ -54,7 +56,7 @@ motion.configs = {}
 --   -- }
 -- end
 
-motion.configs["lightspeed.nvim"] = function()
+lightspeed.configs["lightspeed.nvim"] = function()
   require("lightspeed").setup({
     ignore_case = false,
     exit_after_idle_msecs = { unlabeled = 1000, labeled = nil },
@@ -79,7 +81,7 @@ motion.configs["lightspeed.nvim"] = function()
   })
 end
 
--- motion.binds = {}
+-- lightspeed.binds = {}
 
 -- https://github.com/ggandor/lightspeed.nvim/discussions/83
 -- `<Plug>Lightspeed_s`  2-character  forward   /-like
@@ -102,4 +104,4 @@ end
 --   -- { 'o', 'S', '<Plug>Lightspeed_S', options = { silent = true, noremap = true } },
 -- })
 
-return motion
+return lightspeed
