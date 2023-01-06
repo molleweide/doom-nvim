@@ -6,8 +6,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
-doom.moll = {}
-
 -- vim.cmd([[ :TransparentEnable ]])
 
 -- packer.nvim logs to stdpath(cache)/packer.nvim.log. Looking at this file is usually a good start if something isn't working as expected.
@@ -44,14 +42,20 @@ P = function(...)
   return v
 end
 
-GGG = function()
+-- TODO: bind P( viw / viW )
+-- funcs.inspect_visual_sel = function()
+--   vim.inspect(funcs.get_visual_selection())
+-- end
+
+GGG = function(depth)
   local t = {}
+  depth = depth or 1
   for k, v in pairs(_G) do
     if k:match("^_doom") then
       t[k] = v
     end
   end
-  print("inspect `_doom`", vim.inspect(t, { depth = 1 }))
+  print("inspect `_doom`", vim.inspect(t, { depth = depth }))
 end
 
 -- D for debug
@@ -238,6 +242,13 @@ if doom.modules.tabline then
   end
 end
 
+-------------------------------------
+---       CURSOR LINE / COL       ---
+-------------------------------------
+
+-- TODO: add my own custom colors to cursor line and
+--        also add cursor col so that it is easier to locate the cursor.
+
 ---------------------------
 ---       HELPERS       ---
 ---------------------------
@@ -246,14 +257,9 @@ end
 
 local funcs = {}
 
-funcs.inspect = function(v)
-  print(vim.inspect(v))
-  return v
-end
-
 -- https://neovim.discourse.group/t/function-that-return-visually-selected-text/1601/2
 -- https://github.com/kristijanhusak/neovim-config/blob/master/nvim/lua/partials/search.lua
-
+-- TODO: move to utils??
 funcs.get_visual_selection = function()
   local s_start = vim.fn.getpos("'<")
   local s_end = vim.fn.getpos("'>")
@@ -266,10 +272,6 @@ funcs.get_visual_selection = function()
     lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
   end
   return table.concat(lines, "\n")
-end
-
-funcs.inspect_visual_sel = function()
-  vim.inspect(funcs.get_visual_selection())
 end
 
 -- open buffer and read feat req template so that one can quickly
@@ -291,19 +293,6 @@ funcs.report_an_issue = function()
   -- print(system.doom_report)
   vim.cmd("read " .. system.doom_report)
 end
-
--- funcs.checkPackagesNil = function()
---   local c = 0
---   for k, v in pairs(doom.packages) do
---     if k == nil then
---       print("c", c)
---       c = c + 1
---     end
---   end
---     -- print("xxx")
--- end
-
-doom.moll.funcs = funcs
 
 ------------------------------
 ---       COMPLETION       ---
