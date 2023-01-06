@@ -14,6 +14,17 @@ local extra_snippets = {}
 
 -- TODO: fix reloader so that it reloads all snippets from scratch...
 
+-- HACK: luasnip nvim glob source files
+
+-- HACK: luasnip.available() add file path to each snippet.
+--
+--      - load up snippets in telescope
+--      - select snippet
+--      - open origin file
+--      - use treesitter/search to find exact position
+--      - move cursor to in position.
+--      - and even enters insert or whatever.
+
 local pp = "doom.modules.features.extra_snippets.pickers"
 
 -- TODO: reload snippets by id so that it reloads faster.
@@ -107,10 +118,29 @@ extra_snippets.autocmds = {
 --      only use user snip dir
 --    end
 
+-- TODO: add snippet to filetype -> open `user/snips/luasnippets/<ft>/init.lua`
+
+-- TODO: vim.keymap.set("i", "<c-u>", require "luasnip.extras.select_choice")
+
+local function next_choice()
+  local ls = require("luasnip")
+  if ls.choice_active() then
+    vim.cmd([[<Plug>luasnip-next-choice]])
+  end
+end
+
+local function prev_choice()
+  local ls = require("luasnip")
+  if ls.choice_active() then
+    vim.cmd([[<Plug>luasnip-prev-choice]])
+  end
+end
+
 extra_snippets.binds = {
+
   {
     doom.settings.mappings.luasnip.next_choice,
-    "<Plug>luasnip-next-choice",
+    next_choice,
     name = "Luasnip next choice",
     mode = "i",
   },

@@ -273,11 +273,13 @@ lsp.configs["nvim-cmp"] = function()
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_next_item()
         elseif luasnip.expand_or_jumpable() then
+          print("expand_or_jumpable")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
         elseif check_backspace() then
-          -- TODO: print here to see if this is the action that is taken
+          print("feedkeys")
           vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
         else
+          print("fallback")
           fallback()
         end
       end, {
@@ -288,8 +290,10 @@ lsp.configs["nvim-cmp"] = function()
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab  then
           cmp.select_prev_item()
         elseif luasnip.jumpable(-1) then
+          print("feedkeys")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")
         else
+          print("fallback")
           fallback()
         end
       end, {
