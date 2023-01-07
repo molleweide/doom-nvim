@@ -112,7 +112,7 @@ lsp.packages = {
     requires = {
       "L3MON4D3/LuaSnip",
       -- 53e812a -> Jul 27 2022 (7 months ago)
-      commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
+      -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
       module = "luasnip",
     },
   },
