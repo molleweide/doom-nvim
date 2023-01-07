@@ -165,9 +165,12 @@ M.luasnip_fn = function(opts)
 
       sort_snippet_entries(objs)
 
+      -- P(objs)
+
       local displayer = entry_display.create({
-        separator = " ",
+        separator = "| ",
         items = {
+          { width = 4 },
           { width = 12 },
           { width = 24 },
           { width = 16 },
@@ -177,6 +180,7 @@ M.luasnip_fn = function(opts)
 
       local make_display = function(entry)
         return displayer({
+          entry.value.context.id,
           entry.value.ft,
           entry.value.context.name,
           { entry.value.context.trigger, "TelescopeResultsNumber" },
@@ -213,19 +217,32 @@ M.luasnip_fn = function(opts)
             actions.select_default:replace(function(prompt_bufnr)
               local selection = action_state.get_selected_entry()
               actions.close(prompt_bufnr)
-              vim.cmd("startinsert")
-              vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
-              if luasnip.expandable() then
-                luasnip.expand()
-              else
-                print(
-                  "Snippet '"
-                    .. selection.value.context.name
-                    .. "'"
-                    .. "was selected, but LuaSnip.expandable() returned false"
-                )
+              -- vim.cmd("startinsert")
+              local lss = require("luasnip.session.snippet_collection")
+              local snip_name = selection.value.context.name
+              local snip_id = selection.value.context.id
+              local snip_source = lss.get_source_by_snip_id(snip_id)
+              if snip_source == nil then
+                snip_source = "nil"
               end
-              vim.cmd("stopinsert")
+              print("snip:" .. snip_name .. " with id:" .. snip_id .. " source: " .. snip_source)
+
+              local edit_snip = require("luasnip.loaders").edit_snippet_files
+
+              edit_snip({ target_snippet = selection.value.context })
+
+              -- vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
+              -- if luasnip.expandable() then
+              --   luasnip.expand()
+              -- else
+              --   print(
+              --     "Snippet '"
+              --       .. selection.value.context.name
+              --       .. "'"
+              --       .. "was selected, but LuaSnip.expandable() returned false"
+              --   )
+              -- end
+              -- vim.cmd("stopinsert")
             end)
             return true
           end,
@@ -310,7 +327,7 @@ M.luasnip_fn = function(opts)
             local filetype_callback_mapping = function(prompt_bufnr)
               local fuzzy, line = picker_get_state(prompt_bufnr)
 
-              P(fuzzy.value, { depth = 1 })
+              P(fuzzy.value, { depth = 3 })
               close(prompt_bufnr)
             end
 

@@ -110,7 +110,7 @@ lsp.packages = {
     "hrsh7th/nvim-cmp",
     commit = "0e436ee23abc6c3fe5f3600145d2a413703e7272",
     requires = {
-      "L3MON4D3/LuaSnip",
+      "~/code/repos/github.com/L3MON4D3/LuaSnip",
       -- 53e812a -> Jul 27 2022 (7 months ago)
       -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
       module = "luasnip",
