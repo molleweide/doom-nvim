@@ -13,6 +13,7 @@ local previewers = require("telescope.previewers")
 local entry_display = require("telescope.pickers.entry_display")
 local conf = require("telescope.config").values
 local ext_conf = require("telescope._extensions")
+local themes = require("telescope.themes")
 
 local M = {}
 
@@ -81,6 +82,7 @@ local get_docstring = function(luasnip, ft, context)
       end
     end
   end
+  -- table.insert(docstring, 1, "XXX")
   return docstring
 end
 
@@ -178,43 +180,51 @@ end
 
 -- show list of all available filetypes to nvim
 M.filetype_picker = function(opts)
-  opts = opts or {}
-  local has_luasnip, _ = pcall(require, "luasnip")
-  if has_luasnip then
-    require("telescope.pickers")
-      .new(opts, {
-        prompt_title = settings.prompt_prefix .. "select filetype to act on",
-        finder = require("telescope.finders").new_table({
-          results = get_available_filetypes(),
-        }),
-        sorter = require("telescope.config").values.generic_sorter(opts),
-        attach_mappings = function(_, map)
-          map("i", "<CR>", filetype_default_select) -- show snippets for fuzzy selection
-          map("n", "<CR>", filetype_default_select)
-          map("i", "<C-e>", function(prompt_bufnr)
-            local selection = action_state.get_selected_entry(prompt_bufnr)
-            create_new_snip_for_filetype(prompt_bufnr, selection[1])
-          end)
-          map("i", "<C-l>", function(prompt_bufnr)
-            local _, line = picker_get_state(prompt_bufnr)
-            create_new_snip_for_filetype(prompt_bufnr, line)
-          end)
-          map("i", "<C-s>", function(prompt_bufnr)
-            local fuzzy, _ = picker_get_state(prompt_bufnr)
-            print("open picker for all files hosting selected ft: " .. fuzzy.value)
-            -- ALT A
-            --    1. reuse luasnips builtin for listing files by filetype
-            --
-            -- ALT B
-            --    1. for all snippets
-            --    2. get unique sources for filetype
-            --    3. pipe into `file_picker`
-          end)
-          return true
-        end,
-      })
-      :find()
-  end
+  opts = vim.tbl_deep_extend(
+    "force",
+    themes.get_dropdown({
+      winblend = 10,
+      border = true,
+      layout_config = {
+        width = 0.3,
+        height = 0.5,
+      },
+    }),
+    opts
+  )
+  require("telescope.pickers")
+    .new(opts, {
+      prompt_title = "LuaSnip: Select filetype(s)",
+      finder = require("telescope.finders").new_table({
+        results = get_available_filetypes(),
+      }),
+      sorter = require("telescope.config").values.generic_sorter(opts),
+      attach_mappings = function(_, map)
+        map("i", "<CR>", filetype_default_select) -- show snippets for fuzzy selection
+        map("n", "<CR>", filetype_default_select)
+        map("i", "<C-e>", function(prompt_bufnr)
+          local selection = action_state.get_selected_entry(prompt_bufnr)
+          create_new_snip_for_filetype(prompt_bufnr, selection[1])
+        end)
+        map("i", "<C-l>", function(prompt_bufnr)
+          local _, line = picker_get_state(prompt_bufnr)
+          create_new_snip_for_filetype(prompt_bufnr, line)
+        end)
+        map("i", "<C-s>", function(prompt_bufnr)
+          local fuzzy, _ = picker_get_state(prompt_bufnr)
+          print("open picker for all files hosting selected ft: " .. fuzzy.value)
+          -- ALT A
+          --    1. reuse luasnips builtin for listing files by filetype
+          --
+          -- ALT B
+          --    1. for all snippets
+          --    2. get unique sources for filetype
+          --    3. pipe into `file_picker`
+        end)
+        return true
+      end,
+    })
+    :find()
 end
 
 -- list snippets, either based on supplied filetypes,
@@ -272,6 +282,34 @@ M.snippets_picker = function(opts)
           end,
         }),
 
+        -- TODO: create updated previewer based on new preview interface
+        -- previewers.cat = defaulter(function(opts)
+        --   opts = opts or {}
+        --   local cwd = opts.cwd or vim.loop.cwd()
+        --   return previewers.new_buffer_previewer {
+        --     title = "File Preview",
+        --     dyn_title = function(_, entry)
+        --       return Path:new(from_entry.path(entry, true)):normalize(cwd)
+        --     end,
+        --
+        --     get_buffer_by_name = function(_, entry)
+        --       return from_entry.path(entry, true)
+        --     end,
+        --
+        --     define_preview = function(self, entry, status)
+        --       local p = from_entry.path(entry, true)
+        --       if p == nil or p == "" then
+        --         return
+        --       end
+        --       conf.buffer_previewer_maker(p, self.state.bufnr, {
+        --         bufname = self.state.bufname,
+        --         winid = self.state.winid,
+        --         preview = opts.preview,
+        --       })
+        --     end,
+        --   }
+        -- end, {})
+
         previewer = previewers.display_content.new(opts),
         sorter = conf.generic_sorter(opts),
         attach_mappings = function(_, map)
@@ -328,5 +366,14 @@ M.snippets_picker = function(opts)
       :find()
   end
 end
+
+-- return telescope.register_extension({
+--   exports = {
+--     luasnip = luasnip_fn,
+--     filter_null = filter_null,
+--     filter_description = filter_description,
+--     get_docstring = get_docstring
+--   }
+-- })
 
 return M
