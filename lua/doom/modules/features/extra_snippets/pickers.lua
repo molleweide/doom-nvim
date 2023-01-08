@@ -180,6 +180,7 @@ end
 
 -- show list of all available filetypes to nvim
 M.filetype_picker = function(opts)
+  opts = opts or {}
   opts = vim.tbl_deep_extend(
     "force",
     themes.get_dropdown({
@@ -231,6 +232,18 @@ end
 -- or available for current buf.
 M.snippets_picker = function(opts)
   opts = opts or {}
+  opts = vim.tbl_deep_extend(
+    "force",
+    themes.get_dropdown({
+      winblend = 10,
+      border = true,
+      layout_config = {
+        width = 0.3,
+        height = 0.5,
+      },
+    }),
+    opts
+  )
   local objs = {}
   local has_luasnip, luasnip = pcall(require, "luasnip")
   if has_luasnip then
