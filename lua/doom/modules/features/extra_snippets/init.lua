@@ -33,6 +33,9 @@ extra_snippets.reload_all_snippets = function()
   require("plenary.reload").reload_module("luasnip")
   require("plenary.reload").reload_module("luasnip_snippets")
   require("luasnip.loaders.from_vscode").lazy_load()
+  require("luasnip.loaders.from_lua").load({
+    paths = doom.modules.features.extra_snippets.settings.luasnip_watch_dirs,
+  })
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
 end
 
@@ -181,16 +184,16 @@ extra_snippets.binds = {
           {
             "I",
             function()
-              require(pp).luasnip_fn({
+              require(pp).snippets_picker({
                 picker_to_use = "all_available",
               })
             end,
-            name = "Snippets picker (custom)",
+            name = "Picker: available snips",
           },
           {
             "U",
             function()
-              require(pp).luasnip_fn({
+              require(pp).filetype_picker({
                 picker_to_use = "filetype",
               })
             end,

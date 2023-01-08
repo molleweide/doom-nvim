@@ -20,10 +20,12 @@ local settings = {
   prompt_prefix = "LUASNIP (custom): ",
 }
 
-local function picker_get_state(prompt_bufnr)
+-- TELESCOPE HELPERS
+
+local function picker_get_state()
   local state = require("telescope.actions.state")
-  local line = state.get_current_line(prompt_bufnr)
-  local fuzzy = state.get_selected_entry(prompt_bufnr)
+  local line = state.get_current_line()
+  local fuzzy = state.get_selected_entry()
   return fuzzy, line
 end
 
@@ -96,59 +98,201 @@ local function sort_snippet_entries(t)
   end)
 end
 
-M.luasnip_fn = function(opts)
+local function get_chosen_filetypes(prompt_bufnr)
+  local chosen_filetypes = {}
+  local selection = action_state.get_selected_entry()
+  local picker = action_state.get_current_picker(prompt_bufnr)
+  local multi_selection = picker:get_multi_selection()
+  if #multi_selection > 1 then
+    for _, v in pairs(multi_selection) do
+      table.insert(chosen_filetypes, v[1])
+    end
+  else
+    table.insert(chosen_filetypes, selection[1])
+  end
+  return chosen_filetypes
+end
+
+local function filetype_default_select(prompt_bufnr)
+  local chosen_filetypes = get_chosen_filetypes(prompt_bufnr)
+  close(prompt_bufnr)
+  M.snippets_picker({
+    selected_filetypes = chosen_filetypes,
+  })
+end
+
+local function create_new_snip_for_filetype(prompt_bufnr, filetype)
+  close(prompt_bufnr)
+  if filetype == "" then
+    print("Can't create snip for filetype == empty string")
+    return
+  end
+  print("create new snip for filetype: " .. filetype)
+  --    1. get default location to create new
+  --    2. check for existing filetype dir / file
+  --    3 create file
+  --    4. insert boiler plate
+  --    5. trigger helper snippet
+end
+
+-- show list of all available filetypes to nvim
+M.filetype_picker = function(opts)
+  opts = opts or {}
+  local has_luasnip, _ = pcall(require, "luasnip")
+  if has_luasnip then
+    require("telescope.pickers")
+      .new(opts, {
+        prompt_title = settings.prompt_prefix .. "select filetype to act on",
+        finder = require("telescope.finders").new_table({
+          results = get_available_filetypes(),
+        }),
+        sorter = require("telescope.config").values.generic_sorter(opts),
+        attach_mappings = function(_, map)
+          map("i", "<CR>", filetype_default_select) -- show snippets for fuzzy selection
+          map("n", "<CR>", filetype_default_select)
+          map("i", "<C-e>", function(prompt_bufnr)
+            local selection = action_state.get_selected_entry(prompt_bufnr)
+            create_new_snip_for_filetype(prompt_bufnr, selection[1])
+          end)
+          map("i", "<C-l>", function(prompt_bufnr)
+            local _, line = picker_get_state(prompt_bufnr)
+            create_new_snip_for_filetype(prompt_bufnr, line)
+          end)
+          map("i", "<C-s>", function(prompt_bufnr)
+            local fuzzy, _ = picker_get_state(prompt_bufnr)
+            print("open picker for all files hosting selected ft: " .. fuzzy.value)
+            -- ALT A
+            --    1. reuse luasnips builtin for listing files by filetype
+            --
+            -- ALT B
+            --    1. for all snippets
+            --    2. get unique sources for filetype
+            --    3. pipe into `file_picker`
+          end)
+          return true
+        end,
+      })
+      :find()
+  end
+end
+
+-- list snippets, either based on supplied filetypes,
+-- or available for current buf.
+M.snippets_picker = function(opts)
   opts = opts or {}
   local objs = {}
   local has_luasnip, luasnip = pcall(require, "luasnip")
   if has_luasnip then
-    if opts.picker_to_use == "filetype" then
-      --
-      -- SELECT FILETYPE
-      --
+    if opts.selected_filetypes then
+      print("do picker for these filetypes:")
+      P(opts.selected_filetypes)
+    else
+      print("GET AVAILABLE")
+      local available = luasnip.available()
+      for filename, file in pairs(available) do
+        for _, snippet in ipairs(file) do
+          table.insert(objs, {
+            ft = filename ~= "" and filename or "-",
+            context = snippet,
+          })
+        end
+      end
 
-      require("telescope.pickers")
+      sort_snippet_entries(objs)
+
+      -- P(objs)
+
+      local displayer = entry_display.create({
+        separator = "| ",
+        items = {
+          { width = 4 },
+          { width = 12 },
+          { width = 24 },
+          { width = 16 },
+          { remaining = true },
+        },
+      })
+
+      local make_display = function(entry)
+        return displayer({
+          entry.value.context.id,
+          entry.value.ft,
+          entry.value.context.name,
+          { entry.value.context.trigger, "TelescopeResultsNumber" },
+          filter_description(entry.value.context.name, entry.value.context.description),
+        })
+      end
+
+      pickers
         .new(opts, {
-          prompt_title = settings.prompt_prefix .. "select filetype to act on",
-          finder = require("telescope.finders").new_table({
-            results = get_available_filetypes(),
+          prompt_title = settings.prompt_prefix .. "all available (loaded) for current filetype(s)",
+          finder = finders.new_table({
+            results = objs,
+            entry_maker = function(entry)
+              -- 1
+              search_fn = ext_conf._config.luasnip and ext_conf._config.luasnip.search
+                or default_search_text
+              -- 2
+              return {
+                value = entry,
+                display = make_display,
+                ordinal = search_fn(entry),
+                preview_command = function(_, bufnr)
+                  local snippet = get_docstring(luasnip, entry.ft, entry.context)
+                  vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
+                  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
+                end,
+              }
+            end,
           }),
-          sorter = require("telescope.config").values.generic_sorter(opts),
-          attach_mappings = function(_, map)
-            local filetype_callback_mapping = function(prompt_bufnr)
-              local fuzzy, line = picker_get_state(prompt_bufnr)
-              close(prompt_bufnr)
-              M.luasnip_fn({
-                picker_to_use = "personal_snippets",
-                luasnip_picker_filetype_selected = fuzzy,
-                luasnip_picker_filetype_line = line,
-              })
-            end
 
-            map("i", "<CR>", filetype_callback_mapping) -- show snippets for fuzzy selection
-            map("n", "<CR>", filetype_callback_mapping)
-            map("i", "<C-e>", function()
-              print("create new snip for selected filetype(s)")
-              -- TODO: ....
-              --
-              --    -- what does [0] return?
-              --    use the doom.modules.features.extra_snippets.settings.luasnip_snippets.paths[1]
-              --
-              --    find filetype dir -> enter ft base file ->
-            end)
-            map("i", "<C-s>", function(prompt_bufnr)
-              local fuzzy, _ = picker_get_state(prompt_bufnr)
-              print("open picker for all files hosting selected ft: " .. fuzzy.value)
-              -- TODO: ....
-              --
-              --
-              --   just filter unique source files by ft.
-              --    return list -> run file picker with preview. + custom prompt title.
+          previewer = previewers.display_content.new(opts),
+          sorter = conf.generic_sorter(opts),
+          attach_mappings = function()
+            actions.select_default:replace(function(prompt_bufnr)
+              local selection = action_state.get_selected_entry()
+              actions.close(prompt_bufnr)
+              -- vim.cmd("startinsert")
+              local lss = require("luasnip.session.snippet_collection")
+              local snip_name = selection.value.context.name
+              local snip_id = selection.value.context.id
+              local snip_source = lss.get_source_by_snip_id(snip_id)
+              if snip_source == nil then
+                snip_source = "nil"
+              end
+              -- print("snip:" .. snip_name .. " with id:" .. snip_id .. " source: " .. snip_source)
+
+              local edit_snip = require("luasnip.loaders").edit_snippet_files
+
+              edit_snip({ target_snippet = selection.value.context })
+
+              -- vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
+              -- if luasnip.expandable() then
+              --   luasnip.expand()
+              -- else
+              --   print(
+              --     "Snippet '"
+              --       .. selection.value.context.name
+              --       .. "'"
+              --       .. "was selected, but LuaSnip.expandable() returned false"
+              --   )
+              -- end
+              -- vim.cmd("stopinsert")
             end)
             return true
           end,
         })
         :find()
-    elseif opts.picker_to_use == "all_available" then
+    end
+  end
+end
+
+M.luasnip_fn = function(opts)
+  opts = opts or {}
+  local objs = {}
+  local has_luasnip, luasnip = pcall(require, "luasnip")
+  if has_luasnip then
+    if opts.picker_to_use == "all_available" then
       --
       -- ALL AVAILABLE
       --
@@ -225,7 +369,7 @@ M.luasnip_fn = function(opts)
               if snip_source == nil then
                 snip_source = "nil"
               end
-              print("snip:" .. snip_name .. " with id:" .. snip_id .. " source: " .. snip_source)
+              -- print("snip:" .. snip_name .. " with id:" .. snip_id .. " source: " .. snip_source)
 
               local edit_snip = require("luasnip.loaders").edit_snippet_files
 
