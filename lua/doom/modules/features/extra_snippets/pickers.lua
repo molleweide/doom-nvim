@@ -335,15 +335,12 @@ M.snippets_picker = function(opts)
           map("i", "<C-e>", function(prompt_bufnr)
             local selection = action_state.get_selected_entry()
             actions.close(prompt_bufnr)
-            local snip_source = require("luasnip.session.snippet_collection").get_source_by_snip_id(
-              selection.value.context.id
-            )
-            if snip_source then
+            if selection.value.context.meta_data then
               require("luasnip.loaders").edit_snippet_files({
                 target_snippet = selection.value.context,
               })
             else
-              print("Snippet '" .. selection.value.context.name .. "'" .. " doesn't have a source.")
+              print("Snippet '" .. selection.value.context.name .. "'" .. " doesn't have a source.\n" .. "You might have to set LuaSnip `config.store_meta_data = true`".." in order to store source path with `from_lua.load()`")
             end
           end)
           -- map("i", "<C-e>", function()
