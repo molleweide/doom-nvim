@@ -309,6 +309,19 @@ M.snippets_picker = function(opts)
               print("Snippet '" .. selection.value.context.name .. "'" .. " doesn't have a source.")
             end
           end)
+          -- map("i", "<C-e>", function()
+          --   print("add new snippet to same file as fuzzy snippet")
+          --   -- TODO: ....
+          --   --
+          --   --  get source file
+          --   --    find return table
+          --   --      if prepend_new_snippets
+          --   --        insert first/last
+          --   --          execute snippet_creator_snippet
+          -- end)
+          -- map("i", "<C-a>", function()
+          --   print("add snippet to same file right after fuzzy sel")
+          -- end)
 
           return true
         end,
@@ -316,234 +329,6 @@ M.snippets_picker = function(opts)
       :find()
   end
 end
-
--- M.luasnip_fn = function(opts)
---   opts = opts or {}
---   local objs = {}
---   local has_luasnip, luasnip = pcall(require, "luasnip")
---   if has_luasnip then
---     if opts.picker_to_use == "all_available" then
---       --
---       -- ALL AVAILABLE
---       --
---
---       local available = luasnip.available()
---       for filename, file in pairs(available) do
---         for _, snippet in ipairs(file) do
---           table.insert(objs, {
---             ft = filename ~= "" and filename or "-",
---             context = snippet,
---           })
---         end
---       end
---
---       sort_snippet_entries(objs)
---
---       -- P(objs)
---
---       local displayer = entry_display.create({
---         separator = "| ",
---         items = {
---           { width = 4 },
---           { width = 12 },
---           { width = 24 },
---           { width = 16 },
---           { remaining = true },
---         },
---       })
---
---       local make_display = function(entry)
---         return displayer({
---           entry.value.context.id,
---           entry.value.ft,
---           entry.value.context.name,
---           { entry.value.context.trigger, "TelescopeResultsNumber" },
---           filter_description(entry.value.context.name, entry.value.context.description),
---         })
---       end
---
---       pickers
---         .new(opts, {
---           prompt_title = settings.prompt_prefix .. "all available (loaded) for current filetype(s)",
---           finder = finders.new_table({
---             results = objs,
---             entry_maker = function(entry)
---               -- 1
---               search_fn = ext_conf._config.luasnip and ext_conf._config.luasnip.search
---                 or default_search_text
---               -- 2
---               return {
---                 value = entry,
---                 display = make_display,
---                 ordinal = search_fn(entry),
---                 preview_command = function(_, bufnr)
---                   local snippet = get_docstring(luasnip, entry.ft, entry.context)
---                   vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
---                   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
---                 end,
---               }
---             end,
---           }),
---
---           previewer = previewers.display_content.new(opts),
---           sorter = conf.generic_sorter(opts),
---           attach_mappings = function()
---             actions.select_default:replace(function(prompt_bufnr)
---               local selection = action_state.get_selected_entry()
---               actions.close(prompt_bufnr)
---               -- vim.cmd("startinsert")
---               local lss = require("luasnip.session.snippet_collection")
---               local snip_name = selection.value.context.name
---               local snip_id = selection.value.context.id
---               local snip_source = lss.get_source_by_snip_id(snip_id)
---               if snip_source == nil then
---                 snip_source = "nil"
---               end
---               -- print("snip:" .. snip_name .. " with id:" .. snip_id .. " source: " .. snip_source)
---
---               local edit_snip = require("luasnip.loaders").edit_snippet_files
---
---               edit_snip({ target_snippet = selection.value.context })
---
---               -- vim.api.nvim_put({ selection.value.context.trigger }, "", true, true)
---               -- if luasnip.expandable() then
---               --   luasnip.expand()
---               -- else
---               --   print(
---               --     "Snippet '"
---               --       .. selection.value.context.name
---               --       .. "'"
---               --       .. "was selected, but LuaSnip.expandable() returned false"
---               --   )
---               -- end
---               -- vim.cmd("stopinsert")
---             end)
---             return true
---           end,
---         })
---         :find()
---     elseif opts.picker_to_use == "personal_snippets" then
---       --
---       -- PERSONAL SNIPPETS
---       --
---
---       local prev_fuzzy = opts.luasnip_picker_filetype_selected
---       local prev_line = opts.luasnip_picker_filetype_line
---
---       local personal_snippets_by_ft = require("luasnip_snippets").get_snippets_flat({
---         paths = { "doom/snippets", "user/snippets" },
---         use_default_path = true,
---         use_personal = true,
---         use_internal = true,
---         ft_use_only = { prev_fuzzy and prev_fuzzy.value },
---       })
---
---       local prompt_title
---       if prev_fuzzy then
---         prompt_title = settings.prompt_prefix .. "personal snippets for:" .. prev_fuzzy[1]
---       else
---         prompt_title = settings.prompt_prefix .. "personal snippets for: all"
---       end
---
---       local displayer = entry_display.create({
---         separator = " ",
---         items = {
---           { width = 8 },
---           { width = 24 },
---           { width = 40 },
---           { width = 16 },
---           { remaining = true },
---         },
---       })
---
---       -- TODO: dynamic number of items here
---       --
---       --
---       -- filetype | name | mod_path | trig:? |
---       --
---
---       -- NOTE: i should be able to reuse the same previewer,
---       --    ->>> i believe that the available func just exposes a subset
---       --          of all params so it should be possible to improve the
---       --          previewer and use it for both cases.
---
---       local make_display = function(entry)
---         return displayer({
---           entry.value.snip.filetype,
---           { entry.value.snip.name, "TelescopeResultsNumber" },
---           entry.value.snip.origin_file_mod_path,
---           { "context", "TelescopeResultsNumber" },
---           "description",
---         })
---       end
---
---       pickers
---         .new(opts, {
---           prompt_title = prompt_title,
---           finder = finders.new_table({
---             results = personal_snippets_by_ft,
---             entry_maker = function(entry)
---               -- search_fn = ext_conf._config.luasnip and ext_conf._config.luasnip.search
---               --   or default_search_text
---               return {
---                 value = entry,
---                 display = make_display,
---                 ordinal = entry.filetype,
---                 -- preview_command = function(_, bufnr)
---                 --   local snippet = get_docstring(luasnip, entry.ft, entry.context)
---                 --   vim.api.nvim_buf_set_option(bufnr, "filetype", entry.ft)
---                 --   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, snippet)
---                 -- end,
---               }
---             end,
---           }),
---           attach_mappings = function(_, map)
---             local filetype_callback_mapping = function(prompt_bufnr)
---               local fuzzy, line = picker_get_state(prompt_bufnr)
---
---               P(fuzzy.value, { depth = 3 })
---               close(prompt_bufnr)
---             end
---
---             -- TODO: it would be nice if I could run the snippets from here as
---             -- well. ls.execute or ls.pares/run???
---             map("i", "<CR>", filetype_callback_mapping)
---             map("n", "<CR>", filetype_callback_mapping)
---             -- map("i", "<C-b>", go_back_to_filetype_selection) -- this one could be pretty nice
---             map("i", "<C-e>", function()
---               print("add new snippet to same file as fuzzy snippet")
---               -- TODO: ....
---               --
---               --  get source file
---               --    find return table
---               --      if prepend_new_snippets
---               --        insert first/last
---               --          execute snippet_creator_snippet
---             end)
---             map("i", "<C-a>", function()
---               print("add snippet to same file right after fuzzy sel")
---             end)
---
---             map("i", "<C-s>", function(prompt_bufnr)
---               -- local fuzzy, _ = picker_get_state(prompt_bufnr)
---               print("edit selected snippet")
---               -- TODO: ....
---               --
---               -- get source file
---               --    open source file
---               --      find location of snippet
---               --        put cursor to snip location
---             end)
---             return true
---           end,
---         })
---         :find()
---     end
---   else
---     print("LuaSnips is not available")
---     return
---   end
--- end -- end custom function
 
 return M
 
