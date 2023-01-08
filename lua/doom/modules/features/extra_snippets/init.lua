@@ -199,15 +199,15 @@ extra_snippets.binds = {
             end,
             name = "Snippets picker -> filetype (custom)",
           },
-          -- {
-          --   "L",
-          --   function()
-          --     require(pp).luasnip_fn({
-          --       picker_to_use = "personal_snippets",
-          --     })
-          --   end,
-          --   name = "Snippets picker -> personal (custom)",
-          -- },
+          {
+            "L",
+            function()
+              require(pp).snippets_picker({
+                selected_filetypes = "everything"
+              })
+            end,
+            name = "Picker: snips -> everything",
+          },
           {
             "E",
             function()

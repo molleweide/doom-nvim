@@ -24,7 +24,9 @@ local settings = {
 
 local function create_prompt_title(opts)
   local res_str = settings.prompt_prefix
-  if opts.selected_filetypes then
+  if opts.selected_filetypes == "everything" then
+    res_str = res_str .. "ALL SNIPPETS"
+  elseif opts.selected_filetypes then
     res_str = res_str .. "for filetypes: (" .. table.concat(opts.selected_filetypes, ",") .. ")"
   else
     res_str = res_str .. "all available (loaded) for current filetype(s)"
@@ -147,6 +149,33 @@ local function create_new_snip_for_filetype(prompt_bufnr, filetype)
   --    5. trigger helper snippet
 end
 
+local function get_available_or_specific_fts(t_fts)
+  local objs = {}
+  local _, luasnip = pcall(require, "luasnip")
+  local available = {}
+  if t_fts == "everything" then
+    available = luasnip.get_snippets()
+  elseif t_fts then
+    local all_available = luasnip.get_snippets()
+    for _, ft in pairs(t_fts) do
+      if all_available[ft] then
+        available[ft] = all_available[ft]
+      end
+    end
+  else
+    available = luasnip.available()
+  end
+  for ft, t_snips in pairs(available) do
+    for _, snippet in ipairs(t_snips) do
+      table.insert(objs, {
+        ft = ft ~= "" and ft or "-",
+        context = snippet,
+      })
+    end
+  end
+  return objs
+end
+
 -- show list of all available filetypes to nvim
 M.filetype_picker = function(opts)
   opts = opts or {}
@@ -186,36 +215,6 @@ M.filetype_picker = function(opts)
       })
       :find()
   end
-end
-
-local function get_available_or_specific_fts(t_fts)
-  local objs = {}
-  local _, luasnip = pcall(require, "luasnip")
-
-  local available = {}
-  if t_fts then
-    local all_available = luasnip.get_snippets()
-    for _, ft in pairs(t_fts) do
-      if all_available[ft] then
-        available[ft] = all_available[ft]
-      end
-    end
-  else
-    available = luasnip.available()
-  end
-
-  -- P(available, { depth = 2 })
-
-  for ft, t_snips in pairs(available) do
-    for _, snippet in ipairs(t_snips) do
-      table.insert(objs, {
-        ft = ft ~= "" and ft or "-",
-        context = snippet,
-      })
-    end
-  end
-
-  return objs
 end
 
 -- list snippets, either based on supplied filetypes,
@@ -331,5 +330,3 @@ M.snippets_picker = function(opts)
 end
 
 return M
-
--- return telescope.register_extension({ exports = { luasnip = luasnip_fn, filter_null = filter_null, filter_description = filter_description, get_docstring = get_docstring } })
