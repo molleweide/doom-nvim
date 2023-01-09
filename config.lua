@@ -37,9 +37,13 @@ end
 --   print(pre or "", vim.inspect(x))
 -- end
 
-P = function(...)
-  print(vim.inspect(...))
-  return v
+P = function(data, depth)
+  if depth then
+    print(vim.inspect(data, { depth = depth }))
+  else
+    print(vim.inspect(data))
+  end
+  return data
 end
 
 -- TODO: bind P( viw / viW )
@@ -139,7 +143,6 @@ P :
   Z Z
 : O
 ]]
-
 
 -- TODO: move this into custom keymaps functionality
 -- doom.settings.keymap.insert = "colemak_dh"
