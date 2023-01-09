@@ -13,6 +13,7 @@ local pr = {}
 
 pr.settings = {
   startup = true, -- should this be moved into the `doom.settings`
+  -- TODO: use this to watch all relevant dirs
   watch_plugin_dirs = {
     "lua",
     "after",
@@ -47,15 +48,28 @@ local function spawn_autocmds(name, repo_path, dep)
           dep and "(dependency of `" .. dep .. "`)" or ""
         )
 
+        -- TODO: custom package reloaders
+        --
+        --      A. Implement custom reloaders per module that are all merged
+        --          into one big doom.package_reloaders map
+        --
+        --        M.package_reloaders = {
+        --          luasnip = function()
+        --          end
+        --        }
+        --
+        --      B. if has custom reloader else run basic reloader.
+        --
+        --      if doom.package_reloaders[mname] then
+        --          doom.package_reloaders[mname]()
+        --      else
+        --        ...
+
         if mname == "luasnip" or mname == "luasnip_snippets" then
           doom.modules.features.extra_snippets.reload_all_snippets()
         else
           require("plenary.reload").reload_module(mname)
         end
-
-        -- TODO: if need to pass along the whole `doom.modules....` table
-        --        so that I can get access to see if there is a config function.
-        --        so that the config can be rerun.
 
       end
     end
@@ -110,6 +124,7 @@ end
 
 local function remove_package_watchers()
   log.debug("remove_package_watchers")
+  -- TODO: ...
 end
 
 -- RUN RELOADER ON STARTUP
