@@ -151,22 +151,23 @@ local function create_new_snip_for_filetype(prompt_bufnr, filetype)
   --    5. trigger helper snippet
 end
 
-local function get_available_or_specific_fts(t_fts)
+-- Returns list of flattened snippet objects with filetype `ft` attached to
+-- each snippet entry.
+local function get_available_or_specific_fts(scope)
   local objs = {}
   local _, luasnip = pcall(require, "luasnip")
-  local available = {}
-  if t_fts == "everything" then
-    available = luasnip.get_snippets()
-  elseif t_fts then
-    local all_available = luasnip.get_snippets()
-    for _, ft in pairs(t_fts) do
-      if all_available[ft] then
-        available[ft] = all_available[ft]
-      end
-    end
-  else
-    available = luasnip.available()
-  end
+  -- retrieve snippets
+  local available = luasnip.available(function(snip)
+    return {
+      id = snip.id,
+      name = snip.name,
+      trigger = snip.trigger,
+      description = snip.dscr,
+      wordTrig = snip.wordTrig and true or false,
+      regTrig = snip.regTrig and true or false,
+    }
+  end, { scope = scope })
+  -- flatten snippets
   for ft, t_snips in pairs(available) do
     for _, snippet in ipairs(t_snips) do
       table.insert(objs, {
@@ -232,23 +233,22 @@ end
 -- or available for current buf.
 M.snippets_picker = function(opts)
   opts = opts or {}
-  opts = vim.tbl_deep_extend(
-    "force",
-    themes.get_dropdown({
-      winblend = 10,
-      border = true,
-      layout_config = {
-        width = 0.3,
-        height = 0.5,
-      },
-    }),
-    opts
-  )
-  local objs = {}
+  -- opts = vim.tbl_deep_extend(
+  --   "force",
+  --   themes.get_dropdown({
+  --     winblend = 10,
+  --     border = true,
+  --     layout_config = {
+  --       width = 0.3,
+  --       height = 0.5,
+  --     },
+  --   }),
+  --   opts
+  -- )
   local has_luasnip, luasnip = pcall(require, "luasnip")
   if has_luasnip then
     local prompt_title = create_prompt_title(opts)
-    objs = get_available_or_specific_fts(opts.selected_filetypes)
+    local objs = get_available_or_specific_fts(opts.selected_filetypes)
     sort_snippet_entries(objs)
 
     local displayer = entry_display.create({
@@ -326,8 +326,8 @@ M.snippets_picker = function(opts)
         previewer = previewers.display_content.new(opts),
         sorter = conf.generic_sorter(opts),
         attach_mappings = function(_, map)
-          -- SELECT DEFAULT
           actions.select_default:replace(function(prompt_bufnr)
+            -- SELECT DEFAULT
             local selection = action_state.get_selected_entry()
             actions.close(prompt_bufnr)
             vim.cmd("startinsert")
@@ -344,17 +344,11 @@ M.snippets_picker = function(opts)
             end
             vim.cmd("stopinsert")
           end)
-          -- EDIT SNIPPET
           map("i", "<C-e>", function(prompt_bufnr)
+            -- EDIT SNIPPET
             local selection = action_state.get_selected_entry()
             actions.close(prompt_bufnr)
-            if selection.value.context.meta_data then
-              require("luasnip.loaders").edit_snippet_files({
-                target_snippet = selection.value.context,
-              })
-            else
-              print("Snippet '" .. selection.value.context.name .. "'" .. " doesn't have a source.\n" .. "You might have to set LuaSnip `config.store_meta_data = true`".." in order to store source path with `from_lua.load()`")
-            end
+            require("luasnip.extras").jump_to_snip(selection.value.context)
           end)
           -- map("i", "<C-e>", function()
           --   print("add new snippet to same file as fuzzy snippet")
