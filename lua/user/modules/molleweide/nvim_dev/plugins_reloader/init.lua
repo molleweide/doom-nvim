@@ -6,6 +6,11 @@ local pr = {}
 
 -- TODO: how can I use autocommands service to remove all of them here?
 
+-- TODO: add hook so that you can have a custom reload function per module
+--        if you'd like.
+--
+--        -- this
+
 pr.settings = {
   startup = true, -- should this be moved into the `doom.settings`
   watch_plugin_dirs = {
@@ -36,16 +41,22 @@ local function spawn_autocmds(name, repo_path, dep)
         return s:match("/([_%w]-)$") -- capture only dirname
       end, t_lua_module_paths)
       for _, mname in ipairs(t_lua_module_names) do
-        require("plenary.reload").reload_module(mname)
-
-        -- TODO: if need to pass along the whole `doom.modules....` table
-        --        so that I can get access to see if there is a config function.
-        --        so that the config can be rerun.
 
         log.info(
           "[PKG_WATCH]: Reloaded module: " .. mname,
           dep and "(dependency of `" .. dep .. "`)" or ""
         )
+
+        if mname == "luasnip" or mname == "luasnip_snippets" then
+          doom.modules.features.extra_snippets.reload_all_snippets()
+        else
+          require("plenary.reload").reload_module(mname)
+        end
+
+        -- TODO: if need to pass along the whole `doom.modules....` table
+        --        so that I can get access to see if there is a config function.
+        --        so that the config can be rerun.
+
       end
     end
   )
