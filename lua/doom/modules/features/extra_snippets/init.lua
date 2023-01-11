@@ -61,6 +61,13 @@ extra_snippets.settings = {
   },
 }
 
+-- TODO: collect all package_reloaders in `core` so that these can be accessed
+--        in the `plugins_reloader`
+extra_snippets.package_reloaders = {
+  luasnip = extra_snippets.reload_all_snippets,
+  luasnip_snippets = extra_snippets.reload_all_snippets,
+}
+
 extra_snippets.packages = {
   ["friendly-snippets"] = {
     "rafamadriz/friendly-snippets",
@@ -180,6 +187,13 @@ extra_snippets.binds = {
             end,
             name = "Picker: available snips",
           },
+          -- {
+          --   "F",
+          --   function()
+          --     -- TODO: only pick available filetypes...
+          --   end,
+          --   name = "Picker: luasnip;available fts",
+          -- },
           {
             "U",
             function()

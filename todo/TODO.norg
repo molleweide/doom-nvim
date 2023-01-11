@@ -1,0 +1,10 @@
+@document.meta
+title: TODO
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2023-01-11
+version: 0.0.12
+@end
+
+- [ ] prevent folds to collapse when entering insert mode with `o/O`
