@@ -8,9 +8,7 @@ local extra_snippets = {}
 
 local pp = "doom.modules.features.extra_snippets.pickers"
 
--- TODO: reload snippets by id so that it reloads faster.
 extra_snippets.reload_all_snippets = function()
-  -- log.info("Reloading all snippets..")
   require("plenary.reload").reload_module("luasnip")
   require("luasnip.config").setup(doom.features.lsp.settings.snippets)
   require("plenary.reload").reload_module("luasnip_snippets")
