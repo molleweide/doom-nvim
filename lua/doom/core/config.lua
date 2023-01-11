@@ -85,6 +85,15 @@ config.load = function()
         -- Add string tag so that we can easilly target modules later.
         result.type = "doom_module_single"
         utils.get_set_table_path(doom.modules, pc, result)
+
+        -- Needs to be attached to custom table since each package is unaware
+        -- of its respective doom module.
+        if result.package_reloaders then
+         for k, v in pairs(result.package_reloaders) do
+           doom.package_reloaders[k] = v
+         end
+        end
+
       else
         local log = require("doom.utils.logging")
         log.error(

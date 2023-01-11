@@ -6,11 +6,6 @@ local pr = {}
 
 -- TODO: how can I use autocommands service to remove all of them here?
 
--- TODO: add hook so that you can have a custom reload function per module
---        if you'd like.
---
---        -- this
-
 pr.settings = {
   startup = true, -- should this be moved into the `doom.settings`
   -- TODO: use this to watch all relevant dirs
@@ -28,6 +23,18 @@ local function is_local_path(s)
   return match
 end
 
+local function do_reload(mname, dep)
+  print("mname:", mname)
+  if doom.package_reloaders[mname] then
+    local dep_str = dep and "(dependency of `" .. dep .. "`)" or ""
+    log.info("[PKG_WATCH]: Custom reload: " .. mname, dep_str)
+    doom.package_reloaders[mname].on_reload()
+  else
+    log.info("[PKG_WATCH]: Default reload: " .. mname, dep_str)
+    require("plenary.reload").reload_module(mname)
+  end
+end
+
 local function spawn_autocmds(name, repo_path, dep)
   local repo_lua_path = string.format("%s%slua", repo_path, system.sep)
   local scan_dir_opts = { search_pattern = ".", depth = 1, only_dirs = true }
@@ -42,35 +49,7 @@ local function spawn_autocmds(name, repo_path, dep)
         return s:match("/([_%w]-)$") -- capture only dirname
       end, t_lua_module_paths)
       for _, mname in ipairs(t_lua_module_names) do
-
-        log.info(
-          "[PKG_WATCH]: Reloaded module: " .. mname,
-          dep and "(dependency of `" .. dep .. "`)" or ""
-        )
-
-        -- TODO: custom package reloaders
-        --
-        --      A. Implement custom reloaders per module that are all merged
-        --          into one big doom.package_reloaders map
-        --
-        --        M.package_reloaders = {
-        --          luasnip = function()
-        --          end
-        --        }
-        --
-        --      B. if has custom reloader else run basic reloader.
-        --
-        --      if doom.package_reloaders[mname] then
-        --          doom.package_reloaders[mname]()
-        --      else
-        --        ...
-
-        if mname == "luasnip" or mname == "luasnip_snippets" then
-          doom.modules.features.extra_snippets.reload_all_snippets()
-        else
-          require("plenary.reload").reload_module(mname)
-        end
-
+        do_reload(mname)
       end
     end
   )

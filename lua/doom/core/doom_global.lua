@@ -287,6 +287,7 @@ doom = {
     },
   },
   packages = {},
+  package_reloaders = {},
   --- Wrapper around packer.nvim `use` function
   ---
   --- Example:

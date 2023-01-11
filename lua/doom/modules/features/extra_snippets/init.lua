@@ -29,7 +29,7 @@ local pp = "doom.modules.features.extra_snippets.pickers"
 
 -- TODO: reload snippets by id so that it reloads faster.
 extra_snippets.reload_all_snippets = function()
-  log.info("Reloading all snippets..")
+  -- log.info("Reloading all snippets..")
   require("plenary.reload").reload_module("luasnip")
   require("luasnip.config").setup(doom.features.lsp.settings.snippets)
   require("plenary.reload").reload_module("luasnip_snippets")
@@ -63,9 +63,19 @@ extra_snippets.settings = {
 
 -- TODO: collect all package_reloaders in `core` so that these can be accessed
 --        in the `plugins_reloader`
+--
+--  module = {
+--    watch = { <paths>... },
+--    on_reload = <function>
+--  }
+--
+--
 extra_snippets.package_reloaders = {
-  luasnip = extra_snippets.reload_all_snippets,
-  luasnip_snippets = extra_snippets.reload_all_snippets,
+  luasnip = {
+    -- watch = { "arstarstntesnarstarstntsn" },
+    on_reload = extra_snippets.reload_all_snippets,
+  },
+  luasnip_snippets = { on_reload = extra_snippets.reload_all_snippets },
 }
 
 extra_snippets.packages = {
