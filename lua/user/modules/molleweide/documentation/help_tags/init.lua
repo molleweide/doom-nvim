@@ -1,0 +1,43 @@
+-- NOTE: Force refresh help tagsa if packer doesn't create them for all pkgs.
+
+-- https://github.com/wbthomason/packer.nvim/discussions/918
+
+--
+-- local opt_docs = vim.fn.stdpath('cache') .. '/docs/'
+-- vim.opt.runtimepath:append(opt_docs .. '*')
+--
+-- vim.api.nvim_create_autocmd(
+--   "User",
+--   {
+--     pattern = 'PackerComplete',
+--     callback = function()
+--         local packer = require('packer')
+--         local opt_root = packer.config.package_root .. '/packer/opt/'
+--         local shellescape = vim.fn.shellescape
+--
+--         -- Remove old doc directories/files.
+--         if vim.fn.isdirectory(opt_docs) == 1 then
+--           for name, _ in vim.fs.dir(opt_docs) do
+--             vim.fn.system('rm -r ' .. shellescape(opt_docs .. name))
+--           end
+--         end
+--
+--         -- Copy documentation to the opt_docs directory and generate helptags
+--         for name, _type in vim.fs.dir(opt_root) do
+--           if _type == 'directory' then
+--             local doc_dir = name .. '/doc'
+--             local src =  opt_root .. doc_dir
+--             local dst = opt_docs .. doc_dir
+--             if vim.fn.isdirectory(src) == 1 then
+--               vim.fn.system('mkdir -p ' .. shellescape(vim.fs.dirname(dst)))
+--               vim.fn.system('cp -r ' .. shellescape(src) .. ' ' .. shellescape(dst))
+--               vim.cmd('helptags ' .. dst)
+--             end
+--           end
+--         end
+--
+--         -- Trigger a runtimepath update.
+--         vim.opt.runtimepath = vim.opt.runtimepath
+--     end,
+--   }
+-- )

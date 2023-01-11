@@ -2,6 +2,8 @@ local log = require("doom.utils.logging")
 local uut = require("user.utils")
 local extra_snippets = {}
 
+-- luasnip configs https://github.com/L3MON4D3/LuaSnip/wiki/Nice-Configs#hint-node-type-with-virtual-text
+
 -- TODO: READ THE SOURCE FOR THESE AND UNDERSTAND HOW THEY LOAD SNIPS
 --      NOTE: https://github.com/utilyre/spoon.nvim/tree/main/lua/spoon
 --      NOTE: https://github.com/madskjeldgaard/cheeky-snippets.nvim
