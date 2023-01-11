@@ -24,14 +24,15 @@ local function is_local_path(s)
 end
 
 local function do_reload(mname, dep)
-  print("mname:", mname)
-  if doom.package_reloaders[mname] then
-    local dep_str = dep and "(dependency of `" .. dep .. "`)" or ""
-    log.info("[PKG_WATCH]: Custom reload: " .. mname, dep_str)
-    doom.package_reloaders[mname].on_reload()
-  else
-    log.info("[PKG_WATCH]: Default reload: " .. mname, dep_str)
-    require("plenary.reload").reload_module(mname)
+  if _doom.watch_plugin_changes_enabled then
+    if doom.package_reloaders[mname] then
+      local dep_str = dep and "(dependency of `" .. dep .. "`)" or ""
+      log.info("[PKG_WATCH]: Custom reload: " .. mname, dep_str)
+      doom.package_reloaders[mname].on_reload()
+    else
+      log.info("[PKG_WATCH]: Default reload: " .. mname, dep_str)
+      require("plenary.reload").reload_module(mname)
+    end
   end
 end
 
