@@ -6,25 +6,6 @@ local extra_snippets = {}
 --      NOTE: https://github.com/utilyre/spoon.nvim/tree/main/lua/spoon
 --      NOTE: https://github.com/madskjeldgaard/cheeky-snippets.nvim
 
--- NOTE: three reload locations for snippets
---
---    1. config with packer compile
---    2. plugin internal reload
---    3. rerun setup on user snippet files changed
-
--- TODO: fix reloader so that it reloads all snippets from scratch...
-
--- HACK: luasnip nvim glob source files
-
--- HACK: luasnip.available() add file path to each snippet.
---
---      - load up snippets in telescope
---      - select snippet
---      - open origin file
---      - use treesitter/search to find exact position
---      - move cursor to in position.
---      - and even enters insert or whatever.
-
 local pp = "doom.modules.features.extra_snippets.pickers"
 
 -- TODO: reload snippets by id so that it reloads faster.
@@ -61,15 +42,6 @@ extra_snippets.settings = {
   },
 }
 
--- TODO: collect all package_reloaders in `core` so that these can be accessed
---        in the `plugins_reloader`
---
---  module = {
---    watch = { <paths>... },
---    on_reload = <function>
---  }
---
---
 extra_snippets.package_reloaders = {
   luasnip = {
     -- watch = { "arstarstntesnarstarstntsn" },
@@ -96,39 +68,18 @@ extra_snippets.configs["friendly-snippets"] = function()
   require("luasnip.loaders.from_vscode").lazy_load()
 end
 
+-- todo: rewrite to use luasnips internal `from_lua` loader
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
-  -- NOTE: only using internal snippets and defaults atm
   require("luasnip_snippets").setup(doom.modules.features.extra_snippets.settings.luasnip_snippets)
 end
 
--- vim.cmd [[ Telescope luasnip ]]
+-- note: vim.cmd [[ Telescope luasnip ]]
 extra_snippets.configs["telescope-luasnip.nvim"] = function()
   local ok, telescope = pcall(require, "telescope")
   if ok then
     telescope.load_extension("luasnip")
   end
 end
-
--- extra_snippets.autocmds = {
---   {
---     "BufWritePost",
---     -- todo: move to settigs and use table.concat here.
---     -- "*/lua/doom/snippets/*.lua",
---     -- "*/lua/snippets/*.lua,*/lua/user/snippets/*.lua,*/lua/doom/snippets/*.lua", -- */user/snippets/**/*.lua",
---     table.concat(extra_snippets.settings.watch_dirs, ","),
---     function()
---       extra_snippets.reload_all_snippets()
---     end,
---   },
--- }
-
--- TODO: create file picker for doom snippet dirs
---
---    if doom.settings.dev then
---      include doom/snips/luasnips
---    else
---      only use user snip dir
---    end
 
 -- TODO: add snippet to filetype -> open `user/snips/luasnippets/<ft>/init.lua`
 
