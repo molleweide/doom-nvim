@@ -269,6 +269,8 @@ reloader.autocmds = function()
   -- TODO: settigs.disable_reload_for_patterns
   --      https://stackoverflow.com/questions/6496778/vim-run-autocmd-on-all-filetypes-except
 
+  -- TODO: add tweak -> toggle reload
+
   -- RELOAD DOOM ON SAVE
   if reloader.settings.reload_on_save then
     table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload })

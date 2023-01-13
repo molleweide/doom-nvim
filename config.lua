@@ -37,11 +37,12 @@ end
 --   print(pre or "", vim.inspect(x))
 -- end
 
-P = function(data, depth)
+P = function(data, depth, prefix_str)
+  local pre = prefix_str or ""
   if depth then
-    print(vim.inspect(data, { depth = depth }))
+    print(pre, vim.inspect(data, { depth = depth }))
   else
-    print(vim.inspect(data))
+    print(pre, vim.inspect(data))
   end
   return data
 end

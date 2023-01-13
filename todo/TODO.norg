@@ -7,6 +7,13 @@ created: 2023-01-11
 version: 0.0.12
 @end
 
-- [ ] prevent folds to collapse when entering insert mode with `o/O`
-- [ ] super tabs -> make optional
-- [ ] choice node popups `https://github.com/L3MON4D3/LuaSnip/wiki/Misc`
+* general
+  - [ ] prevent folds to collapse when entering insert mode with `o/O`
+  - [ ] super tabs -> make optional
+  - [ ] choice node popups `https://github.com/L3MON4D3/LuaSnip/wiki/Misc`
+  - [ ] toggle doom reload
+
+* submit PRs
+  - [ ] plugins_reloader
+  - [ ] doom.settings
+  - [ ] connor tree
