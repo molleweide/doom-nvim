@@ -17,6 +17,11 @@
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+-- TODO:
+--
+--  1. Each node is a key/value pair -> lhs / rhs
+--  2. If rhs = table -> traverse children.
+
 --
 -- TRAVERSER
 --
@@ -28,10 +33,13 @@ local tree_traverser = {
     local debug_node = builder_opts.debug_node
     local stack = {}
     local result = {}
+
     -- Traverse out, pops from stack, adds to result
     local traverse_out = function()
+      -- print("pop:", vim.inspect(stack[#stack]))
+      print("pop out")
       table.remove(stack, #stack)
-      table.remove(stack, #stack)
+      -- table.remove(stack, #stack)
     end
 
     -- Error does not add to result or anything
@@ -43,8 +51,10 @@ local tree_traverser = {
       print(("%s\n Occursed at key `%s`."):format(message, table.concat(path, "")))
       table.remove(result, #result)
     end
+
     local traverse_in
     traverse_in = function(key, node)
+      print("traverse into | key:", key, "value: ", node)
       table.insert(stack, { key = key, node = node })
       table.insert(result, { node = node, stack = vim.deepcopy(stack) })
       traverser(node, stack, traverse_in, traverse_out, err)
@@ -55,13 +65,18 @@ local tree_traverser = {
 
       traverser(tree, stack, traverse_in, traverse_out, err)
 
-      if opts.debug and debug_node then
-        for _, value in ipairs(result) do
-          debug_node(value.node, value.stack)
-        end
-      end
+      -- if opts.debug and debug_node then
+      --   for _, value in ipairs(result) do
+      --     debug_node(value.node, value.stack)
+      --   end
+      -- end
+
+
 
       for _, value in ipairs(result) do
+        -- print("--------------------------")
+        -- print("--------------------------")
+        -- P(value)
         handler(value.node, value.stack)
       end
     end
@@ -74,8 +89,9 @@ local tree_traverser = {
 
 -- This example implements depth first traversal of doom modules
 
--- Here we define a new traverser for doom modules, instead of being responsible for the
--- traversal of the tree itself, tree_traverser allows us to build a custom traversal algorithm specifically for our use case.
+-- Here we define a new traverser for doom modules, instead of being
+-- responsible for the traversal of the tree itself, tree_traverser allows us
+-- to build a custom traversal algorithm specifically for our use case.
 
 local modules_traverser = tree_traverser.build({
   -- Builds the traversal function defining how we should move through the tree
@@ -85,15 +101,38 @@ local modules_traverser = tree_traverser.build({
   -- @param err function(message: string) Traverses back a depth, this value is skipped by the handler (see below)
   traverser = function(node, stack, traverse_in, traverse_out, err)
     local parent = stack[#stack]
+    -- P(stack, nil, "trav_stack:")
+
     local parent_is_section = (
-        parent == nil or (type(parent.key) == "string" and type(parent.node) == "table")
-      )
+      parent == nil or (type(parent.key) == "string" and type(parent.node) == "table")
+    )
+
+    -- P(node)
     if type(node) == "table" and parent_is_section then
+
+      -- Handle case if a table is empty
+      if vim.tbl_count(node) == 0 then
+        print("{ empty }")
+        traverse_out()
+      end
+      -- print(vim.tbl_count(node))
+      -- if parent then
+      --   print("SECTION:", parent.key, node)
+      -- end
+
+      -- TODO: handle empty table case here?
+
       for key, value in pairs(node) do
+
+        -- so this
         traverse_in(key, value) -- Traverse into next layer
       end
+
+      traverse_out()
+
     elseif type(node) == "string" and not parent_is_section then
-      print(node)
+      print(vim.inspect(parent))
+      -- print("pop out | node:", node)
       traverse_out() -- This is a leaf, traverse back a layer
     else
       err(
@@ -112,13 +151,24 @@ local modules_traverser = tree_traverser.build({
   end,
 })
 
--- Example modules
 local modules = {
-  features = {
+  FEATURES = {
     "feature_test",
+    "feature_test2",
+    EMPTY = {},
+    XXX = {
+      "x1",
+      "x2",
+      YYY = {
+        "aaa",
+        "bbb",
+        "ccc",
+      },
+    },
   },
-  langs = {
+  LANGS = {
     "language_test",
+    "language_test2",
     -- 1,
     -- { "error" },
     -- nil,
@@ -127,20 +177,24 @@ local modules = {
   -- { "error" },
   -- nil,
 }
+local dm = require("doom.core.modules").enabled_modules
 
--- The second variable is a function to handle each node where we can implement the node handling logic and do the task we need.
--- modules_traverser can be re-used anytime we want to iterate over a modules structure now.
+-- The second variable is a function to handle each node where we can implement
+-- the node handling logic and do the task we need. modules_traverser can be
+-- re-used anytime we want to iterate over a modules structure now.
 modules_traverser(modules, function(node, stack)
+  --  print("------------")
+  -- P(stack)
+  -- P(node)
   if type(node) == "string" then
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
     end, stack)
     local path_string = "doom.modules." .. table.concat(path, ".")
 
-    print(path_string)
-  else
+    print("path_string >>>", path_string)
   end
-end, { debug = doom.logging == "trace" or doom.logging == "debug" })
+end, { debug = doom.settings.logging == "warn" or doom.settings.logging == "debug" })
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
