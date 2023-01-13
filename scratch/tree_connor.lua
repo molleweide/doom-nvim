@@ -1,27 +1,3 @@
--- Hey @molleweide, sorry for the delay reviewing this and thank you for the
--- PR. I think that generalising tree traversal is a good idea but there are
--- some issues with this implementation. I think the big thing is it's a bit
--- too featureful to go in utils right now (meant for lightweight, general,
--- re-usable functions). There are also some issues with seperation of concerns
--- where there tree knows how to handle modules.lua files, loaded modules and
--- keybinds maps, I think it's trying to do too much and it needs to be broken
--- out a bit.
-
--- One way of doing this would be to make tree.lua a tree traversal builder.
--- That allows us to easily define tree traversals for whatever our use case. I
--- think this will make it easier to re-use code, make it easier to read and
--- debug, and provide more specific error messages for whatever tree we're
--- traversing.
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-
--- TODO:
---
---  1. Each node is a key/value pair -> lhs / rhs
---  2. If rhs = table -> traverse children.
-
 --
 -- TRAVERSER
 --
@@ -101,39 +77,20 @@ local modules_traverser = tree_traverser.build({
   -- @param err function(message: string) Traverses back a depth, this value is skipped by the handler (see below)
   traverser = function(node, stack, traverse_in, traverse_out, err)
     local parent = stack[#stack]
-    -- P(stack, nil, "trav_stack:")
-
     local parent_is_section = (
       parent == nil or (type(parent.key) == "string" and type(parent.node) == "table")
     )
-
-    -- P(node)
     if type(node) == "table" and parent_is_section then
-
-      -- Handle case if a table is empty
       if vim.tbl_count(node) == 0 then
-        print("{ empty }")
-        traverse_out()
+        traverse_out() -- Handle case if a table is empty.
       end
-      -- print(vim.tbl_count(node))
-      -- if parent then
-      --   print("SECTION:", parent.key, node)
-      -- end
-
-      -- TODO: handle empty table case here?
-
       for key, value in pairs(node) do
-
-        -- so this
-        traverse_in(key, value) -- Traverse into next layer
+        traverse_in(key, value) -- Traverse into next layer.
       end
-
-      traverse_out()
+      traverse_out() -- Travel back up when a sub table has been completed.
 
     elseif type(node) == "string" and not parent_is_section then
-      print(vim.inspect(parent))
-      -- print("pop out | node:", node)
-      traverse_out() -- This is a leaf, traverse back a layer
+      traverse_out() -- This is a leaf, traverse back a layer.
     else
       err(
         ("doom-nvim: Error traversing doom modules in `modules.lua`, unexpected value `%s`."):format(
@@ -155,7 +112,7 @@ local modules = {
   FEATURES = {
     "feature_test",
     "feature_test2",
-    EMPTY = {},
+    EMPTY = {}, -- also handles this case, just in case...
     XXX = {
       "x1",
       "x2",
@@ -182,46 +139,67 @@ local dm = require("doom.core.modules").enabled_modules
 -- The second variable is a function to handle each node where we can implement
 -- the node handling logic and do the task we need. modules_traverser can be
 -- re-used anytime we want to iterate over a modules structure now.
-modules_traverser(modules, function(node, stack)
-  --  print("------------")
-  -- P(stack)
-  -- P(node)
+modules_traverser(dm, function(node, stack)
   if type(node) == "string" then
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
     end, stack)
     local path_string = "doom.modules." .. table.concat(path, ".")
-
-    print("path_string >>>", path_string)
+    print(path_string)
   end
 end, { debug = doom.settings.logging == "warn" or doom.settings.logging == "debug" })
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 
--- I really appreciate the code that you have written so far and the ideas for
--- this generalised traverser. I think for this to be worth it it needs to be
--- adaptable enough to work for other recursive structures (keymaps,
--- autocommands, commands). Currently this PR feels like it's adding more
--- complexity than needed to doom-nvim (my proposed solution does a bit as
--- well) and I think the goal should be not to increase LOC too much and write
--- something that is a lot simpler to read.
+-- print path example output when ran on `modules.lua`
 
--- Also some more general feedback
-
--- Use string.rep to build indentation I don't think it's worth having multiple
--- logging levels for the debug mode, I think just leave it as trace and debug
--- Maybe instead of a filter there can be a skip() function? Not sure if prev()
--- will already cover this use-case. Make sure that new functions in utils do
--- not have too specific a use-case, I believe that a lack of structure is a
--- lot better than "too much" structure (i.e. a function can only be used on a
--- very specific data structure). Try to clean up code where possible, use more
--- ternarary operators for simple checks, if a function has a lot of if
--- statements or deep nesting see if it can be shortened Try to think about the
--- most common use case (in this situation it'd be loading modules as fast as
--- possible, no debugging, no printing, etc) Try to make any computation
--- unrelated to the main use-case optional so we're not running unnecessary
--- code I hope this isn't too much feedback, I think generally it just needs
--- better seperation of concerns, adaptability and not to run unecessary code
--- for the main use case.
+-- doom.modules.core.doom
+-- doom.modules.core.nest
+-- doom.modules.core.treesitter
+-- doom.modules.core.reloader
+-- doom.modules.core.updater
+-- doom.modules.langs.lua
+-- doom.modules.langs.python
+-- doom.modules.langs.bash
+-- doom.modules.langs.javascript
+-- doom.modules.langs.typescript
+-- doom.modules.langs.css
+-- doom.modules.langs.vue
+-- doom.modules.langs.rust
+-- doom.modules.langs.cc
+-- doom.modules.langs.markdown
+-- doom.modules.langs.dockerfile
+-- doom.modules.themes.nvim.apprentice
+-- doom.modules.themes.nvim.aurora
+-- doom.modules.themes.nvim.cassiopeia
+-- doom.modules.themes.nvim.catppuccin
+-- doom.modules.themes.nvim.github
+-- doom.modules.themes.nvim.gruvbox
+-- doom.modules.themes.nvim.gruvbuddy
+-- doom.modules.themes.nvim.material
+-- doom.modules.themes.nvim.monochrome
+-- doom.modules.themes.nvim.monokai
+-- doom.modules.themes.nvim.moonlight
+-- doom.modules.themes.nvim.neon
+-- doom.modules.themes.nvim.nightfox
+-- doom.modules.themes.nvim.nord
+-- doom.modules.themes.nvim.nvcode
+-- doom.modules.themes.nvim.nvim_deus
+-- doom.modules.themes.nvim.oak
+-- doom.modules.themes.nvim.oceanic_next
+-- doom.modules.themes.nvim.one
+-- doom.modules.themes.nvim.onedark
+-- doom.modules.themes.nvim.onenord
+-- doom.modules.themes.nvim.roshivim
+-- doom.modules.themes.nvim.solarized
+-- doom.modules.themes.nvim.sonokai
+-- doom.modules.themes.nvim.spaceduck
+-- doom.modules.themes.nvim.starry
+-- doom.modules.themes.nvim.sunflower
+-- doom.modules.themes.nvim.tokyonight
+-- doom.modules.themes.nvim.vscode
+-- doom.modules.themes.vim.ariake
+-- doom.modules.themes.vim.iceberg
+-- doom.modules.themes.vim.tender
+-- -------------------------------------------------------------------------------

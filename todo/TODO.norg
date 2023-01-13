@@ -12,6 +12,8 @@ version: 0.0.12
   - [ ] super tabs -> make optional
   - [ ] choice node popups `https://github.com/L3MON4D3/LuaSnip/wiki/Misc`
   - [ ] toggle doom reload
+  - [ ] revert to exclusive t/T and f/F for regular mappings. If I need custom
+  behavior, then I should create additional custom mappings.
 
 * submit PRs
   - [ ] plugins_reloader
