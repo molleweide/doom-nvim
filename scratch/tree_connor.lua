@@ -12,10 +12,7 @@ local tree_traverser = {
 
     -- Traverse out, pops from stack, adds to result
     local traverse_out = function()
-      -- print("pop:", vim.inspect(stack[#stack]))
-      print("pop out")
       table.remove(stack, #stack)
-      -- table.remove(stack, #stack)
     end
 
     -- Error does not add to result or anything
@@ -30,7 +27,6 @@ local tree_traverser = {
 
     local traverse_in
     traverse_in = function(key, node)
-      print("traverse into | key:", key, "value: ", node)
       table.insert(stack, { key = key, node = node })
       table.insert(result, { node = node, stack = vim.deepcopy(stack) })
       traverser(node, stack, traverse_in, traverse_out, err)
@@ -41,18 +37,13 @@ local tree_traverser = {
 
       traverser(tree, stack, traverse_in, traverse_out, err)
 
-      -- if opts.debug and debug_node then
-      --   for _, value in ipairs(result) do
-      --     debug_node(value.node, value.stack)
-      --   end
-      -- end
-
-
+      if opts.debug and debug_node then
+        for _, value in ipairs(result) do
+          debug_node(value.node, value.stack)
+        end
+      end
 
       for _, value in ipairs(result) do
-        -- print("--------------------------")
-        -- print("--------------------------")
-        -- P(value)
         handler(value.node, value.stack)
       end
     end
@@ -147,12 +138,12 @@ modules_traverser(dm, function(node, stack)
     local path_string = "doom.modules." .. table.concat(path, ".")
     print(path_string)
   end
-end, { debug = doom.settings.logging == "warn" or doom.settings.logging == "debug" })
+end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
--- print path example output when ran on `modules.lua`
+-- print path output when ran on my `modules.lua`
 
 -- doom.modules.core.doom
 -- doom.modules.core.nest
