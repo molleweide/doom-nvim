@@ -74,12 +74,12 @@ local modules_traverser = tree_traverser.build({
     if type(node) == "table" and parent_is_section then
       if vim.tbl_count(node) == 0 then
         traverse_out() -- Handle case if a table is empty.
+      else
+        for key, value in pairs(node) do
+          traverse_in(key, value) -- Traverse into next layer.
+        end
+        traverse_out() -- Travel back up when a sub table has been completed.
       end
-      for key, value in pairs(node) do
-        traverse_in(key, value) -- Traverse into next layer.
-      end
-      traverse_out() -- Travel back up when a sub table has been completed.
-
     elseif type(node) == "string" and not parent_is_section then
       traverse_out() -- This is a leaf, traverse back a layer.
     else
@@ -130,7 +130,7 @@ local dm = require("doom.core.modules").enabled_modules
 -- The second variable is a function to handle each node where we can implement
 -- the node handling logic and do the task we need. modules_traverser can be
 -- re-used anytime we want to iterate over a modules structure now.
-modules_traverser(dm, function(node, stack)
+modules_traverser(modules, function(node, stack)
   if type(node) == "string" then
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
