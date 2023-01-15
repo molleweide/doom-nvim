@@ -99,7 +99,7 @@ local modules_traverser = tree_traverser.build({
   end,
 })
 
-local modules = {
+local m = {
   FEATURES = {
     "feature_test",
     "feature_test2",
@@ -127,10 +127,13 @@ local modules = {
 }
 local dm = require("doom.core.modules").enabled_modules
 
+-- TODO: where to put this one?
+--        dry: It is a recurring pattern
+
 -- The second variable is a function to handle each node where we can implement
 -- the node handling logic and do the task we need. modules_traverser can be
 -- re-used anytime we want to iterate over a modules structure now.
-modules_traverser(modules, function(node, stack)
+modules_traverser(m, function(node, stack)
   if type(node) == "string" then
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
@@ -139,58 +142,3 @@ modules_traverser(modules, function(node, stack)
     print(path_string)
   end
 end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-
--- print path output when ran on my `modules.lua`
-
--- doom.modules.core.doom
--- doom.modules.core.nest
--- doom.modules.core.treesitter
--- doom.modules.core.reloader
--- doom.modules.core.updater
--- doom.modules.langs.lua
--- doom.modules.langs.python
--- doom.modules.langs.bash
--- doom.modules.langs.javascript
--- doom.modules.langs.typescript
--- doom.modules.langs.css
--- doom.modules.langs.vue
--- doom.modules.langs.rust
--- doom.modules.langs.cc
--- doom.modules.langs.markdown
--- doom.modules.langs.dockerfile
--- doom.modules.themes.nvim.apprentice
--- doom.modules.themes.nvim.aurora
--- doom.modules.themes.nvim.cassiopeia
--- doom.modules.themes.nvim.catppuccin
--- doom.modules.themes.nvim.github
--- doom.modules.themes.nvim.gruvbox
--- doom.modules.themes.nvim.gruvbuddy
--- doom.modules.themes.nvim.material
--- doom.modules.themes.nvim.monochrome
--- doom.modules.themes.nvim.monokai
--- doom.modules.themes.nvim.moonlight
--- doom.modules.themes.nvim.neon
--- doom.modules.themes.nvim.nightfox
--- doom.modules.themes.nvim.nord
--- doom.modules.themes.nvim.nvcode
--- doom.modules.themes.nvim.nvim_deus
--- doom.modules.themes.nvim.oak
--- doom.modules.themes.nvim.oceanic_next
--- doom.modules.themes.nvim.one
--- doom.modules.themes.nvim.onedark
--- doom.modules.themes.nvim.onenord
--- doom.modules.themes.nvim.roshivim
--- doom.modules.themes.nvim.solarized
--- doom.modules.themes.nvim.sonokai
--- doom.modules.themes.nvim.spaceduck
--- doom.modules.themes.nvim.starry
--- doom.modules.themes.nvim.sunflower
--- doom.modules.themes.nvim.tokyonight
--- doom.modules.themes.nvim.vscode
--- doom.modules.themes.vim.ariake
--- doom.modules.themes.vim.iceberg
--- doom.modules.themes.vim.tender
--- -------------------------------------------------------------------------------
