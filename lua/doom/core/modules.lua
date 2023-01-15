@@ -282,7 +282,6 @@ modules.load_modules = function()
         end
       end
 
-
       profiler.stop(profile_msg)
     end
   end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
