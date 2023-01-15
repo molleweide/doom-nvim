@@ -1,3 +1,5 @@
+local traverser = require("doom.services.traverser")
+
 -- NOTE: hosts some recurring traversers in doom
 
 local M = {}
@@ -11,7 +13,7 @@ local M = {}
 -- responsible for the traversal of the tree itself, tree_traverser allows us
 -- to build a custom traversal algorithm specifically for our use case.
 
-M.modules_table = tree_traverser.build({
+M.traverse_modules = traverser.build({
   -- Builds the traversal function defining how we should move through the tree
   -- @param node any The node itself
   -- @param next function(node: any) Traverse into the traverse_in node, adding the node to the stack
@@ -51,7 +53,7 @@ M.modules_table = tree_traverser.build({
 })
 
 -- TODO: loop over `doom.modules`
-M.modules_loaded = tree_traverser.build({
+M.modules_loaded = traverser.build({
 })
 
 return M

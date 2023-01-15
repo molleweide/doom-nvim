@@ -4,9 +4,9 @@
 --  config options, pre-configuring the user's modules from `modules.lua`, and
 --  running the user's `config.lua` file.
 
-
 local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
+local mod_utils = require("doom.utils.modules")
 local tree = require("doom.utils.tree")
 local config = {}
 local filename = "config.lua"
@@ -62,18 +62,72 @@ config.load = function()
 
   profiler.start("framework|import modules")
 
+  -- -- NOTE: OLD TREE
+  -- -- Combine enabled modules (`modules.lua`) with core modules.
+  -- tree.traverse_table({
+  --   tree = require("doom.core.modules").enabled_modules,
+  --   leaf = function(stack, _, module_name)
+  --     local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
+  --     local profiler_message = ("modules|import `%s.%s`"):format(path_concat, module_name)
+  --     profiler.start(profiler_message)
+  --     -- If the section is `user` resolves from `lua/user/modules`
+  --     local search_paths = {
+  --       ("user.modules.%s"):format(path_concat),
+  --       ("doom.modules.%s"):format(path_concat),
+  --     }
+  --     local ok, result
+  --     for _, path in ipairs(search_paths) do
+  --       ok, result = xpcall(require, debug.traceback, path)
+  --       if ok then
+  --         break
+  --       end
+  --     end
+  --     if ok then
+  --       -- Add string tag so that we can easilly target modules later.
+  --       result.type = "doom_module_single"
+  --       utils.get_set_table_path(doom.modules, pc, result)
+  --
+  --       -- Needs to be attached to custom table since each package is unaware
+  --       -- of its respective doom module.
+  --       if result.package_reloaders then
+  --         for k, v in pairs(result.package_reloaders) do
+  --           doom.package_reloaders[k] = v
+  --         end
+  --       end
+  --     else
+  --       local log = require("doom.utils.logging")
+  --       log.error(
+  --         string.format(
+  --           "There was an error loading module '%s'. Traceback:\n%s",
+  --           path_concat,
+  --           result
+  --         )
+  --       )
+  --     end
+  --     profiler.stop(profiler_message)
+  --   end,
+  -- })
+
+  -- NOTE: NEW TREE
   -- Combine enabled modules (`modules.lua`) with core modules.
-  tree.traverse_table({
-    tree = require("doom.core.modules").enabled_modules,
-    leaf = function(stack, _, module_name)
-      local pc, path_concat = tree.flatten_stack(stack, module_name, ".")
-      local profiler_message = ("modules|import `%s.%s`"):format(path_concat, module_name)
+  local enabled_modules = require("doom.core.modules").enabled_modules
+  mod_utils.traverse_modules(enabled_modules, function(node, stack)
+    if type(node) == "string" then
+      local t_path = vim.tbl_map(function(stack_node)
+        return type(stack_node.key) == "string" and stack_node.key or stack_node.node
+      end, stack)
+
+      local path_module = table.concat(t_path, ".")
+
+      local profiler_message = ("modules|import `%s`"):format(path_module)
       profiler.start(profiler_message)
+
       -- If the section is `user` resolves from `lua/user/modules`
       local search_paths = {
-        ("user.modules.%s"):format(path_concat),
-        ("doom.modules.%s"):format(path_concat),
+        ("user.modules.%s"):format(path_module),
+        ("doom.modules.%s"):format(path_module),
       }
+
       local ok, result
       for _, path in ipairs(search_paths) do
         ok, result = xpcall(require, debug.traceback, path)
@@ -81,32 +135,34 @@ config.load = function()
           break
         end
       end
-      if ok then
-        -- Add string tag so that we can easilly target modules later.
-        result.type = "doom_module_single"
-        utils.get_set_table_path(doom.modules, pc, result)
 
+      if ok then
+        -- Add string tag so that we can easilly target modules with more
+        -- traversers, ie. in `core/modules` when traversing `doom.modules`
+        result.type = "doom_module_single"
+        utils.get_set_table_path(doom.modules, t_path, result)
         -- Needs to be attached to custom table since each package is unaware
         -- of its respective doom module.
         if result.package_reloaders then
-         for k, v in pairs(result.package_reloaders) do
-           doom.package_reloaders[k] = v
-         end
+          for k, v in pairs(result.package_reloaders) do
+            doom.package_reloaders[k] = v
+          end
         end
-
       else
         local log = require("doom.utils.logging")
         log.error(
           string.format(
             "There was an error loading module '%s'. Traceback:\n%s",
-            path_concat,
+            path_module,
             result
           )
         )
       end
+
       profiler.stop(profiler_message)
-    end,
-  })
+    end
+  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+
   profiler.stop("framework|import modules")
 
   profiler.start("framework|config.lua (user)")
@@ -166,7 +222,9 @@ config.load = function()
   end
 
   -- Color column
-  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
+      and tostring(doom.settings.max_columns)
+    or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering
@@ -182,5 +240,3 @@ end
 config.source = utils.find_config(filename)
 
 return config
-
-

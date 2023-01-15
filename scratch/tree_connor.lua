@@ -135,10 +135,18 @@ local dm = require("doom.core.modules").enabled_modules
 -- re-used anytime we want to iterate over a modules structure now.
 modules_traverser(m, function(node, stack)
   if type(node) == "string" then
+
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
     end, stack)
-    local path_string = "doom.modules." .. table.concat(path, ".")
-    print(path_string)
+
+    P(path)
+
+    local path_string = table.concat(path, ".")
+
+    -- Each module name
+    -- P(stack[#stack])
+    -- Full mod path
+    -- print(path_string)
   end
 end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
