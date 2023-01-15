@@ -58,10 +58,44 @@ end
 
 local function find_local_package_paths()
   local local_package_specs = {}
-  require("doom.utils.tree").traverse_table({
-    tree = doom.modules,
-    filter = "doom_module_single",
-    leaf = function(_, _, module)
+
+  -- require("doom.utils.tree").traverse_table({
+  --   tree = doom.modules,
+  --   filter = "doom_module_single",
+  --   leaf = function(_, _, module)
+  --     if module.packages then
+  --       for name, spec in pairs(module.packages) do
+  --         if is_local_path(spec[1]) then
+  --           local_package_specs[name] = { spec[1] }
+  --         end
+  --         if spec.requires ~= nil then
+  --           if type(spec.requires) == "table" then
+  --             for _, rspec in pairs(spec.requires) do
+  --               if type(rspec) == "table" then
+  --                 if is_local_path(rspec[1]) then
+  --                   local_package_specs[rspec[1]:match("/([_%w%.%-]-)$")] =
+  --                     { rspec[1], dependency_of = name }
+  --                 end
+  --               elseif is_local_path(rspec) then
+  --                 local_package_specs[rspec:match("/([_%w%.%-]-)$")] = { rspec, dependency = name }
+  --               end
+  --             end
+  --           else
+  --             -- Single string name dependency; requires = "xxx",
+  --             if is_local_path(spec.requires) then
+  --               local_package_specs[spec.requires:match("/([_%w%.%-]-)$")] =
+  --                 { spec.requires, dependency = name }
+  --             end
+  --           end
+  --         end
+  --       end
+  --     end
+  --   end,
+  -- })
+
+  require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
+    if node.type then
+      local module = node
       if module.packages then
         for name, spec in pairs(module.packages) do
           if is_local_path(spec[1]) then
@@ -89,8 +123,9 @@ local function find_local_package_paths()
           end
         end
       end
-    end,
-  })
+    end
+  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+
   return local_package_specs
 end
 
@@ -138,24 +173,24 @@ pr.cmds = {
   },
 }
 
-pr.autocmds = {
-  {
-    "User",
-    "*", -- Patterns can be ignored for this autocmd
-    function()
-      -- print("watch_plugin_changes_enabled", _doom.watch_plugin_changes_enabled)
-      if doom.settings.reload_local_plugins then
-        if
-          _doom.watch_plugin_changes_enabled == nil or _doom.watch_plugin_changes_enabled == false
-        then
-          -- print("doom watch if nil/false")
-          _doom.watch_plugin_changes_enabled = true
-          setup_package_watchers()
-        end
-      end
-    end,
-  },
-}
+-- pr.autocmds = {
+--   {
+--     "User",
+--     "*", -- Patterns can be ignored for this autocmd
+--     function()
+--       -- print("watch_plugin_changes_enabled", _doom.watch_plugin_changes_enabled)
+--       if doom.settings.reload_local_plugins then
+--         if
+--           _doom.watch_plugin_changes_enabled == nil or _doom.watch_plugin_changes_enabled == false
+--         then
+--           -- print("doom watch if nil/false")
+--           _doom.watch_plugin_changes_enabled = true
+--           setup_package_watchers()
+--         end
+--       end
+--     end,
+--   },
+-- }
 
 pr.binds = {
   {
