@@ -59,40 +59,6 @@ end
 local function find_local_package_paths()
   local local_package_specs = {}
 
-  -- require("doom.utils.tree").traverse_table({
-  --   tree = doom.modules,
-  --   filter = "doom_module_single",
-  --   leaf = function(_, _, module)
-  --     if module.packages then
-  --       for name, spec in pairs(module.packages) do
-  --         if is_local_path(spec[1]) then
-  --           local_package_specs[name] = { spec[1] }
-  --         end
-  --         if spec.requires ~= nil then
-  --           if type(spec.requires) == "table" then
-  --             for _, rspec in pairs(spec.requires) do
-  --               if type(rspec) == "table" then
-  --                 if is_local_path(rspec[1]) then
-  --                   local_package_specs[rspec[1]:match("/([_%w%.%-]-)$")] =
-  --                     { rspec[1], dependency_of = name }
-  --                 end
-  --               elseif is_local_path(rspec) then
-  --                 local_package_specs[rspec:match("/([_%w%.%-]-)$")] = { rspec, dependency = name }
-  --               end
-  --             end
-  --           else
-  --             -- Single string name dependency; requires = "xxx",
-  --             if is_local_path(spec.requires) then
-  --               local_package_specs[spec.requires:match("/([_%w%.%-]-)$")] =
-  --                 { spec.requires, dependency = name }
-  --             end
-  --           end
-  --         end
-  --       end
-  --     end
-  --   end,
-  -- })
-
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
       local module = node
