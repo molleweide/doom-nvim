@@ -51,7 +51,7 @@ local tree_traverser = {
 }
 
 --
--- EXAMPLE OF TRAVERSING MODULES
+-- MODULES TABLE
 --
 
 -- This example implements depth first traversal of doom modules
@@ -135,18 +135,55 @@ local dm = require("doom.core.modules").enabled_modules
 -- re-used anytime we want to iterate over a modules structure now.
 modules_traverser(m, function(node, stack)
   if type(node) == "string" then
-
     local path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key or stack_node.node
     end, stack)
-
-    P(path)
-
+    -- P(path)
     local path_string = table.concat(path, ".")
-
     -- Each module name
     -- P(stack[#stack])
     -- Full mod path
     -- print(path_string)
+  end
+end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+
+--
+-- MODULES LOADED
+--
+
+local modules_loaded = tree_traverser.build({
+  traverser = function(node, stack, traverse_in, traverse_out, err)
+    if node.type == "doom_module_single" then
+      traverse_out()
+    elseif type(node) == "table" then
+      for key, value in pairs(node) do
+        traverse_in(key, value) -- Traverse into next layer.
+      end
+      traverse_out() -- Travel back up when a sub table has been completed.
+    else
+      err(
+        ("doom-nvim: Error traversing `doom.modules`, unexpected value `%s`."):format(
+          vim.inspect(node)
+        )
+      ) -- Traverse back a layer but do not pass this value to the handler function.
+    end
+  end,
+  -- Optional debugging function that can be used to
+  debug_node = function(node, stack)
+    local parent = stack[#stack]
+    local indent_str = string.rep("--", #stack)
+    local indent_cap = type(node) == "table" and "+" or ">"
+    print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
+  end,
+})
+
+modules_loaded(doom.modules, function(node, stack)
+  if node.type then
+    P(stack, 3)
+    local t_path = vim.tbl_map(function(stack_node)
+      return type(stack_node.key) == "string" and stack_node.key
+    end, stack)
+    P(t_path)
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
   end
 end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })

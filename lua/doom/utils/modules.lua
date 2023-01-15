@@ -13,7 +13,7 @@ local M = {}
 -- responsible for the traversal of the tree itself, tree_traverser allows us
 -- to build a custom traversal algorithm specifically for our use case.
 
-M.traverse_modules = traverser.build({
+M.traverse_enabled = traverser.build({
   -- Builds the traversal function defining how we should move through the tree
   -- @param node any The node itself
   -- @param next function(node: any) Traverse into the traverse_in node, adding the node to the stack
@@ -52,8 +52,31 @@ M.traverse_modules = traverser.build({
   end,
 })
 
--- TODO: loop over `doom.modules`
-M.modules_loaded = traverser.build({
+M.traverse_loaded = traverser.build({
+  traverser = function(node, stack, traverse_in, traverse_out, err)
+    if node.type == "doom_module_single" then
+      traverse_out()
+    else
+      for key, value in pairs(node) do
+        traverse_in(key, value) -- Traverse into next layer.
+      end
+      traverse_out() -- Travel back up when a sub table has been completed.
+    end
+    -- else
+    --   err(
+    --     ("doom-nvim: Error traversing `doom.modules`, unexpected value `%s`."):format(
+    --       vim.inspect(node)
+    --     )
+    --   ) -- Traverse back a layer but do not pass this value to the handler function.
+    -- end
+  end,
+  -- Optional debugging function that can be used to
+  -- debug_node = function(node, stack)
+  --   local parent = stack[#stack]
+  --   local indent_str = string.rep("--", #stack)
+  --   local indent_cap = type(node) == "table" and "+" or ">"
+  --   print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
+  -- end,
 })
 
 return M

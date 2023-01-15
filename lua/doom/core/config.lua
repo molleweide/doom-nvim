@@ -111,7 +111,7 @@ config.load = function()
   -- NOTE: NEW TREE
   -- Combine enabled modules (`modules.lua`) with core modules.
   local enabled_modules = require("doom.core.modules").enabled_modules
-  mod_utils.traverse_modules(enabled_modules, function(node, stack)
+  mod_utils.traverse_enabled(enabled_modules, function(node, stack)
     if type(node) == "string" then
       local t_path = vim.tbl_map(function(stack_node)
         return type(stack_node.key) == "string" and stack_node.key or stack_node.node
