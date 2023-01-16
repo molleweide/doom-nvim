@@ -92,8 +92,8 @@ modules.load_modules = function()
               spec.commit = nil
             end
 
-            -- Initialise packer
-            use(spec)
+            -- Save module spec to be initialised later
+            table.insert(doom.packages, spec)
           end
         end
 
