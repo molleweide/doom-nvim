@@ -219,9 +219,8 @@ end
 
 -- Get or Set a table path list.
 --
--- Comes in handy with recursive module structures so that you can
--- check if eg. a deep path exists or if you want to create/set data
--- to a deep path.
+-- Used with recursive module structures so that you can check if eg. a deep
+-- path exists or if you want to create/set data to a deep path.
 --
 -- if no data supplies -> returns table path node or false if not exists
 --
