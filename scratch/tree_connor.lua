@@ -1,12 +1,18 @@
 --
 -- TRAVERSER
 --
+local default_debug_node = function(node, stack)
+  local parent = stack[#stack]
+  local indent_str = string.rep("--", #stack)
+  local indent_cap = type(node) == "table" and "+" or ">"
+  print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
+end
 
 local log = require("doom.utils.logging")
 local tree_traverser = {
   build = function(builder_opts)
     local traverser = builder_opts.traverser
-    local debug_node = builder_opts.debug_node
+    local debug_node = builder_opts.debug_node or default_debug_node
     local stack = {}
     local result = {}
 
@@ -168,22 +174,22 @@ local modules_loaded = tree_traverser.build({
       ) -- Traverse back a layer but do not pass this value to the handler function.
     end
   end,
-  -- Optional debugging function that can be used to
-  debug_node = function(node, stack)
-    local parent = stack[#stack]
-    local indent_str = string.rep("--", #stack)
-    local indent_cap = type(node) == "table" and "+" or ">"
-    print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
-  end,
+  -- -- Optional debugging function that can be used to
+  -- debug_node = function(node, stack)
+  --   local parent = stack[#stack]
+  --   local indent_str = string.rep("--", #stack)
+  --   local indent_cap = type(node) == "table" and "+" or ">"
+  --   print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
+  -- end,
 })
 
 modules_loaded(doom.modules, function(node, stack)
   if node.type then
-    P(stack, 3)
+    -- P(stack, 3)
     local t_path = vim.tbl_map(function(stack_node)
       return type(stack_node.key) == "string" and stack_node.key
     end, stack)
-    P(t_path)
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    -- P(t_path)
+    -- print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
   end
-end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+end, { debug = doom.settings.logging == "warn" or doom.settings.logging == "debug" })

@@ -1,18 +1,12 @@
 local traverser = require("doom.services.traverser")
 
--- NOTE: hosts some recurring traversers in doom
+--
+-- This file hosts some common recurring traversers in doom.
+--
 
 local M = {}
 
-
--- NOTE: loop over `enabled modules` table.
-
--- This example implements depth first traversal of doom modules
-
--- Here we define a new traverser for doom modules, instead of being
--- responsible for the traversal of the tree itself, tree_traverser allows us
--- to build a custom traversal algorithm specifically for our use case.
-
+-- Designed to travers `modules.lua` file
 M.traverse_enabled = traverser.build({
   -- Builds the traversal function defining how we should move through the tree
   -- @param node any The node itself
@@ -43,13 +37,13 @@ M.traverse_enabled = traverser.build({
       ) -- Traverse back a layer but do not pass this value to the handler function.
     end
   end,
-  -- Optional debugging function that can be used to
-  debug_node = function(node, stack)
-    local parent = stack[#stack]
-    local indent_str = string.rep("--", #stack)
-    local indent_cap = type(node) == "table" and "+" or ">"
-    print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
-  end,
+  -- -- Optional debugging function that can be used to
+  -- debug_node = function(node, stack)
+  --   local parent = stack[#stack]
+  --   local indent_str = string.rep("--", #stack)
+  --   local indent_cap = type(node) == "table" and "+" or ">"
+  --   print(("%s%s %s"):format(indent_str, indent_cap, type(node) == "table" and parent.key or node))
+  -- end,
 })
 
 M.traverse_loaded = traverser.build({

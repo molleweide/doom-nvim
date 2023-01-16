@@ -139,7 +139,9 @@ whichkey.configs["which-key.nvim"] = function()
       end
 
     end
-  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+  end
+    --, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
+    )
 
 end
 

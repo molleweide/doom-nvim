@@ -2,12 +2,30 @@
 -- TRAVERSER
 --
 
--- TODO: documentation
+-- TODO: More documentation
+
+-- Default debugger print
+local default_debug_node = function(node, stack)
+  local parent = stack[#stack]
+  local indent_str = string.rep("--", #stack)
+  local indent_cap = type(node) == "table" and "+" or ">"
+  print(
+    ("default: %s%s %s"):format(
+      indent_str,
+      indent_cap,
+      type(node) == "table" and parent.key or node
+    )
+  )
+end
+
+-- Default debug levels
+local default_log_levels =
+  { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
 
 local tree_traverser = {
   build = function(builder_opts)
     local traverser = builder_opts.traverser
-    local debug_node = builder_opts.debug_node
+    local debug_node = builder_opts.debug_node or default_debug_node
     local stack = {}
     local result = {}
 
@@ -35,6 +53,9 @@ local tree_traverser = {
 
     return function(tree, handler, opts)
       result = {} -- Reset result
+      if opts == nil then
+        opts = default_log_levels
+      end
 
       traverser(tree, stack, traverse_in, traverse_out, err)
 

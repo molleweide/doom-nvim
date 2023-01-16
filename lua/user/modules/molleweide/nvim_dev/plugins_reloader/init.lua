@@ -90,7 +90,9 @@ local function find_local_package_paths()
         end
       end
     end
-  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+  end
+    -- , { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
+  )
 
   return local_package_specs
 end
