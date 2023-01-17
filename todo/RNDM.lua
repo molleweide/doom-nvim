@@ -3,11 +3,13 @@
 
 XXX [ DAMMSUGA ] XXX
 
-[ VATTENLAOS ]
+XXX [ VATTENLAOS ] XXX
 
-[ MOLLEWEIDE MERGE TRAVERSER2 ]
+XXX [ MOLLEWEIDE MERGE TRAVERSER2 ] XXX
 
 [ RUN PITCH MACHINE ]
+-> run app locally
+-> make new branch for updating react.
 
 the odds of them both going down at the same time is just insane. that is not
 going to happen and so that is one of the reasons why this is just so insane.
