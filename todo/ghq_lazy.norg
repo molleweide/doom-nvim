@@ -1,0 +1,6 @@
+
+
+1. add using_qhg = true
+2. if using_ghq AND dev = true -> transform spec.
+
+
