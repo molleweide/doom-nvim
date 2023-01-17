@@ -23,6 +23,7 @@ local system = require("doom.core.system")
 -- }
 
 doom.settings.local_plugins_path = "~/code/repos/github.com"
+doom.settings.using_ghq = true
 
 ---------------------------
 ---       GLOBALS       ---

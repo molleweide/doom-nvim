@@ -79,6 +79,10 @@ doom = {
     -- @default
     local_plugins_path = "~/projects",
 
+    -- GHQ - If user is using ghq for managing repos
+    -- @default = false
+    using_ghq = false,
+
     -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
     -- @default true
     rooter_or_project = true,

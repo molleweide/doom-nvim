@@ -101,7 +101,7 @@ modules.load_modules = function()
         -- Setup package autogroups
         if module.autocmds then
           local autocmds = type(module.autocmds) == "function" and module.autocmds()
-            or module.autocmds
+              or module.autocmds
           for _, autocmd_spec in ipairs(autocmds) do
             autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
           end
@@ -123,7 +123,6 @@ modules.load_modules = function()
       profiler.stop(profile_msg)
     end
   end, { debug = doom.logging == "trace" or doom.logging == "debug" })
-
 end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
@@ -157,11 +156,39 @@ modules.try_sync = function()
 end
 
 modules.handle_lazynvim = function()
+  if doom.settings.using_ghq then
+    for _, spec in ipairs(doom.packages) do
+      if spec.dev then
+        -- TODO: transform each spec containing dev = true into `dir = <path>`
+        -- P(spec[1], 1)
+        local plugin_name = spec[1]
+        table.remove(spec, 1)
+        spec.dev = nil
+        spec["dir"] = doom.settings.local_plugins_path .. "/" .. plugin_name
+        P(spec)
+      end
+
+      if spec.dependencies then
+        for _, spec in pairs(spec.dependencies) do
+          if type(spec) == "table" then
+            if spec.dev then
+              local plugin_name = spec[1]
+              table.remove(spec, 1)
+              spec.dev = nil
+              spec["dir"] = doom.settings.local_plugins_path .. "/" .. plugin_name
+              P(spec)
+            end
+          end
+        end
+      end
+    end
+  end
+
   require("lazy").setup(doom.packages, {
-      dev = {
-        path = doom.settings.local_plugins_path,
-      },
-    })
+    dev = {
+      path = doom.settings.local_plugins_path,
+    },
+  })
 end
 
 return modules

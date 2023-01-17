@@ -15,6 +15,10 @@ profiler.start("framework|init.lua")
 
 -- Preload lazy nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+-- LOCAL LAZY
+
+-- UPSTREAM LAZY
 if not vim.loop.fs_stat(lazypath) then
   print("Bootstrapping lazy.nvim, please wait...")
   vim.fn.system({
@@ -26,6 +30,8 @@ if not vim.loop.fs_stat(lazypath) then
     lazypath,
   })
 end
+
+
 vim.opt.rtp:prepend(lazypath)
 
 -- Makes sure ~/.local/share/nvim exists, to prevent problems with logging

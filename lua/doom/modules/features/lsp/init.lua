@@ -115,9 +115,11 @@ lsp.packages = {
     commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
     event = "InsertEnter",
     dependencies = {
-      "L3MON4D3/LuaSnip",
-      -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
-      dev = true,
+      {
+        "L3MON4D3/LuaSnip",
+        -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
+        dev = true,
+      },
     },
   },
   ["cmp-nvim-lua"] = {
@@ -261,7 +263,7 @@ lsp.configs["nvim-cmp"] = function()
     formatting = {
       format = function(entry, item)
         item.kind =
-          string.format("%s %s", doom.features.lsp.settings.completion.kinds[item.kind], item.kind)
+        string.format("%s %s", doom.features.lsp.settings.completion.kinds[item.kind], item.kind)
         item.dup = vim.tbl_contains({ "path", "buffer" }, entry.source.name)
         return item
       end,
@@ -313,7 +315,7 @@ lsp.configs["nvim-cmp"] = function()
   }, {
     mapping = type(doom.features.lsp.settings.completion.mapping) == "function"
         and doom.features.lsp.settings.completion.mapping(cmp)
-      or doom.features.lsp.settings.completion.mapping,
+        or doom.features.lsp.settings.completion.mapping,
     enabled = function()
       return _doom.cmp_enable and vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
     end,

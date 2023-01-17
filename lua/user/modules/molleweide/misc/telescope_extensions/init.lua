@@ -17,7 +17,7 @@ local gh = code .. "github.com/"
 extensions.settings = {}
 
 if utils.is_module_enabled({"features", "telescope"}) then
-  -- print("!!!!!!!!") 
+  -- print("!!!!!!!!")
   extensions.packages = {
     ["telescope-repo.nvim"] = {
       "cljoly/telescope-repo.nvim",

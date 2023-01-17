@@ -55,7 +55,7 @@ projects.configs["project.nvim"] = function()
 end
 
 projects.binds = {
-  { "<leader>fps", "<cmd>Telescope projects<CR>", name = "Switch project" },
+  { "<leader>fps", [[<cmd>lua require'telescope'.extensions.projects.projects{}<CR>]], name = "Switch project" },
 }
 
 return projects
