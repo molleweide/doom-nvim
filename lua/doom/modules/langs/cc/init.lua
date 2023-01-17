@@ -62,7 +62,6 @@ cc.settings = {
 --   },
 -- }
 
-
 local langs_utils = require("doom.modules.langs.utils")
 cc.autocmds = {
   {

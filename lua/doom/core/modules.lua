@@ -33,95 +33,16 @@ modules.enabled_modules = vim.tbl_deep_extend("keep", core_modules, dofile(modul
 
 local system = require("doom.core.system")
 
---- Initial bootstrapping of packer including auto-installation if necessary
---- Initial bootstrapping of impatient.nvim
-modules.start = function()
-  if doom.settings.impatient_enabled then
-    local has_impatient = pcall(require, "impatient")
-    if not has_impatient then
-      -- Packer Bootstrapping
-      local packer_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/impatient.nvim"
-      if vim.fn.empty(vim.fn.glob(packer_path)) > 0 then
-        vim.notify("Bootstrapping impatient.nvim, please wait ...")
-        vim.fn.system({
-          "git",
-          "clone",
-          "--depth",
-          "1",
-          "https://github.com/lewis6991/impatient.nvim",
-          packer_path,
-        })
-      end
-
-      vim.cmd("packadd impatient.nvim")
-
-      require("impatient")
-    end
-  end
-
-  local has_packer = pcall(require, "packer")
-  if not has_packer then
-    modules._needs_sync = true
-    -- Packer Bootstrapping
-    local packer_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
-    if vim.fn.empty(vim.fn.glob(packer_path)) > 0 then
-      vim.notify("Bootstrapping packer.nvim, please wait ...")
-      vim.fn.system({
-        "git",
-        "clone",
-        "--depth",
-        "1",
-        "https://github.com/wbthomason/packer.nvim",
-        packer_path,
-      })
-    end
-
-    vim.cmd("packadd packer.nvim")
-  end
-
-  -- Load packer
-  local packer = require("packer")
-
-  -- Change some defaults
-  -- Of particular interest is compile_path: we use stdpath("data"), so as to not
-  -- have anything generated in Doom source (which goes in stdpath("config")).
-  packer.init({
-    compile_path = system.doom_compile_path,
-    git = {
-      clone_timeout = 300, -- 5 mins
-      subcommands = {
-        -- Prevent packer from downloading all branches metadata to reduce cloning cost
-        -- for heavy size plugins like plenary (removed the '--no-single-branch' git flag)
-        install = "clone --depth %i --progress",
-      },
-    },
-    display = {
-      open_fn = doom.settings.use_floating_win_packer and function()
-        return require("packer.util").float({ border = doom.settings.border_style })
-      end,
-    },
-    profile = {
-      enable = true,
-    },
-    log = {
-      level = doom.settings.logging,
-    },
-  })
-
-  packer.reset()
-end
-
 local keymaps_service = require("doom.services.keymaps")
 local commands_service = require("doom.services.commands")
 local autocmds_service = require("doom.services.autocommands")
 
 --- Applies commands, autocommands, packages from enabled modules (`modules.lua`).
 modules.load_modules = function()
-  local use = require("packer").use
   local logger = require("doom.utils.logging")
 
   -- Handle the Modules
-  mod_utils.traverse_loaded(doom.modules, function(node, stack)
+  require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
       local module = node
       local t_path = vim.tbl_map(function(stack_node)
@@ -172,8 +93,8 @@ modules.load_modules = function()
               spec.commit = nil
             end
 
-            -- Initialise packer
-            use(spec)
+            -- Save module spec to be initialised later
+            table.insert(doom.packages, spec)
           end
         end
 
@@ -201,20 +122,12 @@ modules.load_modules = function()
 
       profiler.stop(profile_msg)
     end
-  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+  end, { debug = doom.logging == "trace" or doom.logging == "debug" })
 
-  --
 end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
-  local use = require("packer").use
-
-  -- Handle extra user modules
-  for _, packer_spec in ipairs(doom.packages) do
-    use(packer_spec)
-  end
-
   -- Handle extra user cmds
   for _, cmd_spec in pairs(doom.cmds) do
     commands_service.set(cmd_spec[1], cmd_spec[2], cmd_spec[3] or cmd_spec.opts)
@@ -240,8 +153,11 @@ modules.try_sync = function()
         logger.error("Doom-nvim has been installed.  Please restart doom-nvim.")
       end,
     })
-    require("packer").sync()
   end
+end
+
+modules.handle_lazynvim = function()
+  require("lazy").setup(doom.packages)
 end
 
 return modules

@@ -9,7 +9,6 @@ typescript.settings = {
   --- Treesitter grammars to install
   --- @type string|string[]
   treesitter_grammars = "typescript",
-
   --- Disables default LSP config
   --- @type boolean
   disable_lsp = false,

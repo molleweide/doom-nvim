@@ -4,7 +4,7 @@
 --  if necessary.
 
 local profiler = require("doom.services.profiler")
-local profile_message = ("framework|set colorscheme `%s`"):format(doom.colorscheme)
+local profile_message = ("framework|set colorscheme `%s`"):format(doom.settings.colorscheme)
 
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")

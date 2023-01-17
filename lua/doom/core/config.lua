@@ -62,9 +62,12 @@ config.load = function()
 
   profiler.start("framework|import modules")
 
-  -- Combine enabled modules (`modules.lua`) with core modules.
   local enabled_modules = require("doom.core.modules").enabled_modules
-  mod_utils.traverse_enabled(
+
+  profiler.start("framework|import modules")
+
+  -- Combine enabled modules (`modules.lua`) with core modules.
+  require("doom.utils.modules").traverse_enabled(
     enabled_modules,
     function(node, stack)
       if type(node) == "string" then
@@ -117,7 +120,7 @@ config.load = function()
         profiler.stop(profiler_message)
       end
     end
-    , { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
+    , { debug = doom.settings.logging == "trace" or doom.settings.logging == "info" }
   )
 
   profiler.stop("framework|import modules")
@@ -167,21 +170,19 @@ config.load = function()
     vim.opt.clipboard = "unnamedplus"
   end
 
-  if doom.ignorecase then
+  if doom.settings.ignorecase then
     vim.cmd("set ignorecase")
   else
     vim.cmd("set noignorecase")
   end
-  if doom.smartcase then
+  if doom.settings.smartcase then
     vim.cmd("set smartcase")
   else
     vim.cmd("set nosmartcase")
   end
 
   -- Color column
-  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
-      and tostring(doom.settings.max_columns)
-    or ""
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering

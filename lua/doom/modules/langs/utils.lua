@@ -215,9 +215,12 @@ module.use_lsp_mason = function(lsp_name, options)
 
   -- Combine default on_attach with provided on_attach
   local on_attach_functions = {}
-  if utils.is_module_enabled("features", "illuminate") then
-    table.insert(on_attach_functions, utils.illuminate_attach)
-  end
+-- <<<<<<< HEAD
+--   if utils.is_module_enabled("features", "illuminate") then
+--     table.insert(on_attach_functions, utils.illuminate_attach)
+--   end
+-- =======
+-- >>>>>>> settings
   if user_config and user_config.on_attach then
     table.insert(on_attach_functions, user_config.on_attach)
   end
@@ -285,14 +288,18 @@ end
 --   end
 -- end
 
---- Helper to attach illuminate on LSP
-module.illuminate_attach = function(client)
-  require("illuminate").on_attach(client)
-  -- Set underline highlighting for Lsp references
-  vim.cmd("hi! LspReferenceText cterm=underline gui=underline")
-  vim.cmd("hi! LspReferenceWrite cterm=underline gui=underline")
-  vim.cmd("hi! LspReferenceRead cterm=underline gui=underline")
-end
+-- <<<<<<< HEAD
+--
+-- --- Helper to attach illuminate on LSP
+-- module.illuminate_attach = function(client)
+--   require("illuminate").on_attach(client)
+--   -- Set underline highlighting for Lsp references
+--   vim.cmd("hi! LspReferenceText cterm=underline gui=underline")
+--   vim.cmd("hi! LspReferenceWrite cterm=underline gui=underline")
+--   vim.cmd("hi! LspReferenceRead cterm=underline gui=underline")
+-- end
+-- =======
+-- >>>>>>> settings
 
 --- Get LSP capabilities for DOOM
 module.get_capabilities = function()

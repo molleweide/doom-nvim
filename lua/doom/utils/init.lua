@@ -217,6 +217,27 @@ utils.pick_compatible_field = function(compatibility_table)
   return last_field
 end
 
+--- Pads a string with chars on the right hand side.
+---@param str string String to pad
+---@param length number Intended length of string
+---@param char string|nil Single char to fill with
+---@return string,boolean Padded string,Flag if padding was needed
+utils.right_pad = function(str, length, char)
+  local res = str .. string.rep(char or " ", length - #str)
+
+  return res, res ~= str
+end
+--- Pads a string with chars on the left hand side.
+---@param str string String to pad
+---@param length number Intended length of string
+---@param char string|nil Single char to fill with
+---@return string,boolean Padded string,Flag if padding was needed
+utils.left_pad = function(str, length, char)
+  local res = string.rep(char or " ", length - #str) .. str
+
+  return res, res ~= str
+end
+
 -- Get or Set a table path list.
 --
 -- Used with recursive module structures so that you can check if eg. a deep
@@ -255,27 +276,6 @@ utils.get_set_table_path = function(head, tp, data)
       end
     end
   end
-end
-
---- Pads a string with chars on the right hand side.
----@param str string String to pad
----@param length number Intended length of string
----@param char string|nil Single char to fill with
----@return string,boolean Padded string,Flag if padding was needed
-utils.right_pad = function(str, length, char)
-  local res = str .. string.rep(char or " ", length - #str)
-
-  return res, res ~= str
-end
---- Pads a string with chars on the left hand side.
----@param str string String to pad
----@param length number Intended length of string
----@param char string|nil Single char to fill with
----@return string,boolean Padded string,Flag if padding was needed
-utils.left_pad = function(str, length, char)
-  local res = string.rep(char or " ", length - #str) .. str
-
-  return res, res ~= str
 end
 
 return utils

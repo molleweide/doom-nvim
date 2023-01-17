@@ -108,27 +108,25 @@ lsp.settings = {
 lsp.packages = {
   ["nvim-lspconfig"] = {
     "neovim/nvim-lspconfig",
-    commit = "334cc8601ce5f04384ebe79527284fd177938412",
-    module = "lspconfig",
+    commit = "ed88435764d8b00442e66d39ec3d9c360e560783",
   },
   ["nvim-cmp"] = {
     "hrsh7th/nvim-cmp",
-    commit = "0e436ee23abc6c3fe5f3600145d2a413703e7272",
-    requires = {
+    commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
+    event = "InsertEnter",
+    dependencies =  {
       "~/code/repos/github.com/L3MON4D3/LuaSnip",
-      -- 53e812a -> Jul 27 2022 (7 months ago)
       -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
-      module = "luasnip",
     },
   },
   ["cmp-nvim-lua"] = {
     "hrsh7th/cmp-nvim-lua",
-    commit = "d276254e7198ab7d00f117e88e223b4bd8c02d21",
+    commit = "f3491638d123cfd2c8048aefaf66d246ff250ca6",
     after = "nvim-cmp",
   },
   ["cmp-nvim-lsp"] = {
     "hrsh7th/cmp-nvim-lsp",
-    commit = "affe808a5c56b71630f17aa7c38e15c59fd648a8",
+    commit = "59224771f91b86d1de12570b4070fe4ad7cd1eeb",
     after = "nvim-cmp",
   },
   ["cmp-path"] = {
@@ -143,13 +141,14 @@ lsp.packages = {
   },
   ["cmp_luasnip"] = {
     "saadparwaiz1/cmp_luasnip",
-    commit = "a9de941bcbda508d0a45d28ae366bb3f08db2e36",
+    commit = "18095520391186d634a0045dacaa346291096566",
     after = "nvim-cmp",
   },
   ["lsp_signature.nvim"] = {
     "ray-x/lsp_signature.nvim",
-    commit = "e65a63858771db3f086c8d904ff5f80705fd962b",
+    commit = "1979f1118e2b38084e7c148f279eed6e9300a342",
     after = "nvim-lspconfig",
+    event = "VeryLazy",
   },
 }
 
@@ -321,11 +320,13 @@ lsp.configs["nvim-cmp"] = function()
 end
 lsp.configs["lsp_signature.nvim"] = function()
   -- Signature help
-  require("lsp_signature").setup(vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
-    handler_opts = {
-      border = doom.settings.border_style,
-    },
-  }))
+  require("lsp_signature").setup(
+    vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
+      handler_opts = {
+        border = doom.settings.border_style,
+      },
+    })
+  )
 end
 
 lsp.binds = function()
@@ -389,7 +390,7 @@ lsp.binds = function()
                   function()
                     vim.diagnostic.open_float(0, {
                       focusable = false,
-                      border = doom.border_style,
+                      border = doom.settings.border_style,
                     })
                   end,
                   name = "Line",

@@ -423,12 +423,12 @@ doom.settings.colorscheme = "tokyonight"
 -- Extra packages
 --
 
-doom.use_package(
-  "rafcamlet/nvim-luapad",
-  "nvim-treesitter/playground",
-  -- "tpope/vim-surround",
-  "dstein64/vim-startuptime"
-)
+-- doom.use_package(
+--   "rafcamlet/nvim-luapad",
+--   "nvim-treesitter/playground",
+--   -- "tpope/vim-surround",
+--   "dstein64/vim-startuptime"
+-- )
 
 -- doom.langs.lua.packages["lua-dev.nvim"] = { "max397574/lua-dev.nvim", ft = "lua" }
 

@@ -53,7 +53,7 @@ extra_snippets.package_reloaders = {
 extra_snippets.packages = {
   ["friendly-snippets"] = {
     "rafamadriz/friendly-snippets",
-    after = "LuaSnip",
+    event = "VeryLazy",
   },
   ["Luasnip-snippets.nvim"] = {
     uut.paths.ghq.github .. "molleweide/LuaSnip-snippets.nvim",

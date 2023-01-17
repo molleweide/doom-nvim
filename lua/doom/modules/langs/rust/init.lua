@@ -15,7 +15,6 @@ rust.settings = {
   --- Treesitter grammars to install
   --- @type string|string[]
   treesitter_grammars = "rust",
-
   --- Disables default LSP config
   --- @type boolean
   disable_lsp = false,
