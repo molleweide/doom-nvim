@@ -1,6 +1,5 @@
 {
   "Comment.nvim": { "branch": "master", "commit": "e89df176e8b38e931b7e71a470f923a317976d86" },
-  "LuaSnip": { "branch": "master", "commit": "53e812a6f51c9d567c98215733100f0169bcc20a" },
   "TrueZen.nvim": { "branch": "main", "commit": "98740c76254c65576ec294551028b65081053588" },
   "apprentice.nvim": { "branch": "main", "commit": "ef980c7feccd0d3ea650f93494b4d13a16c1471a" },
   "aquarium-vim": { "branch": "develop", "commit": "1f9417b11146580b47f2ecae26b9f3a75bf5e526" },

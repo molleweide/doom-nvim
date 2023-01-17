@@ -20,6 +20,19 @@ required.packages = {
 
 required.configs = {}
 
+-- required.configs["lazy.nvim"] = function()
+--   require("lazy").setup({
+--     {
+--       dev = {
+--         -- directory where you store your local plugin projects
+--         path = doom.settings.local_plugins_path,
+--         ---@type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
+--         -- patterns = {}, -- For example {"folke"}
+--       },
+--     },
+--   })
+-- end
+
 required.binds = function()
   local binds = {
     { "ZZ", require("doom.core.functions").quit_doom, name = "Fast exit" },
@@ -180,28 +193,28 @@ required.binds = function()
         },
       },
       {
--- <<<<<<< HEAD
---         "g",
---         name = "+git",
---         {
---           -- TODO: add quick save and push command
---           -- TODO: move to git helpers module
---           { "p", [[<cmd>TermExec cmd="git pull"<CR>]], name = "Pull" },
---           { "P", [[<cmd>TermExec cmd="git push"<CR>]], name = "Push" },
---           {
---             "C",
---             name = "+commit",
---             {
---               { "c", [[<cmd>TermExec cmd="git commit"<CR>]], name = "commit" },
---               { "a", [[<cmd>TermExec cmd="git commit --ammend"<CR>]], name = "ammend" },
---             },
---           },
---         },
---       },
---       {
---         -- TODO: move to help module
--- =======
--- >>>>>>> settings
+        -- <<<<<<< HEAD
+        --         "g",
+        --         name = "+git",
+        --         {
+        --           -- TODO: add quick save and push command
+        --           -- TODO: move to git helpers module
+        --           { "p", [[<cmd>TermExec cmd="git pull"<CR>]], name = "Pull" },
+        --           { "P", [[<cmd>TermExec cmd="git push"<CR>]], name = "Push" },
+        --           {
+        --             "C",
+        --             name = "+commit",
+        --             {
+        --               { "c", [[<cmd>TermExec cmd="git commit"<CR>]], name = "commit" },
+        --               { "a", [[<cmd>TermExec cmd="git commit --ammend"<CR>]], name = "ammend" },
+        --             },
+        --           },
+        --         },
+        --       },
+        --       {
+        --         -- TODO: move to help module
+        -- =======
+        -- >>>>>>> settings
         "h",
         name = "+help",
         {
@@ -315,12 +328,16 @@ required.autocmds = function()
 end
 
 required.cmds = {
-  { "DoomProfile", function(opts)
-    local show_async = string.find(opts.args, "async") ~= nil
-    require("doom.services.profiler").log({
-      show_async = show_async,
-    })
-  end, { nargs = "*" } }
+  {
+    "DoomProfile",
+    function(opts)
+      local show_async = string.find(opts.args, "async") ~= nil
+      require("doom.services.profiler").log({
+        show_async = show_async,
+      })
+    end,
+    { nargs = "*" },
+  },
 }
 
 return required

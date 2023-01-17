@@ -17,15 +17,18 @@ local gh = code .. "github.com/"
 extensions.settings = {}
 
 if utils.is_module_enabled({"features", "telescope"}) then
+  -- print("!!!!!!!!") 
   extensions.packages = {
     ["telescope-repo.nvim"] = {
-      up.ghq.github .. "cljoly/telescope-repo.nvim",
+      "cljoly/telescope-repo.nvim",
       after = { "telescope.nvim" },
+      dev = true
     },
-    ["telescope-packer.nvim"] = {
-      up.ghq.github .. "nvim-telescope/telescope-packer.nvim",
-      after = { "telescope.nvim" },
-    },
+    -- ["telescope-packer.nvim"] = {
+    --   "nvim-telescope/telescope-packer.nvim",
+    --   after = { "telescope.nvim" },
+    --   dev = true
+    -- },
     ["telescope-github.nvim"] = {
       "nvim-telescope/telescope-github.nvim",
       after = { "telescope.nvim" },

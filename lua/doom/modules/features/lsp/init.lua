@@ -114,9 +114,10 @@ lsp.packages = {
     "hrsh7th/nvim-cmp",
     commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
     event = "InsertEnter",
-    dependencies =  {
-      "~/code/repos/github.com/L3MON4D3/LuaSnip",
+    dependencies = {
+      "L3MON4D3/LuaSnip",
       -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
+      dev = true,
     },
   },
   ["cmp-nvim-lua"] = {
@@ -295,7 +296,7 @@ lsp.configs["nvim-cmp"] = function()
         "s",
       }),
       [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
-        if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab  then
+        if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_prev_item()
         elseif luasnip.jumpable(-1) then
           print("feedkeys")

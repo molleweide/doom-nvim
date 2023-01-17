@@ -120,7 +120,7 @@ config.load = function()
         profiler.stop(profiler_message)
       end
     end
-    , { debug = doom.settings.logging == "trace" or doom.settings.logging == "info" }
+    , { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
   )
 
   profiler.stop("framework|import modules")

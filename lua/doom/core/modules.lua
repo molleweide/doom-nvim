@@ -157,7 +157,11 @@ modules.try_sync = function()
 end
 
 modules.handle_lazynvim = function()
-  require("lazy").setup(doom.packages)
+  require("lazy").setup(doom.packages, {
+      dev = {
+        path = doom.settings.local_plugins_path,
+      },
+    })
 end
 
 return modules

@@ -147,26 +147,9 @@ github.configs["octo.nvim"] = function()
   })
 end
 
-
-
-
-
-
 -- github.autocmds = {}
 --
 -- github.cmds = {}
-
-
-
-
-
-
-
-
-
-
-
-
 
 -- local wk = require("which-key")
 -- wk.register({
@@ -176,26 +159,26 @@ end
 --     },
 -- }, { prefix = "<leader>" })
 
-
-
-
-
-
-
-
 -- TODO: fix name attr on all `gh` binds
 
 github.binds = {
+
   {
-    "<leader>g",
-    name = "+git",
+    "<leader>",
+    name = "+prefix",
     {
       {
-        "o",
-        name = "+octo",
+        "g",
+        name = "+git",
         {
-          { "i", ":Octo issue ", name = "issue", options = { silent = false } },
-          { "l", "<cmd>Octo issue list<cr>", name = "issue list" },
+          {
+            "o",
+            name = "+octo",
+            {
+              { "i", ":Octo issue ", name = "issue", options = { silent = false } },
+              { "l", "<cmd>Octo issue list<cr>", name = "issue list" },
+            },
+          },
         },
       },
     },

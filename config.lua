@@ -22,6 +22,8 @@ local system = require("doom.core.system")
 --   stab = "<C-h>",
 -- }
 
+doom.settings.local_plugins_path = "~/code/repos/github.com"
+
 ---------------------------
 ---       GLOBALS       ---
 ---------------------------

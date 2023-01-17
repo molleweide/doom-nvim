@@ -75,6 +75,10 @@ doom = {
     -- @default = false
     autosave = true,
 
+    -- Local plugins path
+    -- @default
+    local_plugins_path = "~/projects",
+
     -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
     -- @default true
     rooter_or_project = true,
@@ -284,7 +288,6 @@ doom = {
     reload_doom = true,
     reload_local_plugins = true,
 
-    local_plugins_path = "",
     fork_package_cmd = "",
 
     doom_ui = {
