@@ -26,7 +26,6 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 --
 --
 
-
 local function test_print_package_pattern(k, pat)
   if string.match(k, pat) then
     print("has pat '" .. pat .. "'", k)
@@ -188,6 +187,7 @@ end
 
 --- Reload Neovim and simulate a new run
 reloader.reload = function()
+  if doom.modules.core.reloader.settings.reload_on_save then
   -- Store the time taken to reload Doom
   local reload_time = vim.fn.reltime()
   log.info("Reloading Doom ...")
@@ -200,6 +200,9 @@ reloader.reload = function()
       .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
       .. " seconds"
   )
+  else
+    log.info("Reload disabled...")
+  end
 end
 
 reloader.settings = {
@@ -272,7 +275,7 @@ reloader.autocmds = function()
   -- TODO: add tweak -> toggle reload
 
   -- RELOAD DOOM ON SAVE
-  if reloader.settings.reload_on_save then
+  if doom.modules.core.reloader.settings.reload_on_save then
     table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload })
     table.insert(autocmds, {
       "BufWritePost",
@@ -290,5 +293,32 @@ reloader.autocmds = function()
 
   return autocmds
 end
+
+reloader.binds = {
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      {
+        "D",
+        name = "+doom",
+        {
+          {
+            "L",
+            function()
+              doom.modules.core.reloader.settings.reload_on_save =
+                not doom.modules.core.reloader.settings.reload_on_save
+              print(
+                "toggle doom reload on save: ",
+                doom.modules.core.reloader.settings.reload_on_save
+              )
+            end,
+            name = "ToggleReloadOnSave",
+          },
+        },
+      },
+    },
+  },
+}
 
 return reloader
