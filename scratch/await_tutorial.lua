@@ -1,7 +1,13 @@
 local a = require "doom.utils.await"
+local pa = require "plenary.async"
 local co = coroutine
 local uv = vim.loop
 
+P(a)
+
+-- TODO: I shall replace each instance in this file with a plenary equivalent
+-- and see if I can get the examples to print as they should. Because, if so
+-- then this would allow me to actually fucing do what I want.
 
 --#################### ########### ####################
 --#################### Sync Region ####################
