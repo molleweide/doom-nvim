@@ -159,13 +159,10 @@ modules.handle_lazynvim = function()
   if doom.settings.using_ghq then
     for _, spec in ipairs(doom.packages) do
       if spec.dev then
-        -- TODO: transform each spec containing dev = true into `dir = <path>`
-        -- P(spec[1], 1)
         local plugin_name = spec[1]
         table.remove(spec, 1)
         spec.dev = nil
         spec["dir"] = doom.settings.local_plugins_path .. "/" .. plugin_name
-        P(spec)
       end
 
       if spec.dependencies then
@@ -176,7 +173,6 @@ modules.handle_lazynvim = function()
               table.remove(spec, 1)
               spec.dev = nil
               spec["dir"] = doom.settings.local_plugins_path .. "/" .. plugin_name
-              P(spec)
             end
           end
         end

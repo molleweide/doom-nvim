@@ -47,14 +47,14 @@ git.settings = {
       noremap = true,
       buffer = true,
 
-      ["n ]c"] = {
-        expr = true,
-        "&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'",
-      },
-      ["n [c"] = {
-        expr = true,
-        "&diff ? '[c' : '<cmd>lua require\"gitsigns\".prev_hunk()<CR>'",
-      },
+      -- ["n ]c"] = {
+      --   expr = true,
+      --   "&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'",
+      -- },
+      -- ["n [c"] = {
+      --   expr = true,
+      --   "&diff ? '[c' : '<cmd>lua require\"gitsigns\".prev_hunk()<CR>'",
+      -- },
     },
     watch_gitdir = { interval = 1000, follow_files = true },
     current_line_blame_opts = {
@@ -263,6 +263,7 @@ end
 local function commit_hunk_under_cursor()
   require("vgit").project_unstage_all()
   require("gitsigns").stage_hunk()
+
   vim.cmd("Neogit commit")
   -- run norm c
 end
@@ -272,6 +273,25 @@ local function commit_current_buffer_only()
   require("vgit").buffer_stage()
   vim.cmd("Neogit commit")
 end
+
+-- -- Actions
+-- map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
+-- map({ "n", "v" }, "<leader>hr", ":Gitsigns reset_hunk<CR>")
+-- map("n", "<leader>hS", gs.stage_buffer)
+-- map("n", "<leader>hu", gs.undo_stage_hunk)
+-- map("n", "<leader>hR", gs.reset_buffer)
+-- map("n", "<leader>hp", gs.preview_hunk)
+-- map("n", "<leader>hb", function()
+--   gs.blame_line({ full = true })
+-- end)
+-- map("n", "<leader>tb", gs.toggle_current_line_blame)
+-- map("n", "<leader>hd", gs.diffthis)
+-- map("n", "<leader>hD", function()
+--   gs.diffthis("~")
+-- end)
+-- map("n", "<leader>td", gs.toggle_deleted)
+-- -- Text object
+-- map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
 
 git.binds = {
   { "ih", ':<C-U>lua require"gitsigns".select_hunk()<CR>', name = "select hunk", mode = "o" },
@@ -285,6 +305,41 @@ git.binds = {
         name = "+git",
 
         {
+          -- {
+          --   "s",
+          --   "<cmd>lua require'gitsigns'.stage_hunk()<CR>",
+          --   name = " Stage Hunk",
+          -- },
+          -- {
+          --   "u",
+          --   "<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>",
+          --   name = " Unstage Hunk",
+          -- },
+          -- {
+          --   "R",
+          --   "<cmd>lua require'gitsigns'.reset_hunk()<CR>",
+          --   name = " Reset Hunk",
+          -- },
+          -- {
+          --   "n",
+          --   "<cmd>lua require'gitsigns'.next_hunk()<CR>",
+          --   name = "Next Hunk",
+          -- },
+          -- {
+          --   "p",
+          --   "<cmd>lua require'gitsigns'.prev_hunk()<CR>",
+          --   name = "Prev Hunk",
+          -- },
+          -- {
+          --   "b",
+          --   "<cmd>lua require'gitsigns'.blame_line()<CR>",
+          --   name = "Blame Line",
+          -- },
+          -- {
+          --   "h",
+          --   "<cmd>lua require'gitsigns'.preview_hunk()<CR>",
+          --   name = " Preview Hunk",
+          -- },
           -----------------------------------------------------------------------------
           -- COMMITS
           -----------------------------------------------------------------------------

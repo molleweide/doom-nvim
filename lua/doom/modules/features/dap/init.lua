@@ -15,22 +15,25 @@ dap.settings = {
       edit = "e",
       repl = "r",
     },
-    sidebar = {
-      elements = {
-        "scopes",
-        "breakpoints",
-        "stacks",
-        "watches",
+    layouts = {
+      {
+        elements = {
+          "scopes",
+          "breakpoints",
+          "stacks",
+          "watches",
+        },
+        size = 40,
+        position = "left",
       },
-      size = 40,
-      position = "left",
-    },
-    tray = {
-      elements = {
-        "repl",
+      {
+        elements = {
+          "repl",
+          "console",
+        },
+        size = 10,
+        position = "bottom",
       },
-      size = 10,
-      position = "bottom",
     },
   },
 }

@@ -28,7 +28,6 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 
-
 vim.opt.rtp:prepend(lazypath)
 
 -- Makes sure ~/.local/share/nvim exists, to prevent problems with logging

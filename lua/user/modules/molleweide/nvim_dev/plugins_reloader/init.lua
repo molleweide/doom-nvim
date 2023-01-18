@@ -24,6 +24,7 @@ local function is_local_path(s)
 end
 
 local function do_reload(mname, dep)
+  print("xxxxx")
   if _doom.watch_plugin_changes_enabled then
     if doom.package_reloaders[mname] then
       local dep_str = dep and "(dependency of `" .. dep .. "`)" or ""
@@ -50,6 +51,7 @@ local function spawn_autocmds(name, repo_path, dep)
         return s:match("/([_%w]-)$") -- capture only dirname
       end, t_lua_module_paths)
       for _, mname in ipairs(t_lua_module_names) do
+        print("mname:", mname)
         do_reload(mname)
       end
     end

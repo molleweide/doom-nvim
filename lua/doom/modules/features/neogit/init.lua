@@ -153,7 +153,7 @@ neogit.binds = {
               { 'c', '<cmd>Neogit commit<CR>', name = "neogit commit"},
             }
           },
-          { "n", "<cmd>Neogit<CR>", name = "Open Neogit" },
+          { "N", "<cmd>Neogit<CR>", name = "Open Neogit" },
         },
       },
     },
