@@ -235,7 +235,8 @@ git.settings = {
 git.packages = {
   ["gitsigns.nvim"] = {
     "lewis6991/gitsigns.nvim",
-    commit = "3791dfa1ee356a3250e0b74f63bad90e27455f60",
+    commit = "addd6e174a85fc1c4007ab0b65d77e6555b417bf",
+    event = "VeryLazy",
   },
   ["vgit.nvim"] = { "tanvirtin/vgit.nvim" },
   ["git-blame.nvim"] = { "f-person/git-blame.nvim" },
@@ -261,17 +262,26 @@ git.configs["vgit.nvim"] = function()
 end
 
 local function commit_hunk_under_cursor()
-  require("vgit").project_unstage_all()
-  require("gitsigns").stage_hunk()
+  print("commit hunk under cursor")
+  local gitsigns = require("gitsigns")
+  local vgit = require("vgit")
+  -- local hs = gitsigns.get_hunks()
+  -- local ax = gitsigns.get_actions()
+  -- P(ax, 2)
 
-  vim.cmd("Neogit commit")
+  vgit.project_unstage_all()
+
+  gitsigns.stage_hunk()
+
+  -- vim.cmd("Neogit commit")
+
   -- run norm c
 end
 
 local function commit_current_buffer_only()
   require("vgit").project_unstage_all()
   require("vgit").buffer_stage()
-  vim.cmd("Neogit commit")
+  -- vim.cmd("Neogit commit")
 end
 
 -- -- Actions
@@ -305,11 +315,11 @@ git.binds = {
         name = "+git",
 
         {
-          -- {
-          --   "s",
-          --   "<cmd>lua require'gitsigns'.stage_hunk()<CR>",
-          --   name = " Stage Hunk",
-          -- },
+          {
+            "s",
+            "<cmd>lua require'gitsigns'.stage_hunk()<CR>",
+            name = " Stage Hunk",
+          },
           -- {
           --   "u",
           --   "<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>",
@@ -320,16 +330,16 @@ git.binds = {
           --   "<cmd>lua require'gitsigns'.reset_hunk()<CR>",
           --   name = " Reset Hunk",
           -- },
-          -- {
-          --   "n",
-          --   "<cmd>lua require'gitsigns'.next_hunk()<CR>",
-          --   name = "Next Hunk",
-          -- },
-          -- {
-          --   "p",
-          --   "<cmd>lua require'gitsigns'.prev_hunk()<CR>",
-          --   name = "Prev Hunk",
-          -- },
+          {
+            "n",
+            "<cmd>lua require'gitsigns'.next_hunk()<CR>",
+            name = "Next Hunk",
+          },
+          {
+            "p",
+            "<cmd>lua require'gitsigns'.prev_hunk()<CR>",
+            name = "Prev Hunk",
+          },
           -- {
           --   "b",
           --   "<cmd>lua require'gitsigns'.blame_line()<CR>",
@@ -348,13 +358,19 @@ git.binds = {
             name = "+commits",
             {
               { "t", "<cmd>Telescope git_commits<CR>", name = "Tele commits" },
-              { "h", commit_hunk_under_cursor, name = "commit single hunk" }, -- resets all other
+              {
+                "h",
+                function()
+                  commit_hunk_under_cursor()
+                end,
+                name = "commit single hunk",
+              }, -- resets all other
               {
                 "b",
                 function()
                   require("vgit").project_unstage_all()
                   require("vgit").buffer_stage()
-                  vim.cmd("Neogit commit")
+                  -- vim.cmd("Neogit commit")
                 end,
                 name = "commit current buf",
               }, -- resets all other
@@ -372,7 +388,7 @@ git.binds = {
               { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
               { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
               { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
-              { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
+              -- { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
               { "r", ":lua require('vgit').buffer_hunk_reset()<cr>", name = "reset hunk" },
               { "p", ":lua require('vgit').buffer_hunk_preview()<cr>", name = "preview hunk" },
               { "u", ":lua require('vgit').buffer_reset()<cr>", name = "buf reset" },

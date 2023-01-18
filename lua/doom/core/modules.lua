@@ -164,7 +164,6 @@ modules.handle_lazynvim = function()
         spec.dev = nil
         spec["dir"] = doom.settings.local_plugins_path .. "/" .. plugin_name
       end
-
       if spec.dependencies then
         for _, spec in pairs(spec.dependencies) do
           if type(spec) == "table" then
@@ -179,7 +178,6 @@ modules.handle_lazynvim = function()
       end
     end
   end
-
   require("lazy").setup(doom.packages, {
     dev = {
       path = doom.settings.local_plugins_path,

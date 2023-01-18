@@ -15,6 +15,11 @@ version: 0.0.12
   - [ ] revert to exclusive t/T and f/F for regular mappings. If I need custom
   behavior, then I should create additional custom mappings.
 
+* git
+  - [ ] async await -> commit hunk
+    1. read: https://www.lua.org/pil/9.1.html
+    2. walk through: https://github.com/ms-jpq/lua-async-await
+
 * submit PRs
   - [ ] plugins_reloader
   - [ ] doom.settings

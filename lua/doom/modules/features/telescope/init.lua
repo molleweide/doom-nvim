@@ -159,7 +159,7 @@ telescope.binds = function()
         {
           { "S", "<cmd>Telescope git_status<CR>", name = "Status" },
           { "B", "<cmd>Telescope git_branches<CR>", name = "Branches" },
-          { "c", "<cmd>Telescope git_commits<CR>", name = "Commits" },
+          -- { "c", "<cmd>Telescope git_commits<CR>", name = "Commits" },
         },
       },
       {

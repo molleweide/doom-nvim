@@ -1,13 +1,14 @@
 --[[
 
-XXX [ DAMMSUGA ] XXX
-
-XXX [ VATTENLAOS ] XXX
 [ MOLLEWEIDE MERGE TRAVERSER2 ]
 
 [ RUN PITCH MACHINE ]
+-> find pitch machine docs
+-> checkout links
+-> make a new testing `update` branch
+-> make PM up to date.
 
-so now I just want to take a moment to take it easy. then later, one of the important 
+so now I just want to take a moment to take it easy. then later, one of the important
 things is to fix the pitch machine react version.
 
 the odds of them both going down at the same time is just insane. that is not
