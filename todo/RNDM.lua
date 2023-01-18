@@ -7,6 +7,9 @@ XXX [ VATTENLAOS ] XXX
 
 [ RUN PITCH MACHINE ]
 
+so now I just want to take a moment to take it easy. then later, one of the important 
+things is to fix the pitch machine react version.
+
 the odds of them both going down at the same time is just insane. that is not
 going to happen and so that is one of the reasons why this is just so insane.
 
