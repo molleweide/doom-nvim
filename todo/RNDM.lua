@@ -1,21 +1,10 @@
 --[[
 
-[ MOLLEWEIDE MERGE TRAVERSER2 ]
+TODO: [ PM ]
 
-[ RUN PITCH MACHINE ]
--> find pitch machine docs
--> checkout links
--> make a new testing `update` branch
--> make PM up to date.
-
-so now I just want to take a moment to take it easy. then later, one of the important
-things is to fix the pitch machine react version.
-
-the odds of them both going down at the same time is just insane. that is not
-going to happen and so that is one of the reasons why this is just so insane.
-
-in the no tam system that wanted to replace a file with the other
-
+TODO: [ LUA DOCS ]
+    read through the lua reference docs from start to finish and make a scratch
+    file for every subject so that I make sure that I understand everything.
 
 PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim
