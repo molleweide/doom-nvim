@@ -9,7 +9,22 @@
 --     ~  https://create-react-app.dev/docs/updating-to-new-releases/
 --     ~  https://www.geeksforgeeks.org/how-to-update-dependency-in-package-json-file/
 
-
 -- TODO: CONVERT FROM JS TO TYPESCRIPT
+--        -- 22/23
+--        https://www.scien.cx/2022/11/29/how-to-migrate-your-react-project-to-typescript/
+--        https://betterprogramming.pub/should-you-switch-to-typescript-yes-73bd517ff74d
+--
+--        gatsby: https://blog.logrocket.com/incrementally-migrate-gatsby-app-typescript/
+--
+--        -- A BIT OLD
+--          https://www.sitepoint.com/how-to-migrate-a-react-app-to-typescript/
+--
 --        https://duckduckgo.com/?q=convert+create+react+app+to+typescript&ia=web
 --
+--
+--        curious -> prop-types vs typescript (https://www.youtube.com/watch?v=kOB0PcVEuZg)
+--
+--
+
+-- TODO: improve sass structure
+--    sass -> file structure: https://dev.to/dostonnabotov/a-modern-sass-folder-structure-330f
