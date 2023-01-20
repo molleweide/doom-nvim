@@ -1,10 +1,10 @@
 --[[
 
 TODO: [ PM -> TYPESCRIPT ]
-  - convert at least one module to TS
-  - convert server to typescript
-      google convert servers... [ https://www.google.com/search?q=convert+node+express+app+with+typescript&sxsrf=AJOqlzVhov2iw-GWvBOsRUe2TbG5pDwedQ%3A1674111413324&source=hp&ei=tenIY-aCEYzRrgSK94fICg&iflsig=AK50M_UAAAAAY8j3xVlECoHk89abthJ-RMfvr4XO_nwO&ved=0ahUKEwimsemAh9P8AhWMqIsKHYr7AakQ4dUDCAg&uact=5&oq=convert+node+express+app+with+typescript&gs_lcp=Cgdnd3Mtd2l6EAMyBggAEBYQHjIFCAAQhgNQAFgAYLgJaABwAHgAgAFHiAFHkgEBMZgBAKABAqABAQ&sclient=gws-wiz ]
-      https://dev.to/tqbit/a-step-by-step-guide-to-migrate-a-nodejs-web-app-to-typescript-5hi2
+    XXX get back on track.
+      convert more modules to TS and see what happens.
+
+TODO: [ NEORG -> TRY BUILDING LATEST VERSION ]
 
 TODO: [ LUA DOCS START READING THROUGH ]
     read through the lua reference docs from start to finish and make a scratch
@@ -13,11 +13,15 @@ TODO: [ LUA DOCS START READING THROUGH ]
 TODO: ask chatgpt how to use async await to stage_hunk and then call Neogit
   and enter commit message programmatically
 
-TODO: [ NEORG -> TRY BUILDING LATEST VERSION ]
-
 TODO: [ GET CHAT GPT TO WORK INSIDE OF NEOVIM]
 
 TODO: [ UPDATE DOROTHY ]
+
+TODO: [ DOOM -> MOLLEWEIDE / MOLLEWEIDE_STABLE ]
+      make sure that I always have a stable branch for work etc.
+
+i have to take a break now and eat some more and maybe take a nap. I have to
+remember that I have been woring since 530 this morning.
 
 PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim

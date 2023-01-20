@@ -1,4 +1,24 @@
--- TODO: * DEPENDENCIES
+-- TODO:
+--    1. read typescript
+--      A. intro tutorial: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
+--      B. https://www.typescriptlang.org/play?#code/PTAEHUFMBsGMHsC2lQBd5oBYoCoE8AHSAZVgCcBLA1UABWgEM8BzM+AVwDsATAGiwoBnUENANQAd0gAjQRVSQAUCEmYKsTKGYUAbpGF4OY0BoadYKdJMoL+gzAzIoz3UNEiPOofEVKVqAHSKymAAmkYI7NCuqGqcANag8ABmIjQUXrFOKBJMggBcISGgoAC0oACCbvCwDKgU8JkY7p7ehCTkVDQS2E6gnPCxGcwmZqDSTgzxxWWVoASMFmgYkAAeRJTInN3ymj4d-jSCeNsMq-wuoPaOltigAKoASgAywhK7SbGQZIIz5VWCFzSeCrZagNYbChbHaxUDcCjJZLfSDbExIAgUdxkUBIursJzCFJtXydajBBCcQQ0MwAUVWDEQC0gADVHBQGNJ3KAALygABEAAkYNAMOB4GRonzFBTBPB3AERcwABS0+mM9ysygc9wASmCKhwzQ8ZC8iHFzmB7BoXzcZmY7AYzEg-Fg0HUiQ58D0Ii8fLpDKZgj5SWxfPADlQAHJhAA5SASPlBFQAeS+ZHegmdWkgR1QjgUrmkeFATjNOmGWH0KAQiGhwkuNok4uiIgMHGxCyYrA4PCCJSAA
+--      C. handbook: https://www.typescriptlang.org/docs/handbook/2/basic-types.html
+--      D. jsx to tsx reference: https://www.typescriptlang.org/docs/handbook/jsx.html
+--    2. Should I get any course from udemy? Try not to.
+--    3. client tsx start converting
+--    4. start converting the server
+--
+--    since I haven't done anything with typescript before I need to make sure that I
+--    read the tutorial and make sure that everything is updated.
+--    i can't just randomly convert shit from gpt and expect everything to work
+--    apart from the fact that it is quite convenientn to convert code since
+--    it requires less manual work, but I have to understand typescript more
+--    at depth.
+
+-- TEST: ask gpt to generate a tutorial for me and see how it goes.
+--        - Can you create a beginners tutorial for me that  explains how to use typescript and reactjs?
+
+-- NOTE: * DEPENDENCIES
 --   I need to bump dependencies and make sure that every thing works.
 --   - https://docs.npmjs.com/cli/v6/configuring-npm/package-json
 --   - https://www.letsreact.org/package-json-explained/
@@ -9,7 +29,7 @@
 --     ~  https://create-react-app.dev/docs/updating-to-new-releases/
 --     ~  https://www.geeksforgeeks.org/how-to-update-dependency-in-package-json-file/
 
--- TODO: CONVERT FROM JS TO TYPESCRIPT
+-- HACK: CONVERT FROM JS TO TYPESCRIPT
 --        -- 22/23
 --        https://www.scien.cx/2022/11/29/how-to-migrate-your-react-project-to-typescript/
 --        https://betterprogramming.pub/should-you-switch-to-typescript-yes-73bd517ff74d
@@ -26,5 +46,5 @@
 --
 --
 
--- TODO: improve sass structure
+-- FIX: IMPROVE SASS STRUCTURE
 --    sass -> file structure: https://dev.to/dostonnabotov/a-modern-sass-folder-structure-330f
