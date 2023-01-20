@@ -12,7 +12,7 @@ lsp.settings = {
     store_meta_data = true,
     updateevents = "TextChanged,TextChangedI",
   },
-  luasnip_load_dirs = {
+  snippets_load_dirs = {
     "./lua/doom/snips/luasnippets",
     "./lua/user/snips/luasnippets",
   },
@@ -224,7 +224,7 @@ lsp.configs["nvim-cmp"] = function()
   luasnip.config.set_config(doom.features.lsp.settings.snippets)
 
   require("luasnip.loaders.from_lua").load({
-    paths = doom.modules.features.lsp.settings.luasnip_load_dirs,
+    paths = doom.modules.features.lsp.settings.snippets_load_dirs,
   })
 
   local replace_termcodes = utils.replace_termcodes
