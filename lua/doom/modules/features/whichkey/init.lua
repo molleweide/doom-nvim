@@ -119,7 +119,6 @@ whichkey.configs["which-key.nvim"] = function()
 
   local keymaps_service = require("doom.services.keymaps")
   local whichkey_integration = get_whichkey_integration()
-
   require("doom.utils.modules").traverse_loaded(
     doom.modules,
     function(node, stack)
@@ -133,9 +132,7 @@ whichkey.configs["which-key.nvim"] = function()
           )
         end
       end
-
     end
-    --, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
     )
 
 end

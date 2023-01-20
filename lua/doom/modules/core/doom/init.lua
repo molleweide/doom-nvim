@@ -155,12 +155,11 @@ required.binds = function()
           { "r", "<cmd>DoomRollback<CR>", name = "Rollback" },
           { "R", "<cmd>DoomReport<CR>", name = "Report issue" },
           { "u", "<cmd>DoomUpdate<CR>", name = "Update" },
-          { "s", "<cmd>PackerSync<CR>", name = "Sync packages" },
-          { "I", "<cmd>PackerInstall<CR>", name = "Install packages" },
-          { "C", "<cmd>PackerClean<CR>", name = "Clean packages" },
-          { "b", "<cmd>PackerCompile<CR>", name = "Build packages" },
-          { "S", "<cmd>PackerStatus<CR>", name = "Inform packages" },
-          { "p", "<cmd>PackerProfile<CR>", name = "Profile" },
+          { "s", "<cmd>Lazy sync<CR>", name = "Sync packages" },
+          { "I", "<cmd>Lazy install<CR>", name = "Install packages" },
+          { "C", "<cmd>Lazy clean<CR>", name = "Clean packages" },
+          -- { "b", "<cmd>Lazy build<CR>", name = "Build packages" },
+          { "p", "<cmd>Lazy profile<CR>", name = "Profile" },
         },
       },
       {
@@ -328,16 +327,12 @@ required.autocmds = function()
 end
 
 required.cmds = {
-  {
-    "DoomProfile",
-    function(opts)
-      local show_async = string.find(opts.args, "async") ~= nil
-      require("doom.services.profiler").log({
-        show_async = show_async,
-      })
-    end,
-    { nargs = "*" },
-  },
+  { "DoomProfile", function(opts)
+    local show_async = string.find(opts.args, "async") ~= nil
+    require("doom.services.profiler").log({
+      show_async = show_async,
+    })
+  end, { nargs = "*" } }
 }
 
 return required

@@ -56,7 +56,7 @@ module.use_null_ls = function(package_name, null_ls_path, configure_function)
     -- Check if null-ls is loaded and load it if not.
     local ok = pcall(require, "null-ls")
     if not ok then
-      vim.cmd("packadd null-ls.nvim")
+      require("lazy").load({ plugins = { "null-ls.nvim" } })
     end
 
     local start_null_ls = function()
@@ -215,7 +215,7 @@ module.use_lsp_mason = function(lsp_name, options)
 
   -- Combine default on_attach with provided on_attach
   local on_attach_functions = {}
--- <<<<<<< HEAD
+-- <<<<<<< HEADold
 --   if utils.is_module_enabled("features", "illuminate") then
 --     table.insert(on_attach_functions, utils.illuminate_attach)
 --   end
@@ -288,7 +288,7 @@ end
 --   end
 -- end
 
--- <<<<<<< HEAD
+-- <<<<<<< HEADold
 --
 -- --- Helper to attach illuminate on LSP
 -- module.illuminate_attach = function(client)

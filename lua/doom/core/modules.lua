@@ -31,8 +31,6 @@ local core_modules = {
 }
 modules.enabled_modules = vim.tbl_deep_extend("keep", core_modules, dofile(modules.source))
 
-local system = require("doom.core.system")
-
 local keymaps_service = require("doom.services.keymaps")
 local commands_service = require("doom.services.commands")
 local autocmds_service = require("doom.services.autocommands")
@@ -89,9 +87,8 @@ modules.load_modules = function()
               spec.commit = utils.pick_compatible_field(spec.commit)
             end
 
-            if not doom.settings.freeze_dependencies then
-              spec.commit = nil
-            end
+            -- Only pin dependencies if doom.freeze_dependencies is true
+            spec.pin = spec.commit and doom.settings.freeze_dependencies
 
             -- Save module spec to be initialised later
             table.insert(doom.packages, spec)
@@ -101,7 +98,7 @@ modules.load_modules = function()
         -- Setup package autogroups
         if module.autocmds then
           local autocmds = type(module.autocmds) == "function" and module.autocmds()
-              or module.autocmds
+            or module.autocmds
           for _, autocmd_spec in ipairs(autocmds) do
             autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
           end
@@ -119,7 +116,6 @@ modules.load_modules = function()
           )
         end
       end
-
       profiler.stop(profile_msg)
     end
   end, { debug = doom.logging == "trace" or doom.logging == "debug" })

@@ -74,7 +74,6 @@ return {
     "css",
     "vue",
     -- "tailwindcss",
-    -- "glsl",
     -- "svelte",
 
     -- Compiled
@@ -88,12 +87,12 @@ return {
     -- "kotlin",
     -- "java",
 
-    "markdown",
-    -- "terraform",       -- Terraform / hcl files support
-    "dockerfile",
     -- "json",
     -- "yaml",
     -- "toml",
+    "markdown",
+    -- "terraform",       -- Terraform / hcl files support
+    "dockerfile",
     -- "nix",             -- Nix declarations
   },
   themes = {

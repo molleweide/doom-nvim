@@ -53,12 +53,11 @@ extra_snippets.package_reloaders = {
 extra_snippets.packages = {
   ["friendly-snippets"] = {
     "rafamadriz/friendly-snippets",
-    after = "LuaSnip",
     event = "VeryLazy",
   },
   ["LuaSnip-snippets.nvim"] = {
     "molleweide/LuaSnip-snippets.nvim",
-    after = "LuaSnip",
+    -- after = "LuaSnip",
     dev = true
   },
   ["telescope-luasnip.nvim"] = { "benfowler/telescope-luasnip.nvim" },

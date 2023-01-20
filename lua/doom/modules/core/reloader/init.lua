@@ -170,12 +170,12 @@ reloader._reload_doom = function()
   if needs_install then
     if not _G._doom_reloader._has_shown_packer_compile_message then
       log.warn(
-        "reloader: You will have to run `:PackerCompile` before changes to plugin configs take effect."
+        "reloader: You will have to run `:Lazy build` before changes to plugin configs take effect."
       )
       _G._doom_reloader._has_shown_packer_compile_message = true
     end
   else
-    log.warn("reloader: Run `:PackerSync` to install and configure new plugins.")
+    log.warn("reloader: Run `:Lazy sync` to install and configure new plugins.")
   end
 
   -- VimEnter to emulate loading neovim

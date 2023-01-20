@@ -4,5 +4,4 @@ log.warn("The `config` language module is deprecated, please use `json`, `yaml` 
 -- TODO: Delete this file in 1-2 months (written: 25/09/22)
 
 local config = {}
-
 return config

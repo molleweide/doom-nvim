@@ -22,16 +22,6 @@ lua.settings = {
     },
     settings = {
       Lua = {
---         runtime = {
---           version = "LuaJIT",
---         },
---         diagnostics = {
---           globals = { "vim", "doom" },
---         },
---         workspace = {
---           library = vim.api.nvim_get_runtime_file("", true),
---           maxPreload = 1000,
---           preloadFileSize = 150,
         completion = {
           callSnippet = "Replace",
         },
@@ -86,7 +76,7 @@ lua.settings = {
     -- for your Neovim config directory, the config.library settings will be used as is
     -- for plugin directories (root_dirs having a /lua directory), config.library.plugins will be disabled
     -- for any other directory, config.library.enabled will be set to false
-    override = function(root_dir, options) end,
+    override = function(_root_dir, _options) end,
     -- With lspconfig, Neodev will automatically setup your lua-language-server
     -- If you disable this, then you have to set {before_init=require("neodev.lsp").before_init}
     -- in your lsp start options

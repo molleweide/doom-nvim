@@ -64,8 +64,7 @@ neorg.packages = {
       ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
     },
     cmd = "Neorg",
-    after = "nvim-treesitter",
-    dependencies = { "nvim-neorg/neorg-telescope" }, -- https://github.com/nvim-neorg/neorg-telescope#installation
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope" },
   },
   -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },
 }
