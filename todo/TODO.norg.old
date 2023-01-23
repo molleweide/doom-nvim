@@ -21,13 +21,6 @@ version: 0.0.12
     2. walk through: https://github.com/ms-jpq/lua-async-await
 
 * submit PRs
-  - [*] doom.settings
-  - [*] connor tree
-  - [?] plugins_reloader
-
-* snippets
-  - [ ] add norg filetype to filetypes.
-
-* terminal
-  - [ ] if open new terminal run custom init command, eg `zsh -il`
-  - [ ] binds to be able to recall and manage multiple terminals
+  - [ ] plugins_reloader
+  - [ ] doom.settings
+  - [ ] connor tree

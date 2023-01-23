@@ -7,14 +7,16 @@ lsp.__completions_enabled = true
 -- TODO: Create a handler that ignores global variables from your doom config
 
 lsp.settings = {
-  snippets = {
-    history = true,
-    store_meta_data = true,
-    updateevents = "TextChanged,TextChangedI",
-  },
-  snippets_load_dirs = {
-    "./lua/doom/snips/luasnippets",
-    "./lua/user/snips/luasnippets",
+  luasnip = {
+    config = {
+      history = true,
+      store_meta_data = true,
+      updateevents = "TextChanged,TextChangedI",
+    },
+    snippets_load_dirs = {
+      "./lua/doom/snips/luasnippets",
+      "./lua/user/snips/luasnippets",
+    },
   },
   signature = {
     bind = true,
@@ -128,21 +130,21 @@ lsp.packages = {
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
-    }
+    },
   },
   ["cmp-nvim-lsp"] = {
     "hrsh7th/cmp-nvim-lsp",
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
-    }
+    },
   },
   ["cmp-path"] = {
     "hrsh7th/cmp-path",
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
-    }
+    },
   },
   ["cmp-buffer"] = {
     "hrsh7th/cmp-buffer",
@@ -150,7 +152,7 @@ lsp.packages = {
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
-    }
+    },
   },
   ["cmp_luasnip"] = {
     "saadparwaiz1/cmp_luasnip",
@@ -158,7 +160,7 @@ lsp.packages = {
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
-    }
+    },
   },
   ["lsp_signature.nvim"] = {
     "ray-x/lsp_signature.nvim",
@@ -237,10 +239,10 @@ lsp.configs["nvim-cmp"] = function()
   if not cmp_ok or not luasnip_ok then
     return
   end
-  luasnip.config.set_config(doom.features.lsp.settings.snippets)
+  luasnip.config.set_config(doom.features.lsp.settings.luasnip.config)
 
   require("luasnip.loaders.from_lua").load({
-    paths = doom.modules.features.lsp.settings.snippets_load_dirs,
+    paths = doom.modules.features.lsp.settings.luasnip.snippets_load_dirs,
   })
 
   local replace_termcodes = utils.replace_termcodes
@@ -323,7 +325,7 @@ lsp.configs["nvim-cmp"] = function()
   }, {
     mapping = type(doom.features.lsp.settings.completion.mapping) == "function"
         and doom.features.lsp.settings.completion.mapping(cmp)
-        or doom.features.lsp.settings.completion.mapping,
+      or doom.features.lsp.settings.completion.mapping,
     enabled = function()
       return _doom.cmp_enable and vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
     end,

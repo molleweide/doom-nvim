@@ -47,16 +47,16 @@ root.packages = {
 --
 --    if file is outside of $pwd then run [[Rooter]]
 
--- root.autocmds = {
---   {
---     "BufEnter????",
---     "*???",
---     function()
---       log.info("Module: root -> autocmd set: project root")
---       toggle_root_conditional()
---     end,
---   },
--- }
+root.autocmds = {
+  {
+    "BufEnter,BufWinEnter",
+    "*",
+    function()
+      -- log.info("Module: root -> autocmd set: project root")
+      toggle_root_conditional()
+    end,
+  },
+}
 
 -- TODO: toggle auto set root
 root.binds = {

@@ -1,27 +1,31 @@
 --[[
 
-TODO: [ PM -> TYPESCRIPT ]
-    XXX get back on track.
-      convert more modules to TS and see what happens.
+ML TRANSFORMERS -> https://amatriain.net/blog/transformer-models-an-introduction-and-catalog-2d1e9039f376/
 
-TODO: [ NEORG -> TRY BUILDING LATEST VERSION ]
+-- TODO: watch foot videos https://www.youtube.com/results?search_query=sm%C3%A4rta+h%C3%A5lfoten
+
+-- TODO: add warpd to dotfiles command
+--      + read man page
+
+-- TODO: github -> unwatch https://github.com/watching?page=3
 
 TODO: [ LUA DOCS START READING THROUGH ]
     read through the lua reference docs from start to finish and make a scratch
     file for every subject so that I make sure that I understand everything.
 
-TODO: ask chatgpt how to use async await to stage_hunk and then call Neogit
-  and enter commit message programmatically
+TODO: [ NEORG -> TRY BUILDING LATEST VERSION ]
+    fix config / look at max's
 
 TODO: [ GET CHAT GPT TO WORK INSIDE OF NEOVIM]
-
-TODO: [ UPDATE DOROTHY ]
 
 TODO: [ DOOM -> MOLLEWEIDE / MOLLEWEIDE_STABLE ]
       make sure that I always have a stable branch for work etc.
 
-i have to take a break now and eat some more and maybe take a nap. I have to
-remember that I have been woring since 530 this morning.
+TODO: [ remix run w/flat-routes ]
+      https://github.com/kiliman/remix-flat-routes
+
+what should I do now. I feel a bit tired now and I should get going with
+pitch machine so that it will become a good.
 
 PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim

@@ -3,7 +3,7 @@ local pa = require "plenary.async"
 local co = coroutine
 local uv = vim.loop
 
-P(a)
+-- P(a)
 
 -- TODO: I shall replace each instance in this file with a plenary equivalent
 -- and see if I can get the examples to print as they should. Because, if so
@@ -31,11 +31,11 @@ local sync_example = function ()
 
   local thread = co.create(function ()
     local x = co.yield(1)
-    print(x)
+    -- print(x)
     local y, z = co.yield(2, 3)
-    print(y, z)
+    -- print(y, z)
     local f = co.yield(4)
-    print(f)
+    -- print(f)
   end)
 
   pong(thread)
@@ -60,7 +60,7 @@ end
 -- typical nodejs / luv function
 local echo_2 = function (msg1, msg2, callback)
   -- wait 200ms
-  timeout(200, function ()
+  timeout(1000, function ()
     callback(msg1, msg2)
   end)
 end
@@ -71,10 +71,10 @@ local e2 = a.wrap(echo_2)
 
 
 local async_tasks_1 = function()
-  print("aaa")
+  -- print("aaa")
   return a.sync(function ()
     local x, y = a.wait(e2(1, 2))
-    print(x, y)
+    -- print(x, y)
     return x + y
   end)
 end
@@ -93,15 +93,16 @@ local async_tasks_2 = function (val)
 end
 
 
-local async_example = function ()
-  return a.sync(function ()
+-- local async_example = function ()
+  -- return
+a.sync(function ()
     -- composable, await other async thunks
     local u = a.wait(async_tasks_1())
-    -- local v = a.wait(async_tasks_2(3))
-    print(u)
-    -- print(u + v())
-  end)
-end
+   local v = a.wait(async_tasks_2(3))
+    -- print(u)
+    print(u + v())
+  end)()
+-- end
 
 
 --#################### ############ ####################
@@ -136,14 +137,14 @@ local textlock_succ = function ()
   end)
 end
 
-print("AWAIT TUTORIAL START")
+-- print("AWAIT TUTORIAL START")
 
 -- sync_example()
-async_example()
+-- async_example()()
 -- textlock_fail()
--- textlock_succ()
+-- textlock_succ()()
 
-print("AWAIT TUTORIAL END")
+-- print("AWAIT TUTORIAL END")
 
 
 -- return {

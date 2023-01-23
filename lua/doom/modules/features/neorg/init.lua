@@ -59,6 +59,7 @@ neorg.settings = {
 neorg.packages = {
   ["neorg"] = {
     "nvim-neorg/neorg",
+    -- build = ":Neorg sync-parsers",
     commit = {
       ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
       ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",

@@ -3,7 +3,7 @@ local co = coroutine
 -- use with wrap
 local pong = function(func, callback)
   assert(type(func) == "function", "type error :: expected func")
-  print("pong!!!")
+  -- print("pong!!!")
   local thread = co.create(func)
   local step = nil
   step = function(...)
