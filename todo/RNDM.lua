@@ -1,13 +1,42 @@
 --[[
 
-ML TRANSFORMERS -> https://amatriain.net/blog/transformer-models-an-introduction-and-catalog-2d1e9039f376/
+-- why is there an invoice for 1pass?
+
+-- vim > emmet
+--      create xml_extras module under molleweide
+--          w/
+--            emmet
+--            more xml goodies
+
+-- french newspaper -> podcasts
+    https://en.wikipedia.org/wiki/List_of_newspapers_in_France
+
+-- mail -> configure mail boxes -> read apple mail docs
+
+-- apple mail -> filters and automation.
+
+-- best cheap computer for linux ubuntu.
+    -> I need to get this shit working.
+
+-- mail -> add proton
+
+-- mail -> read a bit about himalaya
+
+-- TODO: read lazy + mason manual
+
+-- TODO: OBS record react/redux beta docs website bug
+--    1. update surfingkeys
+--    2. record screen
+--    3. submit to react website.
 
 -- TODO: watch foot videos https://www.youtube.com/results?search_query=sm%C3%A4rta+h%C3%A5lfoten
 
 -- TODO: add warpd to dotfiles command
---      + read man page
+--      + read man page -> configure pointer speeed
 
 -- TODO: github -> unwatch https://github.com/watching?page=3
+
+-- TODO: FACEBOOK -> how to get back an old facebook account
 
 TODO: [ LUA DOCS START READING THROUGH ]
     read through the lua reference docs from start to finish and make a scratch
@@ -21,13 +50,13 @@ TODO: [ GET CHAT GPT TO WORK INSIDE OF NEOVIM]
 TODO: [ DOOM -> MOLLEWEIDE / MOLLEWEIDE_STABLE ]
       make sure that I always have a stable branch for work etc.
 
-TODO: [ remix run w/flat-routes ]
-      https://github.com/kiliman/remix-flat-routes
+TODO: SURFING KEYS UPDATE > pull latest into my fork
 
-what should I do now. I feel a bit tired now and I should get going with
-pitch machine so that it will become a good.
+TODO: [ REMIX RUN W/FLAT-ROUTES ]
+  https://remix.run/docs/en/v1/tutorials/jokes
+  https://github.com/kiliman/remix-flat-routes
 
-PLUGINS TO CHECK OUT
+-- TEST: PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim
   - nullchilly/fsread.nvim
   - nvim-zh/colorful-winsep.nvim
@@ -42,9 +71,17 @@ PLUGINS TO CHECK OUT
   - https://github.com/elihunter173/dirbuf.nvim
 
 
+NOTE: NB CLI NOTE TAKING -> https://github.com/xwmx/nb
 
 
 
+-- HACK: ML TRANSFORMERS -> https://amatriain.net/blog/transformer-models-an-introduction-and-catalog-2d1e9039f376/
+
+
+is because of you people listening to those shows. without you I'd be pumping
+gas or sucking dik at a juvihall in massachusests. you don't say anything.
+that's it bye. a hundred percent. i am not saying im right. im just thank you
+very much good bye.
 
 MERGE MASON INTO MOLLEWEIDE.
 

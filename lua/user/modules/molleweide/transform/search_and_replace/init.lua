@@ -68,6 +68,9 @@ search_and_replace.binds = {
   },
 }
 
+
+-- TODO: use captures to prefix/postfix a word / word under cursor
+
 if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
   table.insert(search_and_replace.binds, {
     "<leader>",

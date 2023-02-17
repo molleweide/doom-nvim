@@ -14,6 +14,14 @@ version: 0.0.12
   - [ ] toggle doom reload
   - [ ] revert to exclusive t/T and f/F for regular mappings. If I need custom
   behavior, then I should create additional custom mappings.
+  - [ ] mapping -> close TOC in vim docs
+
+* QUICKFIX
+  - [ ] Need command to close it.
+    Eg. say that I have looked for references with `gr` then when I nav to a
+    reference, then I want to be able to close without having to manually move
+    to the qf win.
+
 
 * git
   - [ ] async await -> commit hunk

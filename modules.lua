@@ -264,6 +264,7 @@ return {
       "editing",
       "formatting",
       "tweak",
+      "xml"
     },
     games = {},
     icons = {
@@ -363,7 +364,7 @@ return {
       -- "diagrams",
       -- "vim_ui",            -- improved `vim.ui`
       "transparent",
-      "noice"
+      -- "noice"
     },
     langs = {
       -- "fennel",

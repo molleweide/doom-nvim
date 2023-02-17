@@ -5,6 +5,8 @@
 --
 --  - i should try opening tmux new pane or session from within a telescope picker
 
+-- TODO: dorothy picker user/main
+
 --
 -- FUNCTIONS
 --
