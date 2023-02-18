@@ -67,11 +67,13 @@ xml.packages = {
   ["emmet-vim"] = {
     "mattn/emmet-vim",
   },
-  ["change-inside-surroundings"] = {
-    "briandoll/change-inside-surroundings",
-  },
+  -- ["change-inside-surroundings"] = {
+  --   "briandoll/change-inside-surroundings",
+  -- },
   -- TODO: !?
   --      https://github.com/mlaursen/vim-react-snippets
+
+  -- https://github.com/napmn/react-extract.nvim
 }
 
 -- xml.configs["emmet-vim"] = function()

@@ -181,6 +181,7 @@ return {
   },
   molleweide = {
     ai = {
+      "chat_gpt",
       -- "copilot",
       -- "magic",
     },

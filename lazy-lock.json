@@ -1,4 +1,5 @@
 {
+  "ChatGPT.nvim": { "branch": "main", "commit": "3f6fd348df53b9d15aa0a58709562cf0a3b4636a" },
   "Comment.nvim": { "branch": "master", "commit": "e89df176e8b38e931b7e71a470f923a317976d86" },
   "TrueZen.nvim": { "branch": "main", "commit": "98740c76254c65576ec294551028b65081053588" },
   "apprentice.nvim": { "branch": "main", "commit": "ef980c7feccd0d3ea650f93494b4d13a16c1471a" },
@@ -20,6 +21,7 @@
   "diffview.nvim": { "branch": "main", "commit": "5bbcf162d03287296fe393f88da6065db3cf9fd0" },
   "doom-themes.nvim": { "branch": "main", "commit": "03d417d3eab71c320744f8da22251715ba6cee53" },
   "editorconfig-vim": { "branch": "master", "commit": "30ddc057f71287c3ac2beca876e7ae6d5abe26a0" },
+  "emmet-vim": { "branch": "master", "commit": "def5d57a1ae5afb1b96ebe83c4652d1c03640f4d" },
   "fidget.nvim": { "branch": "main", "commit": "44585a0c0085765195e6961c15529ba6c5a2a13b" },
   "firenvim": { "branch": "master", "commit": "b6be2e074b8f62815a45e31eb0966b4dd5e57810" },
   "focus.nvim": { "branch": "master", "commit": "3d9df42aa4f9b572348418207b752f81adea09a5" },
