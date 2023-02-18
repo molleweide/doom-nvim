@@ -1,110 +1,129 @@
--- https://github.com/jackMort/ChatGPT.nvim -- 450 stars!
--- https://github.com/terror/chatgpt.nvim
---
---
--- https://github.com/f/awesome-chatgpt-prompts
+local chatgpt = {}
 
--- get api keys
+-- NOTE: prerequisit get api keys
 --  https://platform.openai.com/account/api-keys
 
-local chatgpt = {}
+chatgpt.settings = {
+  welcome_message = WELCOME_MESSAGE, -- set to "" if you don't like the fancy godot robot
+  loading_text = "loading",
+  question_sign = "", -- you can use emoji if you want e.g. 🙂
+  answer_sign = "ﮧ", -- 🤖
+  max_line_length = 120,
+  yank_register = "+",
+  chat_layout = {
+    relative = "editor",
+    position = "50%",
+    size = {
+      height = "80%",
+      width = "80%",
+    },
+  },
+  settings_window = {
+    border = {
+      style = "rounded",
+      text = {
+        top = " Settings ",
+      },
+    },
+  },
+  chat_window = {
+    filetype = "chatgpt",
+    border = {
+      highlight = "FloatBorder",
+      style = "rounded",
+      text = {
+        top = " ChatGPT ",
+      },
+    },
+  },
+  chat_input = {
+    prompt = "  ",
+    border = {
+      highlight = "FloatBorder",
+      style = "rounded",
+      text = {
+        top_align = "center",
+        top = " Prompt ",
+      },
+    },
+  },
+  openai_params = {
+    model = "text-davinci-003",
+    frequency_penalty = 0,
+    presence_penalty = 0,
+    max_tokens = 300,
+    temperature = 0,
+    top_p = 1,
+    n = 1,
+  },
+  openai_edit_params = {
+    model = "code-davinci-edit-001",
+    temperature = 0,
+    top_p = 1,
+    n = 1,
+  },
+  keymaps = {
+    -- <C-c> to close chat window.
+    -- <C-u> scroll up chat window.
+    -- <C-d> scroll down chat window.
+    -- <C-y> to copy/yank last answer.
+    -- <C-o> Toggle settings window.
+    -- <C-n> Start new session.
+    -- <Tab> Cycle over windows.
+    -- <C-i> [Edit Window] use response as input.
+    close = { "<C-c>", "<Esc>" },
+    yank_last = "<C-y>",
+    scroll_up = "<C-u>",
+    scroll_down = "<C-d>",
+    toggle_settings = "<C-o>",
+    new_session = "<C-n>",
+    cycle_windows = "<Tab>",
+  },
+}
 
 chatgpt.packages = {
   ["ChatGPT.nvim"] = {
     "jackMort/ChatGPT.nvim",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
   },
+  -- https://github.com/terror/chatgpt.nvim
 }
 
 chatgpt.configs = {}
 
--- chatgpt.configs["ChatGPT.nvim"] = function()
---   -- require("setup").setup(opts)
--- end
+chatgpt.configs["ChatGPT.nvim"] = function()
+  require("chatgpt").setup(doom.modules.molleweide.ai.chat_gpt.settings)
+end
 
--- -- Packer
--- use({
---   "jackMort/ChatGPT.nvim",
---     config = function()
---       require("chatgpt").setup({
---         -- optional configuration
---       })
---     end,
---     requires = {
---       "MunifTanjim/nui.nvim",
---       "nvim-lua/plenary.nvim",
---       "nvim-telescope/telescope.nvim"
---     }
--- })
-
--- NOTE: DEFAULTS
--- {
---   welcome_message = WELCOME_MESSAGE, -- set to "" if you don't like the fancy godot robot
---   loading_text = "loading",
---   question_sign = "", -- you can use emoji if you want e.g. 🙂
---   answer_sign = "ﮧ", -- 🤖
---   max_line_length = 120,
---   yank_register = "+",
---   chat_layout = {
---     relative = "editor",
---     position = "50%",
---     size = {
---       height = "80%",
---       width = "80%",
---     },
---   },
---   settings_window = {
---     border = {
---       style = "rounded",
---       text = {
---         top = " Settings ",
---       },
---     },
---   },
---   chat_window = {
---     filetype = "chatgpt",
---     border = {
---       highlight = "FloatBorder",
---       style = "rounded",
---       text = {
---         top = " ChatGPT ",
---       },
---     },
---   },
---   chat_input = {
---     prompt = "  ",
---     border = {
---       highlight = "FloatBorder",
---       style = "rounded",
---       text = {
---         top_align = "center",
---         top = " Prompt ",
---       },
---     },
---   },
---   openai_params = {
---     model = "text-davinci-003",
---     frequency_penalty = 0,
---     presence_penalty = 0,
---     max_tokens = 300,
---     temperature = 0,
---     top_p = 1,
---     n = 1,
---   },
---   openai_edit_params = {
---     model = "code-davinci-edit-001",
---     temperature = 0,
---     top_p = 1,
---     n = 1,
---   },
---   keymaps = {
---     close = { "<C-c>", "<Esc>" },
---     yank_last = "<C-y>",
---     scroll_up = "<C-u>",
---     scroll_down = "<C-d>",
---     toggle_settings = "<C-o>",
---     new_session = "<C-n>",
---     cycle_windows = "<Tab>",
---   },
--- }
+chatgpt.binds = {
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      {
+        "A",
+        name = "+ai",
+        {
+          {
+            "c",
+            name = "+ChatGPT",
+            {
+              { "c", [[<cmd>ChatGPT<CR>]], name = "Open" },
+              --    command which opens a prompt selection from Awesome ChatGPT Prompts to be used with the ChatGPT.
+              --    https://github.com/f/awesome-chatgpt-prompts
+              { "s", [[<cmd>ChatGPTActAs<CR>]], name = "Act As" },
+              -- command which opens interactive window to edit selected text or whole window - demo video.
+              { "e", [[<cmd>ChatGPTEditWithInstructions<CR>]], name = "Edit With Instructions" },
+            },
+          },
+        },
+      },
+    },
+  },
+}
 
 return chatgpt
