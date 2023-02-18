@@ -2,12 +2,6 @@
 
 -- why is there an invoice for 1pass?
 
--- vim > emmet
---      create xml_extras module under molleweide
---          w/
---            emmet
---            more xml goodies
-
 -- french newspaper -> podcasts
     https://en.wikipedia.org/wiki/List_of_newspapers_in_France
 

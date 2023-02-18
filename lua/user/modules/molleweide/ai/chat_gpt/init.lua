@@ -1,5 +1,8 @@
 local chatgpt = {}
 
+-- DOCS:
+-- https://platform.openai.com/docs/api-reference/introduction
+
 -- NOTE: prerequisit get api keys
 --  https://platform.openai.com/account/api-keys
 
