@@ -1,0 +1,2 @@
+-- use 'neoclide/vim-jsx-improve' -- JSX highlight
+--   use 'maxmellon/vim-jsx-pretty' -- JSX Highlight

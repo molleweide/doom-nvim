@@ -67,6 +67,9 @@ TODO: [ REMIX RUN W/FLAT-ROUTES ]
 
 NOTE: NB CLI NOTE TAKING -> https://github.com/xwmx/nb
 
+-- HACK: react snippets https://github.com/search?q=luasnip+react&type=code
+
+Add new sippets for react
 
 
 -- HACK: ML TRANSFORMERS -> https://amatriain.net/blog/transformer-models-an-introduction-and-catalog-2d1e9039f376/

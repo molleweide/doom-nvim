@@ -278,7 +278,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           {
             "l",
             function()
-                doom.modules.features.extra_snippets.reload_all_snippets()
+              doom.modules.features.extra_snippets.reload_all_snippets()
               -- require("plenary.reload").reload_module("luasnip")
               -- require("plenary.reload").reload_module("luasnip_snippets")
               -- require("luasnip_snippets").setup(
@@ -350,6 +350,39 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
         },
       }, -- moll
     }, -- leader
+    {
+      "<leader>",
+      name = "+prefix",
+      {
+        {
+          "f",
+          name = "+my_find",
+          {
+            {
+              "d",
+              function()
+                require("telescope.builtin").find_files({ cwd = "~/.config/dorothy" })
+              end,
+              name = "Dorothy User",
+            },
+            {
+              "D",
+              function()
+                require("telescope.builtin").find_files({ cwd = "~/.local/share/dorothy" })
+              end,
+              name = "Dorothy",
+            },
+            {
+              "x",
+              function()
+                require("telescope.builtin").find_files({ cwd = "~/code/repos/github.com/molleweide/xdg_configs" })
+              end,
+              name = "xdg_configs",
+            },
+          },
+        },
+      },
+    },
   })
 end
 
