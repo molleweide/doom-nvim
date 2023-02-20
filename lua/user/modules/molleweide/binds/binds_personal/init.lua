@@ -199,6 +199,18 @@ table.insert(binds, {
     options = { silent = true },
     name = "Exit Insert Mode and (A)ppend",
   },
+  {
+    "<c-q><c-w>",
+    "<ESC>O",
+    mode = "i",
+    name = "New line above from insert mode",
+  },
+  {
+    "<c-q><c-f>",
+    "<ESC>o",
+    mode = "i",
+    name = "New line below from insert mode",
+  },
 })
 
 -- visual
@@ -375,7 +387,9 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             {
               "x",
               function()
-                require("telescope.builtin").find_files({ cwd = "~/code/repos/github.com/molleweide/xdg_configs" })
+                require("telescope.builtin").find_files({
+                  cwd = "~/code/repos/github.com/molleweide/xdg_configs",
+                })
               end,
               name = "xdg_configs",
             },

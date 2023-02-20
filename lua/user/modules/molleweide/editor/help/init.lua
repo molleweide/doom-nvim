@@ -35,6 +35,11 @@ help.binds = {
           "<cmd>helpc<cr>",
           name = "Close Help",
         },
+        {
+          "l",
+          "<cmd>help lua-reference-toc<cr>",
+          name = "Lua Reference",
+        },
       },
     },
   },
