@@ -6,6 +6,10 @@
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
 -- Once done, restart doom-nvim and run `:PackerInstall`.
 
+-- TODO: add custom colors for subtable strings so that it is easier to
+-- read see which are the modules parent dirs?
+--    or maybe this is just fixed with the ts-context plugin maybe?
+
 return {
   features = {
     -- Language features
@@ -302,7 +306,7 @@ return {
       -- "repo_search",
       "github_octo",
       "github_litee",
-      -- "ghq",
+      "ghq",
     },
     transform = {
       -- "regex",           -- Regex tools

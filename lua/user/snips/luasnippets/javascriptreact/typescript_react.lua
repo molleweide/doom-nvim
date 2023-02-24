@@ -1,32 +1,121 @@
 local luasnip = require("luasnip")
+local s = luasnip.s --> snnipet
+local i = luasnip.i --> insert node
+local t = luasnip.t --> text node
+
+local c = luasnip.choice_node
+local d = luasnip.dynamic_node
+local f = luasnip.function_node
+local sn = luasnip.snippet_node
+local fmt = require("luasnip.extras.fmt").fmt
+local rep = require("luasnip.extras").rep
+
+--
+-- SNIPPETS
+--
 
 local snippets = {
-  -- useState snippet
-  luasnip.s(
+  s(
+    "arrow",
+    fmt(
+      [[
+    const {} = ({}) => {{
+      {}
+    }}
+    ]],
+      {
+        i(1, "name"),
+        i(2, "args"),
+        i(3, "body"),
+      }
+    )
+  ),
+}
+-- table.insert(snippets, arrow)
+
+-- local snippets = {
+--   -- useState snippet
+--   luasnip.s(
+--     {
+--       trig = "us",
+--       name = "useState"
+--     },
+--     {
+--       luasnip.t("const ["),
+--       luasnip.i(1),
+--       luasnip.t(", "),
+--       luasnip.f(
+--           function(args)
+--             local capitalized_state = args[1][1]:gsub("^%l", string.upper)
+--             return "set" .. capitalized_state
+--           end,
+--           {1}
+--       ),
+--       luasnip.t("] = useState("),
+--       luasnip.i(2),
+--       luasnip.t(")")
+--     }
+--   )
+-- }
+--
+
+local usestate = s({
+  trig = "useStateSnippet",
+  dscr = "React useState snippet",
+}, {
+  t("const ["),
+  i(1, "myVar"),
+  t(", "),
+  f(function(args, snip)
+    return "set"
+      .. string.sub(args[1][1], 1, 1):upper()
+      .. string.sub(args[1][1], 2, args[1][1]:len())
+  end, 1),
+  t("] = useState("),
+  i(2),
+  t(")"),
+})
+table.insert(snippets, usestate)
+
+--
+-- AUTOSNIPPETS
+--
+
+local autosnippets = {}
+
+local cc = s(
+  {
+    trig = "cc",
+    dscr = "Create react component",
+  },
+  fmt(
+    [[
+import React from "react";
+
+const {} = ({}) => {{
+  return <div>{}</div>;
+}};
+
+export default {};{}
+    ]],
     {
-      trig = "us",
-      name = "useState"
-    },
-    {
-      luasnip.t("const ["),
-      luasnip.i(1),
-      luasnip.t(", "),
-      luasnip.f(
-          function(args)
-            local capitalized_state = args[1][1]:gsub("^%l", string.upper)
-            return "set" .. capitalized_state
-          end,
-          {1}
-      ),
-      luasnip.t("] = useState("),
-      luasnip.i(2),
-      luasnip.t(")")
+      d(1, function(args, parent)
+        local env = parent.snippet.env
+        return sn(nil, i(1, env.TM_FILENAME:match("(.+)%..+")))
+      end),
+      c(2, { i(1, "props"), i(2, "") }),
+      d(3, function(args, parent)
+        return sn(nil, i(1, args[1]))
+      end, { 1 }),
+      rep(1),
+      i(0, ""),
     }
   )
-}
+)
 
-return snippets
+table.insert(autosnippets, cc)
 
+return snippets, autosnippets
 
 -- local saferequire = require 'user.util.saferequire'
 -- local ls = saferequire 'luasnip'
@@ -84,12 +173,6 @@ return snippets
 -- table.insert(snippets, s('propst', fmt(react_props_type_template, { i(1) })))
 --
 -- return snippets
-
-
-
-
-
-
 
 -- local ls = require("luasnip")
 -- local s = ls.snippet
@@ -159,77 +242,6 @@ return snippets
 --     s('log', {t("console.log("), i(0), t(")")})
 --   }
 -- })
-
-
-
--- local luasnip = require("luasnip")
--- local s = luasnip.s --> snnipet
--- local i = luasnip.i --> insert node
--- local t = luasnip.t --> text node
---
--- local c = luasnip.choice_node
--- local d = luasnip.dynamic_node
--- local f = luasnip.function_node
--- local sn = luasnip.snippet_node
---
--- local fmt = require("luasnip.extras.fmt").fmt
--- local rep = require("luasnip.extras").rep
---
--- local snippets, autosnippets = {}, {}
---
--- local usestate = s({
--- 	trig = "useStateSnippet",
--- 	dscr = "React useState snippet",
--- }, {
--- 	t("const ["),
--- 	i(1, "myVar"),
--- 	t(", "),
--- 	f(function(args, snip)
--- 		return "set" .. string.sub(args[1][1], 1, 1):upper() .. string.sub(args[1][1], 2, args[1][1]:len())
--- 	end, 1),
--- 	t("] = useState("),
--- 	i(2),
--- 	t(")"),
--- })
--- table.insert(snippets, usestate)
---
--- local cc = s(
--- 	{
--- 		trig = "cc",
--- 		dscr = "Create react component",
--- 	},
--- 	fmt(
--- 		[[
--- import React from "react";
---
--- const {} = ({}) => {{
---   return <div>{}</div>;
--- }};
---
--- export default {};{}
---     ]],
--- 		{
--- 			d(1, function(args, parent)
--- 				local env = parent.snippet.env
--- 				return sn(nil, i(1, env.TM_FILENAME:match("(.+)%..+")))
--- 			end),
--- 			c(2, { i(1, "props"), i(2, "") }),
--- 			d(3, function(args, parent)
--- 				return sn(nil, i(1, args[1]))
--- 			end, { 1 }),
--- 			rep(1),
--- 			i(0, ""),
--- 		}
--- 	)
--- )
--- table.insert(autosnippets, cc)
---
--- return snippets, autosnippets
-
-
-
-
-
 
 -- local ls = require("luasnip")
 -- local s = ls.snippet
@@ -362,17 +374,6 @@ return snippets
 --
 -- return snippets
 
-
-
-
-
-
-
-
-
-
-
-
 -- local status, ls = pcall(require, 'luasnip')
 --
 -- if (not status) then
@@ -453,11 +454,6 @@ return snippets
 --
 -- ls.add_snippets("typescript", COMMON)
 -- ls.add_snippets("typescriptreact", object_assign(COMMON, REACT))
-
-
-
-
-
 
 -- local ls = require "luasnip"
 -- local s = ls.snippet
@@ -600,14 +596,6 @@ return snippets
 -- vim.keymap.set("i", "<C-E>", "<Plug>luasnip-next-choice", { desc = "Luasnip: Next choice" })
 -- vim.keymap.set("s", "<C-E>", "<Plug>luasnip-next-choice", { desc = "Luasnip: Next choice" })
 
-
-
-
-
-
-
-
-
 -- local luasnip = require("luasnip")
 --
 -- local snippets = {
@@ -715,13 +703,6 @@ return snippets
 --
 -- return snippets
 
-
-
-
-
-
-
-
 -- local luasnip = require('luasnip')
 --
 -- local snippet = luasnip.s
@@ -825,12 +806,6 @@ return snippets
 --
 -- return snippets, autosnippets
 
-
-
-
-
-
-
 -- local luasnip = require("luasnip")
 -- local utils = require("config.luasnip.utils")
 --
@@ -877,13 +852,6 @@ return snippets
 -- 		)
 -- 	),
 -- }
-
-
-
-
-
-
-
 
 -- local luasnip = require("luasnip")
 -- local fmt = require("luasnip.extras.fmt").fmt

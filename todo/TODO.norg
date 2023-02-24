@@ -22,6 +22,10 @@ version: 0.0.12
     reference, then I want to be able to close without having to manually move
     to the qf win.
 
+* keybinds
+  ** mapping cmp source
+  ** context aware > show doom mappings snippets.
+
 
 * git
   - [ ] async await -> commit hunk

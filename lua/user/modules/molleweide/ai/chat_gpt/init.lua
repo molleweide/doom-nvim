@@ -1,10 +1,19 @@
 local chatgpt = {}
 
+-- TODO:
+-- read openai get started: https://platform.openai.com/docs/quickstart
+-- read through chatgpt plugin source
+
 -- DOCS:
 -- https://platform.openai.com/docs/api-reference/introduction
 
 -- NOTE: prerequisit get api keys
 --  https://platform.openai.com/account/api-keys
+
+-- PRICING:
+--
+--  pricing is pay as you use so this can be configured in the API
+--  website.
 
 chatgpt.settings = {
   welcome_message = WELCOME_MESSAGE, -- set to "" if you don't like the fancy godot robot

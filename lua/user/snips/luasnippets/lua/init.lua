@@ -3,10 +3,12 @@ local s = ls.snippet
 local t = ls.text_node
 
 -- https://github.com/L3MON4D3/LuaSnip/wiki/Cool-Snippets#lua---new-module-function
-
 return {
   s("str test init", {
     t("-- ABCDS"),
+  }),
+  s("dummy", {
+    t("-- dummy"),
   }),
   s("aaaa", {
     t("-- XXXXXX"),

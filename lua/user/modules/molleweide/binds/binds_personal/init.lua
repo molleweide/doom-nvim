@@ -362,6 +362,14 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
         },
       }, -- moll
     }, -- leader
+  })
+end
+
+-- double leader
+if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
+  table.insert(binds, {
+    "<leader>",
+    name = "+prefix",
     {
       "<leader>",
       name = "+prefix",
@@ -399,5 +407,4 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
     },
   })
 end
-
 return { binds = binds }
