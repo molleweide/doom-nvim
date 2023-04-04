@@ -1,5 +1,8 @@
 local tailwindcss = {}
 
+-- NOTE: telescope cheat sheet for tailwind
+-- https://github.com/danielvolchek/tailiscope.nvim
+
 tailwindcss.settings = {
   --- Disables auto installing the treesitter
   --- @type boolean

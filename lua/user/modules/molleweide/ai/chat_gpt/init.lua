@@ -1,14 +1,38 @@
 local chatgpt = {}
 
--- TODO:
--- read openai get started: https://platform.openai.com/docs/quickstart
--- read through chatgpt plugin source
+-- NOTE: prerequisit get api keys
+--  https://platform.openai.com/account/api-keys
+
+-- TODO: add fences to codeblocks
+--
+-- 1. add this to the default config.
+-- 2. how do I use treesitter to highlight here
+-- 3. ChatGPT.nvim/lua/chatgpt/module.lua
+--    look at the `open_chat` function and
+--    see how I can add code fence highlights
+--    properly.
+
+-- TODO: command to insert code from a chatgpt question.
+--
+-- 1. char sequence to open chat gpt for a question.
+-- 2. close and await results to be inserted at cursor.
+-- 3. see if I can reuse the spinner inline in code
+--    to get a cool effect that makes it look nice while
+--    waiting for the code.
+-- 4. lock editing while waiting, and abort with <Esc> or
+--    <C-c>
+
+-- TODO: explain visual selection / object/motion
+--
+-- take the visual selection
+--  -> put into chat gpt window
+--    -> add `prefix phrase`, eg. explain the following snippet in detail
+--      -> run this in a split window.
+--
+--  this should allow me to have anything explained on a whim.
 
 -- DOCS:
 -- https://platform.openai.com/docs/api-reference/introduction
-
--- NOTE: prerequisit get api keys
---  https://platform.openai.com/account/api-keys
 
 -- PRICING:
 --

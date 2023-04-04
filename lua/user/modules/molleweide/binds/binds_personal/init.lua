@@ -178,6 +178,8 @@ table.insert(binds, {
 --
 -- TODO:: MODULE INSERT MODE HELPERS
 --
+-- NOTE: would it be possible expect an operator after `zf` ?
+--
 --  - quickly jumpy back the cursor without deleting text.
 table.insert(binds, {
   -- { "i", "zm", "<ESC>:w<cr>", opts_s, "Editor", "exit_insert", "Exit insert mode" },
@@ -378,6 +380,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           "f",
           name = "+my_find",
           {
+
             {
               "d",
               function()
@@ -400,6 +403,15 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                 })
               end,
               name = "xdg_configs",
+            },
+            {
+              "n",
+              function()
+                require("telescope.builtin").find_files({
+                  cwd = "~/code/repos/github.com/molleweide/doom-nvim",
+                })
+              end,
+              name = "find doom-nvim",
             },
           },
         },
