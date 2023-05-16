@@ -1,3 +1,6 @@
 -- https://github.com/Josiah-tan/plover-vim
 -- https://github.com/Josiah-tan/vim-plover-clippy
 -- https://github.com/Josiah-tan/plover-live-view-nvim
+--
+--
+-- https://duckduckgo.com/?q=stenography+neovim&ia=web

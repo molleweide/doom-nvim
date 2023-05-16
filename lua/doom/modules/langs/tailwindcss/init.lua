@@ -2,6 +2,12 @@ local tailwindcss = {}
 
 -- NOTE: telescope cheat sheet for tailwind
 -- https://github.com/danielvolchek/tailiscope.nvim
+-- https://github.com/laytan/tailwind-sorter.nvim
+-- https://github.com/princejoogie/tailwind-highlight.nvim
+-- https://github.com/js-everts/cmp-tailwind-colors
+-- https://github.com/razak17/tailwind-fold.nvim
+-- https://github.com/themaxmarchuk/tailwindcss-colors.nvim
+-- https://github.com/roobert/tailwindcss-colorizer-cmp.nvim
 
 tailwindcss.settings = {
   --- Disables auto installing the treesitter
