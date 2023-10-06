@@ -47,14 +47,14 @@ return {
     "dui", -- [WIP] Managen your doom config with Telescope.
 
     -- Tools
-    "dap",             -- Debug code through neovim
+    "dap", -- Debug code through neovim
     "repl",
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser
     "lazygit", -- Lazy git integration
     "neogit", -- A git client for neovim
     -- "netrw",
-    "neorg", -- Organise your life
+    -- "neorg", -- Organise your life
     "projects", -- Quickly switch between projects
     "superman", -- Read unix man pages in neovim
     -- "suda",            -- Save using sudo when necessary
@@ -202,6 +202,9 @@ return {
       -- "winbar_statusline_context",
       -- "context", -- Provides visual context via Treesitter
     },
+    dorothy = {
+      "dorothy",
+    },
     finance = {
       -- "crypto_prices",
     },
@@ -256,7 +259,7 @@ return {
       "folds",
       "increment", --  tools for incrementing stuff
       "clipboard",
-      "help",            -- Support for help with binds and stuff
+      "help", -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
       -- "logging",         -- binds n stuff
@@ -269,7 +272,7 @@ return {
       "editing",
       "formatting",
       "tweak",
-      "xml"
+      "xml",
     },
     games = {},
     icons = {
@@ -284,7 +287,7 @@ return {
     },
     nvim_dev = {
       "plugins_reloader", -- Watch local packages for changes during development
-      "nvim_dev_binds"
+      "nvim_dev_binds",
     },
     tabs = {},
     windows = {
@@ -331,7 +334,7 @@ return {
     },
     music = {
       -- "audio",
-      -- "reaper_keys",
+      "reaper",
     },
     tabular = {
       -- "scim",              -- Spreadsheets

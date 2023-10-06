@@ -26,7 +26,7 @@ treesitter.settings = {
       enable = true,
     },
     playground = {
-      enable = true,
+      enable = false,
     },
     context_commentstring = {
       enable = true,

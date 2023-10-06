@@ -1,6 +1,9 @@
 local lua = {}
 
 lua.settings = {
+  --- Use custom lsp setup or mason.nvim based setup
+  --- @type boolean
+  use_mason = true,
   --- Disables auto installing the treesitter
   --- @type boolean
   disable_treesitter = false,
@@ -97,6 +100,21 @@ lua.packages = {
 }
 
 local langs_utils = require("doom.modules.langs.utils")
+
+
+lua.autocmds_2 = function()
+  local autocmds = {}
+
+  if doom.modules.langs.lua.settings.use_mason then
+    local x
+  else
+  end
+
+  return autocmds
+end
+
+
+
 lua.autocmds = {
   {
     "FileType",

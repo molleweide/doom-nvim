@@ -6,6 +6,9 @@ local neorg = {}
 
 local doom_root = require("doom.core.system").doom_root
 
+-- NOTE: this might be solution to installing norg parser on macos:
+--  https://github.com/nvim-neorg/tree-sitter-norg/issues/7
+
 neorg.settings = {
   load = {
     ["core.defaults"] = {},
@@ -21,7 +24,7 @@ neorg.settings = {
       config = {
         workspaces = {
           main = "~/neorg",
-          gtd = "~/neorg/gtd",
+          -- gtd = "~/neorg/gtd",
           doom_docs = string.format("%s/doc", doom_root),
         },
         autodetect = true,
@@ -59,13 +62,13 @@ neorg.settings = {
 neorg.packages = {
   ["neorg"] = {
     "nvim-neorg/neorg",
-    -- build = ":Neorg sync-parsers",
-    commit = {
-      ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
-      ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
-    },
+    build = ":Neorg sync-parsers",
+    -- commit = {
+    --   ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
+    --   ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
+    -- },
     cmd = "Neorg",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope" },
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope" },
   },
   -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },
 }

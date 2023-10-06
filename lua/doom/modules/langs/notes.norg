@@ -1,0 +1,8 @@
+
+
+
+return function for autocmds
+
+this allows for conditionally selecting between mason or custom setup.
+
+which is what we want

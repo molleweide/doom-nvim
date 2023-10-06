@@ -112,6 +112,7 @@ end
 --- Reload all Neovim configurations
 reloader._reload_doom = function()
   vim.cmd("hi clear")
+
   if vim.fn.exists(":LspRestart") ~= 0 then
     vim.cmd("silent! LspRestart")
   end

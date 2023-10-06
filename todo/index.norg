@@ -1,0 +1,10 @@
+
+
+
+* CHECK MODULES FOR ERRORS BEFORE LOADING THEM.
+
+  I need to check modules for errors etc before loading them so that I
+  can mistakes inside of a module without having neovim crash.
+
+
+

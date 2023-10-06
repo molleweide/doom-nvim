@@ -1,0 +1,1 @@
+-- https://github.com/lalitmee/browse.nvim
