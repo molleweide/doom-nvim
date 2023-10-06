@@ -130,6 +130,10 @@ end
 --   end
 -- end
 
+-- " Count is 0 by default
+-- command! -count -complete=shellcmd -nargs=* TermExec lua require'toggleterm'.exec_command(<q-args>, <count>)
+-- command! -count -nargs=* ToggleTerm lua require'toggleterm'.toggle_command(<q-args>, <count>)
+-- command! -bang ToggleTermToggleAll lua require'toggleterm'.toggle_all(<q-bang>)
 terminal.binds = {
   "<leader>",
   name = "+prefix",
@@ -138,41 +142,78 @@ terminal.binds = {
       "o",
       name = "+open/close",
       {
-        "t", name = "+terminal",{
-          -- toggle 1
-          { "m", function()
-          end, name = "Term Toggle 1" },
-          -- toggle 2
-          { ",", function()
-          end, name = "Term Toggle 2" },
-          -- toggle 3
-          { ".", function()
-          end, name = "Term Toggle 3" },
-          -- toggle all - a
-          { "a", function()
-          end, name = "Term Toggle All" },
-          -- toggle lazy git - gTerm Toggle 1
-          { "g", function()
-          end, name = "TgTerm lazygit" },
-          -- term select - s
-          { "s", function()
-          end, name = "Term Select" },
-          -- term set name - r
-          { "r", function()
-          end, name = "Term Rename" },
+        "t",
+        name = "+terminal",
+        {
+          {
+            "w",
+            name = "Term Toggle",
+            function()
+              require("toggleterm").toggle_command(nil, 0)
+            end,
+          },
+          {
+            "m",
+            name = "Term Toggle 1",
+            function()
+              require("toggleterm").toggle_command("size=40 direction=horizontal", 1)
+            end,
+          },
+          {
+            ",",
+            name = "Term Toggle 2",
+            function()
+              require("toggleterm").toggle_command("size=40 direction=horizontal", 2)
+            end,
+          },
+          {
+            ".",
+            name = "Term Toggle 3" ,
+            function()
+              require("toggleterm").toggle_command("size=40 direction=vertical", 3)
+            end
+          },
+          {
+            "a",
+            name = "Term Toggle All",
+            function()
+              require'toggleterm'.toggle_all()
+            end,
+          },
+          {
+            "g",
+            name = "TgTerm lazygit",
+            function() end,
+          },
+          {
+            "s",
+            name = "Term Select",
+            function() end,
+          },
+          {
+            "r",
+            name = "Term Rename",
+            function() end,
+          },
           -- send cur line
           -- send vis lines
           -- send vis sel
-          { "e", function()
-            if doom.settings.term_exec_cmd == "" then
-              vim.cmd("ToggleTerm")
-            else
-              local exec_cmd = string.format("TermExec cmd=\"%s\"", doom.settings.term_exec_cmd)
-              vim.cmd(exec_cmd)
-            end
-          end, name = "Term Exec Zshil" },
-      }, },
-    },
+          {
+            "e",
+             name = "Term Exec Zshil",
+            function()
+              if doom.settings.term_exec_cmd == "" then
+                vim.cmd("ToggleTerm")
+              else
+                local exec_cmd = string.format("TermExec cmd=\"%s\"", doom.settings.term_exec_cmd)
+                vim.cmd(exec_cmd)
+              end
+
+            end,
+          },
+        }, -- ot inner {}
+      }, -- ot
+    }, -- o
   },
 }
 
