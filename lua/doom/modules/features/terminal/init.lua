@@ -68,7 +68,6 @@ local terminal = {}
 --   },
 -- }
 
-
 terminal.settings = {
   size = 10,
   open_mapping = "<F4>",
@@ -110,7 +109,7 @@ terminal.settings = {
 terminal.packages = {
   ["toggleterm.nvim"] = {
     "akinsho/toggleterm.nvim",
-    commit = "a54e6c471ce1cd8ef8357e34598a28a955297131",
+    -- commit = "a54e6c471ce1cd8ef8357e34598a28a955297131",
     cmd = { "ToggleTerm", "TermExec" },
     lazy = true,
   },
@@ -168,16 +167,16 @@ terminal.binds = {
           },
           {
             ".",
-            name = "Term Toggle 3" ,
+            name = "Term Toggle 3",
             function()
               require("toggleterm").toggle_command("size=40 direction=vertical", 3)
-            end
+            end,
           },
           {
             "a",
             name = "Term Toggle All",
             function()
-              require'toggleterm'.toggle_all()
+              require("toggleterm").toggle_all()
             end,
           },
           {
@@ -188,27 +187,26 @@ terminal.binds = {
           {
             "s",
             name = "Term Select",
-            function() end,
+            "<cmd>TermSelect<CR>",
           },
           {
             "r",
             name = "Term Rename",
-            function() end,
+            "<cmd>ToggleTermSetName<CR>",
           },
           -- send cur line
           -- send vis lines
           -- send vis sel
           {
             "e",
-             name = "Term Exec Zshil",
+            name = "Term Exec Zshil",
             function()
               if doom.settings.term_exec_cmd == "" then
                 vim.cmd("ToggleTerm")
               else
-                local exec_cmd = string.format("TermExec cmd=\"%s\"", doom.settings.term_exec_cmd)
+                local exec_cmd = string.format('TermExec cmd="%s"', doom.settings.term_exec_cmd)
                 vim.cmd(exec_cmd)
               end
-
             end,
           },
         }, -- ot inner {}
