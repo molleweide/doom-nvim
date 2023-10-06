@@ -68,6 +68,28 @@ local terminal = {}
 --   },
 -- }
 
+---
+
+-- local float_handler = function(term)
+--   if not as.falsy(fn.mapcheck('jk', 't')) then
+--     vim.keymap.del('t', 'jk', { buffer = term.bufnr })
+--     vim.keymap.del('t', '<esc>', { buffer = term.bufnr })
+--   end
+-- end
+
+local lazygit
+
+---
+
+local float_opts = {
+  height = function()
+    return math.floor(vim.o.lines * 0.8)
+  end,
+  width = function()
+    return math.floor(vim.o.columns * 0.95)
+  end,
+}
+
 terminal.settings = {
   size = 10,
   open_mapping = "<F4>",
@@ -118,6 +140,16 @@ terminal.packages = {
 terminal.configs = {}
 terminal.configs["toggleterm.nvim"] = function()
   require("toggleterm").setup(doom.features.terminal.settings)
+
+  local Terminal = require("toggleterm.terminal").Terminal
+  lazygit = Terminal:new({
+    cmd = "lazygit",
+    dir = "git_dir",
+    hidden = true,
+    direction = "float",
+    -- on_open = float_handler,
+    float_opts = float_opts,
+  })
 end
 
 -- local function toggle_term_custom()
@@ -180,9 +212,11 @@ terminal.binds = {
             end,
           },
           {
-            "g",
-            name = "TgTerm lazygit",
-            function() end,
+            "l",
+            name = "toggleterm: toggle lazygit",
+            function()
+              lazygit:toggle()
+            end,
           },
           {
             "s",
