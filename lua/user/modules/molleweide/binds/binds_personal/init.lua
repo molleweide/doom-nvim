@@ -321,6 +321,11 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             [[:lua doom.moll.funcs.inspect()<Left>]],
             name = "inspect",
             options = { silent = false },
+          },{
+            "I",
+            [[:lua print()<Left>]],
+            name = "lua print",
+            options = { silent = false },
           },
           {
             "w",

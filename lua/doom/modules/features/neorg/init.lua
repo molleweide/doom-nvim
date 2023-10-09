@@ -24,6 +24,7 @@ neorg.settings = {
       config = {
         workspaces = {
           main = "~/neorg",
+          main = "~/neorg_test",
           -- gtd = "~/neorg/gtd",
           doom_docs = string.format("%s/doc", doom_root),
         },
@@ -68,7 +69,10 @@ neorg.packages = {
     --   ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
     -- },
     cmd = "Neorg",
-    dependencies = { "nvim-lua/plenary.nvim", "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      -- , "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope"
+    },
   },
   -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },
 }
@@ -76,6 +80,10 @@ neorg.packages = {
 neorg.configs = {}
 neorg.configs["neorg"] = function()
   require("neorg").setup(doom.features.neorg.settings)
+
+  -- these are found in the example config at github
+  vim.wo.foldlevel = 99
+  vim.wo.conceallevel = 2
 end
 neorg.configs["neorg-telescope"] = function()
   require("telescope").load_extension("neorg")
@@ -161,6 +169,7 @@ neorg.binds = {
           "n",
           name = "+neorg",
           {
+            { "c", ":Neorg ", name = "neorg workspace main", options = { silent = false } },
             { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
             { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
             { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
