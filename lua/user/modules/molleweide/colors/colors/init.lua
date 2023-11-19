@@ -8,6 +8,8 @@ local colorpicker = {}
 -- xiyaowong/nvim-transparent - Make your Neovim transparent.
 -- folke/twilight.nvim - Dim inactive portions of the code you're editing using TreeSitter.
 
+-- https://github.com/neph-iap/easycolor.nvim
+
 colorpicker.settings = {}
 
 colorpicker.packages = {

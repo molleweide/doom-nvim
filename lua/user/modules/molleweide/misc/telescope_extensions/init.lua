@@ -2,6 +2,7 @@ local utils = require("doom.utils")
 -- local is_module_enabled = utils.is_module_enabled
 local user_util = require("user.utils")
 
+-- https://github.com/fdschmidt93/telescope-corrode.nvim/tree/master/lua/telescope/_extensions
 
 -- todo: move all extensions into modules that make sense.
 

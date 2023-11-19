@@ -72,6 +72,8 @@ terminal.packages = {
     cmd = { "ToggleTerm", "TermExec" },
     lazy = true,
   },
+  -- https://github.com/distek/tt.nvim
+  -- https://github.com/sychen52/smart-term-esc.nvim
 }
 
 terminal.configs = {}
@@ -150,6 +152,7 @@ terminal.binds = {
             end,
           },
           {
+            -- FIX: reset when cwd changes,
             "l",
             name = "toggleterm: toggle lazygit",
             function()

@@ -67,7 +67,7 @@ telescope.packages = {
     commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
     cmd = "Telescope browse_files",
     keys = "<leader>.",
-    dependencies = {"nvim-telescope/telescope.nvim"},
+    dependencies = { "nvim-telescope/telescope.nvim" },
     -- after = "telescope.nvim",
     lazy = true,
   },
@@ -127,7 +127,20 @@ telescope.binds = function()
         name = "Browse cwd",
       },
       { ".", "<cmd>Telescope file_browser<CR>", name = "Browse project" },
-      { ",", "<cmd>Telescope buffers<CR>", name = "Search buffers" },
+      {
+        ",",
+        function()
+          require("telescope.builtin").buffers({
+            attach_mappings = function(_, map)
+              local actions = require("telescope.actions")
+              map("i", "<c-u>", actions.delete_buffer)
+              return true
+            end,
+          })
+        end,
+        name = "Search buffers",
+      },
+
       { "/", "<cmd>Telescope live_grep<CR>", name = "Search text" },
       { ":", "<cmd>Telescope command_history<CR>", name = "Search recent commands" },
       {
@@ -189,10 +202,10 @@ telescope.binds = function()
   }
   if is_module_enabled("features", "lsp") then
     table.insert(binds[2], {
+      {
+        "c",
+        name = "+code",
         {
-          "c",
-          name = "+code",
-          {
           { "s", "<cmd>Telescope lsp_document_symbols<CR>", name = "Lsp symbols", remap = true },
         },
       },

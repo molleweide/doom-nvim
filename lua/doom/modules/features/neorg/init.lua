@@ -18,13 +18,13 @@ neorg.settings = {
         neorg_leader = ",o",
       },
     },
-    ["core.norg.concealer"] = {},
-    ["core.norg.qol.toc"] = {},
-    ["core.norg.dirman"] = {
+    ["core.concealer"] = {},
+    ["core.qol.toc"] = {},
+    ["core.dirman"] = {
       config = {
         workspaces = {
           main = "~/neorg",
-          main = "~/neorg_test",
+          test = "~/neorg_test",
           -- gtd = "~/neorg/gtd",
           doom_docs = string.format("%s/doc", doom_root),
         },
@@ -32,7 +32,7 @@ neorg.settings = {
         autochdir = true,
       },
     },
-    ["core.norg.esupports.metagen"] = {
+    ["core.esupports.metagen"] = {
       config = { type = "auto" },
     },
     ["core.export"] = {},
@@ -51,7 +51,7 @@ neorg.settings = {
         zen_mode = "truezen",
       },
     },
-    ["core.norg.journal"] = {
+    ["core.journal"] = {
       config = {
         workspace = "main",
         journal_folder = "journal",
@@ -71,7 +71,8 @@ neorg.packages = {
     cmd = "Neorg",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      -- , "nvim-treesitter/nvim-treesitter", "nvim-neorg/neorg-telescope"
+      "nvim-neorg/neorg-telescope",
+      -- , "nvim-treesitter/nvim-treesitter",
     },
   },
   -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },

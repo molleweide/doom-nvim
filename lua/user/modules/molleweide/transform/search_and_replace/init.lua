@@ -1,5 +1,10 @@
 local search_and_replace = {}
 
+
+-- NOTE: vim substitute:
+-- %s/pattern/\U&/g
+--        replaces matches with uppercase version
+
 -- TODO: escape the word captured under cursor with iw/iW
 --
 --      This would be quite easy but first I would have to rewrite

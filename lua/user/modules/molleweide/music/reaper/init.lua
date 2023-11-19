@@ -2,6 +2,23 @@ local rk_definitions = "~/reaper/packages/reaper-keys/definitions/"
 
 local rk = {}
 
+--
+-- TODO: continue work on DUI and then reuse it for RK.
+--  create a UI pipeline with telescope that allows me to create new action
+--  bindings in RK
+--  select
+--    domain:     global|main|midi
+--
+--    action_type:  command             (domain restricts possible action_types)
+--                  timeline_operator
+--                  timeline_selector
+--                  ....
+--
+--    key_sequence:       (show virtual text if there is a clash, ie. treesitter..)
+--
+--    actions: list all possible actions in picker...
+--
+
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/GetReaScriptAPI
 -- --
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/MakeEELSnippets
