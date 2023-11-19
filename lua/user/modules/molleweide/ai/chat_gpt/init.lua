@@ -41,6 +41,7 @@ local chatgpt = {}
 
 chatgpt.settings = {
   welcome_message = WELCOME_MESSAGE, -- set to "" if you don't like the fancy godot robot
+  api_key_cmd = "secret get OPENAI",
   loading_text = "loading",
   question_sign = "", -- you can use emoji if you want e.g. 🙂
   answer_sign = "ﮧ", -- 🤖
