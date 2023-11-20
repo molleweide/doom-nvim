@@ -289,6 +289,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
         "M",
         name = "+moll",
         {
+          { "k", [[<CMD>:lua vim.opt.keymap = "INSERT_COLEMAK"<CR>]], name = "keymap insert_colemak" },
           {
             "l",
             function()
