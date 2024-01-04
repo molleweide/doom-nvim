@@ -2,37 +2,49 @@ local rk_definitions = "~/reaper/packages/reaper-keys/definitions/"
 
 local rk = {}
 
---
--- TODO: continue work on DUI and then reuse it for RK.
---  create a UI pipeline with telescope that allows me to create new action
---  bindings in RK
---  select
---    domain:     global|main|midi
---
---    action_type:  command             (domain restricts possible action_types)
---                  timeline_operator
---                  timeline_selector
---                  ....
---
---    key_sequence:       (show virtual text if there is a clash, ie. treesitter..)
---
---    actions: list all possible actions in picker...
---
-
+-- OLD NOTES/RESOURCES
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/GetReaScriptAPI
--- --
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/MakeEELSnippets
--- --
 -- -- https://github.com/NlGHT/vim-eel
---
+
+-- NOTE:
+
+-- TODO: ~ Inspect binding trees with treesitter
+--       ~ Add chord UI.
+--       ~ Add whatever notes/todos/ideas from reaper into neovim.
+--       ~ Show symbol clashes in real time, so that leader keys can be
+--         build/kept in mult files. IE. take inspiration from doom.
+--       ~
+
+-- FIX: xx
+
 -- rk.cmds = {}
---
+
 -- rk.autocmds = {}
---
---
--- -- quickly get to the reaper keys binds file
---
--- --
+
+local REAPER_DIR = "$HOME/reaper"
+local REAPER_APP_DIR = "$REAPER_DIR/app"
+local REAPER_PACKAGES_DIR = "$REAPER_DIR/packages"
+local REAPER_PROJECTS_DIR = "$REAPER_DIR/projects"
+local REAPER_TMP_DIR = "$REAPER_DIR/tmp"
+local REAPER_BACKUP_DIR = "$REAPER_DIR/backup"
+local REAPER_SAMPLES_DIR = "$REAPER_DIR/samples"
+
+-- FIX: move all scripts to GHQ - find repos and clone..
+local REAPER_APP_SCRIPTS_DIR = REAPER_APP_DIR .. "/reaper/Scripts"
+
+local RK_DIR = "$REAPER_DIR/packages/reaper-keys"
+
+local RK_DEFINITIONS = RK_DIR .. "/definitions"
+local RK_INTERNALS = RK_DIR .. "/internals"
+
+local RK_DEF_DEFAULTS_DIR = "/defaults"
+
+local function inspect_rk_bindings_tree() end
+
+local function inspect_rk_actions_table() end
+
+local function apply_rk_internals_analysis() end
 
 rk.binds = {
   {
@@ -56,6 +68,24 @@ rk.binds = {
             end,
             name = "find reaper definitions",
           },
+          {
+            "A",
+            function()
+              require("telescope.builtin").find_files({
+                cwd = REAPER_APP_SCRIPTS_DIR,
+                layout_strategy = "center",
+                layout_config = {
+                  anchor = "S",
+                  -- mirror = true,
+                  -- prompt_position = "bottom",
+                  height = 0.6,
+                  width = 0.6,
+                  preview_cutoff = 30,
+                },
+              })
+            end,
+            name = "find reaper scripts",
+          },
 
           {
             "u",
@@ -66,26 +96,6 @@ rk.binds = {
               { "c", "<cmd>e " .. rk_definitions .. "config.lua" .. "<CR>" },
             },
           },
-
-          -- {
-          --   "g",
-          --   name = "+go",
-          --   {
-          --     { "D", "<cmd>e " .. paths.doom_log_path .. "<CR>" },
-          --     -- { "N", "<cmd>e " .. paths.notes_rndm .. "<CR>" },
-          --     { "S", "<cmd>e " .. paths.conf_skhd .. "<CR>" },
-          --     { "a", "<cmd>e " .. paths.conf_alac .. "<CR>" },
-          --     { "e", "<cmd>e " .. paths.conf_setup .. "<CR>" },
-          --     { "g", "<cmd>e " .. paths.aliases_git .. "<CR>" },
-          --     { "m", "<cmd>e " .. paths.conf_tnx_main .. "<CR>" },
-          --     -- { "n", "<cmd>e " .. paths.notes_todo .. "<CR>" },
-          --     { "s", "<cmd>e " .. paths.conf_surf .. "<CR>" },
-          --     { "t", "<cmd>e " .. paths.conf_tmux .. "<CR>" },
-          --     { "x", "<cmd>e " .. paths.conf_scim .. "<CR>" },
-          --     { "y", "<cmd>e " .. paths.conf_yabai .. "<CR>" },
-          --     { "z", "<cmd>e " .. paths.aliases_zsh .. "<CR>" },
-          --   },
-          -- }, -- moll > go
         },
       },
     },
