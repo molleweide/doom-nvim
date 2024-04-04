@@ -108,6 +108,10 @@ local default_error_handler = function(package_name, err_message)
   error(("Error installing mason package `%s`.  Reason: \n%s "):format(package_name, err_message))
 end
 
+-- TODO: I think that the word `use_` here in front of the function makes it a
+-- bit confusing in relation to the other `use_` funcs further down. I
+-- suggest renaming this function to `setup_and_prepare_mason_package`
+--
 --- Installs a mason package and provides an on-ready handler
 ---@param package_name string|nil Name of mason.nvim package to install
 ---@param success_handler function
@@ -169,7 +173,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
   end
 end
 
---- Installs treesitter grammars
+--- Installs treesitter grammars.
 ---@param grammars string|string[]
 ---
 ---@example
@@ -185,6 +189,9 @@ module.use_tree_sitter = function(grammars)
   end
 end
 
+--- Installs and sets up an LSP by name.
+---@param lsp_name string
+---@param options table
 module.use_lsp_mason = function(lsp_name, options)
   local profiler_msg = ("lsp|setup `%s`"):format(lsp_name)
   profiler.start(profiler_msg)
@@ -215,12 +222,7 @@ module.use_lsp_mason = function(lsp_name, options)
 
   -- Combine default on_attach with provided on_attach
   local on_attach_functions = {}
--- <<<<<<< HEADold
---   if utils.is_module_enabled("features", "illuminate") then
---     table.insert(on_attach_functions, utils.illuminate_attach)
---   end
--- =======
--- >>>>>>> settings
+
   if user_config and user_config.on_attach then
     table.insert(on_attach_functions, user_config.on_attach)
   end
@@ -268,6 +270,7 @@ module.use_lsp_mason = function(lsp_name, options)
   profiler.stop(profiler_msg)
 end
 
+-- TODO: ??
 -- module.use_dap = function(config_name, settings)
 --   local utils = require("doom.utils")
 --   if utils.is_module_enabled("features", "dap") then
@@ -288,19 +291,7 @@ end
 --   end
 -- end
 
--- <<<<<<< HEADold
---
--- --- Helper to attach illuminate on LSP
--- module.illuminate_attach = function(client)
---   require("illuminate").on_attach(client)
---   -- Set underline highlighting for Lsp references
---   vim.cmd("hi! LspReferenceText cterm=underline gui=underline")
---   vim.cmd("hi! LspReferenceWrite cterm=underline gui=underline")
---   vim.cmd("hi! LspReferenceRead cterm=underline gui=underline")
--- end
--- =======
--- >>>>>>> settings
-
+-- NOTE: should these be configured on a language by language basis??
 --- Get LSP capabilities for DOOM
 module.get_capabilities = function()
   local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -336,6 +327,7 @@ module.get_capabilities = function()
 end
 
 --- Helper to wrap language setup functions with error handling + avoid raceconditions
+--- that can occure on eg. nvim startup where some apis haven't yet loaded.
 ---@param module_name string Name of module for error logging
 ---@param setup_fn function Function that sets up this language
 ---@return function Wrapped setup function
