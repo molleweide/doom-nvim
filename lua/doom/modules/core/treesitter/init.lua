@@ -13,10 +13,12 @@ treesitter.settings = {
     highlight = {
       enable = true,
     },
+    -- These keymaps fucking rock.
+    -- NOTE: I wonder if I can set these via the binds-table instead??
     incremental_selection = {
       enable = true,
       keymaps = {
-        init_selection = "gnn",
+        init_selection = "gnn", -- leader si
         node_incremental = "grn",
         scope_incremental = "grc",
         node_decremental = "grm",
@@ -54,7 +56,7 @@ treesitter.packages = {
     -- build = ":TSUpdate",
     -- commit = {
     --   ["nvim-0.7"] = "d76b0de6536c2461f97cfeca0550f8cb89793935",
-      ["latest"] = "51d220e0bd8922caabcb3e5de936fc599a1bd210",
+    -- ["latest"] = "51d220e0bd8922caabcb3e5de936fc599a1bd210",
     -- },
     build = ":TSUpdate",
     branch = "master",
@@ -70,7 +72,7 @@ treesitter.packages = {
   },
   ["nvim-ts-autotag"] = {
     "windwp/nvim-ts-autotag",
-    commit = "fdefe46c6807441460f11f11a167a2baf8e4534b",
+    -- commit = "fdefe46c6807441460f11f11a167a2baf8e4534b",
     -- after = "nvim-treesitter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
@@ -110,8 +112,8 @@ treesitter.configs["nvim-treesitter"] = function()
       if version:match("clang") then
         log.warn(
           "doom-treesitter:  clang has poor compatibility compiling treesitter parsers.  We recommend using gcc, see issue #246 for details.  (https://github.com/doom-neovim/doom-nvim/issues/246)\n"
-            .. "Add this line to your config.lua to hide this message.\n\n"
-            .. "doom.core.treesitter.settings.show_compiler_warning_message = false"
+          .. "Add this line to your config.lua to hide this message.\n\n"
+          .. "doom.core.treesitter.settings.show_compiler_warning_message = false"
         )
       end
     end, 1000)
