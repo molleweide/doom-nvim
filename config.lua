@@ -6,6 +6,14 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- TODO: extend neorg workspaces here with my own ones.
+
+-- TODO: oil.nvim plugin seems super awesome
+--
+
+-- TODO: auto close buffers above threshold
+-- https://github.com/axkirillov/hbac.nvim
+
 -- vim.cmd([[ :TransparentEnable ]])
 
 -- packer.nvim logs to stdpath(cache)/packer.nvim.log. Looking at this file is usually a good start if something isn't working as expected.
@@ -180,8 +188,10 @@ doom.settings.logging = "warn"
 vim.opt.wrap = false
 vim.opt.number = true
 vim.opt.relativenumber = true
-
 vim.opt.winwidth = 95
+vim.opt.scrolloff = 16
+vim.opt.virtualedit = "block" -- allow vis block to reach EOL for all lines
+vim.opt.ignorecase = true -- autocomplete eg `neor` -> Neorg
 
 -- -- test add local plugin
 -- -- ':lua vim.opt.runtimepath:append("~/code/plugins/nvim/lookup.nvim")',
