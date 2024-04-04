@@ -46,6 +46,19 @@ local function inspect_rk_actions_table() end
 
 local function apply_rk_internals_analysis() end
 
+local centered_promp_for_reaper_script_dit = {
+  cwd = REAPER_APP_SCRIPTS_DIR,
+  layout_strategy = "center",
+  layout_config = {
+    anchor = "S",
+    -- mirror = true,
+    -- prompt_position = "bottom",
+    height = 0.6,
+    width = 0.6,
+    preview_cutoff = 30,
+  },
+}
+
 rk.binds = {
   {
     "<leader>",
@@ -57,43 +70,53 @@ rk.binds = {
         {
           {
             "A",
+            name = "Edit default actions",
             "<cmd>e " .. rk_definitions .. "defaults/actions.lua" .. "<CR>",
           },
           {
             "R",
+            name = "find reaper definitions",
             function()
               require("telescope.builtin").find_files({
                 cwd = rk_definitions,
               })
             end,
-            name = "find reaper definitions",
           },
           {
             "A",
-            function()
-              require("telescope.builtin").find_files({
-                cwd = REAPER_APP_SCRIPTS_DIR,
-                layout_strategy = "center",
-                layout_config = {
-                  anchor = "S",
-                  -- mirror = true,
-                  -- prompt_position = "bottom",
-                  height = 0.6,
-                  width = 0.6,
-                  preview_cutoff = 30,
-                },
-              })
-            end,
             name = "find reaper scripts",
+            function()
+              require("telescope.builtin").find_files(centered_promp_for_reaper_script_dit)
+            end,
+          },
+          {
+            "Q",
+            name = "grep reaper scripts",
+            function()
+              require("telescope.builtin").live_grep(centered_promp_for_reaper_script_dit)
+            end,
           },
 
           {
             "u",
             name = "+user",
             {
-              { "a", "<cmd>e " .. rk_definitions .. "actions.lua" .. "<CR>" },
-              { "b", "<cmd>e " .. rk_definitions .. "bindings.lua" .. "<CR>" },
-              { "c", "<cmd>e " .. rk_definitions .. "config.lua" .. "<CR>" },
+              {
+                "a",
+                name = "edit user actions",
+                "<cmd>e " .. rk_definitions .. "actions.lua" .. "<CR>",
+              },
+              {
+                "b",
+                name = "edit user bindings",
+                "<cmd>e " .. rk_definitions .. "bindings.lua" .. "<CR>",
+              },
+
+              {
+                "c",
+                name = "edit user config",
+                "<cmd>e " .. rk_definitions .. "config.lua" .. "<CR>",
+              },
             },
           },
         },
