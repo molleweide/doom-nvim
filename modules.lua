@@ -200,7 +200,7 @@ return {
     },
     context = {
       -- "winbar_statusline_context",
-      -- "context", -- Provides visual context via Treesitter
+      "context", -- Provides visual context via Treesitter
     },
     email = {
       "himalaya"
