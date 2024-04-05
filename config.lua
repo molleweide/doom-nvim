@@ -472,4 +472,13 @@ telescope_defaults.winblend = 10
 -- WHICHKEY
 --
 
+--
+-- TREESITTER
+--
+
+-- TS CONTEXT
+vim.api.nvim_set_hl(0, "TreesitterContext", { bg="DarkMagenta" })
+-- vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg="Pink" })
+vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg="SeaGreen", underline=true })
+
 -- vim: sw=2 sts=2 ts=2 expandtab
