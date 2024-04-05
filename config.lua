@@ -11,6 +11,8 @@ local system = require("doom.core.system")
 -- TODO: oil.nvim plugin seems super awesome
 --
 
+-- BINDING: Nui input ( path ) -> telescope grep ( path )
+
 -- TODO: auto close buffers above threshold
 -- https://github.com/axkirillov/hbac.nvim
 
@@ -247,6 +249,10 @@ vim.diagnostic.config({
   },
 })
 
+--
+-- TABS
+--
+
 if doom.modules.tabline then
   doom.modules.tabline.settings.options.diagnostics_indicator = function(_, _, diagnostics_dict, _)
     doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
@@ -291,26 +297,26 @@ funcs.get_visual_selection = function()
   return table.concat(lines, "\n")
 end
 
--- open buffer and read feat req template so that one can quickly
--- document
--- NOTE: I was testing here how to insert text from lua variable
-funcs.create_feat_request = function()
-  vim.cmd([[ :vert new ]])
-  vim.cmd("read " .. system.doom_root .. "/templates/skeleton_feat_request.md")
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_set_text(bufnr, 5, 0, 5, 0, utils.str_2_table(get_system_info_string(), "\n"))
-end
-
--- open empty buffer and read crash report so that an issue can be
--- documented fast when it occurs
-funcs.report_an_issue = function()
-  -- functions.create_report()
-  create_report()
-  vim.cmd([[ :vert new ]])
-  -- print(system.doom_report)
-  vim.cmd("read " .. system.doom_report)
-end
-
+-- -- open buffer and read feat req template so that one can quickly
+-- -- document
+-- -- NOTE: I was testing here how to insert text from lua variable
+-- funcs.create_feat_request = function()
+--   vim.cmd([[ :vert new ]])
+--   vim.cmd("read " .. system.doom_root .. "/templates/skeleton_feat_request.md")
+--   local bufnr = vim.api.nvim_get_current_buf()
+--   vim.api.nvim_buf_set_text(bufnr, 5, 0, 5, 0, utils.str_2_table(get_system_info_string(), "\n"))
+-- end
+--
+-- -- open empty buffer and read crash report so that an issue can be
+-- -- documented fast when it occurs
+-- funcs.report_an_issue = function()
+--   -- functions.create_report()
+--   create_report()
+--   vim.cmd([[ :vert new ]])
+--   -- print(system.doom_report)
+--   vim.cmd("read " .. system.doom_report)
+-- end
+--
 ------------------------------
 ---       COMPLETION       ---
 ------------------------------

@@ -1,3 +1,5 @@
+local langs_utils = require("doom.modules.langs.utils")
+
 local lua = {}
 
 lua.settings = {
@@ -99,17 +101,13 @@ lua.packages = {
   },
 }
 
-local langs_utils = require("doom.modules.langs.utils")
-
-
+-- TODO: Allow user to setup lsp on their own or use mason
 lua.autocmds_2 = function()
   local autocmds = {}
-
   if doom.modules.langs.lua.settings.use_mason then
     local x
   else
   end
-
   return autocmds
 end
 
@@ -143,6 +141,7 @@ lua.autocmds = {
           lua.settings.formatting_config
         )
       end
+
       if not lua.settings.disable_diagnostics then
         langs_utils.use_null_ls(
           lua.settings.diagnostics_package,
@@ -150,6 +149,7 @@ lua.autocmds = {
           lua.settings.diagnostics_config
         )
       end
+
     end),
     once = true,
   },

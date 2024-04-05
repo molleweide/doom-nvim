@@ -40,8 +40,9 @@ local chatgpt = {}
 --  website.
 
 chatgpt.settings = {
-  welcome_message = WELCOME_MESSAGE, -- set to "" if you don't like the fancy godot robot
-  api_key_cmd = "secret get OPENAI",
+  -- welcome_message = "WELCOME_MESSAGE", -- set to "" if you don't like the fancy godot robot
+  -- api_key_cmd = "secret get OPENAI",
+  api_key_cmd = "op read op://api_tokens/OOpenAI/credential --no-newline",
   loading_text = "loading",
   question_sign = "", -- you can use emoji if you want e.g. 🙂
   answer_sign = "ﮧ", -- 🤖
@@ -118,9 +119,12 @@ chatgpt.settings = {
   },
 }
 
+-- FIX: need to lazy load so I don't get prompted for 1pass on startup.
+
 chatgpt.packages = {
   ["ChatGPT.nvim"] = {
     "jackMort/ChatGPT.nvim",
+    dev = true,
     dependencies = {
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
@@ -149,6 +153,49 @@ chatgpt.binds = {
             "c",
             name = "+ChatGPT",
             {
+              {
+                "t",
+                function()
+                  local job = require("plenary.job")
+
+                  print("job", job)
+                  print("secret testing START")
+
+                  job
+                      :new({
+                        command = "secret",
+                        args = { "get", "OPENAI" },
+                        on_stdout = function(j, exit_code)
+                          if j ~= nil then
+                            local value = j:result() --[1]:gsub("%s+$", "")
+                            print("stdout:", vim.inspect(value), exit_code)
+                          else
+                            print("stdout nothing")
+                          end
+                        end,
+                        on_exit = function(j, exit_code)
+                          if j ~= nil then
+                            local value = j:result()[1]:gsub("%s+$", "")
+                            print("exit:", vim.inspect(value), exit_code)
+                          else
+                            print("exit nothing")
+                          end
+                        end,
+                        on_stderr = function(j, exit_code)
+                          if j ~= nil then
+                            local value = j:result() --[1]:gsub("%s+$", "")
+                            print("stderr:", vim.inspect(value), exit_code)
+                          else
+                            print("err nothing")
+                          end
+                        end,
+                      })
+                      :start()
+
+                  print("secret testing END")
+                end,
+                name = "test secret cmd",
+              },
               { "c", [[<cmd>ChatGPT<CR>]], name = "Open" },
               --    command which opens a prompt selection from Awesome ChatGPT Prompts to be used with the ChatGPT.
               --    https://github.com/f/awesome-chatgpt-prompts

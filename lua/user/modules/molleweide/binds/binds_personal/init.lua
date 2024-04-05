@@ -401,15 +401,15 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
               end,
               name = "Dorothy",
             },
-            {
-              "x",
-              function()
-                require("telescope.builtin").find_files({
-                  cwd = "~/code/repos/github.com/molleweide/xdg_configs",
-                })
-              end,
-              name = "xdg_configs",
-            },
+            -- {
+            --   "x",
+            --   function()
+            --     require("telescope.builtin").find_files({
+            --       cwd = "~/code/repos/github.com/molleweide/xdg_configs",
+            --     })
+            --   end,
+            --   name = "xdg_configs",
+            -- },
             {
               "n",
               function()
@@ -417,7 +417,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
                 })
               end,
-              name = "find doom-nvim",
+              name = "Find DOOM-NVIM",
             },
           },
         },

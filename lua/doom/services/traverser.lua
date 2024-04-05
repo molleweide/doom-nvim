@@ -23,13 +23,15 @@ local default_log_levels =
   { debug = false }
 
 local tree_traverser = {
+  ---Build a function that does what ??
+  ---@param builder_opts table
+  ---@return function
   build = function(builder_opts)
     local traverser = builder_opts.traverser
     local debug_node = builder_opts.debug_node or default_debug_node
     local stack = {}
     local result = {}
 
-    -- Traverse out, pops from stack, adds to result
     local traverse_out = function()
       table.remove(stack, #stack)
     end

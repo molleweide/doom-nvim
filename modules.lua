@@ -44,7 +44,7 @@ return {
     "ranger", -- File explorer in neovim (TODO: Test)
     "restclient", -- Test HTTP requests from neovim (TODO: Test)
     "show_registers", -- Show and navigate between registers
-    "dui", -- [WIP] Managen your doom config with Telescope.
+    -- "dui", -- [WIP] Managen your doom config with Telescope.
 
     -- Tools
     "dap", -- Debug code through neovim
@@ -57,7 +57,7 @@ return {
     "neorg", -- Organise your life
     "projects", -- Quickly switch between projects
     "superman", -- Read unix man pages in neovim
-    -- "suda",            -- Save using sudo when necessary
+    "suda",            -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
     "whichkey", -- An interactive sheet
     "zen",
@@ -201,6 +201,9 @@ return {
     context = {
       -- "winbar_statusline_context",
       -- "context", -- Provides visual context via Treesitter
+    },
+    email = {
+      "himalaya"
     },
     dorothy = {
       "dorothy",

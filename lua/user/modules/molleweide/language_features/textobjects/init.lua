@@ -1,5 +1,7 @@
 local textobjects = {}
 
+-- move this to under core treesitter.
+
 textobjects.packages = {
   ["nvim-treesitter-textobjects"] = { "nvim-treesitter/nvim-treesitter-textobjects" },
   -- ["targets.vim"] = {"wellle/targets.vim"},

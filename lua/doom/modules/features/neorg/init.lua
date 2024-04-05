@@ -9,6 +9,8 @@ local doom_root = require("doom.core.system").doom_root
 -- NOTE: this might be solution to installing norg parser on macos:
 --  https://github.com/nvim-neorg/tree-sitter-norg/issues/7
 
+-- TODO: move all my custom overrides to `config.lua`
+
 neorg.settings = {
   load = {
     ["core.defaults"] = {},
@@ -22,12 +24,14 @@ neorg.settings = {
     ["core.qol.toc"] = {},
     ["core.dirman"] = {
       config = {
+
         workspaces = {
           main = "~/neorg",
           test = "~/neorg_test",
           -- gtd = "~/neorg/gtd",
           doom_docs = string.format("%s/doc", doom_root),
         },
+        default_workspace = "main",
         autodetect = true,
         autochdir = true,
       },
@@ -174,10 +178,10 @@ neorg.binds = {
             { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
             { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
             { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
-            { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
-            { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
-            { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
-            { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
+            -- { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
+            -- { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
+            -- { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
+            -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
             { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
             { "n", ":Neorg present<cr>", name = "neorg present" },
             {

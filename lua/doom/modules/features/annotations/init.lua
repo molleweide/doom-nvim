@@ -19,7 +19,7 @@ annotations.settings = {
 annotations.packages = {
   ["neogen"] = {
     "danymat/neogen",
-    commit = "0958aeffcddf46e57785c3026be934816b4f39d2",
+    -- commit = "0958aeffcddf46e57785c3026be934816b4f39d2",
     keys = { "<leader>cg" },
     cmd = "Neogen",
     dependencies={
