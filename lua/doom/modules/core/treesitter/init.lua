@@ -30,9 +30,9 @@ treesitter.settings = {
     playground = {
       enable = false,
     },
-    context_commentstring = {
-      enable = true,
-    },
+    -- context_commentstring = {
+    --   enable = true,
+    -- },
     autotag = {
       enable = true,
       filetypes = {
