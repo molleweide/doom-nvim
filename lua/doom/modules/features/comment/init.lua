@@ -1,51 +1,5 @@
 local comment = {}
 
--- NOTE: DEFAULT CONFIG
--- {
---     ---Add a space b/w comment and the line
---     padding = true,
---     ---Whether the cursor should stay at its position
---     sticky = true,
---     ---Lines to be ignored while (un)comment
---     ignore = nil,
---     ---LHS of toggle mappings in NORMAL mode
---     toggler = {
---         ---Line-comment toggle keymap
---         line = 'gcc',
---         ---Block-comment toggle keymap
---         block = 'gbc',
---     },
---     ---LHS of operator-pending mappings in NORMAL and VISUAL mode
---     opleader = {
---         ---Line-comment keymap
---         line = 'gc',
---         ---Block-comment keymap
---         block = 'gb',
---     },
---     ---LHS of extra mappings
---     extra = {
---         ---Add comment on the line above
---         above = 'gcO',
---         ---Add comment on the line below
---         below = 'gco',
---         ---Add comment at the end of line
---         eol = 'gcA',
---     },
---     ---Enable keybindings
---     ---NOTE: If given `false` then the plugin won't create any mappings
---     mappings = {
---         ---Operator-pending mapping; `gcc` `gbc` `gc[count]{motion}` `gb[count]{motion}`
---         basic = true,
---         ---Extra mapping; `gco`, `gcO`, `gcA`
---         extra = true,
---     },
---     ---Function to call before (un)comment
---     pre_hook = nil,
---     ---Function to call after (un)comment
---     post_hook = nil,
--- }
-
-
 comment.settings = {
   --- Add a space b/w comment and the line
   --- @type boolean
@@ -62,6 +16,42 @@ comment.settings = {
   --- @type string|fun():string
   ignore = nil,
 
+  --     ---LHS of toggle mappings in NORMAL mode
+  --     toggler = {
+  --         ---Line-comment toggle keymap
+  --         line = 'gcc',
+  --         ---Block-comment toggle keymap
+  --         block = 'gbc',
+  --     },
+
+  -- ---LHS of operator-pending mappings in NORMAL and VISUAL mode
+  -- opleader = {
+  --   ---Line-comment keymap
+  --   line = "gc",
+  --   ---Block-comment keymap
+  --   block = "gb",
+  -- },
+
+  --     ---LHS of extra mappings
+  --     extra = {
+  --         ---Add comment on the line above
+  --         above = 'gcO',
+  --         ---Add comment on the line below
+  --         below = 'gco',
+  --         ---Add comment at the end of line
+  --         eol = 'gcA',
+  --     },
+
+      -- -- NOTE: If given `false` then the plugin won't create any mappings
+      -- -- Enable keybindings
+      -- mappings = {
+      --     ---Operator-pending mapping; `gcc` `gbc` `gc[count]{motion}` `gb[count]{motion}`
+      --     basic = true,
+      --     ---Extra mapping; `gco`, `gcO`, `gcA`
+      --     extra = true,
+      -- },
+
+  --- Function to call before (un)comment
   --- Passes to ts-context-commentstring to get commentstring in JSX
   pre_hook = function(ctx)
     -- Only calculate commentstring for tsx filetypes
@@ -85,6 +75,9 @@ comment.settings = {
       })
     end
   end,
+
+  --     ---Function to call after (un)comment
+  --     post_hook = nil,
 }
 
 comment.packages = {
@@ -108,12 +101,47 @@ comment.configs["Comment.nvim"] = function()
   require("Comment").setup(config)
 end
 
+-- E15: Invalid expression: <80><fd>hlua require("Comment.api").call('toggle.linewise', '@g')^M
+
+-- NOTE: https://github.com/numToStr/Comment.nvim/pull/204
+-- @before rhs was = [[<cmd>lua require("Comment.api").call('toggle.linewise', '@g')<CR>]],
+--
+-- api.call({cb}, {op})                                          *comment.api.call*
+--     Callback function which does the following
+--       1. Sets 'operatorfunc' for dot-repeat
+--       2. Preserves jumps and marks
+--       3. Stores last cursor position
+--
+--     Parameters: ~
+--         {cb}  (string)      Name of the API function to call
+--         {op}  ("g@"|"g@$")  Operator-mode expression
+--
+--     Returns: ~
+--         (fun():string)  Keymap RHS callback
+--
+--     See: ~
+--         |g@|
+--         |operatorfunc|
+--
+--     Usage: ~
+-- >lua
+--         local api = require('Comment.api')
+--         vim.keymap.set(
+--             'n', 'gc', api.call('toggle.linewise', 'g@'),
+--             { expr = true }
+--         )
+--         vim.keymap.set(
+--             'n', 'gcc', api.call('toggle.linewise.current', 'g@$'),
+--             { expr = true }
+--         )
+-- <
+
 comment.binds = {
   {
     "gc",
-    [[<cmd>lua require("Comment.api").call('toggle.linewise', '@g')<CR>]],
+    function() return require("Comment.api").call("toggle.linewise", 'g@')() end,
     name = "Comment motion",
-    expr = true
+    options = { expr = true }
   },
   {
     "gc",
