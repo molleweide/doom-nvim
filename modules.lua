@@ -20,6 +20,7 @@ return {
     "linter", -- Linting and formatting for languages
     "lsp", -- Code completion
     "extra_snippets", -- Code snippets for all languages
+    "context_in_code",
 
     -- Editor
     "auto_session", -- Remember sessions between loads
@@ -49,6 +50,7 @@ return {
     -- Tools
     "dap", -- Debug code through neovim
     "repl",
+    "email_himalaya",
     "explorer", -- An enhanced filetree explorer
     "firenvim", -- Embed neovim in your browser
     "lazygit", -- Lazy git integration
@@ -200,10 +202,6 @@ return {
     },
     context = {
       -- "winbar_statusline_context",
-      "context", -- Provides visual context via Treesitter
-    },
-    email = {
-      "himalaya"
     },
     dorothy = {
       "dorothy",
