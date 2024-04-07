@@ -1,5 +1,7 @@
 local annotations = {}
 
+annotations.state = "stable"
+
 annotations.settings = {
   enabled = true,
   languages = {

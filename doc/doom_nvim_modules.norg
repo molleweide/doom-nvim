@@ -54,6 +54,12 @@ version: 0.0.11
   - [`nest`](../lua/doom/modules/core/nest) Used for keybind management, integrates with `whichkey` and `mapper`.
 
 *** `features` modules
+
+    Feature modules should be named according to their functionality, NOT their
+    respective plugins names. This makes it easier to manage modules and quickly
+    search and update stuff based on what you want.
+
+
   - \*Language related modules\*
   -- {@ ../lua/doom/modules/features/annotations/init.lua}[annotations] Add code documents/annotations
   -- {@ ../lua/doom/modules/features/auto_install/init.lua}[auto_install] Auto install LSP providers

@@ -1,5 +1,7 @@
 local comment = {}
 
+comment.state = "stable"
+
 comment.settings = {
   --- Add a space b/w comment and the line
   --- @type boolean

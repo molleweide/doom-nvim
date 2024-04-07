@@ -54,6 +54,7 @@ return {
     "restclient", -- Test HTTP requests from neovim (TODO: Test)
     "show_registers", -- Show and navigate between registers
     -- "dui", -- [WIP] Managen your doom config with Telescope.
+    "ui_make_transparent",
 
     -- TOOLS
     "dap", -- Debug code through neovim
@@ -383,13 +384,6 @@ return {
     },
     quickfix = {
       "quickfix", -- Extra quickfix capabilitieS
-    },
-    ui = {
-      -- "crypto",            -- Crypto currency stuff
-      -- "diagrams",
-      -- "vim_ui",            -- improved `vim.ui`
-      "transparent",
-      -- "noice"
     },
     langs = {
       -- "fennel",
