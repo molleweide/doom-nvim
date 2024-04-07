@@ -397,44 +397,44 @@ end
 ---       COLORS       ---
 --------------------------
 
-doom.use_package("sainnhe/sonokai", "EdenEast/nightfox.nvim")
-
-local options = {
-  dim_inactive = true,
-}
-local palettes = {
-  dawnfox = {
-    bg2 = "#F9EFEC",
-    bg3 = "#ECE3DE",
-    sel1 = "#EEF1F1",
-    sel2 = "#D8DDDD",
-  },
-}
-local specs = {}
-local all = {
-  TelescopeNormal = { fg = "fg0", bg = "bg0" },
-  TelescopePromptTitle = { fg = "pallet.green", bg = "bg1" },
-  TelescopePromptBorder = { fg = "bg1", bg = "bg1" },
-  TelescopePromptNormal = { fg = "fg1", bg = "bg1" },
-  TelescopePromptPrefix = { fg = "fg1", bg = "bg1" },
-
-  TelescopeResultsTitle = { fg = "pallet.green", bg = "bg2" },
-  TelescopeResultsBorder = { fg = "bg2", bg = "bg2" },
-  TelescopeResultsNormal = { fg = "fg1", bg = "bg2" },
-
-  TelescopePreviewTitle = { fg = "pallet.green", bg = "bg1" },
-  TelescopePreviewNormal = { bg = "bg1" },
-  TelescopePreviewBorder = { fg = "bg1", bg = "bg1" },
-  TelescopeMatching = { fg = "error" },
-  CursorLine = { bg = "sel1", link = "" },
-}
-
-require("nightfox").setup({
-  options = options,
-  palettes = palettes,
-  specs = specs,
-  all = all,
-})
+-- doom.use_package("sainnhe/sonokai", "EdenEast/nightfox.nvim")
+--
+-- local options = {
+--   dim_inactive = true,
+-- }
+-- local palettes = {
+--   dawnfox = {
+--     bg2 = "#F9EFEC",
+--     bg3 = "#ECE3DE",
+--     sel1 = "#EEF1F1",
+--     sel2 = "#D8DDDD",
+--   },
+-- }
+-- local specs = {}
+-- local all = {
+--   TelescopeNormal = { fg = "fg0", bg = "bg0" },
+--   TelescopePromptTitle = { fg = "pallet.green", bg = "bg1" },
+--   TelescopePromptBorder = { fg = "bg1", bg = "bg1" },
+--   TelescopePromptNormal = { fg = "fg1", bg = "bg1" },
+--   TelescopePromptPrefix = { fg = "fg1", bg = "bg1" },
+--
+--   TelescopeResultsTitle = { fg = "pallet.green", bg = "bg2" },
+--   TelescopeResultsBorder = { fg = "bg2", bg = "bg2" },
+--   TelescopeResultsNormal = { fg = "fg1", bg = "bg2" },
+--
+--   TelescopePreviewTitle = { fg = "pallet.green", bg = "bg1" },
+--   TelescopePreviewNormal = { bg = "bg1" },
+--   TelescopePreviewBorder = { fg = "bg1", bg = "bg1" },
+--   TelescopeMatching = { fg = "error" },
+--   CursorLine = { bg = "sel1", link = "" },
+-- }
+--
+-- require("nightfox").setup({
+--   options = options,
+--   palettes = palettes,
+--   specs = specs,
+--   all = all,
+-- })
 
 doom.settings.colorscheme = "tokyonight"
 

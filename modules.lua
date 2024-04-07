@@ -69,12 +69,19 @@ return {
     "superman", -- Read unix man pages in neovim
     "suda", -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
+    -- "telescope_extensions_various",
     "whichkey", -- An interactive sheet
     "zen",
 
     -- LIBRARIES
     -- "litee"
     -- "libmodal"
+
+    various = {
+      -- "move anything that cant be categorized into this folder",
+      -- "everything else should be in a sub category direactory",
+      -- "so that things are kept clean and not so fucking random you know"
+    },
   },
   -- ui = {
   --   heirline,
@@ -331,7 +338,6 @@ return {
       -- "ripgrep",
     },
     misc = {
-      "telescope_extensions", -- move into categories
       -- "kmonad",            -- Support for kmonad keyboard remapper
       -- "navigator",         -- ???
       -- "statusline_misc",
