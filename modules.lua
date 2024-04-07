@@ -25,7 +25,7 @@ return {
     },
 
     lib = {
-      "litee"
+      "litee",
     },
 
     -- Language features
@@ -38,6 +38,14 @@ return {
     "extra_snippets", -- Code snippets for all languages
     "context_in_code",
     "additional_vim_textobjects",
+    language_features = {
+      -- "virtual_types", -- ???
+      "auto_add_end_keyword",
+      "highlight_args_and_params",
+      -- "preview_edit_and_navigate_lsp_locations",
+      "swap_args_and_elems",
+      "ts_plugins",
+    },
 
     -- Editor
     "auto_session", -- Remember sessions between loads
@@ -49,7 +57,7 @@ return {
     "range_highlight", -- Highlight selected range from commands
     "todo_comments", -- Highlight TODO: comments
     "doom_themes", -- Extra themes for doom
-    "colors_multiple_plugins",
+    "color_pickers",
     "clipboard_neoclip",
     "clipboard_images",
     "refactoring",
@@ -64,6 +72,24 @@ return {
     "help_and_doc_bindings_various", -- Support for help with binds and stuff
     "cursor",
     "formatting",
+    editor = {
+      -- "spellcheck",
+      "surround", -- Surround text objects, eg. {([])}
+      -- "gestures",        -- Mouse gestures
+      -- "tabs",            -- ???
+      "scroll",
+      "registers",
+      "undo_tree_visualization",
+      -- "printer",
+      -- "sort",            -- extra binds that help with sorting lines/objects
+      -- "logging",         -- binds n stuff
+      "litee_symboltree",
+      "litee_bookmarks",
+      "litee_calltree",
+      -- "code_outline",
+      -- "readline",        -- ???
+      "editing",
+    },
 
     -- CURSOR MOVEMENT
     "movement_lightspeed",
@@ -103,6 +129,19 @@ return {
     "music_and_audio_engineering",
     "figlet",
     "markup_bindings_and_tools",
+
+    tools = {
+      "spreadsheets",
+      -- "flutter",
+      -- "google_docs",
+      -- "ssh",
+      -- "open_scad",
+      -- "docker",          -- Docker tools
+      -- "pandoc",
+      -- "remote_dev",      -- ???
+      "gpg",
+      -- "collaborate", -- Google docs collaborative editing.
+    },
 
     -- LIBRARIES
     -- "litee"
@@ -254,25 +293,19 @@ return {
     "execute_anything_tj_style",
   },
   molleweide = {
+    "binds_personal",
     "reaper",
     "tamton_essentials",
-    binds = {
-      "binds_personal",
-    },
+    "tweak",
+    "dorothy",
+    "plugins_reloader", -- Watch local packages for changes during development
+    "nvim_dev_binds",
+
     context = {
       -- "winbar_statusline_context",
     },
-    dorothy = {
-      "dorothy",
-    },
     finance = {
       -- "crypto_prices",
-    },
-    language_features = {
-      -- "virtual_types", -- ???
-      "args", -- Provides highlighting and tools for managing function args
-      "endwise", -- ??
-      "ts_plugins", -- walk throughl
     },
 
     cmdline = {
@@ -286,27 +319,6 @@ return {
     filetype = {
       -- "filetype",        -- ???
     },
-    editor = {
-      -- "spellcheck",
-      "surround", -- Surround text objects, eg. {([])}
-      -- "gestures",        -- Mouse gestures
-      -- "tabs",            -- ???
-      "scroll",
-      "registers",
-      -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
-      "undo",
-      -- "printer",
-      -- "sort",            -- extra binds that help with sorting lines/objects
-      -- "logging",         -- binds n stuff
-      "litee_symboltree",
-      "litee_bookmarks",
-      "litee_calltree",
-      -- "code_outline",
-      -- "readline",        -- ???
-      "editing",
-      "tweak",
-    },
-    games = {},
     icons = {
       -- "icons",             -- Extended various icons support
     },
@@ -317,11 +329,6 @@ return {
     data_science = {
       -- "data_science",
     },
-    nvim_dev = {
-      "plugins_reloader", -- Watch local packages for changes during development
-      "nvim_dev_binds",
-    },
-    tabs = {},
     git = {
       "git", -- git basic support
       -- "gitsigns",
@@ -331,58 +338,6 @@ return {
       "github_octo",
       "github_litee",
       "ghq",
-    },
-    transform = {
-      -- "regex",           -- Regex tools
-      -- "architext",
-      -- "rename",            -- ??
-      -- "ripgrep",
-    },
-    misc = {
-      -- "kmonad",            -- Support for kmonad keyboard remapper
-      -- "navigator",         -- ???
-      -- "statusline_misc",
-      -- "markdown_tools",  -- ??
-      -- "figlet",            -- figlet fonts editor
-      -- "websearch",
-      -- "stenography",
-      -- "utilities",         -- ??
-      -- "math_calculator",
-      -- "games",
-    },
-    tabular = {
-      -- "scim",              -- Spreadsheets
-      -- "tabular",           -- Extended support for managing tabular data
-    },
-    ts = {
-      -- "ts_jump_2_func",
-      -- "ts_jump_to_module_part",
-      -- "ts_mirror_doom_globals",
-      -- "ts_navigation",
-      -- "ts_query_monitor",
-      -- "ts_testing",
-      -- "ts_testing_locals",
-      -- "ts_treehopper",
-    },
-    tools = {
-      -- "flutter",
-      -- "google_docs",
-      -- "ssh",
-      -- "open_scad",
-      -- "docker",          -- Docker tools
-      -- "pandoc",
-      -- "remote_dev",      -- ???
-      "gpg",
-      "collaborate", -- Google docs collaborative editing.
-    },
-    tmux = {
-      -- "tmux",               -- ???
-    },
-    langs = {
-      -- "fennel",
-      -- "latex",
-      -- "lisp",
-      -- "solidity",          -- ethereum lang
     },
   },
 }

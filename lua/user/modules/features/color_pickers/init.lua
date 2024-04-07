@@ -15,8 +15,11 @@ colorpicker.settings = {}
 colorpicker.packages = {
   -- https://github.com/ziontee113/color-picker.nvim -- DREAM COME TRUE!!!
   -- https://github.com/max397574/colortils.nvim -- <<<<<< this one!!!
+  -- -- https://github.com/uga-rosa/ccc.nvim
   ["vCoolor.vim"] = { "KabbAmine/vCoolor.vim" }, -- open color picker / requires mouse to select color
-  -- https://github.com/folke/lsp-colors.nvim
+  --
+  -- this should not be here..
+  -- https://github.com/folke/lsp-colors.nvim --
 }
 
 return colorpicker

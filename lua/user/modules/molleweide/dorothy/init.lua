@@ -61,9 +61,6 @@ local dorothy = {}
 -- end
 
 ---------
-
-dorothy.packages = {}
-
 -- autoformat dorothy on save.
 dorothy.autocommands = {
   -- {

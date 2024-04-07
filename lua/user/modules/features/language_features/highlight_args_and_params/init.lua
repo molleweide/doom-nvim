@@ -2,8 +2,6 @@ local ts_args = {}
 
 ts_args.packages = {
   ["hlargs.nvim"] = { "m-demare/hlargs.nvim", },
-  ["iswap.nvim"] = {"mizlan/iswap.nvim"} -- re-arrange args easilly
-  -- https://github.com/rohit-px2/nvim-ts-highlightparams
 }
 
 ts_args.configs = {}
@@ -49,27 +47,6 @@ end
 -- ts_args.configs["iswap.nvim"] = function()
 -- end
 
-
-ts_args.binds = {
-  "<leader>",
-  name = "+prefix",
-  {
-    {
-      "n",
-      name = "+test",
-      {
-        {
-          {
-            "t",
-            name = "+ts",
-            -- TSContextEnable, TSContextDisable and TSContextToggle.
-            { "c", [[ :TSContextToggle<cr> ]], name = "toggle context" },
-          },
-        },
-      },
-    },
-  },
-}
 
 return ts_args
 

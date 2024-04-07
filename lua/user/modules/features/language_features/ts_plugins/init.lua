@@ -14,7 +14,6 @@ local tsp = {}
 ----------------------------
 
 tsp.packages = {
-  ["playground"] = { "nvim-treesitter/playground" }, -- move to ts module.
   ["nvim-treesitter-refactor"] = { "nvim-treesitter/nvim-treesitter-refactor" },
   -- ["complementree.nvim"] = { "vigoux/complementree.nvim" }, --
   -- ["ts-manipulator.nvim"] = {"akshettrj/ts-manipulator.nvim"},
@@ -122,27 +121,6 @@ tsp.binds = {
     },
   },
 }
-
--- tsp.binds = {
---   "<leader>",
---   name = "+prefix",
---   {
---     {
---       "n",
---       name = "+test",
---       {
---         {
---           {
---             "t",
---             name = "+ts",
---             -- TSContextEnable, TSContextDisable and TSContextToggle.
---             { "c", [[ :TSContextToggle<cr> ]], name = "toggle context" },
---           },
---         },
---       },
---     },
---   },
--- }
 
 ----------------------------
 -- RETURN
