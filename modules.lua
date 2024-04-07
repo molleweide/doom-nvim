@@ -35,6 +35,9 @@ return {
     "colors_multiple_plugins",
     "clipboard_neoclip",
     "clipboard_images",
+    "refactoring",
+    "search_and_replace",
+    "windows_focus",
 
     -- MOTION
 
@@ -64,7 +67,7 @@ return {
     "neorg", -- Organise your life
     "projects", -- Quickly switch between projects
     "superman", -- Read unix man pages in neovim
-    "suda",            -- Save using sudo when necessary
+    "suda", -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
     "whichkey", -- An interactive sheet
     "zen",
@@ -305,11 +308,6 @@ return {
       "nvim_dev_binds",
     },
     tabs = {},
-    windows = {
-      "focus",
-      -- "window_binds",
-      "wm",
-    },
     motion = {
       "lightspeed", -- Replace `s` with advanced leap.nvim motion plugin.
       -- "leap",
@@ -329,10 +327,8 @@ return {
     transform = {
       -- "regex",           -- Regex tools
       -- "architext",
-      "refactor",
       -- "rename",            -- ??
       -- "ripgrep",
-      "search_and_replace",
     },
     misc = {
       "telescope_extensions", -- move into categories
