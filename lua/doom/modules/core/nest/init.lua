@@ -5,13 +5,19 @@ mapper.settings = {}
 mapper.packages = {
   ["nvim-mapper"] = {
     "lazytanuki/nvim-mapper",
+    -- "gregorias/nvim-mapper",  -- the repo has been moved to this owner, but still deprecated..
   },
 }
 
--- TODO: Not happy with how messy the integrations are, refactor!
 mapper.configs = {}
 mapper.configs["nvim-mapper"] = function()
   require("nvim-mapper").setup(doom.core.doom.settings.mapper)
+
+  -- TODO: Not happy with how messy the integrations are, refactor!
+  --
+  -- TODO: Everything below should be exposed in a command so that we
+  -- can reload or redo keybindings later, eg. in the reload module.
+
   local keymaps_service = require("doom.services.keymaps")
 
   local get_mapper_integration = function()
@@ -160,7 +166,6 @@ mapper.configs["nvim-mapper"] = function()
       end
     end
   end)
-
 end
 
 return mapper

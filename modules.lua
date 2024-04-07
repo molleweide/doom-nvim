@@ -32,8 +32,13 @@ return {
     "range_highlight", -- Highlight selected range from commands
     "todo_comments", -- Highlight TODO: comments
     "doom_themes", -- Extra themes for doom
+    "colors_multiple_plugins",
+    "clipboard_neoclip",
+    "clipboard_images",
 
-    -- UI Components
+    -- MOTION
+
+    -- UI COMPONENTS
     "lsp_progress", -- Check status of LSP loading
     "tabline", -- Tab bar buffer switcher
     "dashboard", -- A pretty dashboard upon opening
@@ -47,7 +52,7 @@ return {
     "show_registers", -- Show and navigate between registers
     -- "dui", -- [WIP] Managen your doom config with Telescope.
 
-    -- Tools
+    -- TOOLS
     "dap", -- Debug code through neovim
     "repl",
     "email_himalaya",
@@ -63,7 +68,20 @@ return {
     "telescope", -- Fuzzy searcher to find files, grep code and more
     "whichkey", -- An interactive sheet
     "zen",
+
+    -- LIBRARIES
+    -- "litee"
+    -- "libmodal"
   },
+  -- ui = {
+  --   heirline,
+  --   fidget,
+  --   ...
+  -- },
+  -- version_control = {
+  --   git = {},
+  --   github = {},
+  -- },
   langs = {
     "lua",
     "python",
@@ -232,9 +250,6 @@ return {
       -- "floating_search", -- Floating cmdline at cursor
       -- "wildmenu",
     },
-    colors = {
-      "colors",
-    },
     competitive = {
       -- "competitive",
     },
@@ -259,7 +274,6 @@ return {
       "undo",
       "folds",
       "increment", --  tools for incrementing stuff
-      "clipboard",
       "help", -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
