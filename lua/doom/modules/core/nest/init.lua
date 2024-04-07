@@ -5,6 +5,7 @@ mapper.settings = {}
 -- NOTE: This is a more recently updated plugin for managing
 -- bindigs with telescope:
 -- https://github.com/FeiyouG/commander.nvim
+-- https://github.com/mrjones2014/legendary.nvim
 
 mapper.packages = {
   ["nvim-mapper"] = {
@@ -20,7 +21,9 @@ mapper.configs["nvim-mapper"] = function()
   -- TODO: Not happy with how messy the integrations are, refactor!
   --
   -- TODO: Everything below should be exposed in a command so that we
-  -- can reload or redo keybindings later, eg. in the reload module.
+  -- can reload or redo keybindings later, eg. in the reload module,
+  -- currently, new bindings are not automatically added...
+  --  >>> same with WHICHKEY!!!
 
   local keymaps_service = require("doom.services.keymaps")
 
@@ -170,6 +173,9 @@ mapper.configs["nvim-mapper"] = function()
       end
     end
   end)
+
+  local log = require("doom.utils.logging")
+  log.info("NVIM MAPPER: MAPPINGS APPLIED")
 end
 
 return mapper

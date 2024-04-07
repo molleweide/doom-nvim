@@ -15,7 +15,9 @@ return {
 
     -- AI / LLMs
     "ai_chat_gpt",
-
+    -- ai = {
+    --   "ai_chat_gpt",
+    -- },
 
     -- Language features
     "annotations", -- Code annotation generator
@@ -48,6 +50,11 @@ return {
     "increment_and_toggle_values",
     "project_root_and_cwd",
     "comments_block_headers",
+    "marks",
+    "folds",
+    "help_and_doc_bindings_various", -- Support for help with binds and stuff
+    "cursor",
+    "formatting",
 
     -- CURSOR MOVEMENT
     "movement_lightspeed",
@@ -86,15 +93,23 @@ return {
     "zen",
     "music_and_audio_engineering",
     "figlet",
+    "markup_bindings_and_tools",
 
     -- LIBRARIES
     -- "litee"
     -- "libmodal"
 
+    social_media = {
+      "discord",
+    },
+
     various = {
       -- "move anything that cant be categorized into this folder",
       -- "everything else should be in a sub category direactory",
       -- "so that things are kept clean and not so fucking random you know"
+    },
+    documentation = {
+      "various_docs",
     },
   },
   -- ui = {
@@ -143,6 +158,8 @@ return {
     "dockerfile",
     -- "nix",             -- Nix declarations
   },
+
+  -- NOTE: move all these into a module called various color schemes
   themes = {
     -- Themes designed for neovim
     nvim = {
@@ -229,14 +246,9 @@ return {
   },
   molleweide = {
     "reaper",
+    "tamton_essentials",
     binds = {
       "binds_personal",
-      -- "binds_debug",
-      -- "binds_make_fn_under_cursor_into_bind",
-      -- "binds_mini_syntax",
-      -- "make_inclusive",  -- Make various binds/plugins inclusive, ie. include cursor position in eg `f/F`
-      -- "mappings",
-      -- "legend",        -- ???
     },
     context = {
       -- "winbar_statusline_context",
@@ -251,10 +263,7 @@ return {
       -- "virtual_types", -- ???
       "args", -- Provides highlighting and tools for managing function args
       "endwise", -- ??
-      "ts_plugins", -- walk through
-    },
-    lang_binds = {
-      -- "rust_binds",
+      "ts_plugins", -- walk throughl
     },
 
     lib = {
@@ -272,25 +281,18 @@ return {
     competitive = {
       -- "competitive",
     },
-    documentation = {
-      "docs",
-    },
     filetype = {
       -- "filetype",        -- ???
     },
     editor = {
       -- "spellcheck",
       "surround", -- Surround text objects, eg. {([])}
-      "cursor",
       -- "gestures",        -- Mouse gestures
       -- "tabs",            -- ???
       "scroll",
       "registers",
       -- "yank",            -- Improved yank functionalities, experimental plugin `yanky.nvim`
-      "marks",
       "undo",
-      "folds",
-      "help", -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
       -- "logging",         -- binds n stuff
@@ -300,9 +302,7 @@ return {
       -- "code_outline",
       -- "readline",        -- ???
       "editing",
-      "formatting",
       "tweak",
-      "xml",
     },
     games = {},
     icons = {

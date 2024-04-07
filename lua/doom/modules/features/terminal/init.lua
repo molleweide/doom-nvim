@@ -54,6 +54,12 @@ terminal.settings = {
 -- https://github.com/zbirenbaum/nvim-chadterm
 -- https://github.com/oberblastmeister/termwrapper.nvim
 --
+-- NOTE: A plugin that leverages Neovim's built-in RPC functionality to simplify
+-- opening files from within Neovim's terminal emulator without nesting
+-- sessions.
+--   -> https://github.com/samjwill/nvim-unception
+
+--
 --
 -- LoricAndre/OneTerm.nvim - Plugin framework for running commands in the terminal.
 -- nikvdp/neomux - Control Neovim from shells running inside Neovim.
