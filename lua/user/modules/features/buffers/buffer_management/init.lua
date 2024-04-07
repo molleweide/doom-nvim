@@ -1,3 +1,6 @@
 -- git@github.com:ghillb/cybu.nvim.git
 -- https://github.com/matbme/JABS.nvim
 -- https://github.com/nat-418/bufala.nvim
+
+local bm = {}
+return bm

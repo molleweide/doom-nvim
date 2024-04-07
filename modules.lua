@@ -19,6 +19,15 @@ return {
     --   "ai_chat_gpt",
     -- },
 
+    buffers = {
+      "buffer_management",
+      "temporary_buffers",
+    },
+
+    lib = {
+      "litee"
+    },
+
     -- Language features
     "annotations", -- Code annotation generator
     "auto_install", -- Auto install LSP providers
@@ -266,13 +275,6 @@ return {
       "ts_plugins", -- walk throughl
     },
 
-    lib = {
-      "litee", -- Litee IDE suite
-      -- "libmodal",          -- Tool for creating custom modes
-    },
-    buffers = {
-      -- "buffers",
-    },
     cmdline = {
       -- "floating_cmdline", -- Floating cmdline at cursor
       -- "floating_search", -- Floating cmdline at cursor

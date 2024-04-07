@@ -84,7 +84,7 @@ xml.configs["emmet-vim"] = function()
   -- FIX: why doesn't this take effect even though echo shows the correct value
   --
   -- Note that the trailing , still needs to be entered, so the new keymap would be <C-Z>,.
-  vim.g.user_emmet_leader_key = doom.modules.molleweide.editor.xml.settings.emmet.leader
+  vim.g.user_emmet_leader_key = doom.modules.features.markup_bindings_and_tools.settings.emmet.leader
 
   -- If you don't want to enable emmet in all modes, you can use set
   -- these options in vimrc:
