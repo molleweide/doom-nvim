@@ -1,17 +1,16 @@
 local audio = {}
 
 -- https://github.com/johnnovak/vim-walter
-
-audio.settings = {}
-
 -- https://github.com/davidgranstrom?tab=repositories
 -- https://github.com/madskjeldgaard?tab=repositories
 
+audio.settings = {}
+
 audio.packages = {
-  ["nvim-spotify"] = {"KadoBOT/nvim-spotify"},
-  ["music.nvim"] = {"max-0406/music.nvim "},
-  ["osc.nvim"] = { "davidgranstrom/osc.nvim.git " },
-  ["nvim-supercollider-piano"] = { "madskjeldgaard/nvim-supercollider-piano" },
+  -- ["nvim-spotify"] = {"KadoBOT/nvim-spotify"},
+  -- ["music.nvim"] = {"max-0406/music.nvim "},
+  -- ["osc.nvim"] = { "davidgranstrom/osc.nvim.git " },
+  -- ["nvim-supercollider-piano"] = { "madskjeldgaard/nvim-supercollider-piano" },
   -- https://github.com/davidgranstrom/telescope-scdoc.nvim -- <<<< EXTENSION
   ["scnvim"] = {
     "davidgranstrom/scnvim",
@@ -23,7 +22,9 @@ audio.packages = {
   -- https://github.com/vim-scripts/ck.vim
 }
 
-audio.packages["scnvim"] = function()
+audio.configs = {}
+
+audio.configs["scnvim"] = function()
   local sclang = require("scnvim/sclang")
   local api = vim.api
   local M = {}
@@ -173,7 +174,5 @@ audio.packages["scnvim"] = function()
 
   return M
 end
-
-audio.binds = {}
 
 return audio

@@ -12,6 +12,11 @@
 
 return {
   features = {
+
+    -- AI / LLMs
+    "ai_chat_gpt",
+
+
     -- Language features
     "annotations", -- Code annotation generator
     "auto_install", -- Auto install LSP providers
@@ -21,6 +26,7 @@ return {
     "lsp", -- Code completion
     "extra_snippets", -- Code snippets for all languages
     "context_in_code",
+    "additional_vim_textobjects",
 
     -- Editor
     "auto_session", -- Remember sessions between loads
@@ -38,8 +44,13 @@ return {
     "refactoring",
     "search_and_replace",
     "windows_focus",
+    "quickfix_improvements",
+    "increment_and_toggle_values",
+    "project_root_and_cwd",
+    "comments_block_headers",
 
-    -- MOTION
+    -- CURSOR MOVEMENT
+    "movement_lightspeed",
 
     -- UI COMPONENTS
     "lsp_progress", -- Check status of LSP loading
@@ -73,6 +84,8 @@ return {
     -- "telescope_extensions_various",
     "whichkey", -- An interactive sheet
     "zen",
+    "music_and_audio_engineering",
+    "figlet",
 
     -- LIBRARIES
     -- "litee"
@@ -215,11 +228,7 @@ return {
     "execute_anything_tj_style",
   },
   molleweide = {
-    ai = {
-      "chat_gpt",
-      -- "copilot",
-      -- "magic",
-    },
+    "reaper",
     binds = {
       "binds_personal",
       -- "binds_debug",
@@ -241,7 +250,6 @@ return {
     language_features = {
       -- "virtual_types", -- ???
       "args", -- Provides highlighting and tools for managing function args
-      "textobjects",
       "endwise", -- ??
       "ts_plugins", -- walk through
     },
@@ -266,8 +274,6 @@ return {
     },
     documentation = {
       "docs",
-      "figlet",
-      "comments_frame",
     },
     filetype = {
       -- "filetype",        -- ???
@@ -284,7 +290,6 @@ return {
       "marks",
       "undo",
       "folds",
-      "increment", --  tools for incrementing stuff
       "help", -- Support for help with binds and stuff
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
@@ -293,7 +298,6 @@ return {
       "litee_bookmarks",
       "litee_calltree",
       -- "code_outline",
-      "root", -- Auto switch root on-enter new git repo + useful commands
       -- "readline",        -- ???
       "editing",
       "formatting",
@@ -316,12 +320,6 @@ return {
       "nvim_dev_binds",
     },
     tabs = {},
-    motion = {
-      "lightspeed", -- Replace `s` with advanced leap.nvim motion plugin.
-      -- "leap",
-      -- "sneak",
-      -- "tree_hopper",
-    },
     git = {
       "git", -- git basic support
       -- "gitsigns",
@@ -350,10 +348,6 @@ return {
       -- "math_calculator",
       -- "games",
     },
-    music = {
-      -- "audio",
-      "reaper",
-    },
     tabular = {
       -- "scim",              -- Spreadsheets
       -- "tabular",           -- Extended support for managing tabular data
@@ -381,9 +375,6 @@ return {
     },
     tmux = {
       -- "tmux",               -- ???
-    },
-    quickfix = {
-      "quickfix", -- Extra quickfix capabilitieS
     },
     langs = {
       -- "fennel",

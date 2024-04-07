@@ -4,6 +4,7 @@ quickfix.settings = {}
 
 quickfix.packages = {
   ["nvim-bqf"] = { "kevinhwang91/nvim-bqf" },
+  -- https://github.com/stevearc/qf_helper.nvim
 }
 
 --------------------------------------------------

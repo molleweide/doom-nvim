@@ -1,0 +1,11 @@
+@document.meta
+title: README
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2024-04-07T09:34:12-0500
+updated: 2024-04-07T09:34:26-0500
+version: 1.1.1
+@end
+
+Move all git and version control stuff to here.

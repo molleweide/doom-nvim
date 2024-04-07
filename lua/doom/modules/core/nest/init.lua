@@ -2,6 +2,10 @@ local mapper = {}
 
 mapper.settings = {}
 
+-- NOTE: This is a more recently updated plugin for managing
+-- bindigs with telescope:
+-- https://github.com/FeiyouG/commander.nvim
+
 mapper.packages = {
   ["nvim-mapper"] = {
     "lazytanuki/nvim-mapper",
