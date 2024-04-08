@@ -1,5 +1,13 @@
 local nvim_cmp = {}
 
+-- TODO: Separate nvim-cmp from Luasnip/snippet engines.
+
+-- TODO: Move each cmp source into its own file so that one can enable/disable
+-- them in modules.lua
+-- 1. Move each source into its own file
+-- 2. Add a `cmp_source_name` key to each module that can be
+--    filtered by traversing enabled modules.
+
 --- Internal state of CMP module
 -- Flag to enable/disable completions for <leader>tc keybind.
 nvim_cmp.__completions_enabled = true
@@ -17,7 +25,8 @@ nvim_cmp.settings = {
     },
   },
   completion = {
-    -- TODO: "kinds" should be moved into lsp_config
+    -- TODO: "kinds" should be moved into lsp_config since it is symbols that
+    -- strictly pertain to LSP.
     kinds = {
       Text = " ",
       Method = " ",
@@ -136,15 +145,20 @@ nvim_cmp.configs["nvim-cmp"] = function()
   local utils = require("doom.utils")
 
   local cmp_ok, cmp = pcall(require, "cmp")
+
+  -- FIX: Make cmp work even if no snippet engine exists.
+
   local luasnip_ok, luasnip = pcall(require, "luasnip")
   if not cmp_ok or not luasnip_ok then
     return
   end
-  luasnip.config.set_config(doom.features.lsp_cmp.settings.luasnip.config)
 
+  -- FIX: I have already moved this to luasnip module!!
+  luasnip.config.set_config(doom.features.lsp_cmp.settings.luasnip.config)
   require("luasnip.loaders.from_lua").load({
     paths = doom.modules.features.lsp_cmp.settings.luasnip.snippets_load_dirs,
   })
+  --------
 
   local replace_termcodes = utils.replace_termcodes
 
@@ -173,8 +187,11 @@ nvim_cmp.configs["nvim-cmp"] = function()
     },
     formatting = {
       format = function(entry, item)
-        item.kind =
-          string.format("%s %s", doom.features.lsp_cmp.settings.completion.kinds[item.kind], item.kind)
+        item.kind = string.format(
+          "%s %s",
+          doom.features.lsp_cmp.settings.completion.kinds[item.kind],
+          item.kind
+        )
         item.dup = vim.tbl_contains({ "path", "buffer" }, entry.source.name)
         return item
       end,
@@ -194,6 +211,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
       [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_next_item()
+          -- TODO: if luasnip_ok
         elseif luasnip.expand_or_jumpable() then
           print("expand_or_jumpable")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
@@ -211,6 +229,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
       [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_prev_item()
+          -- TODO: if luasnip_ok
         elseif luasnip.jumpable(-1) then
           print("feedkeys")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")
@@ -226,7 +245,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
   }, {
     mapping = type(doom.features.lsp_cmp.settings.completion.mapping) == "function"
         and doom.features.lsp_cmp.settings.completion.mapping(cmp)
-      or doom.features.lsp_cmp.settings.completion.mapping,
+        or doom.features.lsp_cmp.settings.completion.mapping,
     enabled = function()
       return _doom.cmp_enable and vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
     end,
