@@ -62,7 +62,6 @@ return {
     "clipboard_images",
     "refactoring",
     "search_and_replace",
-    "windows_focus",
     "quickfix_improvements",
     "increment_and_toggle_values",
     "project_root_and_cwd",
@@ -160,6 +159,22 @@ return {
       "various_docs",
     },
   },
+  ui = {
+    -- "sidebar_generic_modular",
+  },
+  version_control = {
+    git = {
+      "git", -- git basic support
+      -- "gitsigns",
+      -- "vgit",
+      "diffview", -- git diffview integration
+      -- "repo_search",
+      "github_octo",
+      "github_litee",
+      "ghq",
+    },
+  },
+
   -- ui = {
   --   heirline,
   --   fidget,
@@ -300,45 +315,6 @@ return {
     "dorothy",
     "plugins_reloader", -- Watch local packages for changes during development
     "nvim_dev_binds",
-
-    context = {
-      -- "winbar_statusline_context",
-    },
-    finance = {
-      -- "crypto_prices",
-    },
-
-    cmdline = {
-      -- "floating_cmdline", -- Floating cmdline at cursor
-      -- "floating_search", -- Floating cmdline at cursor
-      -- "wildmenu",
-    },
-    competitive = {
-      -- "competitive",
-    },
-    filetype = {
-      -- "filetype",        -- ???
-    },
-    icons = {
-      -- "icons",             -- Extended various icons support
-    },
-    images = {
-      -- "images",        -- Image support
-    },
-    jobs = {},
-    data_science = {
-      -- "data_science",
-    },
-    git = {
-      "git", -- git basic support
-      -- "gitsigns",
-      -- "vgit",
-      "diffview", -- git diffview integration
-      -- "repo_search",
-      "github_octo",
-      "github_litee",
-      "ghq",
-    },
   },
 }
 

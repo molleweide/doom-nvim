@@ -254,11 +254,11 @@ git.packages = {
 git.configs = {}
 
 git.configs["gitsigns.nvim"] = function()
-  require("gitsigns").setup(doom.modules.molleweide.git.git.settings.gitsigns)
+  require("gitsigns").setup(doom.modules.version_control.git.git.settings.gitsigns)
 end
 
 git.configs["vgit.nvim"] = function()
-  require("vgit").setup(doom.modules.molleweide.git.git.settings.vgit)
+  require("vgit").setup(doom.modules.version_control.git.git.settings.vgit)
 end
 
 local function commit_hunk_under_cursor()

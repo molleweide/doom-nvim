@@ -53,7 +53,6 @@ TODO: [ REMIX RUN W/FLAT-ROUTES ]
 -- TEST: PLUGINS TO CHECK OUT
   - glepnir/hlsearch.nvim
   - nullchilly/fsread.nvim
-  - nvim-zh/colorful-winsep.nvim
   - Yggdroot/hiPairs
   - yioneko/nvim-yati > yioneko/vim-tmindent
   - folke/paint.nvim
