@@ -1,5 +1,7 @@
 local lsp = {}
 
+-- TODO: Split LSP and CMP into their own files.
+
 --- Internal state of LSP module
 -- Flag to enable/disable completions for <leader>tc keybind.
 lsp.__completions_enabled = true
@@ -120,7 +122,7 @@ lsp.packages = {
       {
         "L3MON4D3/LuaSnip",
         -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
-        dev = true,
+        dev = false,
       },
     },
   },
@@ -162,15 +164,15 @@ lsp.packages = {
       "hrsh7th/nvim-cmp",
     },
   },
-  ["lsp_signature.nvim"] = {
-    "ray-x/lsp_signature.nvim",
-    commit = "1979f1118e2b38084e7c148f279eed6e9300a342",
-    -- after = "nvim-lspconfig",
-    dependencies = {
-      "neovim/nvim-lspconfig",
-    },
-    event = "VeryLazy",
-  },
+  -- ["lsp_signature.nvim"] = {
+  --   "ray-x/lsp_signature.nvim",
+  --   commit = "1979f1118e2b38084e7c148f279eed6e9300a342",
+  --   -- after = "nvim-lspconfig",
+  --   dependencies = {
+  --     "neovim/nvim-lspconfig",
+  --   },
+  --   event = "VeryLazy",
+  -- },
 }
 
 lsp.configs = {}
@@ -231,6 +233,10 @@ lsp.configs["nvim-lspconfig"] = function()
     end
   end
 end
+
+
+
+
 lsp.configs["nvim-cmp"] = function()
   local utils = require("doom.utils")
 
@@ -331,16 +337,18 @@ lsp.configs["nvim-cmp"] = function()
     end,
   }))
 end
-lsp.configs["lsp_signature.nvim"] = function()
-  -- Signature help
-  require("lsp_signature").setup(
-    vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
-      handler_opts = {
-        border = doom.settings.border_style,
-      },
-    })
-  )
-end
+
+-- -- TODO: remove and use its own module
+-- lsp.configs["lsp_signature.nvim"] = function()
+--   -- Signature help
+--   require("lsp_signature").setup(
+--     vim.tbl_deep_extend("force", doom.features.lsp.settings.signature, {
+--       handler_opts = {
+--         border = doom.settings.border_style,
+--       },
+--     })
+--   )
+-- end
 
 lsp.binds = function()
   return {

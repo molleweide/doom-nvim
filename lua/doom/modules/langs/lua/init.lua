@@ -1,5 +1,7 @@
 local langs_utils = require("doom.modules.langs.utils")
 
+-- NOTE: sumneko lua has changed its name to lua-language-server
+
 local lua = {}
 
 lua.settings = {

@@ -6,26 +6,27 @@
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
 -- Once done, restart doom-nvim and run `:PackerInstall`.
 
--- TODO: add custom colors for subtable strings so that it is easier to
--- read see which are the modules parent dirs?
---    or maybe this is just fixed with the ts-context plugin maybe?
-
 return {
-  features = {
-
-    -- AI / LLMs
+  ai = {
     "ai_chat_gpt",
-    -- ai = {
-    --   "ai_chat_gpt",
-    -- },
-
+  },
+  features = {
     buffers = {
       "buffer_management",
       "temporary_buffers",
     },
-
     lib = {
       "litee",
+    },
+
+    completions = {
+      -- "cmp_nvim",
+      -- "coc"
+    },
+
+    snippets = {
+      -- "luasnip",
+      -- "friendly_snippets_extra_snippets",
     },
 
     -- Language features
@@ -35,6 +36,7 @@ return {
     "comment", -- Adds keybinds to comment in any language
     "linter", -- Linting and formatting for languages
     "lsp", -- Code completion
+    "lsp_signature_hints",
     "extra_snippets", -- Code snippets for all languages
     "context_in_code",
     "additional_vim_textobjects",
@@ -45,6 +47,11 @@ return {
       -- "preview_edit_and_navigate_lsp_locations",
       "swap_args_and_elems",
       "ts_plugins",
+    },
+
+    -- TODO: Move all lsp stuff into this directory...
+    lsp = {
+     -- "lspconfig",
     },
 
     -- Editor
@@ -157,6 +164,9 @@ return {
     },
     documentation = {
       "various_docs",
+    },
+    windows = {
+      "auto_focus_and_auto_resize",
     },
   },
   ui = {

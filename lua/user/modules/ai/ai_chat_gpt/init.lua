@@ -137,7 +137,7 @@ chatgpt.packages = {
 chatgpt.configs = {}
 
 chatgpt.configs["ChatGPT.nvim"] = function()
-  require("chatgpt").setup(doom.modules.features.ai_chat_gpt.settings)
+  require("chatgpt").setup(doom.modules.ai.ai_chat_gpt.settings)
 end
 
 chatgpt.binds = {
