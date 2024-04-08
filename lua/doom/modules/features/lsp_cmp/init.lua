@@ -1,10 +1,10 @@
-local cmp = {}
+local nvim_cmp = {}
 
 --- Internal state of CMP module
 -- Flag to enable/disable completions for <leader>tc keybind.
-cmp.__completions_enabled = true
+nvim_cmp.__completions_enabled = true
 
-cmp.settings = {
+nvim_cmp.settings = {
   luasnip = {
     config = {
       history = true,
@@ -17,6 +17,7 @@ cmp.settings = {
     },
   },
   completion = {
+    -- TODO: "kinds" should be moved into lsp_config
     kinds = {
       Text = " ",
       Method = " ",
@@ -77,7 +78,7 @@ cmp.settings = {
   },
 }
 
-cmp.packages = {
+nvim_cmp.packages = {
   ["nvim-cmp"] = {
     "hrsh7th/nvim-cmp",
     commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
@@ -130,8 +131,8 @@ cmp.packages = {
   },
 }
 
-cmp.configs = {}
-cmp.configs["nvim-cmp"] = function()
+nvim_cmp.configs = {}
+nvim_cmp.configs["nvim-cmp"] = function()
   local utils = require("doom.utils")
 
   local cmp_ok, cmp = pcall(require, "cmp")
@@ -232,7 +233,7 @@ cmp.configs["nvim-cmp"] = function()
   }))
 end
 
-cmp.binds = function()
+nvim_cmp.binds = function()
   return {
     {
       "<leader>",
@@ -245,9 +246,9 @@ cmp.binds = function()
             {
               "c",
               function()
-                lsp_cmp.__completions_enabled = not lsp_cmp.__completions_enabled
+                nvim_cmp.__completions_enabled = not nvim_cmp.__completions_enabled
                 local bool2str = require("doom.utils").bool2str
-                print(string.format("completion=%s", bool2str(lsp_cmp.__completions_enabled)))
+                print(string.format("completion=%s", bool2str(nvim_cmp.__completions_enabled)))
               end,
               name = "Toggle completion",
             },
@@ -258,4 +259,4 @@ cmp.binds = function()
   }
 end
 
-return cmp
+return nvim_cmp
