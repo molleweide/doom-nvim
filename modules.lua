@@ -25,8 +25,10 @@ return {
     },
 
     snippets = {
+      "extra_snippets", -- Code snippets for all languages
       "luasnip",
       "additional_friendly_snippets",
+      "luasnip_telescope",
     },
 
     -- Language features
@@ -38,7 +40,6 @@ return {
     "lsp", -- Code completion
     "lsp_cmp",
     "lsp_signature_hints",
-    "extra_snippets", -- Code snippets for all languages
     "context_in_code",
     "additional_vim_textobjects",
     language_features = {
