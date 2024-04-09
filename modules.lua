@@ -6,6 +6,9 @@
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
 -- Once done, restart doom-nvim and run `:PackerInstall`.
 
+-- FIX: If a `module` return `nil` then the traverser loop in "core/config.lua"
+-- has to show this and then move on.
+
 return {
   ai = {
     "ai_chat_gpt",
@@ -169,6 +172,15 @@ return {
     },
     windows = {
       "auto_focus_and_auto_resize",
+    },
+
+    -- TODO: ypc and clipboard should go under `editor`
+    -- Rename to `ypc_and_clipboard`
+    yank_put_and_cut = {
+      "ypc_binds",
+      -- "yank_cmp_source",
+      -- "yank_improved",
+      -- "yank_smart_flow",
     },
   },
   ui = {

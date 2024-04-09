@@ -4,10 +4,11 @@
 --  config options, pre-configuring the user's modules from `modules.lua`, and
 --  running the user's `config.lua` file.
 
+local log = require("doom.utils.logging")
 local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
-local mod_utils = require("doom.utils.modules")
-local tree = require("doom.utils.tree")
+-- local mod_utils = require("doom.utils.modules")
+-- local tree = require("doom.utils.tree")
 local config = {}
 local filename = "config.lua"
 
@@ -67,38 +68,42 @@ config.load = function()
   profiler.start("framework|import modules")
 
   -- Combine enabled modules (`modules.lua`) with core modules.
-  require("doom.utils.modules").traverse_enabled(
-    enabled_modules,
-    function(node, stack)
-      if type(node) == "string" then
-        local t_path = vim.tbl_map(function(stack_node)
-          return type(stack_node.key) == "string" and stack_node.key or stack_node.node
-        end, stack)
+  require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
+    if type(node) == "string" then
+      local t_path = vim.tbl_map(function(stack_node)
+        return type(stack_node.key) == "string" and stack_node.key or stack_node.node
+      end, stack)
 
-        local path_module = table.concat(t_path, ".")
+      local path_module = table.concat(t_path, ".")
 
-        local profiler_message = ("modules|import `%s`"):format(path_module)
-        profiler.start(profiler_message)
+      local profiler_message = ("modules|import `%s`"):format(path_module)
+      profiler.start(profiler_message)
 
-        -- If the section is `user` resolves from `lua/user/modules`
-        local search_paths = {
-          ("user.modules.%s"):format(path_module),
-          ("doom.modules.%s"):format(path_module),
-        }
+      -- If the section is `user` resolves from `lua/user/modules`
+      local search_paths = {
+        ("user.modules.%s"):format(path_module),
+        ("doom.modules.%s"):format(path_module),
+      }
 
-        local ok, result
-        for _, path in ipairs(search_paths) do
-          ok, result = xpcall(require, debug.traceback, path)
-          if ok then
-            break
-          end
-        end
-
+      local ok, result
+      for _, path in ipairs(search_paths) do
+        ok, result = xpcall(require, debug.traceback, path)
         if ok then
+          break
+        end
+      end
+
+      if ok then
+        if type(result) == "boolean" and result then
+          log.debug(string.format("'%s' is an empty module that returned nothing. Ignoring...", path_module))
+        else
           -- Add string tag so that we can easilly target modules with more
           -- traversers, ie. in `core/modules` when traversing `doom.modules`
           result.type = "doom_module_single"
           utils.get_set_table_path(doom.modules, t_path, result)
+
+          -- NOTE: I dunno if my package reloader file is still relevant...
+
           -- Needs to be attached to custom table since each package is unaware
           -- of its respective doom module.
           if result.package_reloaders then
@@ -106,22 +111,20 @@ config.load = function()
               doom.package_reloaders[k] = v
             end
           end
-        else
-          local log = require("doom.utils.logging")
-          log.error(
-            string.format(
-              "There was an error loading module '%s'. Traceback:\n%s",
-              path_module,
-              result
-            )
-          )
         end
-
-        profiler.stop(profiler_message)
+      else
+        log.error(
+          string.format(
+            "There was an error loading module '%s'. Traceback:\n%s",
+            path_module,
+            result
+          )
+        )
       end
+
+      profiler.stop(profiler_message)
     end
-    , { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" }
-  )
+  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
 
   profiler.stop("framework|import modules")
 
@@ -182,7 +185,9 @@ config.load = function()
   end
 
   -- Color column
-  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number" and tostring(doom.settings.max_columns) or ""
+  vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
+      and tostring(doom.settings.max_columns)
+    or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering

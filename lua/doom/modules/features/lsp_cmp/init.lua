@@ -1,12 +1,6 @@
 local nvim_cmp = {}
 
--- TODO: Separate nvim-cmp from Luasnip/snippet engines.
-
--- TODO: Move each cmp source into its own file so that one can enable/disable
--- them in modules.lua
--- 1. Move each source into its own file
--- 2. Add a `cmp_source_name` key to each module that can be
---    filtered by traversing enabled modules.
+-- TODO: Move each cmp source into its own module file.
 
 --- Internal state of CMP module
 -- Flag to enable/disable completions for <leader>tc keybind.
