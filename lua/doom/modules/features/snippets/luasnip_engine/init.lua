@@ -6,7 +6,7 @@ luasnip.settings = {
     store_meta_data = true,
     updateevents = "TextChanged,TextChangedI",
   },
-  snippets_load_dirs = {
+  load_dirs = {
     "./lua/doom/snips/luasnippets",
     "./lua/user/snips/luasnippets",
   },
@@ -23,9 +23,9 @@ luasnip.packages = {
 luasnip.configs = {
   ["LuaSnip"] = function()
     local ls = require("luasnip")
-    ls.config.set_config(doom.features.snippets.luasnip.settings.config)
+    ls.config.set_config(doom.features.snippets.luasnip_engine.settings.config)
     require("luasnip.loaders.from_lua").load({
-      paths = doom.modules.features.snippets.luasnip.settings.snippets_load_dirs,
+      paths = doom.modules.features.snippets.luasnip_engine.settings.load_dirs,
     })
   end,
 }

@@ -26,7 +26,7 @@ return {
 
     snippets = {
       "extra_snippets", -- Code snippets for all languages
-      "luasnip",
+      "luasnip_engine",
       "additional_friendly_snippets",
       "luasnip_telescope",
     },
