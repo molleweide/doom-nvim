@@ -22,8 +22,8 @@ luasnip.packages = {
 
 luasnip.configs = {
   ["LuaSnip"] = function()
-    local luasnip = require("luasnip")
-    luasnip.config.set_config(doom.features.snippets.luasnip.settings.config)
+    local ls = require("luasnip")
+    ls.config.set_config(doom.features.snippets.luasnip.settings.config)
     require("luasnip.loaders.from_lua").load({
       paths = doom.modules.features.snippets.luasnip.settings.snippets_load_dirs,
     })

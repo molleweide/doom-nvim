@@ -25,8 +25,8 @@ return {
     },
 
     snippets = {
-      -- "luasnip",
-      -- "friendly_snippets_extra_snippets",
+      "luasnip",
+      "additional_friendly_snippets",
     },
 
     -- Language features
@@ -52,7 +52,7 @@ return {
 
     -- TODO: Move all lsp stuff into this directory...
     lsp = {
-     -- "lspconfig",
+      -- "lspconfig",
     },
 
     -- Editor

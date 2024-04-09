@@ -13,20 +13,7 @@ local nvim_cmp = {}
 nvim_cmp.__completions_enabled = true
 
 nvim_cmp.settings = {
-  luasnip = {
-    config = {
-      history = true,
-      store_meta_data = true,
-      updateevents = "TextChanged,TextChangedI",
-    },
-    snippets_load_dirs = {
-      "./lua/doom/snips/luasnippets",
-      "./lua/user/snips/luasnippets",
-    },
-  },
   completion = {
-    -- TODO: "kinds" should be moved into lsp_config since it is symbols that
-    -- strictly pertain to LSP.
     kinds = {
       Text = " ",
       Method = " ",
@@ -92,13 +79,6 @@ nvim_cmp.packages = {
     "hrsh7th/nvim-cmp",
     commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
     event = "InsertEnter",
-    dependencies = {
-      {
-        "L3MON4D3/LuaSnip",
-        -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
-        dev = false,
-      },
-    },
   },
   ["cmp-nvim-lua"] = {
     "hrsh7th/cmp-nvim-lua",
@@ -143,23 +123,11 @@ nvim_cmp.packages = {
 nvim_cmp.configs = {}
 nvim_cmp.configs["nvim-cmp"] = function()
   local utils = require("doom.utils")
-
   local cmp_ok, cmp = pcall(require, "cmp")
-
-  -- FIX: Make cmp work even if no snippet engine exists.
-
-  local luasnip_ok, luasnip = pcall(require, "luasnip")
-  if not cmp_ok or not luasnip_ok then
+  local luasnip_exists, luasnip = pcall(require, "luasnip")
+  if not cmp_ok then
     return
   end
-
-  -- FIX: I have already moved this to luasnip module!!
-  luasnip.config.set_config(doom.features.lsp_cmp.settings.luasnip.config)
-  require("luasnip.loaders.from_lua").load({
-    paths = doom.modules.features.lsp_cmp.settings.luasnip.snippets_load_dirs,
-  })
-  --------
-
   local replace_termcodes = utils.replace_termcodes
 
   --- Helper function to check what <Tab> behaviour to use
@@ -211,8 +179,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
       [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_next_item()
-          -- TODO: if luasnip_ok
-        elseif luasnip.expand_or_jumpable() then
+        elseif luasnip_exists and luasnip.expand_or_jumpable() then
           print("expand_or_jumpable")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
         elseif check_backspace() then
@@ -229,8 +196,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
       [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
         if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
           cmp.select_prev_item()
-          -- TODO: if luasnip_ok
-        elseif luasnip.jumpable(-1) then
+        elseif luasnip_exists and luasnip.jumpable(-1) then
           print("feedkeys")
           vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")
         else

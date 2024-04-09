@@ -51,10 +51,10 @@ extra_snippets.package_reloaders = {
 }
 
 extra_snippets.packages = {
-  ["friendly-snippets"] = {
-    "rafamadriz/friendly-snippets",
-    event = "VeryLazy",
-  },
+  -- ["friendly-snippets"] = {
+  --   "rafamadriz/friendly-snippets",
+  --   event = "VeryLazy",
+  -- },
   ["LuaSnip-snippets.nvim"] = {
     "molleweide/LuaSnip-snippets.nvim",
     -- after = "LuaSnip",
@@ -65,9 +65,11 @@ extra_snippets.packages = {
 
 extra_snippets.requires_modules = { "features.lsp" }
 extra_snippets.configs = {}
-extra_snippets.configs["friendly-snippets"] = function()
-  require("luasnip.loaders.from_vscode").lazy_load()
-end
+
+
+-- extra_snippets.configs["friendly-snippets"] = function()
+--   require("luasnip.loaders.from_vscode").lazy_load()
+-- end
 
 -- todo: rewrite to use luasnips internal `from_lua` loader
 extra_snippets.configs["Luasnip-snippets.nvim"] = function()
