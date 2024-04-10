@@ -239,6 +239,7 @@ module.use_lsp_mason = function(lsp_name, options)
   -- Start server and bind to buffers
   local start_lsp = function()
     local final_config = vim.tbl_deep_extend("keep", user_config or {}, capabilities_config)
+
     if lsp[config_name].setup == nil then
       log.warn(
         (
@@ -247,8 +248,11 @@ module.use_lsp_mason = function(lsp_name, options)
       )
       return
     end
+
     lsp[config_name].setup(final_config)
+
     local lsp_config_server = lsp[config_name]
+
     if lsp_config_server.manager then
       local buffer_handler = lsp_config_server.filetypes
           and lsp_config_server.manager.try_add_wrapper
