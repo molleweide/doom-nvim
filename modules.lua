@@ -169,6 +169,7 @@ return {
     },
     windows = {
       "auto_focus_and_auto_resize",
+      "center_focused_window",
     },
 
     -- TODO: ypc and clipboard should go under `editor`

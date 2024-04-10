@@ -9,6 +9,8 @@ themes.packages = {
 themes.configs = {}
 
 themes.configs["tokyonight.nvim"] = function()
+  require("tokyonight").setup({ transparent = vim.g.transparent_enabled })
+
   vim.g.material_style = "palenight"
   vim.g.material_italic_comments = 1
   vim.g.material_italic_keywords = 1
