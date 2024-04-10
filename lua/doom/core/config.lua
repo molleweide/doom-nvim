@@ -65,8 +65,6 @@ config.load = function()
 
   local enabled_modules = require("doom.core.modules").enabled_modules
 
-  profiler.start("framework|import modules")
-
   -- Combine enabled modules (`modules.lua`) with core modules.
   require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
     if type(node) == "string" then

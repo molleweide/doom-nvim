@@ -21,6 +21,8 @@ local updater = {}
 --- @field minor number
 --- @field patch number
 
+-- FIX: why do I require plenary here...
+
 updater.packages = {
   ["plenary.nvim"] = {
     "nvim-lua/plenary.nvim",

@@ -48,3 +48,10 @@ end, 1)
 
 
 profiler.stop("framework|init.lua")
+
+
+-- NOTE: should i use this here?
+-- vim.defer_fn(function()
+--     vim.cmd("silent! UpdateRemotePlugins")
+-- end, 5000)
+

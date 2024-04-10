@@ -6,9 +6,6 @@
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
 -- Once done, restart doom-nvim and run `:PackerInstall`.
 
--- FIX: If a `module` return `nil` then the traverser loop in "core/config.lua"
--- has to show this and then move on.
-
 return {
   ai = {
     "ai_chat_gpt",
