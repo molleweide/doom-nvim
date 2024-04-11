@@ -6,10 +6,11 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
--- TODO: extend neorg workspaces here with my own ones.
+-- TODO: extend neorg workspaces here with my own ones!!!
 
--- TODO: oil.nvim plugin seems super awesome
+-- TODO: file explorer -> oil.nvim plugin seems super awesome
 --
+-- TODO: winbar -> Bekaboo/dropbar.nvim
 
 -- BINDING: Nui input ( path ) -> telescope grep ( path )
 

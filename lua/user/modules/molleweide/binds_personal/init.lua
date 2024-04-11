@@ -159,10 +159,10 @@ table.insert(binds, {
 })
 
 table.insert(binds, {
-  { "<c-z>", [[<cmd>suspend<CR>]], name = "suspend vim" },
+  { "<c-z>", [[<cmd>suspend<CR>]],      name = "suspend vim" },
   { "<c-z>", [[<Esc><cmd>suspend<CR>]], name = "suspend vim", mode = "v" },
-  { ";", ":", name = "colon", options = { silent = false } },
-  { ":", ";", name = "semi-colon" },
+  { ";",     ":",                       name = "colon",       options = { silent = false } },
+  { ":",     ";",                       name = "semi-colon" },
   --  {'n', 'dl', ':set wrap! linebreak!<CR>'},
   -- { 'x', 'z', '<Plug>VSurround' },
   -- { 'n', 'yzz', '<Plug>Yssurround' }, -- double ss
@@ -219,7 +219,7 @@ table.insert(binds, {
 table.insert(binds, {
   -- [[ n | do something in normal mode | sn | "_dP ]],
   -- [[ v | copy text in paragraph      | n  | "_dP ]],
-  { "p", '"_dP', mode = "v", options = { silent = false } },
+  { "p",     '"_dP',                    mode = "v",           options = { silent = false } },
   { "<c-z>", [[<Esc><cmd>suspend<CR>]], name = "suspend vim", mode = "v" },
   {
     "<C-l>v",
@@ -289,7 +289,11 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
         "M",
         name = "+moll",
         {
-          { "k", [[<CMD>:lua vim.opt.keymap = "INSERT_COLEMAK"<CR>]], name = "keymap insert_colemak" },
+          {
+            "k",
+            [[<CMD>:lua vim.opt.keymap = "INSERT_COLEMAK"<CR>]],
+            name = "keymap insert_colemak",
+          },
           {
             "l",
             function()
@@ -302,7 +306,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             end,
             name = "Reload all snippets",
           },
-          { "r", [[<cmd>DoomReload<CR>]], name = "doomReload" },
+          { "r", [[<cmd>DoomReload<CR>]],           name = "doomReload" },
           -- {
           --   "R",
           --   function()
@@ -322,7 +326,8 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             [[:lua doom.moll.funcs.inspect()<Left>]],
             name = "inspect",
             options = { silent = false },
-          },{
+          },
+          {
             "I",
             [[:lua print()<Left>]],
             name = "lua print",
@@ -369,7 +374,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           --   }
         },
       }, -- moll
-    }, -- leader
+    },   -- leader
   })
 end
 
@@ -418,6 +423,15 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                 })
               end,
               name = "Find DOOM-NVIM",
+            },
+            {
+              "w",
+              name = "Grep DOOM-NVIM",
+              function()
+                require("telescope.builtin").live_grep({
+                  cwd = "~/code/repos/github.com/molleweide/doom-nvim",
+                })
+              end,
             },
           },
         },

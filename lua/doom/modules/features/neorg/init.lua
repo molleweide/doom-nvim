@@ -83,6 +83,7 @@ neorg.packages = {
 }
 
 neorg.configs = {}
+
 neorg.configs["neorg"] = function()
   require("neorg").setup(doom.features.neorg.settings)
 
@@ -90,6 +91,7 @@ neorg.configs["neorg"] = function()
   vim.wo.foldlevel = 99
   vim.wo.conceallevel = 2
 end
+
 neorg.configs["neorg-telescope"] = function()
   require("telescope").load_extension("neorg")
 end

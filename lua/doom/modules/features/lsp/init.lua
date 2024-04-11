@@ -2,6 +2,8 @@ local lsp = {}
 
 -- TODO: Create a handler that ignores global variables from your doom config
 
+-- https://github.com/onsails/lspkind.nvim
+
 lsp.settings = {
   icons = {
     error = "",

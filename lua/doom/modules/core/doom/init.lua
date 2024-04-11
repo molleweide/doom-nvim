@@ -160,6 +160,7 @@ required.binds = function()
           { "r", "<cmd>DoomRollback<CR>", name = "Rollback" },
           { "R", "<cmd>DoomReport<CR>", name = "Report issue" },
           { "u", "<cmd>DoomUpdate<CR>", name = "Update" },
+          { "Z", "<cmd>Lazy<CR>", name = "Open Lazy" },
           { "s", "<cmd>Lazy sync<CR>", name = "Sync packages" },
           { "I", "<cmd>Lazy install<CR>", name = "Install packages" },
           { "C", "<cmd>Lazy clean<CR>", name = "Clean packages" },

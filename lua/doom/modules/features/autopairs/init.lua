@@ -6,6 +6,8 @@ autopairs.settings = {
   enable_moveright = true,
 }
 
+-- https://github.com/cohama/lexima.vim
+
 autopairs.packages = {
   ["nvim-autopairs"] = {
     "windwp/nvim-autopairs",

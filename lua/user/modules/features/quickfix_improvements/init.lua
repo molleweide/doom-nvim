@@ -62,5 +62,23 @@ quickfix.packages = {
 --    "Quickfix cdo solo (W)ord",
 -- },
 
+quickfix.binds = {
+
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      "h",
+      name = "+help",
+      {
+        {
+          "q",
+          "<cmd>cclose<cr>",
+          name = "Close quickfix",
+        },
+      },
+    },
+  },
+}
 
 return quickfix

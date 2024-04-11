@@ -69,6 +69,21 @@ rk.binds = {
         name = "+reaper",
         {
           {
+            "g",
+            name = "edit def.glob",
+            "<cmd>e " .. rk_definitions .. "/defaults/global.lua" .. "<CR>",
+          },
+          {
+            "m",
+            name = "edit def.midi",
+            "<cmd>e " .. rk_definitions .. "/defaults/midi.lua" .. "<CR>",
+          },
+          {
+            "a",
+            name = "edit def.main",
+            "<cmd>e " .. rk_definitions .. "/defaults/main.lua" .. "<CR>",
+          },
+          {
             "A",
             name = "Edit default actions",
             "<cmd>e " .. rk_definitions .. "defaults/actions.lua" .. "<CR>",
@@ -83,7 +98,12 @@ rk.binds = {
             end,
           },
           {
-            "A",
+            "X",
+            name = "edit def.actions",
+            "<cmd>e " .. rk_definitions .. "/defaults/actions.lua" .. "<CR>",
+          },
+          {
+            "S",
             name = "find reaper scripts",
             function()
               require("telescope.builtin").find_files(centered_promp_for_reaper_script_dit)
@@ -102,7 +122,7 @@ rk.binds = {
             name = "+user",
             {
               {
-                "a",
+                "x",
                 name = "edit user actions",
                 "<cmd>e " .. rk_definitions .. "actions.lua" .. "<CR>",
               },
