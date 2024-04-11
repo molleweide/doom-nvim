@@ -10,11 +10,14 @@ local registered_sources = {}
 -- @tparam  source
 module.use_null_ls_source = function(sources)
   local null_ls = require("null-ls")
+
   for _, source in ipairs(sources) do
     -- Generate a unique key from the name/methods
     local methods = type(source.method) == "string" and source.method
-      or table.concat(source.method, " ")
+        or table.concat(source.method, " ")
+
     local key = source.name .. methods
+
     -- If it's unique, register it
     if not registered_sources[key] then
       registered_sources[key] = source
@@ -52,6 +55,7 @@ module.use_null_ls = function(package_name, null_ls_path, configure_function)
   local profiler_msg = ("null_ls|setup `%s`"):format(null_ls_path)
 
   profiler.start(profiler_msg)
+
   if doom.features.linter then
     -- Check if null-ls is loaded and load it if not.
     local ok = pcall(require, "null-ls")
@@ -62,14 +66,18 @@ module.use_null_ls = function(package_name, null_ls_path, configure_function)
     local start_null_ls = function()
       local null_ls = require("null-ls")
       local path = vim.split(null_ls_path, "%.", nil)
+
       if #path ~= 3 then
         log.error(
           (
-            "Error setting up null-ls provider `%s`.\n\n  null_ls_path should have 3 segments i.e. `builtins.formatting.stylua"
-          ):format(null_ls_path)
+          "Error setting up null-ls provider `%s`.\n\n  null_ls_path should have 3 segments i.e. `builtins.formatting.stylua"
+          ):format(
+            null_ls_path
+          )
         )
         return
       end
+
       local provider = null_ls[path[1]][path[2]][path[3]]
 
       if configure_function then
@@ -119,13 +127,18 @@ end
 module.use_mason_package = function(package_name, success_handler, error_handler)
   local mason = require("mason-registry")
   local on_err = error_handler or default_error_handler
+
   if package_name == nil then
     on_err("nil", "No package_name provided.")
     return
   end
+
   profiler.start("mason|using package " .. package_name)
+
+  -- Try to install mason package
   local ok, err = xpcall(function()
     local package = mason.get_package(package_name)
+
     if not package:is_installed() then
       -- If statusline enabled, push the package to the statusline state
       -- So we can provide feedback to user
@@ -135,6 +148,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
       end
 
       package:install()
+
       package:on("install:success", function(handle)
         -- Remove package from statusline state to hide it
         if statusline then
@@ -145,12 +159,15 @@ module.use_mason_package = function(package_name, success_handler, error_handler
         end)
         profiler.stop("mason|using package " .. package_name)
       end)
+
       package:on("install:failed", function(pkg)
         -- Remove package from statusline state to hide it
         if statusline then
           statusline.state.finish_mason_package(package_name)
         end
+
         local err = "Mason.nvim install failed.  Reason:\n"
+
         if pkg and pkg.stdio and pkg.stdio.buffers and pkg.stdio.buffers.stderr then
           for _, line in ipairs(pkg.stdio.buffers.stderr) do
             err = err .. line
@@ -160,6 +177,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
         vim.schedule(function()
           on_err(package_name, err)
         end)
+
         profiler.stop("mason|using package " .. package_name)
       end)
     else
@@ -167,6 +185,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
       success_handler(package, package.get_handle(package))
     end
   end, debug.traceback)
+
   if not ok then
     profiler.stop("mason|using package " .. package_name)
     on_err(package_name, "There was an unknown error when installing.  Reason: \n" .. err)
@@ -189,6 +208,9 @@ module.use_tree_sitter = function(grammars)
   end
 end
 
+-- TODO: make use of mason optional so that one can do manual setup or
+-- whatever should one need to or prefer it.
+--
 --- Installs and sets up an LSP by name.
 ---@param lsp_name string
 ---@param options table
@@ -200,13 +222,24 @@ module.use_lsp_mason = function(lsp_name, options)
   if not utils.is_module_enabled("features", "lsp") then
     return
   end
-  local lsp = require("lspconfig")
-  local lsp_configs = require("lspconfig.configs")
+
+  local lspconfig = require("lspconfig")
+  local lsp_configs_list = require("lspconfig.configs")
 
   local opts = options or {}
+
   local config_name = opts.name and opts.name or lsp_name
+
   --- If the LSP is not extending / using a pre-existing lspconfig
-  local is_unsupported_config = opts.name ~= nil or lsp[config_name] == nil
+  local is_unsupported_config = opts.name ~= nil or lspconfig[config_name] == nil
+
+  -- FIX: `user_config` is quite an ambiguous term here since where it comes from,
+  -- ie. opts.config(()) is the language modules lsp config entry, and so here
+  -- are some better name suggestions:
+  -- ~ custom_lsp_config
+  -- ~ only custom_config
+  -- ~ custom_provided_config
+  -- ~ custom_provided_lsp_config
 
   -- Resolve the user config from `opts.config` if it's a function
   local user_config = nil
@@ -217,12 +250,11 @@ module.use_lsp_mason = function(lsp_name, options)
   -- If the LSP is unsupported we need to add the entry to lspconfig
   if user_config ~= nil and is_unsupported_config then
     print(("%s is unsupported, creating it now"):format(config_name))
-    lsp_configs[config_name] = user_config
+    lsp_configs_list[config_name] = user_config
   end
 
   -- Combine default on_attach with provided on_attach
   local on_attach_functions = {}
-
   if user_config and user_config.on_attach then
     table.insert(on_attach_functions, user_config.on_attach)
   end
@@ -240,23 +272,26 @@ module.use_lsp_mason = function(lsp_name, options)
   local start_lsp = function()
     local final_config = vim.tbl_deep_extend("keep", user_config or {}, capabilities_config)
 
-    if lsp[config_name].setup == nil then
+    if lspconfig[config_name].setup == nil then
       log.warn(
         (
-          "Cannot start LSP %s with config name %s. Reason: The LSP config does not exist, please create an issue so this can be resolved."
-        ):format(lsp_name, config_name)
+        "Cannot start LSP %s with config name %s. Reason: The LSP config does not exist, please create an issue so this can be resolved."
+        ):format(
+          lsp_name,
+          config_name
+        )
       )
       return
     end
 
-    lsp[config_name].setup(final_config)
+    lspconfig[config_name].setup(final_config)
 
-    local lsp_config_server = lsp[config_name]
-
+    -- Try attaching the LSP to buffers
+    local lsp_config_server = lspconfig[config_name]
     if lsp_config_server.manager then
       local buffer_handler = lsp_config_server.filetypes
           and lsp_config_server.manager.try_add_wrapper
-        or lsp_config_server.manager.try_add
+          or lsp_config_server.manager.try_add
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         buffer_handler(bufnr)
       end

@@ -1,6 +1,7 @@
 local langs_utils = require("doom.modules.langs.utils")
 
--- NOTE: sumneko lua has changed its name to lua-language-server
+-- NOTE: sumneko lua has changed its name to lua-language-server but this
+-- doesn't seem to be an issue.
 
 local lua = {}
 
@@ -20,7 +21,7 @@ lua.settings = {
   disable_lsp = false,
   --- Name of the language server
   --- @type string
-  lsp_name = "sumneko_lua",
+  lsp_name = "sumneko_lua",-- "lua_language_server",
   --- Custom config to pass to nvim-lspconfig
   --- @type table|nil
   lsp_config = {
@@ -45,12 +46,15 @@ lua.settings = {
   --- Disables null-ls formatting sources
   --- @type boolean
   disable_formatting = false,
+
   --- Mason.nvim package to auto install the formatter from
   --- @type string
   formatting_package = "stylua",
+
   --- String to access the null_ls diagnositcs provider
   --- @type string
   formatting_provider = "builtins.formatting.stylua",
+
   --- Function to configure null-ls formatter
   --- @type function|nil
   formatting_config = nil,
@@ -58,12 +62,15 @@ lua.settings = {
   --- Disables null-ls diagnostic sources
   --- @type boolean
   disable_diagnostics = false,
+
   --- Mason.nvim package to auto install the diagnostics provider from
   --- @type string
   diagnostics_package = "luacheck",
+
   --- String to access the null_ls diagnositcs provider
   --- @type string
   diagnostics_provider = "builtins.diagnostics.luacheck",
+
   --- Function to configure null-ls diagnostics
   --- @type function|nil
   diagnostics_config = nil,
@@ -113,8 +120,6 @@ lua.autocmds_2 = function()
   return autocmds
 end
 
-
-
 lua.autocmds = {
   {
     "FileType",
@@ -151,7 +156,6 @@ lua.autocmds = {
           lua.settings.diagnostics_config
         )
       end
-
     end),
     once = true,
   },

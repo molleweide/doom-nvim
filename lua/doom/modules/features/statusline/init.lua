@@ -1,3 +1,5 @@
+-- https://github.com/Zeioth/heirline-components.nvim
+
 local hex2rgb = function(hex)
   hex = hex:gsub("#", "")
   return {
