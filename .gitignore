@@ -16,5 +16,6 @@ tools/workspace
 
 # User modules
 user/modules/*
+
 # Editor files
-.luarc.json
+# .luarc.json
