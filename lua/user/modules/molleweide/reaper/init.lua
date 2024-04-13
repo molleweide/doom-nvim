@@ -84,11 +84,6 @@ rk.binds = {
             "<cmd>e " .. rk_definitions .. "/defaults/main.lua" .. "<CR>",
           },
           {
-            "A",
-            name = "Edit default actions",
-            "<cmd>e " .. rk_definitions .. "defaults/actions.lua" .. "<CR>",
-          },
-          {
             "R",
             name = "find reaper definitions",
             function()

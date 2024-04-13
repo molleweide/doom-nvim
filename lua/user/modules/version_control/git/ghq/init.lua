@@ -49,7 +49,7 @@ ghq.binds = {
                 --     cwd = "~/code/repos/github.com",
                 --   })
                 -- end,
-                name = "xdg_configs",
+                name = "Telescope ghq",
               },
             },
           },
