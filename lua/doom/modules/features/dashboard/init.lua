@@ -1,5 +1,7 @@
 local dashboard = {}
 
+-- TODO: update this file and unfreeze.
+
 dashboard.settings = {
   entries = {
     {

@@ -25,11 +25,11 @@ firenvim.settings = {
 firenvim.packages = {
   ["firenvim"] = {
     "glacambre/firenvim",
-    commit = "b6be2e074b8f62815a45e31eb0966b4dd5e57810",
-    build =  function()
+    -- Explanation: https://github.com/folke/lazy.nvim/discussions/463#discussioncomment-4819297
+    lazy = not vim.g.started_by_firenvim,
+    build = function()
       vim.fn["firenvim#install"](0)
     end,
-    lazy = true,
   },
 }
 

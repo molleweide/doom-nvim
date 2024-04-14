@@ -211,7 +211,7 @@ end
 -- TODO: make use of mason optional so that one can do manual setup or
 -- whatever should one need to or prefer it.
 --
---- Installs and sets up an LSP by name.
+--- Installs and sets up an LSP by name via Mason package manager.
 ---@param lsp_name string
 ---@param options table
 module.use_lsp_mason = function(lsp_name, options)
@@ -307,6 +307,12 @@ module.use_lsp_mason = function(lsp_name, options)
   end
 
   profiler.stop(profiler_msg)
+end
+
+---Setup (install) LSP via custom method system wide, ie. not using Mason.
+---@param lsp_name string
+---@param options table
+module.use_lsp_custom = function(lsp_name, options)
 end
 
 -- TODO: ??

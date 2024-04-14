@@ -40,7 +40,7 @@ projects.packages = {
     "ahmedkhalf/project.nvim",
     -- commit = "685bc8e3890d2feb07ccf919522c97f7d33b94e4",
     cmd = "Telescope projects",
-    dependencies =  { "nvim-treesitter/nvim-treesitter" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
   -- https://github.com/shaeinst/penvim
 }
@@ -55,7 +55,11 @@ projects.configs["project.nvim"] = function()
 end
 
 projects.binds = {
-  { "<leader>fps", [[<cmd>lua require'telescope'.extensions.projects.projects{}<CR>]], name = "Switch project" },
+  {
+    "<leader>fps",
+    [[<cmd>lua require'telescope'.extensions.projects.projects{}<CR>]],
+    name = "Switch project",
+  },
 }
 
 return projects

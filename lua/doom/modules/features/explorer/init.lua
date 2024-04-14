@@ -95,6 +95,11 @@ explorer.packages = {
   ["nvim-tree.lua"] = {
     "nvim-tree/nvim-tree.lua",
     commit = "3ce0a8e770f70a135ef969e0a640bd8d05baf42c",
+    -- version = "*",
+    -- lazy = false,
+    -- dependencies = {
+    --   "nvim-tree/nvim-web-devicons",
+    -- },
     cmd = {
       "NvimTreeClipboard",
       "NvimTreeClose",

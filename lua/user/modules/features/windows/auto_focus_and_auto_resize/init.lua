@@ -7,6 +7,8 @@ local windows = {}
 --    so that one can manage and extend windows and manage windows super fast with a set
 --    of interesting functions
 
+-- TODO: prevent affecting `nvim-tree` sidebar width
+
 windows.packages = {
   ["focus.nvim"] = {
     "beauwilliams/focus.nvim",
