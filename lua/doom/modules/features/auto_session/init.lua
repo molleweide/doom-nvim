@@ -7,7 +7,7 @@ auto_session.settings = {
 auto_session.packages = {
   ["persistence.nvim"] = {
     "folke/persistence.nvim",
-    commit = "8484fdaa284207f77ec69b9627316bf334ad653f",
+    -- commit = "8484fdaa284207f77ec69b9627316bf334ad653f",
   },
   --   -- https://github.com/Shatur/neovim-session-manager
   --   https://github.com/jedrzejboczar/possession.nvim
