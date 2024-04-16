@@ -35,6 +35,11 @@ projects.settings = {
   datapath = vim.fn.stdpath("data"),
 }
 
+
+-- https://github.com/LintaoAmons/cd-project.nvim
+--
+-- https://github.com/cljoly/telescope-repo.nvim
+
 projects.packages = {
   ["project.nvim"] = {
     "ahmedkhalf/project.nvim",
@@ -49,7 +54,7 @@ projects.requires_modules = { "features.telescope" }
 
 projects.configs = {}
 projects.configs["project.nvim"] = function()
-  require("project_nvim").setup(doom.features.projects.settings)
+  require("project_nvim").setup(doom.features.workspace_management.projects.settings)
 
   table.insert(doom.features.telescope.settings.extensions, "projects")
 end

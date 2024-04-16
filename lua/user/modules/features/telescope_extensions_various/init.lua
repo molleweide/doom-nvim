@@ -20,11 +20,11 @@ extensions.settings = {}
 if utils.is_module_enabled({"features", "telescope"}) then
   -- print("!!!!!!!!")
   extensions.packages = {
-    ["telescope-repo.nvim"] = {
-      "cljoly/telescope-repo.nvim",
-      after = { "telescope.nvim" },
-      dev = true
-    },
+    -- ["telescope-repo.nvim"] = {
+    --   "cljoly/telescope-repo.nvim",
+    --   after = { "telescope.nvim" },
+    --   dev = true
+    -- },
     -- ["telescope-packer.nvim"] = {
     --   "nvim-telescope/telescope-packer.nvim",
     --   after = { "telescope.nvim" },
@@ -48,9 +48,6 @@ if utils.is_module_enabled({"features", "telescope"}) then
 
   extensions.configs = {}
 
-  extensions.configs["telescope-repo.nvim"] = function()
-    require("telescope").load_extension("repo")
-  end
   extensions.configs["telescope-packer.nvim"] = function()
     require("telescope").load_extension("packer")
   end

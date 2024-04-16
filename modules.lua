@@ -32,12 +32,12 @@ return {
     },
 
     -- Language features
-    "annotations", -- Code annotation generator
+    "annotations",  -- Code annotation generator
     "auto_install", -- Auto install LSP providers
-    "autopairs", -- Automatically close character pairs
-    "comment", -- Adds keybinds to comment in any language
-    "linter", -- Linting and formatting for languages
-    "lsp", -- Code completion
+    "autopairs",    -- Automatically close character pairs
+    "comment",      -- Adds keybinds to comment in any language
+    "linter",       -- Linting and formatting for languages
+    "lsp",          -- Code completion
     "lsp_cmp",
     "lsp_signature_hints",
     "context_in_code",
@@ -57,15 +57,15 @@ return {
     },
 
     -- Editor
-    "auto_session", -- Remember sessions between loads
-    "colorizer", -- Show colors in neovim
-    "editorconfig", -- Support editorconfig files
+    "auto_session",    -- Remember sessions between loads
+    "colorizer",       -- Show colors in neovim
+    "editorconfig",    -- Support editorconfig files
     -- "gitsigns", -- Show git changes in sidebar
-    "illuminate", -- Highlight other copies of the word you're hovering on
-    "indentlines", -- Show indent lines with special characters
+    "illuminate",      -- Highlight other copies of the word you're hovering on
+    "indentlines",     -- Show indent lines with special characters
     "range_highlight", -- Highlight selected range from commands
-    "todo_comments", -- Highlight TODO: comments
-    "doom_themes", -- Extra themes for doom
+    "todo_comments",   -- Highlight TODO: comments
+    "doom_themes",     -- Extra themes for doom
     "color_pickers",
     "clipboard_neoclip",
     "clipboard_images",
@@ -103,17 +103,17 @@ return {
     "movement_lightspeed",
 
     -- UI COMPONENTS
-    "lsp_progress", -- Check status of LSP loading
-    "tabline", -- Tab bar buffer switcher
-    "dashboard", -- A pretty dashboard upon opening
-    "trouble", -- A pretty diagnostic viewer
-    "statusline", -- A pretty status line at the bottom of the buffer
+    "lsp_progress",            -- Check status of LSP loading
+    "tabline",                 -- Tab bar buffer switcher
+    "dashboard",               -- A pretty dashboard upon opening
+    "trouble",                 -- A pretty diagnostic viewer
+    "statusline",              -- A pretty status line at the bottom of the buffer
     -- "minimap",         -- Shows current position in document
-    "terminal", -- Integrated terminal in neovim
+    "terminal",                -- Integrated terminal in neovim
     "symbols_outline_sidebar", -- Navigate between code symbols using telescope
-    "ranger", -- File explorer in neovim (TODO: Test)
-    "restclient", -- Test HTTP requests from neovim (TODO: Test)
-    "show_registers", -- Show and navigate between registers
+    "ranger",                  -- File explorer in neovim (TODO: Test)
+    "restclient",              -- Test HTTP requests from neovim (TODO: Test)
+    "show_registers",          -- Show and navigate between registers
     -- "dui", -- [WIP] Managen your doom config with Telescope.
     "ui_make_transparent",
     "ui_custom_vim_input_select",
@@ -122,18 +122,17 @@ return {
     "dap", -- Debug code through neovim
     "repl",
     "email_himalaya",
-    "explorer", -- An enhanced filetree explorer
-    "firenvim", -- Embed neovim in your browser
-    "lazygit", -- Lazy git integration
-    "neogit", -- A git client for neovim
+    "explorer",  -- An enhanced filetree explorer
+    "firenvim",  -- Embed neovim in your browser
+    "lazygit",   -- Lazy git integration
+    "neogit",    -- A git client for neovim
     -- "netrw",
-    "neorg", -- Organise your life
-    "projects", -- Quickly switch between projects
-    "superman", -- Read unix man pages in neovim
-    "suda", -- Save using sudo when necessary
+    "neorg",     -- Organise your life
+    "superman",  -- Read unix man pages in neovim
+    "suda",      -- Save using sudo when necessary
     "telescope", -- Fuzzy searcher to find files, grep code and more
     -- "telescope_extensions_various",
-    "whichkey", -- An interactive sheet
+    "whichkey",  -- An interactive sheet
     "zen",
     "music_and_audio_engineering",
     "figlet",
@@ -173,6 +172,12 @@ return {
       "center_focused_window",
     },
 
+    workspace_management = {
+      "projects", -- Quickly switch between projects
+      "system_git_repos",
+      "ghq"
+    },
+
     -- TODO: ypc and clipboard should go under `editor`
     -- Rename to `ypc_and_clipboard`
     yank_put_and_cut = {
@@ -194,7 +199,6 @@ return {
       -- "repo_search",
       "github_octo",
       "github_litee",
-      "ghq",
     },
   },
 

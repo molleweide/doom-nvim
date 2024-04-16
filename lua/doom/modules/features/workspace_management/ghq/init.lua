@@ -21,7 +21,8 @@ ghq.packages = {
 
 ghq.configs = {}
 ghq.configs["telescope-github.nvim"] = function()
-  require("telescope").load_extension("repo")
+  -- require("telescope").load_extension("repo")
+  table.insert(doom.features.telescope.settings.extensions, "ghq")
 end
 
 -- TODO: picker -> search doom under ghq
