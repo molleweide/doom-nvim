@@ -6,6 +6,18 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+
+-- NOTE: Add new module command.
+-- Command/bind ->
+--     Select dir for new module -> Use vim.ui input
+--         if you type a string and hit enter -> try create module at current dir/level.
+--             create new dir
+--                 create new file
+--                    i.  Add MODULE to `./modules.lua`
+--                    ii. Open new file in current window
+--                            >> initialize `doom_new_module` snippet.
+
+
 -- => GREAT LIST OF NVIM PLUGINS: https://yutkat.github.io/my-neovim-pluginlist/
 
 -- ~ ZIONTEE:
