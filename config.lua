@@ -6,7 +6,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
-
 -- NOTE: Add new module command.
 -- Command/bind ->
 --     Select dir for new module -> Use vim.ui input
@@ -17,7 +16,6 @@ local system = require("doom.core.system")
 --                    ii. Open new file in current window
 --                            >> initialize `doom_new_module` snippet.
 
-
 -- => GREAT LIST OF NVIM PLUGINS: https://yutkat.github.io/my-neovim-pluginlist/
 
 -- ~ ZIONTEE:
@@ -25,7 +23,6 @@ local system = require("doom.core.system")
 --     https://github.com/ziontee113/deliberate.nvim
 --     >>> ziontee's ts plugins are getting really fucking good now.
 -- !!! https://github.com/nvim-telescope/telescope-live-grep-args.nvim
-
 
 -- TODO: extend neorg workspaces here with my own ones!!!
 
@@ -390,9 +387,6 @@ end
 
 doom.settings.colorscheme = "tokyonight"
 
-
-
-
 --
 -- Extra packages
 --
@@ -432,8 +426,56 @@ telescope_defaults.winblend = 10
 --
 
 -- TS CONTEXT
-vim.api.nvim_set_hl(0, "TreesitterContext", { bg="DarkMagenta" })
+vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "DarkMagenta" })
 -- vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg="Pink" })
-vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg="SeaGreen", underline=true })
+vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", underline = true })
+
+-- test add doom module
+
+local function new_module()
+  local mp = require("doom.core.system").doom_modules_path()
+  local Path = require("pathlib")
+  mp = Path(mp)
+
+  local possible_choices = {
+    ".",
+  }
+
+  for path in mp:iterdir({ depth = 1 }) do
+    if path:is_dir() then
+      print(path:basename())
+      table.insert(possible_choices, path)
+    end
+  end
+
+  vim.ui.select(possible_choices, {
+    prompt = "Select dir for new module:",
+    format_item = function(item)
+      if item == "." then
+        return "[current dir]"
+      elseif type(item) == "table" then
+        return "dir -> " .. item:basename()
+      end
+    end,
+  }, function(choice)
+    print("choice =", choice)
+  end)
+end
+
+doom.use_keybind({
+  {
+    "<leader>D",
+    name = "+doom",
+    {
+      {
+        "M",
+        function()
+          new_module()
+        end,
+        name = "testing",
+      },
+    },
+  },
+})
 
 -- vim: sw=2 sts=2 ts=2 expandtab

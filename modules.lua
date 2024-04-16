@@ -17,6 +17,7 @@ return {
     },
     lib = {
       "litee",
+      "pathlib"
     },
 
     completions = {
