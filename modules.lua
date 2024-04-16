@@ -116,6 +116,7 @@ return {
     "show_registers", -- Show and navigate between registers
     -- "dui", -- [WIP] Managen your doom config with Telescope.
     "ui_make_transparent",
+    "ui_custom_vim_input_select",
 
     -- TOOLS
     "dap", -- Debug code through neovim

@@ -6,6 +6,15 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- => GREAT LIST OF NVIM PLUGINS: https://yutkat.github.io/my-neovim-pluginlist/
+
+-- ~ ZIONTEE:
+--     https://github.com/ziontee113/syntax-tree-surfer
+--     https://github.com/ziontee113/deliberate.nvim
+--     >>> ziontee's ts plugins are getting really fucking good now.
+-- !!! https://github.com/nvim-telescope/telescope-live-grep-args.nvim
+
+
 -- TODO: extend neorg workspaces here with my own ones!!!
 
 -- TODO: file explorer -> oil.nvim plugin seems super awesome
@@ -46,11 +55,6 @@ if ok then
   reloader = plenary_reload.reload_module
 end
 
--- -- TODO: can I use lsp to rename all instances of i()?
--- function i(x, pre)
---   print(pre or "", vim.inspect(x))
--- end
-
 P = function(data, depth, prefix_str)
   local pre = prefix_str or ""
   if depth then
@@ -77,7 +81,6 @@ GGG = function(depth)
   print("inspect `_doom`", vim.inspect(t, { depth = depth }))
 end
 
--- D for debug
 D = function(v, pre)
   log.debug(pre or "", v)
 end
@@ -94,6 +97,8 @@ end
 --------------------------
 ---       KEYMAP       ---
 --------------------------
+
+-- NOTE: Issue with keymap not being applied in select mode.
 
 vim.opt.keymap = "INSERT_COLEMAK"
 
