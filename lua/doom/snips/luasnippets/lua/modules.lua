@@ -42,9 +42,9 @@ return {
       i(1, "Second jump"),
       t(" : "),
       i(2, "Third jump but second inside of the `sn` node"),
-      t(""), -- new line?
+      t(""),    -- new line?
       t("xxx"), -- new line?
-      t(""), -- new line?
+      t(""),    -- new line?
       f(reused_func, {}, {
         user_args = { "func node text" },
       }),
@@ -63,10 +63,10 @@ return {
     end, {})
   ),
 
-	s({ trig = "trafo(%d+)", regTrig = true }, {
-		-- env-variables and captures can also be used:
-		l(l.CAPTURE1:gsub("1", l.TM_FILENAME), {}),
-	}),
+  s({ trig = "trafo(%d+)", regTrig = true }, {
+    -- env-variables and captures can also be used:
+    l(l.CAPTURE1:gsub("1", l.TM_FILENAME), {}),
+  }),
   --
   -- USEFUL DOOM CHOICES TEST
   --
@@ -343,6 +343,39 @@ return {
       }},]],
       {
         i(1, "insert_bind"),
+      }
+    )
+  ),
+
+  s(
+    "doom_module_new",
+    fmt(
+      [[local {name} = {{}}
+
+      {name}.settings = {{}}
+
+      -- {name}.packages = {{
+      --   ["xx"] = {{ "xx"}}
+      -- }}
+
+      {name}.configs = {{}}
+
+      -- {name}.configs["xx"] = function()
+      --   -- require("xx").setup(doom.modules.xx)
+      -- end
+
+      -- {name}.cmds = {{}}
+
+      -- {name}.autocmds = {{}}
+
+      -- {name}.binds = {{}}
+
+      return {name}]],
+      {
+        name = i(1, "module_name"),
+      },
+      {
+        repeat_duplicates = true,
       }
     )
   ),
