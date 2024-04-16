@@ -8,7 +8,7 @@ auto_session.settings = {
     default_branch = "main",                                          -- the branch to load if a session file is not found for the current branch
     autosave = true,                                                  -- automatically save session files when exiting Neovim
     should_autosave = nil,                                            -- function to determine if a session should be autosaved
-    autoload = false,                                                 -- automatically load the session for the cwd on Neovim startup
+    autoload = true,                                                 -- automatically load the session for the cwd on Neovim startup
     on_autoload_no_session = nil,                                     -- function to run when `autoload = true` but there is no session to load
     follow_cwd = true,                                                -- change session file name to match current working directory if it changes
     allowed_dirs = nil,                                               -- table of dirs that the plugin will auto-save and auto-load from
@@ -49,16 +49,11 @@ auto_session.packages = {
 }
 
 auto_session.configs = {}
-auto_session.configs["persistence.nvim"] = function()
-  require("persistence").setup(doom.features.auto_session.settings.persistence)
+auto_session.configs["persisted.nvim"] = function()
+  require("persisted").setup(doom.features.auto_session.settings.persisted)
 
-  local telescope = require("telescope")
-
-  if telescope then
-    telescope.load_extension("persisted")
-  end
+  require("telescope").load_extension("persisted")
 end
-
 
 -- Events / Callbacks
 -- The plugin fires events at various points during its lifecycle:
@@ -97,18 +92,22 @@ auto_session.binds = {
           "s",
           "<cmd>SessionStart<cr>",
           name = "Session start rec",
-        },{
+        },
+        {
           "r",
           "<cmd>SessionLoad<cr>",
           name = "Restore session -> cwd",
-        },{
+        },
+        {
           "R",
           "<cmd>SessionLoadLast<cr>",
           name = "Restore session -> last",
-        },{
+        },
+        {
           "t",
-          "<cmd>Telescope persisted<CR>", name = "Tele sessions",
-        }
+          "<cmd>Telescope persisted<CR>",
+          name = "Tele sessions",
+        },
       },
     },
   },
