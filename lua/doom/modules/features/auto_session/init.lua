@@ -43,6 +43,7 @@ auto_session.packages = {
     "olimorris/persisted.nvim",
     lazy = false,
     -- commit = "8484fdaa284207f77ec69b9627316bf334ad653f",
+  dev = true
   },
   --   -- https://github.com/Shatur/neovim-session-manager
   --   https://github.com/jedrzejboczar/possession.nvim
@@ -90,17 +91,22 @@ auto_session.binds = {
       {
         {
           "s",
-          "<cmd>SessionStart<cr>",
+          [[<cmd>lua require("persisted").start()<cr>]],
           name = "Session start rec",
         },
         {
+          "S",
+          [[<cmd>lua require("persisted").stop()<cr>]],
+          name = "Session stop rec",
+        },
+        {
           "r",
-          "<cmd>SessionLoad<cr>",
+          [[<cmd>lua require("persisted").load()<cr>]],
           name = "Restore session -> cwd",
         },
         {
           "R",
-          "<cmd>SessionLoadLast<cr>",
+          [[<cmd>lua require("persisted").load({ last = true})<cr>]],
           name = "Restore session -> last",
         },
         {
@@ -108,6 +114,16 @@ auto_session.binds = {
           "<cmd>Telescope persisted<CR>",
           name = "Tele sessions",
         },
+        {
+          "T",
+          [[<cmd>lua require("persisted").toggle()<cr>]],
+          name = "Session toggle",
+        },
+        {
+          "D",
+          [[<cmd>lua require("persisted").delete()<cr>]],
+          name = "Session delete",
+        }
       },
     },
   },
