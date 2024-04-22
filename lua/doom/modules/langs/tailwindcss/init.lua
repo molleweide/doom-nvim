@@ -31,9 +31,9 @@ tailwindcss.settings = {
   --- Disables null-ls formatting sources
   --- @type boolean
   disable_formatting = false,
-  --- WARN: No package yet. Mason.nvim package to auto install the formatter from
-  --- @type nil
-  formatting_package = nil,
+  --- Mason.nvim package to auto install the formatter from
+  --- @type string
+  formatting_package = "rustywind",
   --- String to access the null_ls diagnositcs provider
   --- @type string
   formatting_provider = "builtins.formatting.rustywind",
