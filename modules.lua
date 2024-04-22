@@ -110,7 +110,12 @@ return {
     "trouble",                 -- A pretty diagnostic viewer
     "statusline",              -- A pretty status line at the bottom of the buffer
     -- "minimap",         -- Shows current position in document
+
     "terminal",                -- Integrated terminal in neovim
+    terminal = {
+      -- TODO: Move terminal related plugins into this dir
+    },
+
     "symbols_outline_sidebar", -- Navigate between code symbols using telescope
     "ranger",                  -- File explorer in neovim (TODO: Test)
     "restclient",              -- Test HTTP requests from neovim (TODO: Test)
@@ -223,11 +228,12 @@ return {
     -- "ruby",
 
     -- Web
+    "html",
     "javascript",
     "typescript",
     "css",
     "vue",
-    -- "tailwindcss",
+    "tailwindcss",
     -- "svelte",
 
     -- Compiled
@@ -241,7 +247,7 @@ return {
     -- "kotlin",
     -- "java",
 
-    -- "json",
+    "json",
     -- "yaml",
     -- "toml",
     "markdown",

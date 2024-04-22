@@ -72,6 +72,7 @@ neorg.packages = {
     --   ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
     -- },
     cmd = "Neorg",
+    ft = "norg",
     dependencies = {
       "luarocks.nvim",
       "nvim-lua/plenary.nvim",

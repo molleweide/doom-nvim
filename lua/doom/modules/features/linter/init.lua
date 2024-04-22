@@ -11,9 +11,10 @@ linter.settings = {
 linter.requires_modules = { "features.lsp" }
 
 linter.packages = {
+  -- https://github.com/nvimtools/none-ls.nvim
   ["null-ls.nvim"] = {
     "jose-elias-alvarez/null-ls.nvim",
-    commit = "915558963709ea17c5aa246ca1c9786bfee6ddb4",
+    -- commit = "915558963709ea17c5aa246ca1c9786bfee6ddb4",
     dependencies={"neovim/nvim-lspconfig"},
     lazy = true,
   },

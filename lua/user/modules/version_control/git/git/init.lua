@@ -318,7 +318,7 @@ git.binds = {
           {
             "s",
             "<cmd>lua require'gitsigns'.stage_hunk()<CR>",
-            name = " Stage Hunk",
+            name = "+ Stage Hunk",
           },
           -- {
           --   "u",

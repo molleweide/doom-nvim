@@ -125,6 +125,7 @@ chatgpt.packages = {
   ["ChatGPT.nvim"] = {
     "jackMort/ChatGPT.nvim",
     dev = true,
+    lazy = true,
     dependencies = {
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",

@@ -22,6 +22,7 @@ module.use_null_ls_source = function(sources)
     if not registered_sources[key] then
       registered_sources[key] = source
       null_ls.register(source)
+      log.info("Registered null source:", key)
     else
       log.warn(
         string.format(

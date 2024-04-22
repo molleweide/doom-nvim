@@ -1,6 +1,7 @@
 local tailwindcss = {}
 
 -- NOTE: telescope cheat sheet for tailwind
+-- https://github.com/luckasRanarison/tailwind-tools.nvim
 -- https://github.com/danielvolchek/tailiscope.nvim
 -- https://github.com/laytan/tailwind-sorter.nvim
 -- https://github.com/princejoogie/tailwind-highlight.nvim

@@ -6,6 +6,9 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- WARN: https://github.com/roobert
+-- This guy has made some seriously cool plugins
+
 -- NOTE: Add new module command.
 -- Command/bind ->
 --     Select dir for new module -> Use vim.ui input
@@ -15,6 +18,15 @@ local system = require("doom.core.system")
 --                    i.  Add MODULE to `./modules.lua`
 --                    ii. Open new file in current window
 --                            >> initialize `doom_new_module` snippet.
+
+-- NOTE: redirect print output into eg. clipboard
+-- When I use lua to print something, it shows it in the bottom bar, how do I copy all contents of it?
+-- I know that using g< will show it to me againn but how would I redirect it to a clipboard
+-- justlinuxuser
+-- nvm, I just used a tempfile to dump my stdout
+-- justinmk
+-- can use :redir @+ . but eventually we should make this easier
+-- or :let @+=execute('...')
 
 -- => GREAT LIST OF NVIM PLUGINS: https://yutkat.github.io/my-neovim-pluginlist/
 
@@ -78,6 +90,8 @@ end
 -- funcs.inspect_visual_sel = function()
 --   vim.inspect(funcs.get_visual_selection())
 -- end
+
+-- P("arst")
 
 GGG = function(depth)
   local t = {}
@@ -433,6 +447,18 @@ vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", u
 -- test add doom module
 
 local function new_module()
+  -- TODO: make recursive
+  -- 1. core/user
+  -- 2. initialize with `modules dir`
+  -- 3. check if sub dirs can have
+  -- 4. create module for final selection
+
+  -- Ie. without `init.lua` file.
+  local function find_sub_dirs() end
+
+  local function initialize_new_module()
+  end
+
   local mp = require("doom.core.system").doom_modules_path()
   local Path = require("pathlib")
   mp = Path(mp)
