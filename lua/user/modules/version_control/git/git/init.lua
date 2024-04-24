@@ -278,6 +278,15 @@ local function commit_hunk_under_cursor()
     print("did we stage?")
   end)
 
+
+
+
+
+
+
+
+
+
   -- vgit.buffer_hunk_stage()
 
   -- local task = nio.run(function()
