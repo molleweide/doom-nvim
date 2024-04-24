@@ -249,6 +249,12 @@ neogit.settings = {
       ["w"] = "WorktreePopup",
     },
     status = {
+      -- Make room for s/S to be used with Leap.
+      ["a"] = "Stage",
+      ["s"] = false,
+      ["<c-a>"] = "StageUnstaged",
+      ["S"] = false,
+
       ["q"] = "Close",
       ["I"] = "InitRepo",
       ["1"] = "Depth1",
@@ -257,9 +263,7 @@ neogit.settings = {
       ["4"] = "Depth4",
       ["<tab>"] = "Toggle",
       ["x"] = "Discard",
-      ["a"] = "Stage",
-      ["s"] = false,
-      ["S"] = "StageUnstaged",
+
       ["<c-s>"] = "StageAll",
       ["u"] = "Unstage",
       ["U"] = "UnstageStaged",
