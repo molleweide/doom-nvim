@@ -276,6 +276,8 @@ end
 
 local function commit_current_buffer_only()
   require("vgit").project_unstage_all()
+
+  -- FIX: `stage_buffer` does currently not yet have callback..
   require("gitsigns").stage_buffer(function()
     print("Commit current buffer")
     vim.cmd("Neogit commit")
