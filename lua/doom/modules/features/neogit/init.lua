@@ -16,7 +16,6 @@ local neogit = {}
 -- }
 
 neogit.settings = {
-  default_config = {
     -- Hides the hints at the top of the status buffer
     disable_hint = false,
     -- Disables changing the buffer highlights based on where the cursor is.
@@ -248,7 +247,7 @@ neogit.settings = {
         ["4"] = "Depth4",
         ["<tab>"] = "Toggle",
         ["x"] = "Discard",
-        ["s"] = "Stage",
+        ["a"] = "Stage",
         ["S"] = "StageUnstaged",
         ["<c-s>"] = "StageAll",
         ["u"] = "Unstage",
@@ -264,7 +263,6 @@ neogit.settings = {
         ["{"] = "GoToPreviousHunkHeader",
         ["}"] = "GoToNextHunkHeader",
       },
-    },
   },
 }
 

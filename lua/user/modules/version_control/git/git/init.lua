@@ -381,6 +381,7 @@ git.binds = {
             "e",
             name = "+staging/hunks",
             {
+              { "b", '<cmd>lua require"gitsigns".stage_buffer()<CR>', name = "stage buffer" },
               { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
               { "S", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
               -- { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },

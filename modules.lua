@@ -10,6 +10,9 @@ return {
   ai = {
     "ai_chat_gpt",
   },
+  lib = {
+    "nio" -- asynch IO
+  },
   features = {
     buffers = {
       "buffer_management",

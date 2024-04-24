@@ -14,13 +14,36 @@ local doom_root = require("doom.core.system").doom_root
 neorg.settings = {
   load = {
     ["core.defaults"] = {},
+    ["core.esupports.indent"] = {
+      config = {
+        tweaks = {
+          heading2 = 4,
+          unordered_list1 = 0,
+          unordered_list2 = 3,
+          unordered_list3 = 6,
+          unordered_list4 = 9,
+          unordered_list5 = 12,
+          unordered_list6 = 15,
+          ordered_list1 = 0,
+          ordered_list2 = 3,
+          ordered_list3 = 6,
+          ordered_list4 = 9,
+          ordered_list5 = 12,
+          ordered_list6 = 15,
+        },
+      },
+    },
     ["core.keybinds"] = {
       config = {
         default_keybinds = true,
         neorg_leader = ",o",
       },
     },
-    ["core.concealer"] = {},
+    ["core.concealer"] = {
+      config = {
+        icon_preset = "varied",
+      },
+    },
     ["core.qol.toc"] = {},
     ["core.dirman"] = {
       config = {
@@ -177,7 +200,12 @@ neorg.binds = {
           "n",
           name = "+neorg",
           {
-            { "c", ":Neorg ", name = "neorg workspace main", options = { silent = false } },
+            {
+              "c",
+              ":Neorg ",
+              name = "neorg workspace main",
+              options = { silent = false },
+            },
             { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
             { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
             { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
