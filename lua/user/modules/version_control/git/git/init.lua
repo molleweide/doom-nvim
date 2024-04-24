@@ -265,13 +265,27 @@ local function commit_hunk_under_cursor()
   print("commit hunk under cursor")
   local gitsigns = require("gitsigns")
   local vgit = require("vgit")
+  local nio = require("nio")
   -- local hs = gitsigns.get_hunks()
   -- local ax = gitsigns.get_actions()
   -- P(ax, 2)
 
   vgit.project_unstage_all()
 
-  gitsigns.stage_hunk()
+  -- gitsigns.stage_hunk()
+
+  gitsigns.stage_hunk(nil,nil,function()
+    print("did we stage?")
+  end)
+
+  -- vgit.buffer_hunk_stage()
+
+  -- local task = nio.run(function()
+  --   nio.sleep(1000)
+  --   print("Hello world")
+  -- end)
+
+  -- print("after this..")
 
   -- vim.cmd("Neogit commit")
 
@@ -384,14 +398,14 @@ git.binds = {
             {
               { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
               { "S", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
-              { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
+              -- { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
               { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
               { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
               { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
               -- { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
               { "r", ":lua require('vgit').buffer_hunk_reset()<cr>", name = "reset hunk" },
               { "p", ":lua require('vgit').buffer_hunk_preview()<cr>", name = "preview hunk" },
-              { "u", ":lua require('vgit').buffer_reset()<cr>", name = "buf reset" },
+              { "u", ":lua require('gitsigns').reset_buffer()<cr>", name = "buf reset" },
               {
                 "P",
                 name = "+project",
