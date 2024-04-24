@@ -2,6 +2,10 @@ local neogit = {}
 
 -- NOTE: How to keep `leap` on `s` mapping inside Neogit
 -- https://github.com/NeogitOrg/neogit/issues/564
+--
+--
+--
+--
 
 -- neogit.settings = {
 --   -- override/add mappings

@@ -383,7 +383,7 @@ git.binds = {
             {
               { "b", '<cmd>lua require"gitsigns".stage_buffer()<CR>', name = "stage buffer" },
               { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
-              { "S", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
+              { "s", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
               -- { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
               { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
               { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
