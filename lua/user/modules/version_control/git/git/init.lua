@@ -265,48 +265,21 @@ local function commit_hunk_under_cursor()
   print("commit hunk under cursor")
   local gitsigns = require("gitsigns")
   local vgit = require("vgit")
-  local nio = require("nio")
-  -- local hs = gitsigns.get_hunks()
-  -- local ax = gitsigns.get_actions()
-  -- P(ax, 2)
 
-  vgit.project_unstage_all()
-
-  -- another comment
-
-  -- gitsigns.stage_hunk()
+  vgit.project_unstage_all() -- NOT async
 
   gitsigns.stage_hunk(nil, nil, function()
     print("Commit only the hunk at cursor")
     vim.cmd("Neogit commit")
   end)
-
-
-
-
-
-
-
-
-
-
-  -- vgit.buffer_hunk_stage()
-
-  -- local task = nio.run(function()
-  --   nio.sleep(1000)
-  --   print("Hello world")
-  -- end)
-
-  -- print("after this..")
-
-  -- vim.cmd("Neogit commit")
-
-  -- run norm c
 end
 
 local function commit_current_buffer_only()
   require("vgit").project_unstage_all()
-  require("vgit").buffer_stage()
+  require("gitsigns").stage_buffer(function()
+    print("Commit current buffer")
+    vim.cmd("Neogit commit")
+  end)
   -- vim.cmd("Neogit commit")
 end
 
@@ -394,9 +367,7 @@ git.binds = {
               {
                 "b",
                 function()
-                  require("vgit").project_unstage_all()
-                  require("vgit").buffer_stage()
-                  -- vim.cmd("Neogit commit")
+                  commit_current_buffer_only()
                 end,
                 name = "commit current buf",
               }, -- resets all other
