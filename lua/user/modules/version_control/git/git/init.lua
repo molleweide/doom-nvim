@@ -274,8 +274,9 @@ local function commit_hunk_under_cursor()
 
   -- gitsigns.stage_hunk()
 
-  gitsigns.stage_hunk(nil,nil,function()
-    print("did we stage?")
+  gitsigns.stage_hunk(nil, nil, function()
+    print("Commit only the hunk at cursor")
+    vim.cmd("Neogit commit")
   end)
 
 
