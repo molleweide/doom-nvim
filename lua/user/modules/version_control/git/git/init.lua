@@ -272,6 +272,8 @@ local function commit_hunk_under_cursor()
 
   vgit.project_unstage_all()
 
+  -- another comment
+
   -- gitsigns.stage_hunk()
 
   gitsigns.stage_hunk(nil, nil, function()
