@@ -6,6 +6,12 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- network resource manager | https://github.com/miversen33/netman.nvim
+
+-- NOTE: https://github.com/zeioth/heirline-components.nvim
+
+-- NOTE: https://github.com/616b2f/bsp.nvim
+
 -- WARN: https://github.com/roobert
 -- This guy has made some seriously cool plugins
 

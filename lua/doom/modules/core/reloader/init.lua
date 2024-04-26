@@ -1,6 +1,11 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
+-- NOTE: lazy reload plugin should be possible now:
+-- https://github.com/folke/lazy.nvim/issues/445
+
+
+
 -- BUG: reload in Dashboard -> line numbers become visible
 
 -- TODO: Prevent reloading if there are LSP errors in the current buffer.

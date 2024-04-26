@@ -17,7 +17,11 @@ neorg.settings = {
     ["core.esupports.indent"] = {
       config = {
         tweaks = {
-          heading2 = 4,
+          heading2 = 2,
+          heading3 = 4,
+          heading4 = 6,
+          heading5 = 8,
+          heading6 = 10,
           unordered_list1 = 0,
           unordered_list2 = 3,
           unordered_list3 = 6,
@@ -35,6 +39,8 @@ neorg.settings = {
     },
     ["core.keybinds"] = {
       config = {
+        -- Default keybinds can be found at
+        -- [https://github.com/nvim-neorg/neorg/blob/main/lua/neorg/modules/core/keybinds/keybinds.lua]
         default_keybinds = true,
         neorg_leader = ",o",
       },
@@ -122,46 +128,53 @@ end
 
 -- TODO: add norg bindings > look at Max's config
 
--- neorg.autocmds = {
---   {
---     "BufWinEnter",
---     "*.norg",
---     function()
---       -- Manually add norg parser to be always up-to-date
---       -- and add additional (opt-in) neorg parsers
---       local parsers = require("nvim-treesitter.parsers").get_parser_configs()
---
---       parsers.norg = {
---         install_info = {
---           url = "https://github.com/nvim-neorg/tree-sitter-norg",
---           files = { "src/parser.c", "src/scanner.cc" },
---           branch = "main",
---         },
---       }
---       parsers.norg_meta = {
---         install_info = {
---           url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
---           files = { "src/parser.c" },
---           branch = "main",
---         },
---       }
---       parsers.norg_table = {
---         install_info = {
---           url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
---           files = { "src/parser.c" },
---           branch = "main",
---         },
---       }
---
---       vim.defer_fn(function()
---         local ensure_installed = require("nvim-treesitter.install").ensure_installed
---         ensure_installed("norg")
---         ensure_installed("norg_meta")
---         ensure_installed("norg_table")
---       end, 0)
---     end,
---   },
--- }
+neorg.autocmds = {
+  {
+    "BufWritePre",
+    "*.norg",
+    vim.cmd([[
+      normal m`=gG``
+      ]]),
+  },
+  --   {
+  --     "BufWinEnter",
+  --     "*.norg",
+  --     function()
+  --       -- Manually add norg parser to be always up-to-date
+  --       -- and add additional (opt-in) neorg parsers
+  --       local parsers = require("nvim-treesitter.parsers").get_parser_configs()
+  --
+  --       parsers.norg = {
+  --         install_info = {
+  --           url = "https://github.com/nvim-neorg/tree-sitter-norg",
+  --           files = { "src/parser.c", "src/scanner.cc" },
+  --           branch = "main",
+  --         },
+  --       }
+  --       parsers.norg_meta = {
+  --         install_info = {
+  --           url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
+  --           files = { "src/parser.c" },
+  --           branch = "main",
+  --         },
+  --       }
+  --       parsers.norg_table = {
+  --         install_info = {
+  --           url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
+  --           files = { "src/parser.c" },
+  --           branch = "main",
+  --         },
+  --       }
+  --
+  --       vim.defer_fn(function()
+  --         local ensure_installed = require("nvim-treesitter.install").ensure_installed
+  --         ensure_installed("norg")
+  --         ensure_installed("norg_meta")
+  --         ensure_installed("norg_table")
+  --       end, 0)
+  --     end,
+  --   },
+}
 
 -- If you're using the automatic keybind generation provided by Neorg you can
 -- start using <C-s> (search linkable elements) in normal mode and <C-l>
@@ -187,8 +200,12 @@ end
 -- end)
 
 -- todo: telescope find neorg files in notes -> only dirs > on enter create new file in dir.
+-- y
+--
 
 neorg.binds = {
+  { "<c-s>", [[<cmd>Telescope neorg search_headings<cr>]] },
+  { mode = "i", "<c-l>", [[<cmd>Telescope neorg insert_link<cr>]] },
   {
     "<leader>",
     name = "+prefix",
@@ -215,6 +232,7 @@ neorg.binds = {
             -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
             { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
             { "n", ":Neorg present<cr>", name = "neorg present" },
+            { "s", ":Telescope neorg switch_workspace<cr>", name = "switch workspace" },
             {
               "f",
               function()

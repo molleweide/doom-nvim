@@ -2,6 +2,12 @@ local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 local autocmds_service = require("doom.services.autocommands")
 
+-------------------------------------------------------------------------------
+-- Module for auto-reloading plugin packages. You can either set local dev
+-- packages to auto reload AND SHOULD ALSO be able to have upstream instealled
+-- plugins reload if so is required.
+-------------------------------------------------------------------------------
+
 local pr = {}
 
 -- TODO: how can I use autocommands service to remove all of them here?

@@ -58,7 +58,7 @@
   "moonlight.nvim": { "branch": "pure-lua", "commit": "e24e4218ec680b6396532808abf57ca0ada82e66" },
   "neodev.nvim": { "branch": "main", "commit": "0e3f5e763639951f96f9acbdc9f52a9fedf91b46" },
   "neogen": { "branch": "main", "commit": "0daffcec249bf42275e322361fe55b89a05ff278" },
-  "neogit": { "branch": "master", "commit": "c0b1d4dfc8ba6371857868ca7c4d33954cf002fd" },
+  "neogit": { "branch": "master", "commit": "0cae7abc30cb91d661f28257c331fcb5b5198e31" },
   "neon": { "branch": "main", "commit": "7765aaa7d1cd3804176140644640766e4411c766" },
   "neorg": { "branch": "main", "commit": "9656757f7085e9e36d2469b8876f6b27f8e87c7b" },
   "neorg-telescope": { "branch": "main", "commit": "a4fc4eb3cd5db6ccd52e99f2b49ce931c458e38f" },
