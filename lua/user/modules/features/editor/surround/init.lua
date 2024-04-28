@@ -3,10 +3,11 @@ local surround = {}
 surround.settings = {}
 
 surround.packages = {
-  ["vim-surround"] = { "tpope/vim-surround" },
+  -- https://github.com/kylechui/nvim-surround
   -- ["surround.nvim"] = { "ur4ltz/surround.nvim" }, -- pure lua
   -- https://github.com/echasnovski/mini.nvim/blob/main/lua/mini/surround.lua
-  -- [""] = { 'echasnovski/mini.nvim', branch = 'stable' }
+  -- ["mini.surround"] = { 'echasnovski/mini.surround', version = '*' },
+  ["vim-surround"] = { "tpope/vim-surround" },
 }
 
 surround.configs = {}
@@ -48,11 +49,11 @@ surround.binds = {
   -- normal mode
 
   -- TODO: move into `doom.settings`
-  { "z", "<Plug>VSurround", mode = "x", name = "surr" },
+  { "z",   "<Plug>VSurround",  mode = "x", name = "surr" },
   { "yzz", "<Plug>Yssurround", mode = "n", name = "surr" }, -- double ss
-  { "yz", "<Plug>Ysurround", mode = "n", name = "surr" }, -- single s
-  { "dz", "<Plug>Dsurround", mode = "n", name = "surr" },
-  { "cz", "<Plug>Csurround", mode = "n", name = "surr" },
+  { "yz",  "<Plug>Ysurround",  mode = "n", name = "surr" }, -- single s
+  { "dz",  "<Plug>Dsurround",  mode = "n", name = "surr" },
+  { "cz",  "<Plug>Csurround",  mode = "n", name = "surr" },
 }
 
 return surround

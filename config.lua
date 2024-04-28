@@ -8,6 +8,8 @@ local system = require("doom.core.system")
 
 -- network resource manager | https://github.com/miversen33/netman.nvim
 
+-- https://github.com/David-Kunz/gen.nvim
+
 -- NOTE: https://github.com/zeioth/heirline-components.nvim
 
 -- NOTE: https://github.com/616b2f/bsp.nvim
@@ -462,8 +464,7 @@ local function new_module()
   -- Ie. without `init.lua` file.
   local function find_sub_dirs() end
 
-  local function initialize_new_module()
-  end
+  local function initialize_new_module() end
 
   local mp = require("doom.core.system").doom_modules_path()
   local Path = require("pathlib")
