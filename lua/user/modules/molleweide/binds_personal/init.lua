@@ -4,6 +4,30 @@ local paths = require("user.utils").paths
 --
 --  - move this to the base config file
 
+local function picker_all_doom_modules()
+  local pickers = require("telescope.pickers")
+  local make_entry = require("telescope.make_entry")
+  local finders = require("telescope.finders")
+  local conf = require("telescope.config").values
+
+  local all_mp = require("doom.modules.features.dui.mod_utils").get_all_module_paths()
+  local opts = {}
+
+  pickers
+    .new(opts, {
+      prompt_title = "Doom Modules",
+      finder = finders.new_table({
+        results = all_mp,
+        entry_maker = make_entry.gen_from_file(opts),
+      }),
+      previewer = conf.file_previewer(opts),
+      sorter = conf.prefilter_sorter({
+        sorter = conf.generic_sorter(opts),
+      }),
+    })
+    :find()
+end
+
 -------------------------
 ---       PATHS       ---
 -------------------------
@@ -159,10 +183,10 @@ table.insert(binds, {
 })
 
 table.insert(binds, {
-  { "<c-z>", [[<cmd>suspend<CR>]],      name = "suspend vim" },
+  { "<c-z>", [[<cmd>suspend<CR>]], name = "suspend vim" },
   { "<c-z>", [[<Esc><cmd>suspend<CR>]], name = "suspend vim", mode = "v" },
-  { ";",     ":",                       name = "colon",       options = { silent = false } },
-  { ":",     ";",                       name = "semi-colon" },
+  { ";", ":", name = "colon", options = { silent = false } },
+  { ":", ";", name = "semi-colon" },
   --  {'n', 'dl', ':set wrap! linebreak!<CR>'},
   -- { 'x', 'z', '<Plug>VSurround' },
   -- { 'n', 'yzz', '<Plug>Yssurround' }, -- double ss
@@ -219,7 +243,7 @@ table.insert(binds, {
 table.insert(binds, {
   -- [[ n | do something in normal mode | sn | "_dP ]],
   -- [[ v | copy text in paragraph      | n  | "_dP ]],
-  { "p",     '"_dP',                    mode = "v",           options = { silent = false } },
+  { "p", '"_dP', mode = "v", options = { silent = false } },
   { "<c-z>", [[<Esc><cmd>suspend<CR>]], name = "suspend vim", mode = "v" },
   {
     "<C-l>v",
@@ -306,7 +330,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             end,
             name = "Reload all snippets",
           },
-          { "r", [[<cmd>DoomReload<CR>]],           name = "doomReload" },
+          { "r", [[<cmd>DoomReload<CR>]], name = "doomReload" },
           -- {
           --   "R",
           --   function()
@@ -374,7 +398,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
           --   }
         },
       }, -- moll
-    },   -- leader
+    }, -- leader
   })
 end
 
@@ -423,6 +447,17 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                 })
               end,
               name = "Find DOOM-NVIM",
+            },
+            {
+              "m",
+              function()
+                picker_all_doom_modules()
+
+                -- require("telescope.builtin").find_files({
+                --   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
+                -- })
+              end,
+              name = "Find DOOM-NVIM modules only",
             },
             {
               "w",

@@ -42,7 +42,7 @@ neorg.settings = {
         -- Default keybinds can be found at
         -- [https://github.com/nvim-neorg/neorg/blob/main/lua/neorg/modules/core/keybinds/keybinds.lua]
         default_keybinds = true,
-        neorg_leader = ",o",
+        neorg_leader = ",j",
       },
     },
     ["core.concealer"] = {
@@ -77,6 +77,9 @@ neorg.settings = {
     --     workspace = "gtd",
     --   },
     -- },
+    ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
+    ["core.integrations.nvim-cmp"] = {},
+
     ["core.integrations.telescope"] = {},
     ["core.integrations.nvim-cmp"] = {},
     ["core.presenter"] = {
@@ -204,8 +207,8 @@ neorg.autocmds = {
 --
 
 neorg.binds = {
-  { "<c-s>", [[<cmd>Telescope neorg search_headings<cr>]] },
-  { mode = "i", "<c-l>", [[<cmd>Telescope neorg insert_link<cr>]] },
+  { "<c-s>",    [[<cmd>Telescope neorg search_headings<cr>]] },
+  { mode = "i", "<c-l>",                                     [[<cmd>Telescope neorg insert_link<cr>]] },
   {
     "<leader>",
     name = "+prefix",
@@ -223,15 +226,15 @@ neorg.binds = {
               name = "neorg workspace main",
               options = { silent = false },
             },
-            { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
-            { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
-            { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
+            { "d", ":Neorg workspace main<cr>",             name = "neorg workspace main" },
+            { "G", ":Neorg workspace gtd<cr>",              name = "neorg gtd" },
+            { "E", ":Neorg workspace example_gtd<cr>",      name = "neorg example" },
             -- { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
             -- { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
             -- { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
             -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
-            { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
-            { "n", ":Neorg present<cr>", name = "neorg present" },
+            { "t", ":Neorg journal today<cr>",              name = "neorg journal today" },
+            { "n", ":Neorg present<cr>",                    name = "neorg present" },
             { "s", ":Telescope neorg switch_workspace<cr>", name = "switch workspace" },
             {
               "f",

@@ -296,5 +296,10 @@ utils.get_visual_selection = function()
   return table.concat(lines, "\n")
 end
 
+utils.insert_text_at = function()
+  -- NOTE:
+  -- { type = visual_selection}
+end
+
 
 return utils

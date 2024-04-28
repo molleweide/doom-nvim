@@ -692,6 +692,10 @@ local search_paths = function(path_str)
   }
 end
 
+mod_util.get_all_module_paths = function()
+  return mutils.tbl_merge(m_glob("doom"), m_glob("user"))
+end
+
 mod_util.extend = function(filter)
   local all = mutils.tbl_merge(m_glob("doom"), m_glob("user"))
   local m_all = { doom = {}, user = {} }
