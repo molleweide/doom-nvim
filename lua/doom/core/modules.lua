@@ -29,7 +29,18 @@ local core_modules = {
     "updater",
   },
 }
-modules.enabled_modules = vim.tbl_deep_extend("keep", core_modules, dofile(modules.source))
+
+-- FIX: I need to ensure that the config does not break if there is a type in the modules file.
+-- Prevent reloading if there is an error here.
+local function load_enabled_modules()
+  local ok, result = xpcall(dofile, debug.traceback, modules.source)
+  if ok then
+    result = vim.tbl_deep_extend("keep", core_modules, result)
+  end
+  return ok, result
+end
+
+modules.enabled_modules = load_enabled_modules -- vim.tbl_deep_extend("keep", core_modules, dofile(modules.source))
 
 local keymaps_service = require("doom.services.keymaps")
 local commands_service = require("doom.services.commands")
@@ -98,7 +109,7 @@ modules.load_modules = function()
         -- Setup package autogroups
         if module.autocmds then
           local autocmds = type(module.autocmds) == "function" and module.autocmds()
-            or module.autocmds
+              or module.autocmds
           for _, autocmd_spec in ipairs(autocmds) do
             autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
           end

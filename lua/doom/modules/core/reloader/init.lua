@@ -129,7 +129,13 @@ reloader._reload_doom = function()
   -- can auto determine whether or not to run PackerSync and PackerCompile.
 
   -- Remember which modules/packages installed to check if user needs to `:PackerSync`
-  local old_modules = require("doom.core.modules").enabled_modules
+  local ok, old_modules = require("doom.core.modules").enabled_modules()
+
+  if not ok then
+  log.warn("?? Reloader: could not load enabled modules! Aborting...:", type(old_modules))
+    return
+  end
+
   local old_packages = vim.tbl_map(function(t)
     return t[1]
   end, doom.packages)
@@ -167,7 +173,7 @@ reloader._reload_doom = function()
   require("doom.core.modules"):handle_user_config()
 
   -- Post reload modules comparison
-  local modules = require("doom.core.modules").enabled_modules
+  local ok, modules = require("doom.core.modules").enabled_modules()
   local packages = vim.tbl_map(function(t)
     return t[1]
   end, doom.packages)

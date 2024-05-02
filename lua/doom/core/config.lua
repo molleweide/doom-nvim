@@ -63,66 +63,85 @@ config.load = function()
 
   profiler.start("framework|import modules")
 
-  local enabled_modules = require("doom.core.modules").enabled_modules
+  local modules_ok, enabled_modules = require("doom.core.modules").enabled_modules()
 
-  -- Combine enabled modules (`modules.lua`) with core modules.
-  require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
-    if type(node) == "string" then
-      local t_path = vim.tbl_map(function(stack_node)
-        return type(stack_node.key) == "string" and stack_node.key or stack_node.node
-      end, stack)
+    log.info(vim.inspect(enabled_modules))
 
-      local path_module = table.concat(t_path, ".")
+  -- if modules_ok then...
+  if not modules_ok then
+    -- log.error(
+    --   string.format(
+    --     "There was an error loading enabled modules. Traceback:\n%s",
+    --     result
+    --   )
+    -- )
+    log.error("[core.config] > There was an error loading enabled modules.")
+  else
+    -- Combine enabled modules (`modules.lua`) with core modules.
+    require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
+      if type(node) == "string" then
+        local t_path = vim.tbl_map(function(stack_node)
+          return type(stack_node.key) == "string" and stack_node.key or stack_node.node
+        end, stack)
 
-      local profiler_message = ("modules|import `%s`"):format(path_module)
-      profiler.start(profiler_message)
+        local path_module = table.concat(t_path, ".")
 
-      -- If the section is `user` resolves from `lua/user/modules`
-      local search_paths = {
-        ("user.modules.%s"):format(path_module),
-        ("doom.modules.%s"):format(path_module),
-      }
+        local profiler_message = ("modules|import `%s`"):format(path_module)
+        profiler.start(profiler_message)
 
-      local ok, result
-      for _, path in ipairs(search_paths) do
-        ok, result = xpcall(require, debug.traceback, path)
-        if ok then
-          break
-        end
-      end
+        -- If the section is `user` resolves from `lua/user/modules`
+        local search_paths = {
+          ("user.modules.%s"):format(path_module),
+          ("doom.modules.%s"):format(path_module),
+        }
 
-      if ok then
-        if type(result) == "boolean" and result then
-          log.debug(string.format("'%s' is an empty module that returned nothing. Ignoring...", path_module))
-        else
-          -- Add string tag so that we can easilly target modules with more
-          -- traversers, ie. in `core/modules` when traversing `doom.modules`
-          result.type = "doom_module_single"
-          utils.get_set_table_path(doom.modules, t_path, result)
-
-          -- NOTE: I dunno if my package reloader file is still relevant...
-
-          -- Needs to be attached to custom table since each package is unaware
-          -- of its respective doom module.
-          if result.package_reloaders then
-            for k, v in pairs(result.package_reloaders) do
-              doom.package_reloaders[k] = v
-            end
+        local ok, result
+        for _, path in ipairs(search_paths) do
+          ok, result = xpcall(require, debug.traceback, path)
+          if ok then
+            break
           end
         end
-      else
-        log.error(
-          string.format(
-            "There was an error loading module '%s'. Traceback:\n%s",
-            path_module,
-            result
-          )
-        )
-      end
 
-      profiler.stop(profiler_message)
-    end
-  end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+        if ok then
+          if type(result) == "boolean" and result then
+            log.debug(
+              string.format(
+                "'%s' is an empty module that returned nothing. Ignoring...",
+                path_module
+              )
+            )
+          else
+            -- Add string tag so that we can easilly target modules with more
+            -- traversers, ie. in `core/modules` when traversing `doom.modules`
+            result.type = "doom_module_single"
+            utils.get_set_table_path(doom.modules, t_path, result)
+
+            -- NOTE: I dunno if my package reloader file is still relevant...
+
+            -- Needs to be attached to custom table since each package is unaware
+            -- of its respective doom module.
+            if result.package_reloaders then
+              for k, v in pairs(result.package_reloaders) do
+                doom.package_reloaders[k] = v
+              end
+            end
+          end
+        else
+          -- log.error(
+          --   string.format(
+          --     "There was an error loading module '%s'. Traceback:\n%s",
+          --     path_module,
+          --     result
+          --   )
+          -- )
+          log.error(string.format("There was an error loading module '%s'", path_module))
+        end
+
+        profiler.stop(profiler_message)
+      end
+    end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+  end
 
   profiler.stop("framework|import modules")
 
@@ -185,7 +204,7 @@ config.load = function()
   -- Color column
   vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
       and tostring(doom.settings.max_columns)
-    or ""
+      or ""
 
   -- Number column
   vim.opt.number = not doom.settings.disable_numbering

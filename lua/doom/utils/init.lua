@@ -143,7 +143,12 @@ end
 --- @param plugin string The module identifier, e.g. statusline
 --- @return boolean
 utils.is_module_enabled = function(section, plugin)
-  local modules = require("doom.core.modules").enabled_modules
+
+  local ok, modules = require("doom.core.modules").enabled_modules()
+
+  if not ok then
+    return false
+  end
 
   if type(section) == "table" then
     local tp = section
