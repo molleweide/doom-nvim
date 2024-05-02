@@ -126,6 +126,9 @@ return {
     -- "dui", -- [WIP] Managen your doom config with Telescope.
     "ui_make_transparent",
     "ui_custom_vim_input_select",
+    ui = {
+      "noice_ergonomic_ui"
+    },
 
     -- TOOLS
     "dap", -- Debug code through neovim

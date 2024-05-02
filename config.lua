@@ -12,6 +12,8 @@ local system = require("doom.core.system")
 
 -- NOTE: https://github.com/zeioth/heirline-components.nvim
 
+-- key logging / heatmap: https://github.com/glottologist/keylog.nvim
+
 -- NOTE: https://github.com/616b2f/bsp.nvim
 
 -- WARN: https://github.com/roobert

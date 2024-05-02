@@ -440,6 +440,15 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
             --   name = "xdg_configs",
             -- },
             {
+              "s",
+              function()
+                require("telescope.builtin").find_files({
+                  cwd = "~/code/repos/github.com/molleweide/doom-nvim/lua/doom/snips/",
+                })
+              end,
+              name = "Find DOOM-NVIM snippets",
+            },
+            {
               "n",
               function()
                 require("telescope.builtin").find_files({

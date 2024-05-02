@@ -40,7 +40,7 @@ required.configs = {}
 
 required.binds = function()
   local binds = {
-    { "ZZ", require("doom.core.functions").quit_doom, name = "Fast exit" },
+    { "ZZ", function () require("doom.core.functions").quit_doom(false, true) end, name = "Fast exit" },
     { "<ESC>", ":noh<CR>", name = "Remove search highlight" },
     { "<Tab>", ":bnext<CR>", name = "Jump to next buffer" },
     { "<S-Tab>", ":bprevious<CR>", name = "Jump to prev buffer" },

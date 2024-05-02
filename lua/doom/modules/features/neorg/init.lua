@@ -123,10 +123,45 @@ neorg.configs["neorg"] = function()
   -- these are found in the example config at github
   vim.wo.foldlevel = 99
   vim.wo.conceallevel = 2
+
+  local neorg_callbacks = require("neorg.core.callbacks")
+
+  neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
+    -- Map all the below keybinds only when the "norg" mode is active
+    keybinds.map_event_to_mode("norg", {
+      n = { -- Bind keys in normal mode
+        { "<C-s>", "core.integrations.telescope.find_linkable" },
+      },
+
+      i = { -- Bind in insert mode
+        { "<C-z>", "core.integrations.telescope.insert_link" },
+      },
+    }, {
+      silent = true,
+      noremap = true,
+    })
+  end)
 end
 
 neorg.configs["neorg-telescope"] = function()
   require("telescope").load_extension("neorg")
+  -- local neorg_callbacks = require("neorg.core.callbacks")
+  --
+  -- neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
+  --   -- Map all the below keybinds only when the "norg" mode is active
+  --   keybinds.map_event_to_mode("norg", {
+  --     n = { -- Bind keys in normal mode
+  --       { "<C-s>", "core.integrations.telescope.find_linkable" },
+  --     },
+  --
+  --     i = { -- Bind in insert mode
+  --       { "<C-z>", "core.integrations.telescope.insert_link" },
+  --     },
+  --   }, {
+  --     silent = true,
+  --     noremap = true,
+  --   })
+  -- end)
 end
 
 -- TODO: add norg bindings > look at Max's config
@@ -207,8 +242,12 @@ neorg.autocmds = {
 --
 
 neorg.binds = {
-  { "<c-s>",    [[<cmd>Telescope neorg search_headings<cr>]] },
-  { mode = "i", "<c-l>",                                     [[<cmd>Telescope neorg insert_link<cr>]] },
+  { "<c-s>", [[<cmd>Telescope neorg search_headings<cr>]] },
+  {
+    mode = "i",
+    "<c-l>",
+    [[<cmd>Telescope neorg insert_link<cr>]],
+  },
   {
     "<leader>",
     name = "+prefix",
@@ -226,15 +265,15 @@ neorg.binds = {
               name = "neorg workspace main",
               options = { silent = false },
             },
-            { "d", ":Neorg workspace main<cr>",             name = "neorg workspace main" },
-            { "G", ":Neorg workspace gtd<cr>",              name = "neorg gtd" },
-            { "E", ":Neorg workspace example_gtd<cr>",      name = "neorg example" },
+            { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
+            { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
+            { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
             -- { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
             -- { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
             -- { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
             -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
-            { "t", ":Neorg journal today<cr>",              name = "neorg journal today" },
-            { "n", ":Neorg present<cr>",                    name = "neorg present" },
+            { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
+            { "n", ":Neorg present<cr>", name = "neorg present" },
             { "s", ":Telescope neorg switch_workspace<cr>", name = "switch workspace" },
             {
               "f",
