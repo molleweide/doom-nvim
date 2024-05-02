@@ -4,8 +4,6 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 -- NOTE: lazy reload plugin should be possible now:
 -- https://github.com/folke/lazy.nvim/issues/445
 
-
-
 -- BUG: reload in Dashboard -> line numbers become visible
 
 -- TODO: Prevent reloading if there are LSP errors in the current buffer.
@@ -132,7 +130,7 @@ reloader._reload_doom = function()
   local ok, old_modules = require("doom.core.modules").enabled_modules()
 
   if not ok then
-  log.warn("?? Reloader: could not load enabled modules! Aborting...:", type(old_modules))
+    log.warn("?? Reloader: could not load enabled modules! Aborting...:", type(old_modules))
     return
   end
 
@@ -200,18 +198,25 @@ end
 --- Reload Neovim and simulate a new run
 reloader.reload = function()
   if doom.modules.core.reloader.settings.reload_on_save then
-  -- Store the time taken to reload Doom
-  local reload_time = vim.fn.reltime()
-  log.info("Reloading Doom ...")
+    local ok = require("doom.core.modules").enabled_modules()
 
-  --- Reload Neovim configurations
-  reloader._reload_doom()
+    if not ok then
+      log.warn("Enabled modules file could not be loaded. Fix this before we can reload...")
+      return
+    end
 
-  log.info(
-    "Reloaded Doom in "
-      .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
-      .. " seconds"
-  )
+    -- Store the time taken to reload Doom
+    local reload_time = vim.fn.reltime()
+    log.info("Reloading Doom ...")
+
+    --- Reload Neovim configurations
+    reloader._reload_doom()
+
+    log.info(
+      "Reloaded Doom in "
+        .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
+        .. " seconds"
+    )
   else
     log.info("Reload disabled...")
   end
