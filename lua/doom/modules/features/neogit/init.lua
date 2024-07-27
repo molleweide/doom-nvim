@@ -288,7 +288,7 @@ neogit.settings = {
 
 neogit.packages = {
   ["neogit"] = {
-    "TimUntersberger/neogit",
+    "NeogitOrg/neogit",
     -- commit = "981207efd10425fef82ca09fa8bd22c3ac3e622d",
     cmd = "Neogit",
     lazy = true,
@@ -381,6 +381,7 @@ neogit.packages = {
 -- -- :Neogit commit" open commit popup
 neogit.configs = {}
 neogit.configs["neogit"] = function()
+  print("running neogit config")
   require("neogit").setup(doom.features.neogit.settings)
 end
 
