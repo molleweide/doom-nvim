@@ -6,6 +6,20 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- SWIFT dev -> https://www.swift.org/documentation/articles/zero-to-swift-nvim.html
+--
+--
+-- SUPERMAVEN COPILOT FOR NEOVIM
+--        https://github.com/supermaven-inc/supermaven-nvim?tab=readme-ov-file
+
+-- https://github.com/MagicDuck/grug-far.nvim
+
+--https://github.com/idanarye/nvim-impairative
+
+-- code screenshots: https://github.com/AlejandroSuero/freeze-code.nvim
+
+-- https://github.com/tris203/precognition.nvim
+
 -- network resource manager | https://github.com/miversen33/netman.nvim
 
 -- https://github.com/David-Kunz/gen.nvim

@@ -1,8 +1,8 @@
-local M = {}
+local noice = {}
 
 -- TODO: wiki recipes -> https://github.com/folke/noice.nvim/wiki/Configuration-Recipes
 
-M.settings ={
+noice.settings = {
   lsp = {
     -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
     override = {
@@ -13,55 +13,85 @@ M.settings ={
   },
   -- you can enable a preset for easier configuration
   presets = {
-    bottom_search = true, -- use a classic bottom cmdline for search
-    command_palette = true, -- position the cmdline and popupmenu together
+    bottom_search = true,         -- use a classic bottom cmdline for search
+    command_palette = false,      -- position the cmdline and popupmenu together
     long_message_to_split = true, -- long messages will be sent to a split
-    inc_rename = false, -- enables an input dialog for inc-rename.nvim
-    lsp_doc_border = false, -- add a border to hover docs and signature help
+    inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+    lsp_doc_border = false,       -- add a border to hover docs and signature help
   },
   views = {
-      cmdline_popup = {
-        position = {
-          row = "40%",
-          col = "50%",
-        },
-        size = {
-          width = 60,
-          height = "auto",
-        },
+    cmdline_popup = {
+      position = {
+        row = "40%",
+        col = "50%",
       },
-      popupmenu = {
-        relative = "editor",
-        position = {
-          row = 8,
-          col = "50%",
-        },
-        size = {
-          width = 60,
-          height = 10,
-        },
-        border = {
-          style = "rounded",
-          padding = { 0, 1 },
-        },
-        win_options = {
-          winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
-        },
+      size = {
+        width = 60,
+        height = "auto",
       },
     },
+    popupmenu = {
+      -- relative = "editor",
+      position = {
+        row = "55%",
+        col = "50%",
+      },
+      size = {
+        width = 60,
+        height = 10,
+      },
+      border = {
+        style = "rounded",
+        padding = { 0, 1 },
+      },
+      win_options = {
+        winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
+      },
+    },
+  },
 }
 
-M.packages = {
+noice.packages = {
   ["noice.nvim"] = {
     "folke/noice.nvim",
     requires = { "rcarriga/nvim-notify" },
   },
 }
 
-M.configs = {}
-M.configs["noice.nvim"] = function()
+noice.configs = {}
+noice.configs["noice.nvim"] = function()
   -- require("noice").setup()
   require("noice").setup(doom.modules.features.ui.noice_ergonomic_ui.settings)
 end
 
-return M
+local function toggle_noice()
+  local noice = require("noice")
+  local Config = require("noice.config")
+  if Config.is_running() then
+    noice.disable()
+  else
+    noice.enable()
+  end
+end
+
+noice.binds = {
+  "<leader>",
+  name = "+prefix",
+  {
+    {
+      "t",
+      name = "+tweak",
+      {
+        {
+          "N",
+          function()
+            toggle_noice()
+          end,
+          name = "Toggle [noice]",
+        },
+      },
+    },
+  },
+}
+
+return noice

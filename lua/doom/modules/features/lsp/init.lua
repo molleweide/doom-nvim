@@ -2,6 +2,8 @@ local lsp = {}
 
 -- TODO: Create a handler that ignores global variables from your doom config
 
+-- TODO: create function/picker to manage active lsp servers.
+
 -- https://github.com/onsails/lspkind.nvim
 
 lsp.settings = {

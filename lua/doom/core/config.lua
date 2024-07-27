@@ -65,7 +65,7 @@ config.load = function()
 
   local modules_ok, enabled_modules = require("doom.core.modules").enabled_modules()
 
-    log.info(vim.inspect(enabled_modules))
+  -- log.info(vim.inspect(enabled_modules))
 
   -- if modules_ok then...
   if not modules_ok then
