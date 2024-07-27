@@ -309,7 +309,7 @@ required.autocmds = function()
   local autocmds = {}
 
   if doom.settings.autosave then
-    table.insert(autocmds, { "TextChanged,InsertLeave", "<buffer>", "silent! write" })
+    table.insert(autocmds, { { "TextChanged","InsertLeave" }, "<buffer>", "silent! write" })
   end
 
   if doom.settings.highlight_yank then

@@ -49,7 +49,7 @@ root.packages = {
 
 root.autocmds = {
   {
-    "BufEnter,BufWinEnter",
+    { "BufEnter", "BufWinEnter" },
     "*",
     function()
       -- log.info("Module: root -> autocmd set: project root")
