@@ -235,7 +235,7 @@ git.settings = {
 git.packages = {
   ["gitsigns.nvim"] = {
     "lewis6991/gitsigns.nvim",
-    commit = "addd6e174a85fc1c4007ab0b65d77e6555b417bf",
+    -- commit = "addd6e174a85fc1c4007ab0b65d77e6555b417bf",
     event = "VeryLazy",
   },
   ["vgit.nvim"] = { "tanvirtin/vgit.nvim" },

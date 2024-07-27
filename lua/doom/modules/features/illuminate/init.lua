@@ -19,7 +19,7 @@ illuminate.settings = {
 illuminate.packages = {
   ["mini.cursorword"] = {
     "echasnovski/mini.cursorword",
-    commit = "21af5679b39cf1a6bc6bf4eeaabc35e1b5ee7110",
+    -- commit = "21af5679b39cf1a6bc6bf4eeaabc35e1b5ee7110",
     event = "VeryLazy",
   },
 }
