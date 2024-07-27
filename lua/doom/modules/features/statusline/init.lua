@@ -161,7 +161,7 @@ end
 statusline.packages = {
   ["heirline.nvim"] = {
     "rebelot/heirline.nvim",
-    commit = "19cab76f52710ec67bd8829cbc96d0c322963090",
+    -- commit = "19cab76f52710ec67bd8829cbc96d0c322963090",
   },
 }
 

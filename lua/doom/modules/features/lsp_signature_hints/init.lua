@@ -24,7 +24,7 @@ lsp_signatures.settings = {
 lsp_signatures.packages = {
   ["lsp_signature.nvim"] = {
     "ray-x/lsp_signature.nvim",
-    commit = "1979f1118e2b38084e7c148f279eed6e9300a342",
+    -- commit = "1979f1118e2b38084e7c148f279eed6e9300a342",
     -- after = "nvim-lspconfig",
     dependencies = {
       "neovim/nvim-lspconfig",

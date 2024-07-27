@@ -71,12 +71,12 @@ nvim_cmp.settings = {
 nvim_cmp.packages = {
   ["nvim-cmp"] = {
     "hrsh7th/nvim-cmp",
-    commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
+    -- commit = "11a95792a5be0f5a40bab5fc5b670e5b1399a939",
     event = "InsertEnter",
   },
   ["cmp-nvim-lua"] = {
     "hrsh7th/cmp-nvim-lua",
-    commit = "f3491638d123cfd2c8048aefaf66d246ff250ca6",
+    -- commit = "f3491638d123cfd2c8048aefaf66d246ff250ca6",
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
@@ -98,7 +98,7 @@ nvim_cmp.packages = {
   },
   ["cmp-buffer"] = {
     "hrsh7th/cmp-buffer",
-    commit = "3022dbc9166796b644a841a02de8dd1cc1d311fa",
+    -- commit = "3022dbc9166796b644a841a02de8dd1cc1d311fa",
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
@@ -106,7 +106,7 @@ nvim_cmp.packages = {
   },
   ["cmp_luasnip"] = {
     "saadparwaiz1/cmp_luasnip",
-    commit = "18095520391186d634a0045dacaa346291096566",
+    -- commit = "18095520391186d634a0045dacaa346291096566",
     -- after = "nvim-cmp",
     dependencies = {
       "hrsh7th/nvim-cmp",
