@@ -19,7 +19,7 @@ required.packages = {
   },
   ["nvim-web-devicons"] = {
     "kyazdani42/nvim-web-devicons",
-    commit = "a8cf88cbdb5c58e2b658e179c4b2aa997479b3da",
+    -- commit = "a8cf88cbdb5c58e2b658e179c4b2aa997479b3da",
   },
 }
 

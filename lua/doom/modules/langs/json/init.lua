@@ -43,7 +43,7 @@ json.settings = {
 json.packages = {
   ["SchemaStore.nvim"] = {
     "b0o/SchemaStore.nvim",
-    commit = "571056608b7fc569f856c8174fcbffaad548eec5",
+    -- commit = "571056608b7fc569f856c8174fcbffaad548eec5",
     ft = "json",
   },
 }
