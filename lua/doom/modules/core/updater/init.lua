@@ -23,12 +23,12 @@ local updater = {}
 
 -- FIX: why do I require plenary here...
 
-updater.packages = {
-  ["plenary.nvim"] = {
-    "nvim-lua/plenary.nvim",
-    commit = "1c7e3e6b0f4dd5a174fcea9fda8a4d7de593b826",
-  },
-}
+-- updater.packages = {
+--   ["plenary.nvim"] = {
+--     "nvim-lua/plenary.nvim",
+--     commit = "1c7e3e6b0f4dd5a174fcea9fda8a4d7de593b826",
+--   },
+-- }
 
 updater.settings = {
   unstable = false,
