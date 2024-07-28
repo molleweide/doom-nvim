@@ -1,6 +1,8 @@
 local log = require("doom.utils.logging")
 local profiler = require("doom.services.profiler")
 
+-- TODO: Where to put mason registy -> refresh()/update()?
+
 local module = {}
 
 --- Stores the unique null_ls sources
@@ -129,6 +131,8 @@ module.use_mason_package = function(package_name, success_handler, error_handler
   local mason = require("mason-registry")
   local on_err = error_handler or default_error_handler
 
+  print("package_name = ", package_name)
+
   if package_name == nil then
     on_err("nil", "No package_name provided.")
     return
@@ -138,6 +142,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
 
   -- Try to install mason package
   local ok, err = xpcall(function()
+    mason.refresh()
     local package = mason.get_package(package_name)
 
     if not package:is_installed() then

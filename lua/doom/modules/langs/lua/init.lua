@@ -21,7 +21,7 @@ lua.settings = {
   disable_lsp = false,
   --- Name of the language server
   --- @type string
-  lsp_name = "sumneko_lua",-- "lua_language_server",
+  lsp_name = "lua_ls", -- "sumneko_lua",--
   --- Custom config to pass to nvim-lspconfig
   --- @type table|nil
   lsp_config = {
