@@ -2,7 +2,10 @@
 
 local neorg = {}
 
+-- https://github.com/benlubas/neorg-se
+-- https://github.com/benlubas/neorg-interim-ls
 -- https://github.com/max397574/neorg-kanban
+-- https://github.com/bottd/neorg-worklog
 
 local doom_root = require("doom.core.system").doom_root
 

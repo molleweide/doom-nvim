@@ -107,10 +107,25 @@ whichkey.settings = {
       F12 = "󱊶",
     },
   },
-  key_labels = {
-    ["<space>"] = "SPC",
-    ["<cr>"] = "RET",
-    ["<tab>"] = "TAB",
+  -- Functions/Lua Patterns for formatting the labels
+  ---@type table<string, ({[1]:string, [2]:string}|fun(str:string):string)[]>
+  replace = {
+    key = {
+      function(key)
+        return require("which-key.view").format(key)
+      end,
+      -- { "<Space>", "SPC" },
+    },
+    desc = {
+      { "<Plug>%(?(.*)%)?", "%1" },
+      { "^%+",              "" },
+      { "<[cC]md>",         "" },
+      { "<[cC][rR]>",       "" },
+      { "<[sS]ilent>",      "" },
+      { "^lua%s+",          "" },
+      { "^call%s+",         "" },
+      { "^:%s*",            "" },
+    },
   },
   ---@type wk.Win.opts
   win = {
@@ -136,17 +151,18 @@ whichkey.settings = {
     spacing = 3,
     -- align = "left",
   },
-  ignore_missing = true,
-  hidden = {
-    "<silent>",
-    "<Cmd>",
-    "<cmd>",
-    "<Plug>",
-    "call",
-    "lua",
-    "^:",
-    "^ ",
-  },
+  -- ignore_missing = true, -- deprecated
+  -- Deprecated option...
+  -- hidden = {
+  --   "<silent>",
+  --   "<Cmd>",
+  --   "<cmd>",
+  --   "<Plug>",
+  --   "call",
+  --   "lua",
+  --   "^:",
+  --   "^ ",
+  -- },
   show_help = true, -- show a help message in the command line for using WhichKey
   show_keys = true, -- show the currently pressed key and its label as a message in the command line
   -- Which-key automatically sets up triggers for your mappings.
@@ -302,7 +318,7 @@ whichkey.configs["which-key.nvim"] = function()
     end
   )
 
-  log.info("Number of bind-trees =", bind_tree_count)
+  -- log.info("Number of bind-trees =", bind_tree_count)
 end
 
 return whichkey

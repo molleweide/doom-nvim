@@ -159,7 +159,7 @@ return {
       -- "docker",          -- Docker tools
       -- "pandoc",
       -- "remote_dev",      -- ???
-      "gpg",
+      -- "gpg",
       -- "collaborate", -- Google docs collaborative editing.
     },
 

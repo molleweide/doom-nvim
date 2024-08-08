@@ -6,6 +6,8 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- have a scratch buffer that one can brainstorm into: https://github.com/swaits/scratch.nvim
+
 -- SWIFT dev -> https://www.swift.org/documentation/articles/zero-to-swift-nvim.html
 --
 --
