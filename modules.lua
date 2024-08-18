@@ -17,6 +17,7 @@ return {
     buffers = {
       "buffer_management",
       "temporary_buffers",
+      "cleanup_unused"
     },
     lib = {
       "litee",

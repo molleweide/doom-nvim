@@ -81,7 +81,7 @@ lua.settings = {
       enabled = true, -- when not enabled, neodev will not change any settings to the LSP server
       -- these settings will be used for your Neovim config directory
       runtime = true, -- runtime path
-      types = true, -- full signature, docs and completion of vim.api, vim.treesitter, vim.lsp and others
+      types = true,   -- full signature, docs and completion of vim.api, vim.treesitter, vim.lsp and others
       plugins = true, -- installed opt or start plugins in packpath
       -- you can also specify the list of plugins to make available as a workspace library
       -- plugins = { "nvim-treesitter", "plenary.nvim", "telescope.nvim" },
@@ -103,6 +103,12 @@ lua.settings = {
 }
 
 lua.packages = {
+
+  -- NOTE: Use this one instead.
+  -- https://github.com/folke/lazydev.nvim
+
+
+  -- FIX: This plugin is EOL
   ["lua-dev.nvim"] = {
     "folke/neodev.nvim",
     -- commit = "0e3f5e763639951f96f9acbdc9f52a9fedf91b46",

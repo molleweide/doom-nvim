@@ -1,0 +1,6 @@
+-- https://git.sr.ht/~vigoux/azy.nvim
+--
+--
+--
+-- TODO: Use azy as a window-picker for jumping between open windows
+-- super fast.

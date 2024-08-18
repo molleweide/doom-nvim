@@ -131,7 +131,7 @@ module.use_mason_package = function(package_name, success_handler, error_handler
   local mason = require("mason-registry")
   local on_err = error_handler or default_error_handler
 
-  print("package_name = ", package_name)
+  log.info("[langs/utils] use_mason_package -> package_name = ", package_name)
 
   if package_name == nil then
     on_err("nil", "No package_name provided.")
@@ -304,6 +304,8 @@ module.use_lsp_mason = function(lsp_name, options)
     end
   end
 
+  log.info("[langs/utils] use_lsp_mason -> before `if auto_install`")
+
   -- Auto install if possible
   if utils.is_module_enabled("features", "auto_install") and not opts.no_installer then
     local lspconfig_to_package = require("mason-lspconfig.mappings.server").lspconfig_to_package
@@ -387,7 +389,7 @@ module.wrap_language_setup = function(module_name, setup_fn)
     vim.defer_fn(function()
       local ok, error = xpcall(setup_fn, debug.traceback)
       if not ok then
-        log.error(("Error setting up language `%s`. \n%s"):format(module_name, error))
+        log.error(("[langs/utils]: wrap_language_setup -> Error setting up language `%s`. \n%s"):format(module_name, error))
       end
     end, 1)
   end

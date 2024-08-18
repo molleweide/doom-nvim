@@ -83,8 +83,7 @@ neorg.settings = {
     ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
     ["core.integrations.nvim-cmp"] = {},
 
-    ["core.integrations.telescope"] = {},
-    ["core.integrations.nvim-cmp"] = {},
+    -- ["core.integrations.telescope"] = {},
     ["core.presenter"] = {
       config = {
         zen_mode = "truezen",

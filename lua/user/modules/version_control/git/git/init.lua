@@ -3,6 +3,50 @@ local is_module_enabled = utils.is_module_enabled
 
 local git = {}
 
+
+
+ --   Warn  gitsigns 'signs.add.hl' is now deprecated, please define highlight 'GitSignsAdd' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsAdd', { link = 'GitSignsAdd' })
+ --   Warn  gitsigns 'signs.add.linehl' is now deprecated, please define highlight 'GitSignsAddLn' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsAddLn', { link = 'GitSignsAddLn' })
+ --   Warn  gitsigns 'signs.add.numhl' is now deprecated, please define highlight 'GitSignsAddNr' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsAddNr', { link = 'GitSignsAddNr' })
+ --   Warn  gitsigns 'signs.change.hl' is now deprecated, please define highlight 'GitSignsChange' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChange', { link = 'GitSignsChange' })
+ --   Warn  gitsigns 'signs.change.linehl' is now deprecated, please define highlight 'GitSignsChangeLn' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChangeLn', { link = 'GitSignsChangeLn' })
+ --   Warn  gitsigns 'signs.change.numhl' is now deprecated, please define highlight 'GitSignsChangeNr' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChangeNr', { link = 'GitSignsChangeNr' })
+ --   Warn  gitsigns 'signs.changedelete.hl' is now deprecated, please define highlight 'GitSignsChangedelete' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChangedelete', { link = 'GitSignsChange' })
+ --   Warn  gitsigns 'signs.changedelete.linehl' is now deprecated, please define highlight 'GitSignsChangedeleteLn' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChangedeleteLn', { link = 'GitSignsChangeLn' })
+ --   Warn  gitsigns 'signs.changedelete.numhl' is now deprecated, please define highlight 'GitSignsChangedeleteNr' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsChangedeleteNr', { link = 'GitSignsChangeNr' })
+ --   Warn  gitsigns 'signs.delete.hl' is now deprecated, please define highlight 'GitSignsDelete' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsDelete', { link = 'GitSignsDelete' })
+ --   Warn  gitsigns 'signs.delete.linehl' is now deprecated, please define highlight 'GitSignsDeleteLn' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsDeleteLn', { link = 'GitSignsDeleteLn' })
+ --   Warn  gitsigns 'signs.delete.numhl' is now deprecated, please define highlight 'GitSignsDeleteNr' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsDeleteNr', { link = 'GitSignsDeleteNr' })
+ --   Warn  gitsigns 'signs.topdelete.hl' is now deprecated, please define highlight 'GitSignsTopdelete' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsTopdelete', { link = 'GitSignsDelete' })
+ --   Warn  gitsigns 'signs.topdelete.linehl' is now deprecated, please define highlight 'GitSignsTopdeleteLn' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsTopdeleteLn', { link = 'GitSignsDeleteLn' })
+ --   Warn  gitsigns 'signs.topdelete.numhl' is now deprecated, please define highlight 'GitSignsTopdeleteNr' e.g:
+ --  vim.api.nvim_set_hl(0, 'GitSignsTopdeleteNr', { link = 'GitSignsDeleteNr' })
+ --   Warn  gitsigns gitsigns: Ignoring invalid configuration field 'keymaps'
+ --   Warn  filename is deprecated, use the buffer ID to get any other value option you need instead.
+
+
+
+
+
+
+
+
+
+
 -- TODO: add git repo search?
 
 git.settings = {
