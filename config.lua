@@ -170,7 +170,7 @@ doom.core.treesitter.settings.show_compiler_warning_message = false
 --   · warn
 --   · error
 --   · fatal
-doom.settings.logging = "warn"
+doom.settings.logging = "info"
 
 ---------------------------
 ---       OPTIONS       ---
@@ -182,7 +182,7 @@ vim.opt.relativenumber = true
 vim.opt.winwidth = 95
 vim.opt.scrolloff = 16
 vim.opt.virtualedit = "block" -- allow vis block to reach EOL for all lines
-vim.opt.ignorecase = true -- autocomplete eg `neor` -> Neorg
+vim.opt.ignorecase = true     -- autocomplete eg `neor` -> Neorg
 
 -- -- test add local plugin
 -- -- ':lua vim.opt.runtimepath:append("~/code/plugins/nvim/lookup.nvim")',
@@ -470,27 +470,32 @@ vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "DarkMagenta" })
 -- vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg="Pink" })
 vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", underline = true })
 
--- test add doom module
+--
+-- ADD NEW DOOM MODULE
+--
 
-local function new_module()
-  -- TODO: make recursive
-  -- 1. core/user
-  -- 2. initialize with `modules dir`
-  -- 3. check if sub dirs can have
-  -- 4. create module for final selection
+-- TODO: include user modules
+local function new_module(path_in)
+  local Path = require("pathlib")
 
   -- Ie. without `init.lua` file.
   local function find_sub_dirs() end
 
   local function initialize_new_module() end
 
-  local mp = require("doom.core.system").doom_modules_path()
-  local Path = require("pathlib")
+
+
+  local mp = path_in or require("doom.core.system").doom_modules_path()
   mp = Path(mp)
 
   local possible_choices = {
     ".",
   }
+
+  -- TODO: Capture each path in a table {
+  --    path = ...,
+  --    is_module = bool,
+  -- }
 
   for path in mp:iterdir({ depth = 1 }) do
     if path:is_dir() then
@@ -509,7 +514,29 @@ local function new_module()
       end
     end,
   }, function(choice)
+    if not choice then
+      return
+    end
+
+      -- TODO: If <CR> on `module` then what to do?
+      --
+      -- TODO: If <CR> on `current` for dir AND no custom name string
+      -- has bee provided, then prompt user for a new module name.
+      -- parse / and create subdirs if required in `current`
+      --
+      -- TODO: binding to toggle modules visibility, ie. only show subdirs so
+      -- that it becomes easier to navigate maybe.
+      --
+      -- TODO: migrate this to telescope?
+
     print("choice =", choice)
+
+      --
+
+    if choice == "." then
+    else
+      new_module(choice)
+    end
   end)
 end
 
