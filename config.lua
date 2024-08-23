@@ -475,7 +475,7 @@ vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", u
 --
 
 -- TODO: include user modules
-local function new_module(path_in)
+local function modules_browser(path_in)
   local Path = require("pathlib")
 
   -- Ie. without `init.lua` file.
@@ -484,12 +484,29 @@ local function new_module(path_in)
   local function initialize_new_module() end
 
 
+  print("Path.cwd() =", Path.cwd())
+  print("Path.home() =", Path.home())
+  -- print("Path.permission() =", Path.permission())
+  print("Path.stdpath() =", Path.stdpath("cache", "aaa", "bbb"))
 
-  local mp = path_in or require("doom.core.system").doom_modules_path()
-  mp = Path(mp)
+  local dummy_path = Path(system.doom_modules_path())
+
+  print("dummy_path:", dummy_path)
+
+  local child = dummy_path:child("_testing")
+
+  print("child:", child)
+
+  print("child exists?", child:exists())
+
+
+  local current_dir = path_in or require("doom.core.system").doom_modules_path()
+
+  current_dir = Path(current_dir)
 
   local possible_choices = {
-    ".",
+    -- ".",
+    current_dir
   }
 
   -- TODO: Capture each path in a table {
@@ -497,9 +514,12 @@ local function new_module(path_in)
   --    is_module = bool,
   -- }
 
-  for path in mp:iterdir({ depth = 1 }) do
+  for path in current_dir:iterdir({ depth = 1 }) do
     if path:is_dir() then
       print(path:basename())
+
+      -- TODO: check if dir has child file = init.lua
+
       table.insert(possible_choices, path)
     end
   end
@@ -507,10 +527,17 @@ local function new_module(path_in)
   vim.ui.select(possible_choices, {
     prompt = "Select dir for new module:",
     format_item = function(item)
-      if item == "." then
-        return "[current dir]"
+      -- if item == "." then
+      if item == current_dir then
+        return string.format("current = %s", current_dir:basename())
       elseif type(item) == "table" then
-        return "dir -> " .. item:basename()
+        local is_module = false
+        for path in item:iterdir({ depth = 1 }) do
+          if path:match("init.lua$") then
+            is_module = true
+          end
+        end
+        return string.format("%s -> %s", is_module and "mod" or "dir", item:basename())
       end
     end,
   }, function(choice)
@@ -518,24 +545,37 @@ local function new_module(path_in)
       return
     end
 
-      -- TODO: If <CR> on `module` then what to do?
-      --
-      -- TODO: If <CR> on `current` for dir AND no custom name string
-      -- has bee provided, then prompt user for a new module name.
-      -- parse / and create subdirs if required in `current`
-      --
-      -- TODO: binding to toggle modules visibility, ie. only show subdirs so
-      -- that it becomes easier to navigate maybe.
-      --
-      -- TODO: migrate this to telescope?
+    -- TODO: If <CR> on `current` for dir AND no custom name string
+    -- has bee provided, then prompt user for a new module name.
+    -- parse / and create subdirs if required in `current`
+    --
+    -- TODO: binding to toggle modules visibility, ie. only show subdirs so
+    -- that it becomes easier to navigate maybe.
+    --
+    -- TODO: migrate this to telescope?
+    -- >> This is required if I want to be able to obtain the prompt string.
+    --
+    -- TODO: if is_module -> :e the file in vsplit to the right
 
     print("choice =", choice)
 
-      --
+    --
 
-    if choice == "." then
+    if choice == current_dir then
     else
-      new_module(choice)
+      local is_module = false
+      for path in choice:iterdir({ depth = 1 }) do
+        if path:match("init.lua$") then
+          is_module = true
+        end
+      end
+
+
+      if is_module then
+          vim.cmd(string.format("edit %s", choice / "init.lua"))
+      else
+        modules_browser(choice)
+      end
     end
   end)
 end
@@ -546,11 +586,11 @@ doom.use_keybind({
     name = "+doom",
     {
       {
-        "M",
+        "D",
         function()
-          new_module()
+          modules_browser()
         end,
-        name = "testing",
+        name = "mod browse",
       },
     },
   },

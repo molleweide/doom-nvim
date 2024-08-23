@@ -4,6 +4,9 @@ local terminal = {}
 -- ~ add telescope picker for selecting terminals
 -- ~ add float terminal toggle
 -- ~ terminal in nvim Tab
+--
+-- FIX: support / integrate dorothy properly.
+-- ensure all soures are loaded properly.
 
 ---
 
