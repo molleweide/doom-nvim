@@ -474,10 +474,22 @@ vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", u
 -- ADD NEW DOOM MODULE
 --
 
+local Path = require("pathlib")
+
+local function create_new_module_from_name(path_to)
+  vim.ui.input({ prompt = string.format('Enter new name for module @ [%s]: ', path_to) }, function(new_module_name)
+    local init = path_to / new_module_name / "init.lua"
+    local ok = init:touch(Path.permission("rw-r--r--"), true)
+    if ok then
+      local pu = require("doom.modules.features.dui.templates")
+      fs.write_file(init:tostring(), pu.gen_temp_from_mod_name(new_module_name), "w+")
+      vim.cmd(string.format("edit %s", init))
+    end
+  end)
+end
+
 -- TODO: include user modules
 local function modules_browser(path_in)
-  local Path = require("pathlib")
-
   -- Ie. without `init.lua` file.
   local function find_sub_dirs() end
 
@@ -562,6 +574,7 @@ local function modules_browser(path_in)
     --
 
     if choice == current_dir then
+      create_new_module_from_name(choice)
     else
       local is_module = false
       for path in choice:iterdir({ depth = 1 }) do
@@ -572,7 +585,7 @@ local function modules_browser(path_in)
 
 
       if is_module then
-          vim.cmd(string.format("edit %s", choice / "init.lua"))
+        vim.cmd(string.format("edit %s", choice / "init.lua"))
       else
         modules_browser(choice)
       end

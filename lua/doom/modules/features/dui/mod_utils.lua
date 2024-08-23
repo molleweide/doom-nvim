@@ -327,8 +327,12 @@ end
 
 -- rename these `root_` files. They operate on the `./modules.lua`
 -- but I am not sure exactly what to rename them to.
+--
+---Add new module to the modules tree in `./modules.lua`
+---@param opts any
 mod_util.root_new = function(opts)
   local tables, buf = ts.get_captures(rmf, dq.root_section(opts.section), "section_table")
+
   local ntu = #tables
   b.insert_line(buf, tables[ntu].range[3], '    "' .. opts.new_name .. '",')
 end

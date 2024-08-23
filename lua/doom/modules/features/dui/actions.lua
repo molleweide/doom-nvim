@@ -105,6 +105,8 @@ actions.m_create = function(sel, line)
   log.debug("m_create()")
 
   local function create_module(new_name, for_section)
+
+    -- add new module to the doom-root `modules.lua` modules table <tree>
     local ret = mod.root_new({ section = for_section, new_name = new_name })
     if not ret then
       log.info("Adding new module to `modules.lua` was unsuccessful.")
