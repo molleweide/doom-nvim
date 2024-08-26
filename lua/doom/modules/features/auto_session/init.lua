@@ -54,7 +54,6 @@ auto_session.packages = {
 auto_session.configs = {}
 auto_session.configs["persisted.nvim"] = function()
   require("persisted").setup(doom.features.auto_session.settings.persisted)
-
   require("telescope").load_extension("persisted")
 end
 

@@ -109,9 +109,8 @@ lua.packages = {
 
 
   -- FIX: This plugin is EOL
-  ["lua-dev.nvim"] = {
+  ["neodev.nvim"] = {
     "folke/neodev.nvim",
-    -- commit = "0e3f5e763639951f96f9acbdc9f52a9fedf91b46",
     ft = "lua",
   },
 }

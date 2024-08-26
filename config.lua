@@ -491,6 +491,8 @@ vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", u
 -- >> This is required if I want to be able to obtain the prompt string.
 --
 -- TODO: if is_module -> :e the file in vsplit to the right
+--
+-- TODO: toggle enabled_only modules
 
 -- TEST: Is subdirs already supported?
 

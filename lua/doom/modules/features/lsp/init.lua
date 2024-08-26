@@ -20,7 +20,6 @@ lsp.settings = {
 lsp.packages = {
   ["nvim-lspconfig"] = {
     "neovim/nvim-lspconfig",
-    -- commit = "ed88435764d8b00442e66d39ec3d9c360e560783",
     version = "*"
   },
 }

@@ -1,5 +1,10 @@
 -- TODO: Add doom compatability for `Jump to definition` for each entry so that
 -- we can easilly jump to the exact location of the definition of a binding.
+--
+-- TODO: Rename this module to something more descriptive.
+--
+-- TODO: migrate all of the nvim-mapper code into this repo so that I dont
+-- have to fucking jump to another dir.
 
 local mapper = {}
 
@@ -14,7 +19,7 @@ mapper.packages = {
   -- https://github.com/FeiyouG/commander.nvim
   -- https://github.com/mrjones2014/legendary.nvim
   ["nvim-mapper"] = {
-    "gregorias/nvim-mapper", -- "lazytanuki/nvim-mapper",
+    "gregorias/nvim-mapper", -- switch this to "molleweide/nvim-mapper"
     dev = true,
   },
 }
@@ -135,7 +140,7 @@ mapper.configs["nvim-mapper"] = function()
               category,
               id,
               description
-              -- FIX: add definition file here..
+            -- FIX: add definition file here..
             )
           else
             Mapper.map_virtual(
@@ -146,7 +151,7 @@ mapper.configs["nvim-mapper"] = function()
               category,
               id,
               description
-              -- FIX: add definition file here..
+            -- FIX: add definition file here..
             )
           end
         end
@@ -154,6 +159,7 @@ mapper.configs["nvim-mapper"] = function()
     end
     return mapper_integration
   end
+
   local mapper_integration = get_mapper_integration()
 
   --

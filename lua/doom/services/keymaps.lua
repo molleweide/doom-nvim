@@ -28,6 +28,7 @@
 -- Try first just adding the module string to each bind and see what happens
 -- when logging binds with the mapper.
 -- (Should the same be done for commands/autocmds??)
+-- FIX: This should be done in the `nest` module.
 
 -- TODO: Could the above be used also to then TS query the module so that we
 -- can put the cursor back exactly where the bind was created.
