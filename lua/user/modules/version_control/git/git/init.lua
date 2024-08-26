@@ -3,111 +3,56 @@ local is_module_enabled = utils.is_module_enabled
 
 local git = {}
 
-
-
- --   Warn  gitsigns 'signs.add.hl' is now deprecated, please define highlight 'GitSignsAdd' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsAdd', { link = 'GitSignsAdd' })
- --   Warn  gitsigns 'signs.add.linehl' is now deprecated, please define highlight 'GitSignsAddLn' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsAddLn', { link = 'GitSignsAddLn' })
- --   Warn  gitsigns 'signs.add.numhl' is now deprecated, please define highlight 'GitSignsAddNr' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsAddNr', { link = 'GitSignsAddNr' })
- --   Warn  gitsigns 'signs.change.hl' is now deprecated, please define highlight 'GitSignsChange' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChange', { link = 'GitSignsChange' })
- --   Warn  gitsigns 'signs.change.linehl' is now deprecated, please define highlight 'GitSignsChangeLn' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChangeLn', { link = 'GitSignsChangeLn' })
- --   Warn  gitsigns 'signs.change.numhl' is now deprecated, please define highlight 'GitSignsChangeNr' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChangeNr', { link = 'GitSignsChangeNr' })
- --   Warn  gitsigns 'signs.changedelete.hl' is now deprecated, please define highlight 'GitSignsChangedelete' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChangedelete', { link = 'GitSignsChange' })
- --   Warn  gitsigns 'signs.changedelete.linehl' is now deprecated, please define highlight 'GitSignsChangedeleteLn' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChangedeleteLn', { link = 'GitSignsChangeLn' })
- --   Warn  gitsigns 'signs.changedelete.numhl' is now deprecated, please define highlight 'GitSignsChangedeleteNr' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsChangedeleteNr', { link = 'GitSignsChangeNr' })
- --   Warn  gitsigns 'signs.delete.hl' is now deprecated, please define highlight 'GitSignsDelete' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsDelete', { link = 'GitSignsDelete' })
- --   Warn  gitsigns 'signs.delete.linehl' is now deprecated, please define highlight 'GitSignsDeleteLn' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsDeleteLn', { link = 'GitSignsDeleteLn' })
- --   Warn  gitsigns 'signs.delete.numhl' is now deprecated, please define highlight 'GitSignsDeleteNr' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsDeleteNr', { link = 'GitSignsDeleteNr' })
- --   Warn  gitsigns 'signs.topdelete.hl' is now deprecated, please define highlight 'GitSignsTopdelete' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsTopdelete', { link = 'GitSignsDelete' })
- --   Warn  gitsigns 'signs.topdelete.linehl' is now deprecated, please define highlight 'GitSignsTopdeleteLn' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsTopdeleteLn', { link = 'GitSignsDeleteLn' })
- --   Warn  gitsigns 'signs.topdelete.numhl' is now deprecated, please define highlight 'GitSignsTopdeleteNr' e.g:
- --  vim.api.nvim_set_hl(0, 'GitSignsTopdeleteNr', { link = 'GitSignsDeleteNr' })
- --   Warn  gitsigns gitsigns: Ignoring invalid configuration field 'keymaps'
- --   Warn  filename is deprecated, use the buffer ID to get any other value option you need instead.
-
-
-
-
-
-
-
-
-
-
--- TODO: add git repo search?
-
 git.settings = {
   -- doom.modules.git.settings.gitsigns
   gitsigns = {
     signs = {
-      add = {
-        hl = "GitSignsAdd",
-        text = "│",
-        numhl = "GitSignsAddNr",
-        linehl = "GitSignsAddLn",
-      },
-      change = {
-        hl = "GitSignsChange",
-        text = "│",
-        numhl = "GitSignsChangeNr",
-        linehl = "GitSignsChangeLn",
-      },
-      delete = {
-        hl = "GitSignsDelete",
-        text = "_",
-        numhl = "GitSignsDeleteNr",
-        linehl = "GitSignsDeleteLn",
-      },
-      topdelete = {
-        hl = "GitSignsDelete",
-        text = "‾",
-        numhl = "GitSignsDeleteNr",
-        linehl = "GitSignsDeleteLn",
-      },
-      changedelete = {
-        hl = "GitSignsChange",
-        text = "~",
-        numhl = "GitSignsChangeNr",
-        linehl = "GitSignsChangeLn",
-      },
+      add = { text = "┃" },
+      change = { text = "┃" },
+      delete = { text = "_" },
+      topdelete = { text = "‾" },
+      changedelete = { text = "~" },
+      untracked = { text = "┆" },
     },
-    numhl = false,
-    linehl = false,
-    keymaps = {
-      -- Default keymap options
-      noremap = true,
-      buffer = true,
-
-      -- ["n ]c"] = {
-      --   expr = true,
-      --   "&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'",
-      -- },
-      -- ["n [c"] = {
-      --   expr = true,
-      --   "&diff ? '[c' : '<cmd>lua require\"gitsigns\".prev_hunk()<CR>'",
-      -- },
+    signs_staged = {
+      add = { text = "┃" },
+      change = { text = "┃" },
+      delete = { text = "_" },
+      topdelete = { text = "‾" },
+      changedelete = { text = "~" },
+      untracked = { text = "┆" },
     },
+    signs_staged_enable = true,
+    signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
+    numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
+    linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
+    word_diff = false, -- Toggle with `:Gitsigns toggle_word_diff`
     watch_gitdir = { interval = 1000, follow_files = true },
+
+    auto_attach = true,
+    attach_to_untracked = false,
+    current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
     current_line_blame_opts = {
+      virt_text = true,
+      virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
       delay = 1000,
-      position = "eol",
+      ignore_whitespace = false,
+      virt_text_priority = 100,
     },
+    current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
     sign_priority = 6,
     update_debounce = 100,
-    diff_opts = {
+    status_formatter = nil, -- Use default
+    max_file_length = 40000, -- Disable if file is longer than this (in lines)
+    preview_config = {
+      -- Options passed to nvim_open_win
+      border = "single",
+      style = "minimal",
+      relative = "cursor",
+      row = 0,
+      col = 1,
+    },
+    diff_opts = { -- ??
       internal = true, -- If luajit is present
     },
   },
@@ -425,28 +370,72 @@ git.binds = {
             "e",
             name = "+staging/hunks",
             {
-              { "b", '<cmd>lua require"gitsigns".stage_buffer()<CR>', name = "stage buffer" },
-              { "q", ":lua require('vgit').project_hunks_qf()<cr>", name = "proj hunks qt" },
-              { "s", '<cmd>lua require"gitsigns".stage_hunk()<CR>', name = "stage hunk" },
+              {
+                "b",
+                '<cmd>lua require"gitsigns".stage_buffer()<CR>',
+                name = "stage buffer",
+              },
+              {
+                "q",
+                ":lua require('vgit').project_hunks_qf()<cr>",
+                name = "proj hunks qt",
+              },
+              {
+                "s",
+                '<cmd>lua require"gitsigns".stage_hunk()<CR>',
+                name = "stage hunk",
+              },
               -- { "u", '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', name = "undo hunk" },
-              { "r", '<cmd>lua require"gitsigns".reset_hunk()<CR>', name = "reset hunk" },
-              { "R", '<cmd>lua require"gitsigns".reset_buffer()<CR>', name = "reset buffer" },
-              { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
+              {
+                "r",
+                '<cmd>lua require"gitsigns".reset_hunk()<CR>',
+                name = "reset hunk",
+              },
+              {
+                "R",
+                '<cmd>lua require"gitsigns".reset_buffer()<CR>',
+                name = "reset buffer",
+              },
+              {
+                "h",
+                '<cmd>lua require"gitsigns".preview_hunk()<CR>',
+                name = "preview hunk",
+              },
               -- { "s", ":lua require('vgit').buffer_hunk_stage()<cr>", name = "stage hunk" },
-              { "r", ":lua require('vgit').buffer_hunk_reset()<cr>", name = "reset hunk" },
-              { "p", ":lua require('vgit').buffer_hunk_preview()<cr>", name = "preview hunk" },
-              { "u", ":lua require('gitsigns').reset_buffer()<cr>", name = "buf reset" },
+              {
+                "r",
+                ":lua require('vgit').buffer_hunk_reset()<cr>",
+                name = "reset hunk",
+              },
+              {
+                "p",
+                ":lua require('vgit').buffer_hunk_preview()<cr>",
+                name = "preview hunk",
+              },
+              {
+                "u",
+                ":lua require('gitsigns').reset_buffer()<cr>",
+                name = "buf reset",
+              },
               {
                 "P",
                 name = "+project",
                 {
-                  { "s", ":lua require('vgit').project_stage_all()<cr>", name = "stage all" },
+                  {
+                    "s",
+                    ":lua require('vgit').project_stage_all()<cr>",
+                    name = "stage all",
+                  },
                   {
                     "X",
                     ":lua require('vgit').project_reset_all()<cr>",
                     name = "discard all!staged",
                   },
-                  { "u", ":lua require('vgit').project_unstage_all()<cr>", name = "unstage all" },
+                  {
+                    "u",
+                    ":lua require('vgit').project_unstage_all()<cr>",
+                    name = "unstage all",
+                  },
                 },
               },
             },
@@ -458,8 +447,16 @@ git.binds = {
             "q",
             name = "+diff",
             {
-              { "f", ":lua require('vgit').buffer_diff_preview()<cr>", name = "diff preview" },
-              { "h", ":lua require('vgit').buffer_history_preview()<cr>", name = "hist preview" },
+              {
+                "f",
+                ":lua require('vgit').buffer_diff_preview()<cr>",
+                name = "diff preview",
+              },
+              {
+                "h",
+                ":lua require('vgit').buffer_history_preview()<cr>",
+                name = "hist preview",
+              },
               {
                 "l",
                 ":lua require('vgit').project_hunks_preview()<cr>",
@@ -487,16 +484,36 @@ git.binds = {
             "i",
             name = "+info/status",
             {
-              { "s", "<cmd>Telescope git_status<CR>", name = "Tele status" },
-              { "b", '<cmd>lua require"gitsigns".blame_line()<CR>', name = "blame line" },
-              { "b", ":lua require('vgit').buffer_blame_preview()<cr>", name = "blame preview" },
+              {
+                "s",
+                "<cmd>Telescope git_status<CR>",
+                name = "Tele status",
+              },
+              {
+                "b",
+                '<cmd>lua require"gitsigns".blame_line()<CR>',
+                name = "blame line",
+              },
+              {
+                "b",
+                ":lua require('vgit').buffer_blame_preview()<cr>",
+                name = "blame preview",
+              },
               {
                 "g",
                 ":lua require('vgit').buffer_gutter_blame_preview()<cr>",
                 name = "gutter bl preview",
               },
-              { "h", '<cmd>lua require"gitsigns".preview_hunk()<CR>', name = "preview hunk" },
-              { "b", '<cmd>lua require"gitsigns".blame_line()<CR>', name = "blame line" },
+              {
+                "h",
+                '<cmd>lua require"gitsigns".preview_hunk()<CR>',
+                name = "preview hunk",
+              },
+              {
+                "b",
+                '<cmd>lua require"gitsigns".blame_line()<CR>',
+                name = "blame line",
+              },
             },
           },
           {
