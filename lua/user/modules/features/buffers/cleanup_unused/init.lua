@@ -17,7 +17,7 @@ M.configs = {
   ["nvim-early-retirement"] = function()
     local defaultOpts = {
       -- If a buffer has been inactive for this many minutes, close it.
-      retirementAgeMins = 20,
+      retirementAgeMins = 25,
 
       -- Filetypes to ignore.
       ignoredFiletypes = {},
@@ -32,7 +32,7 @@ M.configs = {
       -- by setting this to 4, no auto-closing will take place when you have 3
       -- or fewer open buffers. Note that this plugin never closes the currently
       -- active buffer, so a number < 2 will effectively disable this setting.
-      minimumBufferNum = 10,
+      minimumBufferNum = 15,
 
       -- Ignore buffers with unsaved changes. If false, the buffers will
       -- automatically be written and then closed.
