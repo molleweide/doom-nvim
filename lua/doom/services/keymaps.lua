@@ -205,7 +205,7 @@ module.traverse = function(node, settings, integrations)
 
   -- Pass current keymap node to all integrations
   for _, integration in pairs(integrations) do
-    integration.handler(node, mergedSettings)
+    integration.handler(node, mergedSettings, module.global_opts)
   end
 
   if type(rhs) == "table" then
@@ -221,8 +221,12 @@ end
 --- @param nest_config table<number, NestNode>
 --- @param settings NestSettings|nil
 --- @param integrations table<number, NestIntegration> User can parse the nest config with a subset of integrations
-module.applyKeymaps = function(nest_config, settings, integrations)
+module.applyKeymaps = function(nest_config, settings, integrations, opts)
   local ints = integrations or module.integrations
+
+  module.global_opts = opts or {}
+
+
   -- Run on init for each integration
   for _, integration in pairs(ints) do
     if integration.on_init ~= nil then
