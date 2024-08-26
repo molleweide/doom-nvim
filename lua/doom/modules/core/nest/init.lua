@@ -13,7 +13,10 @@ Responsible for loading user-defined mappings and setting up additional
 mappings UIs.
 ]]
 
-mapper.settings = {}
+mapper.settings = {
+  action_on_enter = "definition",
+  doom_modules_dir = require("doom.core.system").doom_modules_path()
+}
 
 mapper.packages = {
   -- https://github.com/FeiyouG/commander.nvim
@@ -26,7 +29,7 @@ mapper.packages = {
 
 mapper.configs = {}
 mapper.configs["nvim-mapper"] = function()
-  require("nvim-mapper").setup(doom.core.doom.settings.mapper)
+  require("nvim-mapper").setup(doom.core.nest.settings)
 
   -- TODO: Not happy with how messy the integrations are, refactor!
   --
@@ -100,7 +103,7 @@ mapper.configs["nvim-mapper"] = function()
     --- @description Handles the each node in the nest tree.
     --- @param node NestMapperNode
     --- @param node_settings NestSettings
-    mapper_integration.handler = function(node, node_settings)
+    mapper_integration.handler = function(node, node_settings, global_opts)
       if node.name == nil then
         return
       end
@@ -127,8 +130,6 @@ mapper.configs["nvim-mapper"] = function()
 
         local id = node.uid or determine_uid(node.lhs, node.name, sanitizedMode)
 
-        -- TODO: Assign the module_origin to each mapping table in nvim-mapper.
-
         if id ~= nil then
           local rhs = type(node.rhs) == "function" and "<function>" or node.rhs
           if node_settings.buffer then
@@ -139,8 +140,8 @@ mapper.configs["nvim-mapper"] = function()
               node_settings.options,
               category,
               id,
-              description
-            -- FIX: add definition file here..
+              description,
+              global_opts.module_origin
             )
           else
             Mapper.map_virtual(
@@ -150,8 +151,8 @@ mapper.configs["nvim-mapper"] = function()
               node_settings.options,
               category,
               id,
-              description
-            -- FIX: add definition file here..
+              description,
+              global_opts.module_origin
             )
           end
         end
@@ -178,8 +179,6 @@ mapper.configs["nvim-mapper"] = function()
 
       local mod_path = table.concat(t_path, ".")
 
-      mapper_integration.module_origin = mod_path
-
       if module.binds then
         count = count + 1
         vim.defer_fn(function()
@@ -187,13 +186,11 @@ mapper.configs["nvim-mapper"] = function()
           local profiler_msg = ("keymaps(async)|module: %s"):format(mod_path)
           profiler.start(profiler_msg)
 
-          -- applyKeymaps is run on each modules's binds-tree. This means that the
-          -- path_module applies to all binds for each applyKeymaps call/module.
-
           keymaps_service.applyKeymaps(
             type(module.binds) == "function" and module.binds() or module.binds,
-            nil,
-            { mapper_integration }
+            _,
+            { mapper_integration },
+            { module_origin = mod_path }
           )
 
           profiler.stop(profiler_msg)
