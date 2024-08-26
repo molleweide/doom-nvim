@@ -48,7 +48,7 @@ telescope.settings = {
       "╰",
     },
     color_devicons = true,
-    use_less = true, -- deprecated option > remove?
+    use_less = true,                           -- deprecated option > remove?
     set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
     -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
   },
@@ -141,14 +141,15 @@ telescope.binds = function()
         name = "Search buffers",
       },
 
-      { "/", "<cmd>Telescope live_grep<CR>", name = "Search text" },
+      { "/", "<cmd>Telescope live_grep<CR>",    name = "Search text" },
+      { ";", "<cmd>Telescope commands<CR>",     name = "Browse cmds" },
       { ":", "<cmd>Telescope command_history<CR>", name = "Search recent commands" },
       {
         "b",
         name = "+buffer",
         {
           { "f", "<cmd>Telescope buffers show_all_buffers=true<CR>", name = "Find from all" },
-          { "s", "<cmd>Telescope current_buffer_fuzzy_find<CR>", name = "Search text" },
+          { "s", "<cmd>Telescope current_buffer_fuzzy_find<CR>",     name = "Search text" },
         },
       },
       {
@@ -156,7 +157,7 @@ telescope.binds = function()
         name = "+file",
         {
           { "f", "<cmd>Telescope find_files<CR>", name = "Find in project" },
-          { "r", "<cmd>Telescope oldfiles<CR>", name = "Find recent" },
+          { "r", "<cmd>Telescope oldfiles<CR>",   name = "Find recent" },
         },
       },
       {
@@ -164,14 +165,14 @@ telescope.binds = function()
         name = "+help",
         {
           { "t", "<cmd>Telescope help_tags<CR>", name = "Find tags" },
-          { "k", "<cmd>Telescope mapper<CR>", name = "Open keybindings" },
+          { "k", "<cmd>Telescope mapper<CR>",    name = "Open keybindings" },
         },
       },
       {
         "g",
         name = "+git",
         {
-          { "S", "<cmd>Telescope git_status<CR>", name = "Status" },
+          { "S", "<cmd>Telescope git_status<CR>",   name = "Status" },
           { "B", "<cmd>Telescope git_branches<CR>", name = "Branches" },
           -- { "c", "<cmd>Telescope git_commits<CR>", name = "Commits" },
         },
@@ -180,11 +181,11 @@ telescope.binds = function()
         "s",
         name = "+search",
         {
-          { "r", "<cmd>Telescope resume<CR>", name = "Resume previous search" },
-          { "t", "<cmd>Telescope live_grep<CR>", name = "Search text" },
+          { "r", "<cmd>Telescope resume<CR>",                    name = "Resume previous search" },
+          { "t", "<cmd>Telescope live_grep<CR>",                 name = "Search text" },
           { "b", "<cmd>Telescope current_buffer_fuzzy_find<CR>", name = "Text in buffer" },
-          { "h", "<cmd>Telescope command_history<CR>", name = "Recent commands" },
-          { "m", "<cmd>Telescope marks<CR>", name = "Marks" },
+          { "h", "<cmd>Telescope command_history<CR>",           name = "Recent commands" },
+          { "m", "<cmd>Telescope marks<CR>",                     name = "Marks" },
         },
       },
       {

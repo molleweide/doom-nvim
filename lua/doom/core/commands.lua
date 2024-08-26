@@ -1,4 +1,8 @@
 -- This file only has side-effects.
+--
+-- TODO: Move this into the core doom module, and implement the nvim-best-practises
+-- https://github.com/nvim-neorocks/nvim-best-practices
+-- where I make `Doom manual`, `Doom report`, `Doom nuke`
 
 -- Doom Nvim commands.
 

@@ -1,30 +1,21 @@
--- This module is responsible for loading mappings into `nvim-mapper` which
--- basically provides a telescope interface to all User defined mappings.
-
-local mapper = {}
-
--- NOTE: If I understand things, doom is ONLY using mapper for creating
--- virtual documentation for existing mappings.
-
--- TODO: Rename this to `keymappings_ui`
-
 -- TODO: Add doom compatability for `Jump to definition` for each entry so that
 -- we can easilly jump to the exact location of the definition of a binding.
 
+local mapper = {}
+
+mapper.description = [[
+Responsible for loading user-defined mappings and setting up additional
+mappings UIs.
+]]
 
 mapper.settings = {}
 
--- NOTE: This is a more recently updated plugin for managing
--- bindigs with telescope:
--- https://github.com/FeiyouG/commander.nvim
--- https://github.com/mrjones2014/legendary.nvim
---
--- Legendary.nvim seems to be much better than the existing mapper nvim and
--- it also allows for some other cool integrations eg for aucmds and commands.
-
 mapper.packages = {
+  -- https://github.com/FeiyouG/commander.nvim
+  -- https://github.com/mrjones2014/legendary.nvim
   ["nvim-mapper"] = {
-    "gregorias/nvim-mapper",  -- "lazytanuki/nvim-mapper",
+    "gregorias/nvim-mapper", -- "lazytanuki/nvim-mapper",
+    dev = true,
   },
 }
 
@@ -42,9 +33,7 @@ mapper.configs["nvim-mapper"] = function()
   local keymaps_service = require("doom.services.keymaps")
 
   local get_mapper_integration = function()
-    local mapper_integration = {}
-
-    mapper_integration.name = "mapper"
+    local mapper_integration = { name = "mapper" }
 
     local unique_id_table = {}
 
@@ -82,6 +71,7 @@ mapper.configs["nvim-mapper"] = function()
 
     -- Categories are generated from the name of the parent keymap group
     local category_table = {}
+
     --- Adds categories to a table to be searched using get_category_for_command
     --- @param lhs string Left hand side string to trigger a keymap
     --- @param name string Name of keymap group
@@ -132,6 +122,8 @@ mapper.configs["nvim-mapper"] = function()
 
         local id = node.uid or determine_uid(node.lhs, node.name, sanitizedMode)
 
+        -- TODO: Assign the module_origin to each mapping table in nvim-mapper.
+
         if id ~= nil then
           local rhs = type(node.rhs) == "function" and "<function>" or node.rhs
           if node_settings.buffer then
@@ -143,6 +135,7 @@ mapper.configs["nvim-mapper"] = function()
               category,
               id,
               description
+              -- FIX: add definition file here..
             )
           else
             Mapper.map_virtual(
@@ -153,6 +146,7 @@ mapper.configs["nvim-mapper"] = function()
               category,
               id,
               description
+              -- FIX: add definition file here..
             )
           end
         end
@@ -162,32 +156,40 @@ mapper.configs["nvim-mapper"] = function()
   end
   local mapper_integration = get_mapper_integration()
 
-  -- create the key mappings.
+  --
+  -- Traverse modules and process mappings.
+  --
 
   local profiler = require("doom.services.profiler")
   local count = 0
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
-
       local module = node
 
       local t_path = vim.tbl_map(function(stack_node)
         return type(stack_node.key) == "string" and stack_node.key
       end, stack)
 
-      local path_module = table.concat(t_path, ".")
+      local mod_path = table.concat(t_path, ".")
+
+      mapper_integration.module_origin = mod_path
 
       if module.binds then
         count = count + 1
         vim.defer_fn(function()
           -- table.insert(all_keymaps, type(module.binds) == "function" and module.binds() or module.binds)
-          local profiler_msg = ("keymaps(async)|module: %s"):format(path_module)
+          local profiler_msg = ("keymaps(async)|module: %s"):format(mod_path)
           profiler.start(profiler_msg)
+
+          -- applyKeymaps is run on each modules's binds-tree. This means that the
+          -- path_module applies to all binds for each applyKeymaps call/module.
+
           keymaps_service.applyKeymaps(
             type(module.binds) == "function" and module.binds() or module.binds,
             nil,
             { mapper_integration }
           )
+
           profiler.stop(profiler_msg)
         end, count)
       end

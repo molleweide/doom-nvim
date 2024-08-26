@@ -21,6 +21,17 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+-- TODO: ATTACH MODULE ORIGIN TO ALL BINDS
+-- If I attach the module in which all binds are created to the tree,
+-- then it would be much easier to get back to a specific bind where it was
+-- created so that you can always update anything on the fly.
+-- Try first just adding the module string to each bind and see what happens
+-- when logging binds with the mapper.
+-- (Should the same be done for commands/autocmds??)
+
+-- TODO: Could the above be used also to then TS query the module so that we
+-- can put the cursor back exactly where the bind was created.
+
 local module = {}
 
 --[[

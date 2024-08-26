@@ -16,6 +16,8 @@
 --- @field nested boolean|nil
 --- @field once boolean|nil
 
+-- TODO: add module name to each autocmd group so that it becomes easier
+
 --- IMPLEMENTATIONS
 --- Wraps the nvim functionality to handle different neovim versions.
 local utils = require("doom.utils")

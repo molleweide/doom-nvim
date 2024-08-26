@@ -8,6 +8,8 @@ local system = require("doom.core.system")
 
 -- have a scratch buffer that one can brainstorm into: https://github.com/swaits/scratch.nvim
 
+-- https://github.com/mrjones2014/op.nvim
+
 -- SWIFT dev -> https://www.swift.org/documentation/articles/zero-to-swift-nvim.html
 --
 --
@@ -170,7 +172,7 @@ doom.core.treesitter.settings.show_compiler_warning_message = false
 --   · warn
 --   · error
 --   · fatal
-doom.settings.logging = "info"
+doom.settings.logging = "debug"
 
 ---------------------------
 ---       OPTIONS       ---
@@ -474,8 +476,28 @@ vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", u
 -- ADD NEW DOOM MODULE
 --
 
+-- FIX: Move this back to the `dui` module.
+-- Follow all of the basics from the neovim plugin conventions
+--
+-- TODO: include user modules
+-- TODO: If <CR> on `current` for dir AND no custom name string
+-- has bee provided, then prompt user for a new module name.
+-- parse / and create subdirs if required in `current`
+--
+-- TODO: binding to toggle modules visibility, ie. only show subdirs so
+-- that it becomes easier to navigate maybe.
+--
+-- TODO: migrate this to telescope?
+-- >> This is required if I want to be able to obtain the prompt string.
+--
+-- TODO: if is_module -> :e the file in vsplit to the right
+
+-- TEST: Is subdirs already supported?
+
 local Path = require("pathlib")
 
+---Initialize new module from a target path and a user input name string.
+---@param path_to any
 local function create_new_module_from_name(path_to)
   vim.ui.input({ prompt = string.format('Enter new name for module @ [%s]: ', path_to) }, function(new_module_name)
     local init = path_to / new_module_name / "init.lua"
@@ -488,58 +510,21 @@ local function create_new_module_from_name(path_to)
   end)
 end
 
--- TODO: include user modules
+---Recursive modules browser implemented with vim.ui.select()
+---@param path_in string|nil: The dir that you wish to start from or doom modules base dir.
 local function modules_browser(path_in)
-  -- Ie. without `init.lua` file.
-  local function find_sub_dirs() end
-
-  local function initialize_new_module() end
-
-
-  print("Path.cwd() =", Path.cwd())
-  print("Path.home() =", Path.home())
-  -- print("Path.permission() =", Path.permission())
-  print("Path.stdpath() =", Path.stdpath("cache", "aaa", "bbb"))
-
-  local dummy_path = Path(system.doom_modules_path())
-
-  print("dummy_path:", dummy_path)
-
-  local child = dummy_path:child("_testing")
-
-  print("child:", child)
-
-  print("child exists?", child:exists())
-
-
-  local current_dir = path_in or require("doom.core.system").doom_modules_path()
-
-  current_dir = Path(current_dir)
-
+  local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
   local possible_choices = {
-    -- ".",
     current_dir
   }
-
-  -- TODO: Capture each path in a table {
-  --    path = ...,
-  --    is_module = bool,
-  -- }
-
   for path in current_dir:iterdir({ depth = 1 }) do
     if path:is_dir() then
-      print(path:basename())
-
-      -- TODO: check if dir has child file = init.lua
-
       table.insert(possible_choices, path)
     end
   end
-
   vim.ui.select(possible_choices, {
-    prompt = "Select dir for new module:",
+    prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
     format_item = function(item)
-      -- if item == "." then
       if item == current_dir then
         return string.format("current = %s", current_dir:basename())
       elseif type(item) == "table" then
@@ -554,25 +539,8 @@ local function modules_browser(path_in)
     end,
   }, function(choice)
     if not choice then
-      return
+      return -- eg. <esc>
     end
-
-    -- TODO: If <CR> on `current` for dir AND no custom name string
-    -- has bee provided, then prompt user for a new module name.
-    -- parse / and create subdirs if required in `current`
-    --
-    -- TODO: binding to toggle modules visibility, ie. only show subdirs so
-    -- that it becomes easier to navigate maybe.
-    --
-    -- TODO: migrate this to telescope?
-    -- >> This is required if I want to be able to obtain the prompt string.
-    --
-    -- TODO: if is_module -> :e the file in vsplit to the right
-
-    print("choice =", choice)
-
-    --
-
     if choice == current_dir then
       create_new_module_from_name(choice)
     else
@@ -582,8 +550,6 @@ local function modules_browser(path_in)
           is_module = true
         end
       end
-
-
       if is_module then
         vim.cmd(string.format("edit %s", choice / "init.lua"))
       else
@@ -608,5 +574,39 @@ doom.use_keybind({
     },
   },
 })
+
+--
+-- PLAYING AROUND WITH AUTOCMDS
+--
+
+-- 	:autocmd BufReadPost *.gsm  set filetype=asm
+doom.use_autocmd({
+  { "BufEnter", "*.norg", function()
+    print("[doom config]: buf enter for *.norg")
+  end }
+})
+
+-- 	:autocmd BufReadPost *.gsm  set filetype=asm
+doom.use_cmd(
+  {
+    "MyTestingCmd", function(args)
+      print("[doom config]: Hi from my testing cmd")
+      P(args)
+    end, {
+      nargs = 1,
+      complete = function(arg_lead, cmdline, curpos)
+        print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+      end
+    }
+  }
+)
+
+
+
+
+
+--
+-- Telescope picker for user-defined commands `:commands`
+--
 
 -- vim: sw=2 sts=2 ts=2 expandtab

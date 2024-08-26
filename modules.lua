@@ -124,7 +124,7 @@ return {
     "ranger",                  -- File explorer in neovim (TODO: Test)
     "restclient",              -- Test HTTP requests from neovim (TODO: Test)
     "show_registers",          -- Show and navigate between registers
-    -- "dui", -- [WIP] Managen your doom config with Telescope.
+    "dui", -- [WIP] Managen your doom config with Telescope.
     "ui_make_transparent",
     "ui_custom_vim_input_select",
     ui = {

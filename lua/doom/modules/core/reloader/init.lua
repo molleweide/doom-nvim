@@ -195,9 +195,10 @@ reloader._reload_doom = function()
   vim.cmd("doautocmd Syntax")
 end
 
+-- FIX: This function should not be responsible for check if `reload_on_save`,
+-- rather that should be done in a preceding stage.
 --- Reload Neovim and simulate a new run
 reloader.reload = function()
-  if doom.modules.core.reloader.settings.reload_on_save then
     local ok = require("doom.core.modules").enabled_modules()
 
     if not ok then
@@ -217,13 +218,18 @@ reloader.reload = function()
         .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
         .. " seconds"
     )
+end
+
+reloader.reload_if_on_save_enabled = function()
+  if doom.modules.core.reloader.settings.reload_on_save then
+    reloader.reload()
   else
-    log.info("Reload disabled...")
+    log.info("[Reloader]: Reload disabled...")
   end
 end
 
 reloader.settings = {
-  reload_on_save = true,
+  reload_on_save = false,
   packer_sync_and_compile = true,
   autocmd_patterns = {
 
@@ -293,7 +299,7 @@ reloader.autocmds = function()
 
   -- RELOAD DOOM ON SAVE
   if doom.modules.core.reloader.settings.reload_on_save then
-    table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload })
+    table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload_if_on_save_enabled })
     table.insert(autocmds, {
       "BufWritePost",
       "*/modules.lua,*/config.lua,*/settings.lua",
@@ -302,7 +308,7 @@ reloader.autocmds = function()
           vim.fn.getcwd() == vim.fn.stdpath("config")
           or system.doom_configs_root == vim.fn.stdpath("config")
         then
-          reloader.reload()
+          reloader.reload_if_on_save_enabled()()
         end
       end,
     })

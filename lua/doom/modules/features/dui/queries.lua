@@ -1,5 +1,5 @@
-local queries = {}
 
+local queries = {}
 queries.root_mod = function(name, section)
   return string.format(
     [[
