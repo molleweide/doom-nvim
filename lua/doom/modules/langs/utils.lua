@@ -295,11 +295,12 @@ module.use_lsp_mason = function(lsp_name, options)
     -- Try attaching the LSP to buffers
     local lsp_config_server = lspconfig[config_name]
     if lsp_config_server.manager then
-      local buffer_handler = lsp_config_server.filetypes
-          and lsp_config_server.manager.try_add_wrapper
-          or lsp_config_server.manager.try_add
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-        buffer_handler(bufnr)
+        if lsp_config_server.filetypes then
+          lsp_config_server.manager:try_add_wrapper(bufnr)
+        else
+          lsp_config_server.manager:try_add(bufnr)
+        end
       end
     end
   end
