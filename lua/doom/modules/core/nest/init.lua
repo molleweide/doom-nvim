@@ -3,42 +3,21 @@
 --
 -- TODO: Rename this module to something more descriptive.
 --
--- TODO: migrate all of the nvim-mapper code into this repo so that I dont
--- have to fucking jump to another dir.
--- Remove everything unnecessary and make it lightning fast with custom queries
--- for navigating to each nest table component.
---
--- TODO: instead of writing to the nvim-mapper.records -> put the binding_records
--- on the _G._doom.bindings_prepared_for_binds_picker.
-
 -- TODO: filter binds that dont have correct attributes in their definition,
 -- so that you as a user can easilly go through existing bindigs and document
 -- them properly.
 
-local mapper = {}
+local nest = {}
 
-mapper.description = [[
+nest.description = [[
 Responsible for loading user-defined mappings and setting up additional
 mappings UIs.
 ]]
 
-mapper.settings = {
-  action_on_enter = "definition",
-  doom_modules_dir = require("doom.core.system").doom_modules_path(),
-}
+nest.settings = {}
 
-mapper.packages = {
-  -- https://github.com/FeiyouG/commander.nvim
-  -- https://github.com/mrjones2014/legendary.nvim
-  ["nvim-mapper"] = {
-    "gregorias/nvim-mapper", -- switch this to "molleweide/nvim-mapper"
-    dev = true,
-  },
-}
-
-mapper.configs = {}
-mapper.configs["nvim-mapper"] = function()
-  require("nvim-mapper").setup(doom.core.nest.settings)
+nest.reload_binds = function()
+  -- require("nvim-mapper").setup(doom.core.nest.settings)
 
   -- TODO: Not happy with how messy the integrations are, refactor!
   --
@@ -47,14 +26,14 @@ mapper.configs["nvim-mapper"] = function()
   -- currently, new bindings are not automatically added...
   --  >>> same with WHICHKEY!!!
 
+  -- reset the global bindings array
+  _G._doom.bindings_unique = {}
+  _G._doom.bindings_array = {}
+
   local keymaps_service = require("doom.services.keymaps")
 
   local get_mapper_integration = function()
     local mapper_integration = { name = "mapper" }
-
-    -- reset the global bindings array
-    _G._doom.bindings_unique = {}
-    _G._doom.bindings_array = {}
 
     local unique_id_table = {}
 
@@ -107,8 +86,7 @@ mapper.configs["nvim-mapper"] = function()
       return category_table[key]
     end
 
-    local Mapper = require("nvim-mapper")
-    -- local Mapper = require("doom.modules.core.nest.nvim-mapper")
+    local Mapper = require("doom.modules.core.nest.nvim-mapper")
 
     --- @class NestMapperNode : NestIntegrationNode
     --- @field category string|nil
@@ -212,16 +190,13 @@ mapper.configs["nvim-mapper"] = function()
       end
     end
   end)
-
-  local log = require("doom.utils.logging")
-  log.info("NVIM MAPPER: MAPPINGS APPLIED")
 end
 
-mapper.cmds = {
+nest.cmds = {
   { "ReloadBindings", function() end },
 }
 
-mapper.binds = {
+nest.binds = {
   {
     "<leader>",
     name = "+prefix",
@@ -236,7 +211,7 @@ mapper.binds = {
               local has_telescope, telescope = pcall(require, "telescope")
               print("BROWSE BINDINGS")
               if not has_telescope then
-                error("This plugins requires nvim-telescope/telescope.nvim")
+                error("This action requires the telescope module.")
               end
               require("doom.modules.core.nest.mapper.main").mapper()
             end,
@@ -248,4 +223,4 @@ mapper.binds = {
   },
 }
 
-return mapper
+return nest
