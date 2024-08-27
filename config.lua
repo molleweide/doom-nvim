@@ -7,8 +7,15 @@ local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
 -- have a scratch buffer that one can brainstorm into: https://github.com/swaits/scratch.nvim
+--
+--
+-- TEST: very cool -> https://nui-components.grapp.dev/
 
 -- https://github.com/mrjones2014/op.nvim
+--
+-- https://github.com/rasulomaroff/reactive.nvim
+--
+-- https://github.com/rasulomaroff/telepath.nvim
 
 -- SWIFT dev -> https://www.swift.org/documentation/articles/zero-to-swift-nvim.html
 --

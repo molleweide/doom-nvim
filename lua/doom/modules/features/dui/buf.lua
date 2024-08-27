@@ -1,5 +1,7 @@
 local buf = {}
 
+-- TODO: Move this shit into doom.utils.
+
 --
 -- create intuitive super easy to use helpers
 -- that allow code to be super readable.

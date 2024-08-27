@@ -39,6 +39,11 @@ lua.settings = {
         telemetry = {
           enable = false,
         },
+        diagnostics = {
+          globals = {
+            "vim"
+          }
+        }
       },
     },
   },

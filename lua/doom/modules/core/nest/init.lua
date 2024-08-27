@@ -5,6 +5,15 @@
 --
 -- TODO: migrate all of the nvim-mapper code into this repo so that I dont
 -- have to fucking jump to another dir.
+-- Remove everything unnecessary and make it lightning fast with custom queries
+-- for navigating to each nest table component.
+--
+-- TODO: instead of writing to the nvim-mapper.records -> put the binding_records
+-- on the _G._doom.bindings_prepared_for_binds_picker.
+
+-- TODO: filter binds that dont have correct attributes in their definition,
+-- so that you as a user can easilly go through existing bindigs and document
+-- them properly.
 
 local mapper = {}
 
@@ -15,7 +24,7 @@ mappings UIs.
 
 mapper.settings = {
   action_on_enter = "definition",
-  doom_modules_dir = require("doom.core.system").doom_modules_path()
+  doom_modules_dir = require("doom.core.system").doom_modules_path(),
 }
 
 mapper.packages = {
@@ -42,6 +51,10 @@ mapper.configs["nvim-mapper"] = function()
 
   local get_mapper_integration = function()
     local mapper_integration = { name = "mapper" }
+
+    -- reset the global bindings array
+    _G._doom.bindings_unique = {}
+    _G._doom.bindings_array = {}
 
     local unique_id_table = {}
 
@@ -95,6 +108,7 @@ mapper.configs["nvim-mapper"] = function()
     end
 
     local Mapper = require("nvim-mapper")
+    -- local Mapper = require("doom.modules.core.nest.nvim-mapper")
 
     --- @class NestMapperNode : NestIntegrationNode
     --- @field category string|nil
@@ -202,5 +216,36 @@ mapper.configs["nvim-mapper"] = function()
   local log = require("doom.utils.logging")
   log.info("NVIM MAPPER: MAPPINGS APPLIED")
 end
+
+mapper.cmds = {
+  { "ReloadBindings", function() end },
+}
+
+mapper.binds = {
+  {
+    "<leader>",
+    name = "+prefix",
+    {
+      {
+        "D",
+        name = "+doom",
+        {
+          {
+            "B",
+            function()
+              local has_telescope, telescope = pcall(require, "telescope")
+              print("BROWSE BINDINGS")
+              if not has_telescope then
+                error("This plugins requires nvim-telescope/telescope.nvim")
+              end
+              require("doom.modules.core.nest.mapper.main").mapper()
+            end,
+            name = "Browse bindings",
+          },
+        },
+      },
+    },
+  },
+}
 
 return mapper
