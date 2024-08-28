@@ -6,6 +6,12 @@
 -- TODO: filter binds that dont have correct attributes in their definition,
 -- so that you as a user can easilly go through existing bindigs and document
 -- them properly.
+--
+-- TODO: queries to perfectly target a binding
+-- >> make a telescope mapping that allows for jumping exactly to whichever
+-- bind table component i like, so that I can always navigate insanely fast.
+--
+-- FIX: call this module properly on doom reload
 
 local nest = {}
 

@@ -31,7 +31,7 @@ local M = {}
 --   })
 -- end
 
-        -- FIX: support DOOM vs USER modules..
+-- FIX: support DOOM vs USER modules..
 M.mapper = function(opts)
   -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
   opts = vim.tbl_extend("force", opts or {}, {
@@ -41,12 +41,14 @@ M.mapper = function(opts)
       actions.select_default:replace(function()
         local keybind = action_state.get_selected_entry()
 
-
         local parts = vim.split(keybind.module_origin, "%.")
         local module_init_file = require("doom.core.system").doom_modules_path()
             .. "/"
             .. table.concat(parts, "/")
             .. "/init.lua"
+
+        -- TODO: query the bindigs table and play around with what would be the fastest
+        -- way of getting back to a binding.
 
         vim.cmd("set splitright")
         vim.cmd(string.format("vsplit %s", module_init_file))
