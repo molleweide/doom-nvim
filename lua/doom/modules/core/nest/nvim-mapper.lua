@@ -36,6 +36,8 @@ local function map(
 
   local maybe_existing_record = _G._doom.bindings_unique[unique_identifier]
 
+  print(#_G._doom.bindings_unique)
+
   if maybe_existing_record == nil then
     -- lookup table to prevent duplicates
     _G._doom.bindings_unique[unique_identifier] = record

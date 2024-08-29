@@ -11,7 +11,18 @@
 -- >> make a telescope mapping that allows for jumping exactly to whichever
 -- bind table component i like, so that I can always navigate insanely fast.
 --
--- FIX: call this module properly on doom reload
+-- FIX: call this module properly on doom reload?? but i think it already does??
+--
+-- TODO: Not happy with how messy the integrations are, refactor!
+--
+-- TODO: Everything below should be exposed in a command so that we
+-- can reload or redo keybindings later, eg. in the reload module,
+-- currently, new bindings are not automatically added...
+--  >>> same with WHICHKEY!!!
+--
+--  TODO: completions -> if you are about to type the name of a leader branch,
+--  then you should be able to get completions based on the tree you have already
+--  defined in relation to all other trees on the system.
 
 local nest = {}
 
@@ -23,19 +34,8 @@ mappings UIs.
 nest.settings = {}
 
 nest.reload_binds = function()
-  -- require("nvim-mapper").setup(doom.core.nest.settings)
-
-  -- TODO: Not happy with how messy the integrations are, refactor!
-  --
-  -- TODO: Everything below should be exposed in a command so that we
-  -- can reload or redo keybindings later, eg. in the reload module,
-  -- currently, new bindings are not automatically added...
-  --  >>> same with WHICHKEY!!!
-
-  -- reset the global bindings array
-  _G._doom.bindings_unique = {}
+  _G._doom.bindings_unique = {}   -- reset the global bindings array
   _G._doom.bindings_array = {}
-
   local keymaps_service = require("doom.services.keymaps")
 
   local get_mapper_integration = function()
@@ -128,6 +128,7 @@ nest.reload_binds = function()
 
         local id = node.uid or determine_uid(node.lhs, node.name, sanitizedMode)
 
+        -- TODO: make this into one single func call
         if id ~= nil then
           local rhs = type(node.rhs) == "function" and "<function>" or node.rhs
           if node_settings.buffer then
@@ -198,8 +199,14 @@ nest.reload_binds = function()
   end)
 end
 
+local function try_reloading_binds()
+  nest.reload_binds()
+end
+
 nest.cmds = {
-  { "ReloadBindings", function() end },
+  { "ReloadBindings", function()
+    try_reloading_binds()
+  end },
 }
 
 nest.binds = {

@@ -6,6 +6,9 @@ local neorg = {}
 -- https://github.com/benlubas/neorg-interim-ls
 -- https://github.com/max397574/neorg-kanban
 -- https://github.com/bottd/neorg-worklog
+--
+--
+-- https://github.com/juniorsundar/neorg-extras
 
 local doom_root = require("doom.core.system").doom_root
 
@@ -15,206 +18,204 @@ local doom_root = require("doom.core.system").doom_root
 -- TODO: move all my custom overrides to `config.lua`
 
 neorg.settings = {
-  load = {
-    ["core.defaults"] = {},
-    ["core.esupports.indent"] = {
-      config = {
-        tweaks = {
-          heading2 = 2,
-          heading3 = 4,
-          heading4 = 6,
-          heading5 = 8,
-          heading6 = 10,
-          unordered_list1 = 0,
-          unordered_list2 = 3,
-          unordered_list3 = 6,
-          unordered_list4 = 9,
-          unordered_list5 = 12,
-          unordered_list6 = 15,
-          ordered_list1 = 0,
-          ordered_list2 = 3,
-          ordered_list3 = 6,
-          ordered_list4 = 9,
-          ordered_list5 = 12,
-          ordered_list6 = 15,
+    load = {
+        ["core.defaults"] = {},
+        ["core.esupports.indent"] = {
+            config = {
+                tweaks = {
+                    heading2 = 2,
+                    heading3 = 4,
+                    heading4 = 6,
+                    heading5 = 8,
+                    heading6 = 10,
+                    unordered_list1 = 0,
+                    unordered_list2 = 3,
+                    unordered_list3 = 6,
+                    unordered_list4 = 9,
+                    unordered_list5 = 12,
+                    unordered_list6 = 15,
+                    ordered_list1 = 0,
+                    ordered_list2 = 3,
+                    ordered_list3 = 6,
+                    ordered_list4 = 9,
+                    ordered_list5 = 12,
+                    ordered_list6 = 15,
+                },
+            },
         },
-      },
-    },
-    ["core.keybinds"] = {
-      config = {
-        -- Default keybinds can be found at
-        -- [https://github.com/nvim-neorg/neorg/blob/main/lua/neorg/modules/core/keybinds/keybinds.lua]
-        default_keybinds = true,
-        neorg_leader = ",j",
-      },
-    },
-    ["core.concealer"] = {
-      config = {
-        icon_preset = "varied",
-      },
-    },
-    ["core.qol.toc"] = {},
-    ["core.dirman"] = {
-      config = {
-
-        workspaces = {
-          main = "~/neorg",
-          test = "~/neorg_test",
-          -- gtd = "~/neorg/gtd",
-          doom_docs = string.format("%s/doc", doom_root),
+        ["core.keybinds"] = {
+            config = {
+                -- Default keybinds can be found at
+                -- [https://github.com/nvim-neorg/neorg/blob/main/lua/neorg/modules/core/keybinds/keybinds.lua]
+                default_keybinds = true,
+                neorg_leader = ",j",
+            },
         },
-        default_workspace = "main",
-        autodetect = true,
-        autochdir = true,
-      },
-    },
-    ["core.esupports.metagen"] = {
-      config = { type = "auto" },
-    },
-    ["core.export"] = {},
-    ["core.export.markdown"] = {
-      config = { extensions = "all" },
-    },
-    -- ["core.gtd.base"] = {
-    --   config = {
-    --     workspace = "gtd",
-    --   },
-    -- },
-    ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
-    ["core.integrations.nvim-cmp"] = {},
+        ["core.concealer"] = {
+            config = {
+                icon_preset = "varied",
+            },
+        },
+        ["core.qol.toc"] = {},
+        ["core.dirman"] = {
+            config = {
 
-    -- ["core.integrations.telescope"] = {},
-    ["core.presenter"] = {
-      config = {
-        zen_mode = "truezen",
-      },
+                workspaces = {
+                    main = "~/neorg",
+                    test = "~/neorg_test",
+                    -- gtd = "~/neorg/gtd",
+                    doom_docs = string.format("%s/doc", doom_root),
+                },
+                default_workspace = "main",
+                autodetect = true,
+                autochdir = true,
+            },
+        },
+        ["core.esupports.metagen"] = {
+            config = { type = "auto" },
+        },
+        ["core.export"] = {},
+        ["core.export.markdown"] = {
+            config = { extensions = "all" },
+        },
+        -- ["core.gtd.base"] = {
+        --   config = {
+        --     workspace = "gtd",
+        --   },
+        -- },
+        ["core.completion"] = { config = { engine = "nvim-cmp", name = "[Norg]" } },
+        ["core.integrations.nvim-cmp"] = {},
+
+        -- ["core.integrations.telescope"] = {},
+        ["core.presenter"] = {
+            config = {
+                zen_mode = "truezen",
+            },
+        },
+        ["core.journal"] = {
+            config = {
+                workspace = "main",
+                journal_folder = "journal",
+            },
+        },
     },
-    ["core.journal"] = {
-      config = {
-        workspace = "main",
-        journal_folder = "journal",
-      },
-    },
-  },
 }
 
 neorg.packages = {
-  ["neorg"] = {
-    "nvim-neorg/neorg",
-    -- commit = {
-    --   ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
-    --   ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
-    -- },
-    cmd = "Neorg",
-    ft = "norg",
-    dependencies = {
-      "luarocks.nvim",
-      "nvim-lua/plenary.nvim",
-      -- "nvim-neorg/neorg-telescope",
-      -- , "nvim-treesitter/nvim-treesitter",
+    ["neorg"] = {
+        "nvim-neorg/neorg",
+        -- commit = {
+        --   ["nvim-0.7"] = "d93126cfcc2b5f90c063676f8669fed9b0806bcd",
+        --   ["latest"] = "aa613122f82ca7485b7055937a742b709ed3c576",
+        -- },
+        cmd = "Neorg",
+        ft = "norg",
+        dependencies = {
+            "luarocks.nvim",
+            "nvim-lua/plenary.nvim",
+            -- "nvim-neorg/neorg-telescope",
+            -- , "nvim-treesitter/nvim-treesitter",
+        },
     },
-  },
-  -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },
+    -- ["neorg-telescope"] = { "nvim-neorg/neorg-telescope", after = { "telescope.nvim" } },
 }
 
 neorg.configs = {}
 
 neorg.configs["neorg"] = function()
-  require("neorg").setup(doom.features.neorg.settings)
+    require("neorg").setup(doom.features.neorg.settings)
 
-  -- these are found in the example config at github
-  vim.wo.foldlevel = 99
-  vim.wo.conceallevel = 2
+    -- these are found in the example config at github
+    vim.wo.foldlevel = 99
+    vim.wo.conceallevel = 2
 
-  local neorg_callbacks = require("neorg.core.callbacks")
+    local neorg_callbacks = require("neorg.core.callbacks")
 
-  -- neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
-  --   -- Map all the below keybinds only when the "norg" mode is active
-  --   keybinds.map_event_to_mode("norg", {
-  --     n = { -- Bind keys in normal mode
-  --       { "<C-s>", "core.integrations.telescope.find_linkable" },
-  --     },
-  --     i = { -- Bind in insert mode
-  --       { "<C-z>", "core.integrations.telescope.insert_link" },
-  --     },
-  --   }, {
-  --     silent = true,
-  --     noremap = true,
-  --   })
-  -- end)
-
+    -- neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
+    --   -- Map all the below keybinds only when the "norg" mode is active
+    --   keybinds.map_event_to_mode("norg", {
+    --     n = { -- Bind keys in normal mode
+    --       { "<C-s>", "core.integrations.telescope.find_linkable" },
+    --     },
+    --     i = { -- Bind in insert mode
+    --       { "<C-z>", "core.integrations.telescope.insert_link" },
+    --     },
+    --   }, {
+    --     silent = true,
+    --     noremap = true,
+    --   })
+    -- end)
 end
 
 neorg.configs["neorg-telescope"] = function()
-  require("telescope").load_extension("neorg")
-  -- local neorg_callbacks = require("neorg.core.callbacks")
+    require("telescope").load_extension("neorg")
+    -- local neorg_callbacks = require("neorg.core.callbacks")
 
-  -- neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
-  --   -- Map all the below keybinds only when the "norg" mode is active
-  --   keybinds.map_event_to_mode("norg", {
-  --     n = { -- Bind keys in normal mode
-  --       { "<C-s>", "core.integrations.telescope.find_linkable" },
-  --     },
-  --
-  --     i = { -- Bind in insert mode
-  --       { "<C-z>", "core.integrations.telescope.insert_link" },
-  --     },
-  --   }, {
-  --     silent = true,
-  --     noremap = true,
-  --   })
-  -- end)
-
+    -- neorg_callbacks.on_event("core.keybinds.events.enable_keybinds", function(_, keybinds)
+    --   -- Map all the below keybinds only when the "norg" mode is active
+    --   keybinds.map_event_to_mode("norg", {
+    --     n = { -- Bind keys in normal mode
+    --       { "<C-s>", "core.integrations.telescope.find_linkable" },
+    --     },
+    --
+    --     i = { -- Bind in insert mode
+    --       { "<C-z>", "core.integrations.telescope.insert_link" },
+    --     },
+    --   }, {
+    --     silent = true,
+    --     noremap = true,
+    --   })
+    -- end)
 end
 
 -- TODO: add norg bindings > look at Max's config
 
 neorg.autocmds = {
-  {
-    "BufWritePre",
-    "*.norg",
-    vim.cmd([[
+    {
+        "BufWritePre",
+        "*.norg",
+        vim.cmd([[
       normal m`=gG``
       ]]),
-  },
-  --   {
-  --     "BufWinEnter",
-  --     "*.norg",
-  --     function()
-  --       -- Manually add norg parser to be always up-to-date
-  --       -- and add additional (opt-in) neorg parsers
-  --       local parsers = require("nvim-treesitter.parsers").get_parser_configs()
-  --
-  --       parsers.norg = {
-  --         install_info = {
-  --           url = "https://github.com/nvim-neorg/tree-sitter-norg",
-  --           files = { "src/parser.c", "src/scanner.cc" },
-  --           branch = "main",
-  --         },
-  --       }
-  --       parsers.norg_meta = {
-  --         install_info = {
-  --           url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
-  --           files = { "src/parser.c" },
-  --           branch = "main",
-  --         },
-  --       }
-  --       parsers.norg_table = {
-  --         install_info = {
-  --           url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
-  --           files = { "src/parser.c" },
-  --           branch = "main",
-  --         },
-  --       }
-  --
-  --       vim.defer_fn(function()
-  --         local ensure_installed = require("nvim-treesitter.install").ensure_installed
-  --         ensure_installed("norg")
-  --         ensure_installed("norg_meta")
-  --         ensure_installed("norg_table")
-  --       end, 0)
-  --     end,
-  --   },
+    },
+    --   {
+    --     "BufWinEnter",
+    --     "*.norg",
+    --     function()
+    --       -- Manually add norg parser to be always up-to-date
+    --       -- and add additional (opt-in) neorg parsers
+    --       local parsers = require("nvim-treesitter.parsers").get_parser_configs()
+    --
+    --       parsers.norg = {
+    --         install_info = {
+    --           url = "https://github.com/nvim-neorg/tree-sitter-norg",
+    --           files = { "src/parser.c", "src/scanner.cc" },
+    --           branch = "main",
+    --         },
+    --       }
+    --       parsers.norg_meta = {
+    --         install_info = {
+    --           url = "https://github.com/nvim-neorg/tree-sitter-norg-meta",
+    --           files = { "src/parser.c" },
+    --           branch = "main",
+    --         },
+    --       }
+    --       parsers.norg_table = {
+    --         install_info = {
+    --           url = "https://github.com/nvim-neorg/tree-sitter-norg-table",
+    --           files = { "src/parser.c" },
+    --           branch = "main",
+    --         },
+    --       }
+    --
+    --       vim.defer_fn(function()
+    --         local ensure_installed = require("nvim-treesitter.install").ensure_installed
+    --         ensure_installed("norg")
+    --         ensure_installed("norg_meta")
+    --         ensure_installed("norg_table")
+    --       end, 0)
+    --     end,
+    --   },
 }
 
 -- If you're using the automatic keybind generation provided by Neorg you can
@@ -245,57 +246,65 @@ neorg.autocmds = {
 --
 
 neorg.binds = {
-  { "<c-s>", [[<cmd>Telescope neorg search_headings<cr>]] },
-  {
-    mode = "i",
-    "<c-l>",
-    [[<cmd>Telescope neorg insert_link<cr>]],
-  },
-  {
-    "<leader>",
-    name = "+prefix",
+    { "<c-s>", [[<cmd>Telescope neorg search_headings<cr>]] },
     {
-      {
-        "o",
-        name = "+open/close",
-        {
-          "n",
-          name = "+neorg",
-          {
-            {
-              "c",
-              ":Neorg ",
-              name = "neorg workspace main",
-              options = { silent = false },
-            },
-            { "d", ":Neorg workspace main<cr>", name = "neorg workspace main" },
-            { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
-            { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
-            -- { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
-            -- { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
-            -- { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
-            -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
-            { "t", ":Neorg journal today<cr>", name = "neorg journal today" },
-            { "n", ":Neorg present<cr>", name = "neorg present" },
-            { "s", ":Telescope neorg switch_workspace<cr>", name = "switch workspace" },
-            {
-              "f",
-              function()
-                require("telescope.builtin").find_files({ cwd = "~/neorg" })
-              end,
-              name = "Search Neorg notes/files",
-            },
-            -- Telescope neorg find_linkable
-            -- Telescope neorg search_headings
-            -- Telescope neorg find_project_tasks
-            -- Telescope neorg find_context_tasks
-            -- Telescope neorg find_aof_tasks
-            -- Telescope neorg find_aof_project_tasks
-          },
-        },
-      },
+        mode = "i",
+        "<c-l>",
+        [[<cmd>Telescope neorg insert_link<cr>]],
     },
-  },
+    {
+        "<leader>",
+        name = "+prefix",
+        {
+            {
+                "o",
+                name = "+open/close",
+                {
+                    "n",
+                    name = "+neorg",
+                    {
+                        {
+                            "c",
+                            ":Neorg ",
+                            name = "neorg workspace main",
+                            options = { silent = false },
+                        },
+                        {
+                            "d",
+                            ":Neorg workspace main<cr>",
+                            name = "neorg workspace main",
+                        },
+                        { "G", ":Neorg workspace gtd<cr>", name = "neorg gtd" },
+                        { "E", ":Neorg workspace example_gtd<cr>", name = "neorg example" },
+                        -- { "g", ":Neorg gtd ", name = "neorg gtd <insert>" },
+                        -- { "c", ":Neorg gtd capture<cr>", name = "neorg capture" },
+                        -- { "e", ":Neorg gtd edit<cr>", name = "neorg gtd edit" },
+                        -- { "v", ":Neorg gtd views<cr>", name = "neorg gtd views" },
+                        {
+                            "t",
+                            ":Neorg journal today<cr>",
+                            name = "neorg journal today",
+                        },
+                        { "n", ":Neorg present<cr>", name = "neorg present" },
+                        { "s", ":Telescope neorg switch_workspace<cr>", name = "switch workspace" },
+                        {
+                            "f",
+                            function()
+                                require("telescope.builtin").find_files({ cwd = "~/neorg" })
+                            end,
+                            name = "Search Neorg notes/files",
+                        },
+                        -- Telescope neorg find_linkable
+                        -- Telescope neorg search_headings
+                        -- Telescope neorg find_project_tasks
+                        -- Telescope neorg find_context_tasks
+                        -- Telescope neorg find_aof_tasks
+                        -- Telescope neorg find_aof_project_tasks
+                    },
+                },
+            },
+        },
+    },
 }
 
 return neorg

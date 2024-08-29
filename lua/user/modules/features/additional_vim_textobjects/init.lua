@@ -1,6 +1,7 @@
 local textobjects = {}
 
--- move this to under core treesitter.
+-- Move this to `doom/modules/features/treesitter/<module>`.
+-- So that I can easilly toggle and try stuff.
 
 textobjects.packages = {
   ["nvim-treesitter-textobjects"] = { "nvim-treesitter/nvim-treesitter-textobjects" },

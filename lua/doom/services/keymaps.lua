@@ -174,7 +174,10 @@ module.enable(default_integration)
 --- @param node NestNode
 --- @param settings NestSettings
 module.traverse = function(node, settings, integrations)
+    P(type(settings), settings)
     local mergedSettings = mergeSettings(settings or module.defaults, node)
+
+    -- P(mergeSettings)
 
     local first = node[1]
 
@@ -232,6 +235,9 @@ module.applyKeymaps = function(nest_config, settings, integrations, opts)
             integration.on_init(nest_config, settings)
         end
     end
+
+    -- print("apply keymaps..")
+    -- P(settings)
 
     module.traverse(nest_config, settings, ints)
 
