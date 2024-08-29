@@ -186,7 +186,7 @@ nest.reload_binds = function()
 
           keymaps_service.applyKeymaps(
             type(module.binds) == "function" and module.binds() or module.binds,
-            _,
+            nil,
             { mapper_integration },
             { module_origin = mod_path }
           )
