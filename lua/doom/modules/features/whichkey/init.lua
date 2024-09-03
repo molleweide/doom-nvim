@@ -294,7 +294,7 @@ whichkey.configs["which-key.nvim"] = function()
     return module
   end
 
-  local bind_tree_count = 0
+  -- local bind_tree_count = 0
   local keymaps_service = require("doom.services.keymaps")
   local whichkey_integration = get_whichkey_integration()
 

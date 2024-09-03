@@ -11,6 +11,7 @@ if vim.fn.has("nvim-0.7.0") ~= 1 then
 end
 
 local profiler = require("doom.services.profiler")
+
 profiler.start("framework|init.lua")
 
 -- Preload lazy nvim
@@ -46,9 +47,7 @@ vim.defer_fn(function()
   end
 end, 1)
 
-
 profiler.stop("framework|init.lua")
-
 
 -- NOTE: should i use this here?
 -- vim.defer_fn(function()

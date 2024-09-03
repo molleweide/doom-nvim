@@ -13,6 +13,8 @@ local registered_sources = {}
 module.use_null_ls_source = function(sources)
     local null_ls = require("null-ls")
 
+    log.info("[langs/utils]: use_null_ls_source()")
+
     for _, source in ipairs(sources) do
         -- Generate a unique key from the name/methods
         local methods = type(source.method) == "string" and source.method
@@ -56,6 +58,8 @@ end
 --- ```
 module.use_null_ls = function(package_name, null_ls_path, configure_function)
     local profiler_msg = ("null_ls|setup `%s`"):format(null_ls_path)
+
+    log.info("[langs/utils]: use_null_ls();", null_ls_path)
 
     profiler.start(profiler_msg)
 
@@ -299,7 +303,7 @@ module.use_lsp_mason = function(lsp_name, options)
         end
     end
 
-    log.debug("[langs/utils] use_lsp_mason -> before `if auto_install`")
+    log.info("[langs/utils] use_lsp_mason() -> before `if auto_install`")
 
     -- Auto install if possible
     if utils.is_module_enabled("features", "auto_install") and not opts.no_installer then
@@ -379,6 +383,8 @@ end
 ---@param setup_fn function Function that sets up this language
 ---@return function Wrapped setup function
 module.wrap_language_setup = function(module_name, setup_fn)
+    log.info("[langs/utils]: wrap_language_setup()")
+
     local setup_language = function()
         vim.defer_fn(function()
             local ok, error = xpcall(setup_fn, debug.traceback)

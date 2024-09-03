@@ -72,7 +72,7 @@ table.insert(refactor.binds, {
     name = "inline var",
     mode = "v",
   },
-  { -- remap to open the Telescope refactoring menu in visual mode
+  {   -- remap to open the Telescope refactoring menu in visual mode
     "grr",
     [[ <Esc><cmd>lua require('telescope').extensions.refactoring.refactors()<CR>]],
     { noremap = true },
@@ -81,7 +81,7 @@ table.insert(refactor.binds, {
   },
 })
 
-if require("doom.utils").is_module_enabled("whichkey") then
+-- if require("doom.utils").is_module_enabled("whichkey") then
   table.insert(refactor.binds, {
     "<leader>",
     name = "+prefix",
@@ -90,7 +90,7 @@ if require("doom.utils").is_module_enabled("whichkey") then
         "n",
         name = "+test",
         {
-          { -- prompt for a refactor to apply when the remap is triggered
+          {           -- prompt for a refactor to apply when the remap is triggered
             "r",
             [[ :lua require('telescope').extensions.refactoring.refactors()<CR> ]],
             { noremap = true, silent = true, expr = false },
@@ -155,6 +155,6 @@ if require("doom.utils").is_module_enabled("whichkey") then
       },
     },
   })
-end
+-- end
 
 return refactor

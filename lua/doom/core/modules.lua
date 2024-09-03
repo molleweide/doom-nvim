@@ -150,9 +150,11 @@ modules.handle_user_config = function()
   end
 end
 
+---Creates a user autocmd
 modules.try_sync = function()
   if modules._needs_sync then
     vim.api.nvim_create_autocmd("User", {
+      -- should we switch this to :LazyCheck?
       pattern = "PackerComplete",
       callback = function()
         local logger = require("doom.utils.logging")

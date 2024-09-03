@@ -179,7 +179,7 @@ doom.core.treesitter.settings.show_compiler_warning_message = false
 --   · warn
 --   · error
 --   · fatal
-doom.settings.logging = "debug"
+doom.settings.logging = "info"
 
 ---------------------------
 ---       OPTIONS       ---
@@ -474,10 +474,13 @@ telescope_defaults.winblend = 10
 -- TREESITTER
 --
 
+--
 -- TS CONTEXT
-vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "DarkMagenta" })
--- vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg="Pink" })
-vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", underline = true })
+--
+
+-- vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "DarkMagenta" })
+-- -- vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg="Pink" })
+-- vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", underline = true })
 
 --
 -- ADD NEW DOOM MODULE
@@ -609,10 +612,6 @@ doom.use_cmd(
     }
   }
 )
-
-
-
-
 
 --
 -- Telescope picker for user-defined commands `:commands`

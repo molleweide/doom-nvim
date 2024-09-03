@@ -164,6 +164,7 @@ default_integration.handler = function(node, node_settings)
         vim.keymap.set(sanitizedMode, node.lhs, node.rhs, options)
     end
 end
+
 -- Bind default_integration keymap handler
 module.enable(default_integration)
 
@@ -174,13 +175,8 @@ module.enable(default_integration)
 --- @param node NestNode
 --- @param settings NestSettings
 module.traverse = function(node, settings, integrations)
-    P(type(settings), settings)
     local mergedSettings = mergeSettings(settings or module.defaults, node)
-
-    -- P(mergeSettings)
-
     local first = node[1]
-
     -- Top level of config, just traverse into each keymap/keymap group
     if type(first) == "table" then
         for _, sub_node in ipairs(node) do
@@ -235,9 +231,6 @@ module.applyKeymaps = function(nest_config, settings, integrations, opts)
             integration.on_init(nest_config, settings)
         end
     end
-
-    -- print("apply keymaps..")
-    -- P(settings)
 
     module.traverse(nest_config, settings, ints)
 

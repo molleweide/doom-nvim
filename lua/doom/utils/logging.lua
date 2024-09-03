@@ -8,20 +8,20 @@ local round = require("doom.utils").round
 
 -- Configuration section
 local default_config = {
-  plugin = "doom",
-  use_console = true,
-  highlights = true,
-  use_file = true,
-  level = doom.settings.logging,
-  modes = {
-    { name = "trace", hl = "Comment" },
-    { name = "debug", hl = "Comment" },
-    { name = "info", hl = "None" },
-    { name = "warn", hl = "WarningMsg" },
-    { name = "error", hl = "ErrorMsg" },
-    { name = "fatal", hl = "ErrorMsg" },
-  },
-  decimal_places = 2,
+    plugin = "doom",
+    use_console = true,
+    highlights = true,
+    use_file = true,
+    level = doom.settings.logging,
+    modes = {
+        { name = "trace", hl = "Comment" },
+        { name = "debug", hl = "Comment" },
+        { name = "info", hl = "None" },
+        { name = "warn", hl = "WarningMsg" },
+        { name = "error", hl = "ErrorMsg" },
+        { name = "fatal", hl = "ErrorMsg" },
+    },
+    decimal_places = 2,
 }
 
 -- {{{ NO NEED TO CHANGE
@@ -33,101 +33,96 @@ local unpack = table.unpack
 --- @param config table
 --- @param standalone boolean
 log.new = function(config, standalone)
-  config = vim.tbl_deep_extend("force", default_config, config)
+    config = vim.tbl_deep_extend("force", default_config, config)
 
-  local outfile = ("%s/%s.log"):format(vim.fn.stdpath("data"), config.plugin)
+    local outfile = ("%s/%s.log"):format(vim.fn.stdpath("data"), config.plugin)
 
-  local obj
-  if standalone then
-    obj = log
-  else
-    obj = {}
-  end
-
-  local levels = {}
-  for i, v in ipairs(config.modes) do
-    levels[v.name] = i
-  end
-
-  -- Concatenates tables into a string, handling numbers and dumping tables
-  local make_string = function(...)
-    local t = {}
-    for i = 1, select("#", ...) do
-      local x = select(i, ...)
-
-      if type(x) == "number" and config.decimal_places then
-        x = tostring(round(x, config.decimal_places))
-      elseif type(x) == "table" then
-        x = vim.inspect(x)
-      else
-        x = tostring(x)
-      end
-
-      t[#t + 1] = x
-    end
-    return table.concat(t, " ")
-  end
-
-  local console_output = vim.schedule_wrap(function(level_config, info, nameupper, msg)
-    local console_lineinfo = vim.fn.fnamemodify(info.short_src, ":t") .. ":" .. info.currentline
-    local console_string = string.format(
-      "[%-6s%s] %s: %s",
-      nameupper,
-      os.date("%H:%M:%S"),
-      console_lineinfo,
-      msg
-    )
-
-    local message = { ("[%s] %s"):format(config.plugin, console_string), level_config.hl }
-    vim.api.nvim_echo({ message }, true, {})
-  end)
-
-  local log_at_level = function(level, level_config, message_maker, ...)
-    -- Return early if we're below the config.level
-    if level < levels[config.level] then
-      return
-    end
-    local nameupper = level_config.name:upper()
-
-    local msg = message_maker(...)
-    local info = debug.getinfo(2, "Sl")
-    local lineinfo = info.short_src .. ":" .. info.currentline
-
-    -- Output to console
-    if config.use_console then
-      console_output(level_config, info, nameupper, msg)
+    local obj
+    if standalone then
+        obj = log
+    else
+        obj = {}
     end
 
-    -- Output to log file
-    if config.use_file then
-      local fp = io.open(outfile, "a")
-      if not fp then
-        vim.cmd(string.format([[echom "Couldn't open log file [%s]"]], outfile))
-      else
-        local str = string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
-        fp:write(str)
-        fp:close()
-      end
-    end
-  end
-
-  for i, x in ipairs(config.modes) do
-    obj[x.name] = function(...)
-      return log_at_level(i, x, make_string, ...)
+    local levels = {}
+    for i, v in ipairs(config.modes) do
+        levels[v.name] = i
     end
 
-    obj[("fmt_%s"):format(x.name)] = function()
-      return log_at_level(i, x, function(...)
-        local passed = { ... }
-        local fmt = table.remove(passed, 1)
-        local inspected = {}
-        for _, v in ipairs(passed) do
-          table.insert(inspected, vim.inspect(v))
+    -- Concatenates tables into a string, handling numbers and dumping tables
+    local make_string = function(...)
+        local t = {}
+        for i = 1, select("#", ...) do
+            local x = select(i, ...)
+
+            if type(x) == "number" and config.decimal_places then
+                x = tostring(round(x, config.decimal_places))
+            elseif type(x) == "table" then
+                x = vim.inspect(x)
+            else
+                x = tostring(x)
+            end
+
+            t[#t + 1] = x
         end
-        return string.format(fmt, unpack(inspected))
-      end)
+        return table.concat(t, " ")
     end
-  end
+
+    local console_output = vim.schedule_wrap(function(level_config, info, nameupper, msg)
+        local console_lineinfo = vim.fn.fnamemodify(info.short_src, ":t") .. ":" .. info.currentline
+        local console_string =
+            string.format("[%-6s%s] %s: %s", nameupper, os.date("%H:%M:%S"), console_lineinfo, msg)
+
+        local message = { ("[%s] %s"):format(config.plugin, console_string), level_config.hl }
+        vim.api.nvim_echo({ message }, true, {})
+    end)
+
+    local log_at_level = function(level, level_config, message_maker, ...)
+        -- Return early if we're below the config.level
+        if level < levels[config.level] then
+            return
+        end
+        local nameupper = level_config.name:upper()
+
+        local msg = message_maker(...)
+        local info = debug.getinfo(2, "Sl")
+        local lineinfo = info.short_src .. ":" .. info.currentline
+
+        -- Output to console
+        if config.use_console then
+            console_output(level_config, info, nameupper, msg)
+        end
+
+        -- Output to log file
+        if config.use_file then
+            local fp = io.open(outfile, "a")
+            if not fp then
+                vim.cmd(string.format([[echom "Couldn't open log file [%s]"]], outfile))
+            else
+                local str = string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
+                fp:write(str)
+                fp:close()
+            end
+        end
+    end
+
+    for i, x in ipairs(config.modes) do
+        obj[x.name] = function(...)
+            return log_at_level(i, x, make_string, ...)
+        end
+
+        obj[("fmt_%s"):format(x.name)] = function()
+            return log_at_level(i, x, function(...)
+                local passed = { ... }
+                local fmt = table.remove(passed, 1)
+                local inspected = {}
+                for _, v in ipairs(passed) do
+                    table.insert(inspected, vim.inspect(v))
+                end
+                return string.format(fmt, unpack(inspected))
+            end)
+        end
+    end
 end
 
 log.new(default_config, true)

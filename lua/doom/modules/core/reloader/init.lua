@@ -146,12 +146,12 @@ reloader._reload_doom = function()
   -- Unload doom.modules/doom.core lua files
   for k, _ in pairs(package.loaded) do
     if
-      -- this is just so you can toggle/test more easilly
-      string.match(k, "^doom%.core")
-      or string.match(k, "^doom%.modules")
-      or string.match(k, "^doom%.utils")
-      or string.match(k, "^user%.modules")
-      or string.match(k, "^user%.utils")
+    -- this is just so you can toggle/test more easilly
+        string.match(k, "^doom%.core")
+        or string.match(k, "^doom%.modules")
+        or string.match(k, "^doom%.utils")
+        or string.match(k, "^user%.modules")
+        or string.match(k, "^user%.utils")
     then
       package.loaded[k] = nil
       -- print("unload path: ", k)
@@ -169,14 +169,18 @@ reloader._reload_doom = function()
   -- Install, bind, add autocmds etc for all modules and user configs
   require("doom.core.modules"):load_modules()
   require("doom.core.modules"):handle_user_config()
+  require("doom.core.modules"):handle_lazynvim()
 
   -- Post reload modules comparison
   local ok, modules = require("doom.core.modules").enabled_modules()
+
   local packages = vim.tbl_map(function(t)
     return t[1]
   end, doom.packages)
+
   local needs_install = vim.deep_equal(modules, old_modules)
-    and vim.deep_equal(packages, old_packages)
+      and vim.deep_equal(packages, old_packages)
+
   if needs_install then
     if not _G._doom_reloader._has_shown_packer_compile_message then
       log.warn(
@@ -187,6 +191,11 @@ reloader._reload_doom = function()
   else
     log.warn("reloader: Run `:Lazy sync` to install and configure new plugins.")
   end
+
+  -- Lazy
+  -- TODO: Only run lazy sync if there are packages that have been added or
+  -- changed?
+  -- vim.cmd("Lazy sync")
 
   -- VimEnter to emulate loading neovim
   vim.cmd("doautocmd VimEnter")
@@ -199,25 +208,25 @@ end
 -- rather that should be done in a preceding stage.
 --- Reload Neovim and simulate a new run
 reloader.reload = function()
-    local ok = require("doom.core.modules").enabled_modules()
+  local ok = require("doom.core.modules").enabled_modules()
 
-    if not ok then
-      log.warn("Enabled modules file could not be loaded. Fix this before we can reload...")
-      return
-    end
+  if not ok then
+    log.warn("Enabled modules file could not be loaded. Fix this before we can reload...")
+    return
+  end
 
-    -- Store the time taken to reload Doom
-    local reload_time = vim.fn.reltime()
-    log.info("Reloading Doom ...")
+  -- Store the time taken to reload Doom
+  local reload_time = vim.fn.reltime()
+  log.info("Reloading Doom ...")
 
-    --- Reload Neovim configurations
-    reloader._reload_doom()
+  --- Reload Neovim configurations
+  reloader._reload_doom()
 
-    log.info(
-      "Reloaded Doom in "
-        .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
-        .. " seconds"
-    )
+  log.info(
+    "Reloaded Doom in "
+    .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
+    .. " seconds"
+  )
 end
 
 reloader.reload_if_on_save_enabled = function()
@@ -290,7 +299,8 @@ reloader.autocmds = function()
     end
   end
 
-  local watch_patterns = concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.basic)
+  local watch_patterns =
+      concat_pattern(doom.modules.core.reloader.settings.autocmd_patterns.basic)
 
   -- TODO: settigs.disable_reload_for_patterns
   --      https://stackoverflow.com/questions/6496778/vim-run-autocmd-on-all-filetypes-except
@@ -299,14 +309,17 @@ reloader.autocmds = function()
 
   -- RELOAD DOOM ON SAVE
   if doom.modules.core.reloader.settings.reload_on_save then
-    table.insert(autocmds, { "BufWritePost", watch_patterns, reloader.reload_if_on_save_enabled })
+    table.insert(
+      autocmds,
+      { "BufWritePost", watch_patterns, reloader.reload_if_on_save_enabled }
+    )
     table.insert(autocmds, {
       "BufWritePost",
       "*/modules.lua,*/config.lua,*/settings.lua",
       function()
         if
-          vim.fn.getcwd() == vim.fn.stdpath("config")
-          or system.doom_configs_root == vim.fn.stdpath("config")
+            vim.fn.getcwd() == vim.fn.stdpath("config")
+            or system.doom_configs_root == vim.fn.stdpath("config")
         then
           reloader.reload_if_on_save_enabled()()
         end
@@ -330,7 +343,7 @@ reloader.binds = {
             "L",
             function()
               doom.modules.core.reloader.settings.reload_on_save =
-                not doom.modules.core.reloader.settings.reload_on_save
+                  not doom.modules.core.reloader.settings.reload_on_save
               print(
                 "toggle doom reload on save: ",
                 doom.modules.core.reloader.settings.reload_on_save

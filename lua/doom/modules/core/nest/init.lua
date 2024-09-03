@@ -23,6 +23,9 @@
 --  TODO: completions -> if you are about to type the name of a leader branch,
 --  then you should be able to get completions based on the tree you have already
 --  defined in relation to all other trees on the system.
+--
+--  TEST: Would it be possible to only trigger reload_binds() if i can check with
+--  TS that a binding has been changed?
 
 local nest = {}
 

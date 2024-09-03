@@ -4,7 +4,7 @@ description:
 authors: hjalmarjakobsson
 categories:
 created: 2024-08-27T07:36:38-0500
-updated: 2024-08-27T07:37:15-0500
+updated: 2024-08-30T01:39:43-0500
 version: 1.1.1
 @end
 
@@ -12,10 +12,13 @@ version: 1.1.1
 
 add
 
-nui
-litee
-nui-components
-reactive nvim
+~ nui
+~ nui-components
+~ litee
+~ reactive nvim
+~ the one plugin lib that facilitates creating new modes.
+~ async shit
+~ pathlib
 
 and all kinds of plugins that provide libs for further advanced shit to this
 lib, so that I know that everything is here.

@@ -11,17 +11,17 @@ return {
     "ai_chat_gpt",
   },
   lib = {
-    "nio" -- asynch IO
+    "nio",     -- asynch IO
   },
   features = {
     buffers = {
       "buffer_management",
       "temporary_buffers",
-      "cleanup_unused"
+      "cleanup_unused",
     },
     lib = {
       "litee",
-      "pathlib"
+      "pathlib",
     },
 
     completions = {
@@ -30,19 +30,19 @@ return {
     },
 
     snippets = {
-      "extra_snippets", -- Code snippets for all languages
+      "extra_snippets",       -- Code snippets for all languages
       "luasnip_engine",
       "additional_friendly_snippets",
       "luasnip_telescope",
     },
 
     -- Language features
-    "annotations",  -- Code annotation generator
-    "auto_install", -- Auto install LSP providers
-    "autopairs",    -- Automatically close character pairs
-    "comment",      -- Adds keybinds to comment in any language
-    "linter",       -- Linting and formatting for languages
-    "lsp",          -- Code completion
+    "annotations",      -- Code annotation generator
+    "auto_install",     -- Auto install LSP providers
+    "autopairs",        -- Automatically close character pairs
+    "comment",          -- Adds keybinds to comment in any language
+    "linter",           -- Linting and formatting for languages
+    "lsp",              -- Code completion
     "lsp_cmp",
     "lsp_signature_hints",
     "context_in_code",
@@ -62,19 +62,19 @@ return {
     },
 
     -- Editor
-    "auto_session",    -- Remember sessions between loads
-    "colorizer",       -- Show colors in neovim
-    "editorconfig",    -- Support editorconfig files
+    "auto_session",        -- Remember sessions between loads
+    "colorizer",           -- Show colors in neovim
+    "editorconfig",        -- Support editorconfig files
     -- "gitsigns", -- Show git changes in sidebar
-    "illuminate",      -- Highlight other copies of the word you're hovering on
-    "indentlines",     -- Show indent lines with special characters
-    "range_highlight", -- Highlight selected range from commands
-    "todo_comments",   -- Highlight TODO: comments
-    "doom_themes",     -- Extra themes for doom
+    "illuminate",          -- Highlight other copies of the word you're hovering on
+    "indentlines",         -- Show indent lines with special characters
+    "range_highlight",     -- Highlight selected range from commands
+    "todo_comments",       -- Highlight TODO: comments
+    "doom_themes",         -- Extra themes for doom
     "color_pickers",
     "clipboard_neoclip",
     "clipboard_images",
-    "refactoring",
+    refactor = { "refactoring", "exemplum" },
     "search_and_replace",
     "quickfix_improvements",
     "increment_and_toggle_values",
@@ -82,12 +82,12 @@ return {
     "comments_block_headers",
     "marks",
     "folds",
-    "help_and_doc_bindings_various", -- Support for help with binds and stuff
+    "help_and_doc_bindings_various",     -- Support for help with binds and stuff
     "cursor",
     "formatting",
     editor = {
       -- "spellcheck",
-      "surround", -- Surround text objects, eg. {([])}
+      "surround",       -- Surround text objects, eg. {([])}
       -- "gestures",        -- Mouse gestures
       -- "tabs",            -- ???
       "scroll",
@@ -108,44 +108,44 @@ return {
     "movement_lightspeed",
 
     -- UI COMPONENTS
-    "lsp_progress",            -- Check status of LSP loading
-    "tabline",                 -- Tab bar buffer switcher
-    "dashboard",               -- A pretty dashboard upon opening
-    "trouble",                 -- A pretty diagnostic viewer
-    "statusline",              -- A pretty status line at the bottom of the buffer
+    "lsp_progress",     -- Check status of LSP loading
+    "tabline",          -- Tab bar buffer switcher
+    "dashboard",        -- A pretty dashboard upon opening
+    "trouble",          -- A pretty diagnostic viewer
+    "statusline",       -- A pretty status line at the bottom of the buffer
     -- "minimap",         -- Shows current position in document
 
-    "terminal",                -- Integrated terminal in neovim
+    "terminal",     -- Integrated terminal in neovim
     terminal = {
       -- TODO: Move terminal related plugins into this dir
     },
 
-    "symbols_outline_sidebar", -- Navigate between code symbols using telescope
-    "ranger",                  -- File explorer in neovim (TODO: Test)
-    "restclient",              -- Test HTTP requests from neovim (TODO: Test)
-    "show_registers",          -- Show and navigate between registers
-    "dui", -- [WIP] Managen your doom config with Telescope.
+    "symbols_outline_sidebar",     -- Navigate between code symbols using telescope
+    "ranger",                      -- File explorer in neovim (TODO: Test)
+    "restclient",                  -- Test HTTP requests from neovim (TODO: Test)
+    "show_registers",              -- Show and navigate between registers
+    "dui",                         -- [WIP] Managen your doom config with Telescope.
     "ui_make_transparent",
     "ui_custom_vim_input_select",
     ui = {
-      "noice_ergonomic_ui"
+      "noice_ergonomic_ui",
     },
 
     -- TOOLS
-    "dap", -- Debug code through neovim
+    "dap",     -- Debug code through neovim
     "repl",
     "email_himalaya",
-    "explorer",  -- An enhanced filetree explorer
-    "firenvim",  -- Embed neovim in your browser
-    "lazygit",   -- Lazy git integration
-    "neogit",    -- A git client for neovim
+    "explorer",      -- An enhanced filetree explorer
+    "firenvim",      -- Embed neovim in your browser
+    "lazygit",       -- Lazy git integration
+    "neogit",        -- A git client for neovim
     -- "netrw",
-    "neorg",     -- Organise your life
-    "superman",  -- Read unix man pages in neovim
-    "suda",      -- Save using sudo when necessary
-    "telescope", -- Fuzzy searcher to find files, grep code and more
+    "neorg",         -- Organise your life
+    "superman",      -- Read unix man pages in neovim
+    "suda",          -- Save using sudo when necessary
+    "telescope",     -- Fuzzy searcher to find files, grep code and more
     -- "telescope_extensions_various",
-    "whichkey",  -- An interactive sheet
+    "whichkey",      -- An interactive sheet
     "zen",
     "music_and_audio_engineering",
     "figlet",
@@ -186,9 +186,9 @@ return {
     },
 
     workspace_management = {
-      "projects", -- Quickly switch between projects
+      "projects",       -- Quickly switch between projects
       "system_git_repos",
-      "ghq"
+      "ghq",
     },
 
     -- TODO: ypc and clipboard should go under `editor`
@@ -205,10 +205,10 @@ return {
   },
   version_control = {
     git = {
-      "git", -- git basic support
+      "git",       -- git basic support
       -- "gitsigns",
       -- "vgit",
-      "diffview", -- git diffview integration
+      "diffview",       -- git diffview integration
       -- "repo_search",
       "github_octo",
       "github_litee",
@@ -354,7 +354,7 @@ return {
     "tamton_essentials",
     "tweak",
     "dorothy",
-    "plugins_reloader", -- Watch local packages for changes during development
+    "plugins_reloader",     -- Watch local packages for changes during development
     "nvim_dev_binds",
   },
 }
