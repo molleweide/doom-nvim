@@ -1,0 +1,13 @@
+@document.meta
+title: README
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2024-09-09T04:51:30-0500
+updated: 2024-09-09T04:52:12-0500
+version: 1.1.1
+@end
+
+Check if completion engines are enabled, otherwise prompt user to disable these.
+
+Automatically disable?

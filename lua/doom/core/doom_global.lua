@@ -4,6 +4,8 @@
 -- We set it directly within this file (rather than returning the object) and
 -- setting it elsewhere to allow sumneko_lua to provide documented type
 -- completions.
+--
+-- TODO: Rename to just `global.lua`
 
 --- TYPE DEFINITIONS
 --- @class DoomKeybindOptions

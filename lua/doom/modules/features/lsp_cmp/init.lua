@@ -1,6 +1,11 @@
-local nvim_cmp = {}
+-- TODO: Move module to `features/completions/engine_cmp`,
+-- so that it makes sense with `engine_care`
+--
+-- TODO: Move each cmp source into its own module `completions/sources/name`
+--
 
--- TODO: Move each cmp source into its own module file.
+
+local nvim_cmp = {}
 
 --- Internal state of CMP module
 -- Flag to enable/disable completions for <leader>tc keybind.

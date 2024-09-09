@@ -11,6 +11,9 @@ local search_and_replace = {}
 --      all of the commands below in lua so that the string data
 --      can be processed first and then concatenated into the command
 
+-- TODO: Improved spectre UI with NuiComponents
+--   https://www.reddit.com/r/neovim/comments/1b5ri9g/developing_search_replace_similar_to_vs_code_with/
+
 search_and_replace.packages = {
   ["nvim-search-and-replace"] = { "s1n7ax/nvim-search-and-replace" },
   ["nvim-spectre"] = { "nvim-pack/nvim-spectre" },

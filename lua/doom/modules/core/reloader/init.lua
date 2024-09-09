@@ -209,21 +209,17 @@ end
 --- Reload Neovim and simulate a new run
 reloader.reload = function()
   local ok = require("doom.core.modules").enabled_modules()
-
   if not ok then
     log.warn("Enabled modules file could not be loaded. Fix this before we can reload...")
     return
   end
-
   -- Store the time taken to reload Doom
   local reload_time = vim.fn.reltime()
-  log.info("Reloading Doom ...")
-
+  log.info("[@core.reloder]: reload() -> Before reloading.")
   --- Reload Neovim configurations
   reloader._reload_doom()
-
   log.info(
-    "Reloaded Doom in "
+    "[@core.reloader]: After reloading; Reloaded Doom in "
     .. vim.fn.printf("%.3f", vim.fn.reltimefloat(vim.fn.reltime(reload_time)))
     .. " seconds"
   )

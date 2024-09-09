@@ -150,7 +150,7 @@ config.load = function()
   local ok, err = xpcall(dofile, debug.traceback, config.source)
   local log = require("doom.utils.logging")
   if not ok and err then
-    log.error("Error while running `config.lua. Traceback:\n" .. err)
+    log.error("[core/config.lua]: Error while running `config.lua`. Traceback:\n" .. err)
   end
   profiler.stop("framework|config.lua (user)")
 

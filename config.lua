@@ -6,6 +6,10 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- Time Warrior: https://www.reddit.com/r/neovim/comments/1b0155b/building_ui_forms_with_nui/
+
+-- AI with NuiComponents: https://www.reddit.com/r/neovim/comments/1b1kk61/utilizing_ai_with_ollama_and_gennvim/
+
 -- have a scratch buffer that one can brainstorm into: https://github.com/swaits/scratch.nvim
 --
 --
