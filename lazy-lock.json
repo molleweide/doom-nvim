@@ -27,6 +27,7 @@
   "git-blame.nvim": { "branch": "master", "commit": "50543e3993f4b996eea01ff5ccc8fe2a354c5388" },
   "gitsigns.nvim": { "branch": "main", "commit": "899e993850084ea33d001ec229d237bc020c19ae" },
   "heirline.nvim": { "branch": "master", "commit": "0d797435e54645a5f98bad7ad6046aac1ef95c1e" },
+  "helpview.nvim": { "branch": "main", "commit": "857aec1dab331252910da158ab6cbfbc65239c71" },
   "himalaya-vim": { "branch": "master", "commit": "cea041c927a04a841aea53abcedd4a0d153d4ca8" },
   "hlargs.nvim": { "branch": "main", "commit": "9adab9f2a3270c6413b808405479caaf972be953" },
   "indent-blankline.nvim": { "branch": "master", "commit": "18603eb949eba08300799f64027af11ef922283f" },

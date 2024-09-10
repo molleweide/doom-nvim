@@ -16,6 +16,7 @@ local care = {}
 care.packages = {
     ["care.nvim"] = {
         "max397574/care.nvim",
+        dev = true,
         -- dependencies = { -- if not using rocks
         --     {
         --         "romgrk/fzy-lua-native",

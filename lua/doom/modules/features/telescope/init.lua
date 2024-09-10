@@ -52,7 +52,7 @@ telescope.settings = {
     set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
     -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
   },
-  extensions = { "mapper" },
+  extensions = {},
 }
 
 telescope.packages = {
@@ -165,7 +165,7 @@ telescope.binds = function()
         name = "+help",
         {
           { "t", "<cmd>Telescope help_tags<CR>", name = "Find tags" },
-          { "k", "<cmd>Telescope mapper<CR>",    name = "Open keybindings" },
+          -- { "k", "<cmd>Telescope mapper<CR>",    name = "Open keybindings" },
         },
       },
       {

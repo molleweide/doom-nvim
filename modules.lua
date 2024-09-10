@@ -120,6 +120,10 @@ return {
       -- TODO: Move terminal related plugins into this dir
     },
 
+    nvim_help = {
+      "vimdoc_and_help_decorations"
+    },
+
     "symbols_outline_sidebar",     -- Navigate between code symbols using telescope
     "ranger",                      -- File explorer in neovim (TODO: Test)
     "restclient",                  -- Test HTTP requests from neovim (TODO: Test)
