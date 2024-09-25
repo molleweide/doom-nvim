@@ -6,6 +6,13 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+
+-- task launcher with telescope integration: https://github.com/miroshQa/rittli.nvim
+
+-- https://github.com/kosayoda/nvim-lightbulb
+
+-- this >>>>> https://github.com/m4xshen/hardtime.nvim
+
 -- Time Warrior: https://www.reddit.com/r/neovim/comments/1b0155b/building_ui_forms_with_nui/
 
 -- AI with NuiComponents: https://www.reddit.com/r/neovim/comments/1b1kk61/utilizing_ai_with_ollama_and_gennvim/

@@ -95,7 +95,7 @@ lsp.binds = function()
                 { "D", vim.lsp.buf.declaration, "Jump to declaration" },
                 { "d", vim.lsp.buf.definition, name = "Jump to definition" },
                 { "r", vim.lsp.buf.references, name = "Jump to references" },
-                { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
+                { "I", vim.lsp.buf.implementation, name = "Jump to implementation" },
                 { "a", vim.lsp.buf.code_action, name = "Do code action" },
             },
         },
