@@ -2,6 +2,10 @@ local superman = {}
 
 superman.settings = {}
 
+-- https://github.com/lucc/nvimpager
+-- https://github.com/paretje/nvim-man
+-- https://github.com/vim-utils/vim-man
+
 superman.packages = {
   ["vim-superman"] = {
     "jez/vim-superman",

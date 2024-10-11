@@ -19,6 +19,9 @@ lsp.settings = {
     virtual_text = true,
 }
 
+-- NOTE: I need a better way of managing lsp servers??
+-- https://github.com/hinell/lsp-timeout.nvim
+
 lsp.packages = {
     ["nvim-lspconfig"] = {
         "neovim/nvim-lspconfig",
@@ -84,11 +87,40 @@ lsp.configs["nvim-lspconfig"] = function()
     end
 end
 
+local function diagnostics_testing()
+    print("--- DIAGNOSTIC TESTING ---")
+
+
+    print("diagnostics i current buf=", vim.inspect(vim.diagnostic.count(0)))
+
+    print("namespaces = ", vim.inspect(vim.diagnostic.get_namespaces()))
+
+    print("Current diagnostics = ", vim.inspect(vim.diagnostic.get(0)))
+
+    print("next = ", vim.inspect(vim.diagnostic.get_next()))
+
+    -- TODO: Add a new virtual char to all diagnostics.
+
+    print("--- DIAGNOSTIC TESTING END ---")
+end
+
 lsp.binds = function()
     return {
         { "K", vim.lsp.buf.hover, name = "Show hover doc" },
-        { "[d", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
-        { "]d", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
+        {
+            "[d",
+            function()
+                vim.diagnostic.jump({ count = -1 })
+            end,
+            name = "Jump to prev diagnostic",
+        },
+        {
+            "]d",
+            function()
+                vim.diagnostic.jump({ count = 1 })
+            end,
+            name = "Jump to next diagnostic",
+        },
         {
             "g",
             {
@@ -102,9 +134,25 @@ lsp.binds = function()
         {
             "<C-",
             {
-                { "p>", vim.diagnostic.goto_prev, name = "Jump to prev diagnostic" },
-                { "n>", vim.diagnostic.goto_next, name = "Jump to next diagnostic" },
-                { "k>", vim.lsp.buf.signature_help, name = "Show signature help" },
+                {
+                    "p>",
+                    function()
+                        vim.diagnostic.jump({ count = -1 })
+                    end,
+                    name = "Jump to prev diagnostic",
+                },
+                {
+                    "n>",
+                    function()
+                        vim.diagnostic.jump({ count = 1 })
+                    end,
+                    name = "Jump to next diagnostic",
+                },
+                {
+                    "k>",
+                    vim.lsp.buf.signature_help,
+                    name = "Show signature help",
+                },
             },
         },
         {
@@ -119,6 +167,19 @@ lsp.binds = function()
                         { "a", vim.lsp.buf.code_action, name = "Do action" },
                         { "t", vim.lsp.buf.type_definition, name = "Jump to type" },
                         { "D", vim.lsp.buf.declaration, "Jump to declaration" },
+                        {
+                            "k",
+                            name = "+diagnostics",
+                            {
+                                {
+                                    "t",
+                                    function()
+                                        diagnostics_testing()
+                                    end,
+                                    name = "diagnostics testing",
+                                },
+                            },
+                        },
                         { "d", vim.lsp.buf.definition, name = "Jump to definition" },
                         { "R", vim.lsp.buf.references, name = "Jump to references" },
                         { "i", vim.lsp.buf.implementation, name = "Jump to implementation" },
@@ -130,6 +191,8 @@ lsp.binds = function()
                                 { "r", "<cmd>LspRestart<CR>", name = "Restart" },
                                 { "s", "<cmd>LspStart<CR>", name = "Start" },
                                 { "d", "<cmd>LspStop<CR>", name = "Disconnect" },
+                                { "m", "<cmd>Mason<CR>", name = "Mason" },
+                                { "M", "<cmd>MasonLog<CR>", name = "MasonLog" },
                             },
                         },
                         {
