@@ -86,6 +86,9 @@ local tsctx = {}
 --   },
 -- }
 
+-- TODO: [ ] Custom context check when inside a doom bindings tree so that we can
+-- see the whole tree branch always.
+
 tsctx.packages = {
   ["nvim-treesitter-context"] = { "nvim-treesitter/nvim-treesitter-context" },
   ["nvim_context_vt"] = { "haringsrob/nvim_context_vt" },

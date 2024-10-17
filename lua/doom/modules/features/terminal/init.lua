@@ -22,34 +22,34 @@ local lazygit_term_handle
 ---
 
 local float_opts = {
-  height = function()
-    return math.floor(vim.o.lines * 0.8)
-  end,
-  width = function()
-    return math.floor(vim.o.columns * 0.95)
-  end,
+    height = function()
+        return math.floor(vim.o.lines * 0.8)
+    end,
+    width = function()
+        return math.floor(vim.o.columns * 0.95)
+    end,
 }
 
 terminal.settings = {
-  size = 10,
-  open_mapping = "<F4>",
-  hide_numbers = true,
-  shade_filetypes = {},
-  shade_terminals = true,
-  start_in_insert = true,
-  persist_size = true,
-  direction = "horizontal",
-  close_on_exit = true,
-  float_opts = {
-    border = "curved",
-    width = 70,
-    height = 20,
-    winblend = 0,
-    highlights = {
-      border = "Special",
-      background = "Normal",
+    size = 10,
+    open_mapping = "<F4>",
+    hide_numbers = true,
+    shade_filetypes = {},
+    shade_terminals = true,
+    start_in_insert = true,
+    persist_size = true,
+    direction = "horizontal",
+    close_on_exit = true,
+    float_opts = {
+        border = "curved",
+        width = 70,
+        height = 20,
+        winblend = 0,
+        highlights = {
+            border = "Special",
+            background = "Normal",
+        },
     },
-  },
 }
 
 -- https://github.com/rockerBOO/awesome-neovim#terminal-integration
@@ -75,30 +75,30 @@ terminal.settings = {
 -- jlesquembre/nterm.nvim - A Neovim plugin to interact with the terminal, with notifications.
 -- s1n7ax/nvim-terminal - A simple & easy to use multi-terminal plugin.
 terminal.packages = {
-  ["toggleterm.nvim"] = {
-    "akinsho/toggleterm.nvim",
-    -- commit = "a54e6c471ce1cd8ef8357e34598a28a955297131",
-    cmd = { "ToggleTerm", "TermExec" },
-    lazy = true,
-  },
-  -- https://github.com/distek/tt.nvim
-  -- https://github.com/sychen52/smart-term-esc.nvim
+    ["toggleterm.nvim"] = {
+        "akinsho/toggleterm.nvim",
+        -- commit = "a54e6c471ce1cd8ef8357e34598a28a955297131",
+        cmd = { "ToggleTerm", "TermExec" },
+        lazy = true,
+    },
+    -- https://github.com/distek/tt.nvim
+    -- https://github.com/sychen52/smart-term-esc.nvim
 }
 
 terminal.configs = {}
 terminal.configs["toggleterm.nvim"] = function()
-  require("toggleterm").setup(doom.features.terminal.settings)
+    require("toggleterm").setup(doom.features.terminal.settings)
 
-  local Terminal = require("toggleterm.terminal").Terminal
+    local Terminal = require("toggleterm.terminal").Terminal
 
-  lazygit_term_handle = Terminal:new({
-    cmd = "lazygit",
-    dir = "git_dir",
-    hidden = true,
-    direction = "float",
-    -- on_open = float_handler,
-    float_opts = float_opts,
-  })
+    lazygit_term_handle = Terminal:new({
+        cmd = "lazygit",
+        dir = "git_dir",
+        hidden = true,
+        direction = "float",
+        -- on_open = float_handler,
+        float_opts = float_opts,
+    })
 end
 
 -- local function toggle_term_custom()
@@ -110,93 +110,93 @@ end
 --   end
 -- end
 
+local function toggle_lazyvim()
+    if not lazygit_term_handle then
+        local Terminal = require("toggleterm.terminal").Terminal
+        lazygit_term_handle = Terminal:new({
+            cmd = "lazygit",
+            dir = "git_dir",
+            hidden = true,
+            direction = "float",
+            -- on_open = float_handler,
+            float_opts = float_opts,
+        })
+    end
+    lazygit_term_handle:toggle()
+end
+
 -- " Count is 0 by default
 -- command! -count -complete=shellcmd -nargs=* TermExec lua require'toggleterm'.exec_command(<q-args>, <count>)
 -- command! -count -nargs=* ToggleTerm lua require'toggleterm'.toggle_command(<q-args>, <count>)
 -- command! -bang ToggleTermToggleAll lua require'toggleterm'.toggle_all(<q-bang>)
 terminal.binds = {
-  "<leader>",
-  name = "+prefix",
-  {
+    "<leader>",
+    name = "+prefix",
     {
-      "o",
-      name = "+open/close",
-      {
-        "t",
-        name = "+terminal",
         {
-          {
-            "w",
-            name = "Term Toggle",
-            function()
-              require("toggleterm").toggle_command(nil, 0)
-            end,
-          },
-          {
-            "m",
-            name = "Term Toggle 1",
-            function()
-              require("toggleterm").toggle_command("size=40 direction=horizontal", 1)
-            end,
-          },
-          {
-            ",",
-            name = "Term Toggle 2",
-            function()
-              require("toggleterm").toggle_command("size=40 direction=horizontal", 2)
-            end,
-          },
-          {
-            ".",
-            name = "Term Toggle 3",
-            function()
-              require("toggleterm").toggle_command("size=40 direction=vertical", 3)
-            end,
-          },
-          {
-            "a",
-            name = "Term Toggle All",
-            function()
-              require("toggleterm").toggle_all()
-            end,
-          },
-          {
-            -- FIX: reset when cwd changes,
-            "l",
-            name = "toggleterm: toggle lazygit",
-            function()
-              lazygit_term_handle:toggle()
-            end,
-          },
-          {
-            "s",
-            name = "Term Select",
-            "<cmd>TermSelect<CR>",
-          },
-          {
-            "r",
-            name = "Term Rename",
-            "<cmd>ToggleTermSetName<CR>",
-          },
-          -- send cur line
-          -- send vis lines
-          -- send vis sel
-          {
-            "e",
-            name = "Term Exec Zshil",
-            function()
-              if doom.settings.term_exec_cmd == "" then
-                vim.cmd("ToggleTerm")
-              else
-                local exec_cmd = string.format('TermExec cmd="%s"', doom.settings.term_exec_cmd)
-                vim.cmd(exec_cmd)
-              end
-            end,
-          },
-        }, -- ot inner {}
-      }, -- ot
-    }, -- o
-  },
+            "o",
+            name = "+open/close",
+            {
+                "t",
+                name = "+terminal",
+                {
+                    {
+                        "w",
+                        name = "Term Toggle",
+                        function()
+                            require("toggleterm").toggle_command(nil, 0)
+                        end,
+                    },
+                    {
+                        "m",
+                        name = "Term Toggle 1",
+                        function()
+                            require("toggleterm").toggle_command("size=40 direction=horizontal", 1)
+                        end,
+                    },
+                    {
+                        ",",
+                        name = "Term Toggle 2",
+                        function()
+                            require("toggleterm").toggle_command("size=40 direction=horizontal", 2)
+                        end,
+                    },
+                    {
+                        ".",
+                        name = "Term Toggle 3",
+                        function()
+                            require("toggleterm").toggle_command("size=40 direction=vertical", 3)
+                        end,
+                    },
+                    {
+                        "a",
+                        name = "Term Toggle All",
+                        function()
+                            require("toggleterm").toggle_all()
+                        end,
+                    },
+                    {
+                        -- FIX: reset when cwd changes,
+                        "l",
+                        name = "toggleterm: toggle lazygit",
+                        function()
+                            toggle_lazyvim()
+                        end,
+                    },
+                    {
+                        "s",
+                        name = "Term Select",
+                        "<cmd>TermSelect<CR>",
+                    },
+                    {
+                        "r",
+                        name = "Term Rename",
+                        "<cmd>ToggleTermSetName<CR>",
+                    },
+                }, -- ot inner {}
+            }, -- ot
+        }, -- o
+    },
 }
 
 return terminal
