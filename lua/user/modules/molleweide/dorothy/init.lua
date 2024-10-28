@@ -53,9 +53,9 @@ local dorothy = {}
 local dorothy_dir = os.getenv("DOROTHY")
 
 local commands_public = {
-    dorothy_dir .. "/commands",
-    dorothy_dir .. "/commands.beta",
-    dorothy_dir .. "/user/commands",
+  dorothy_dir .. "/commands",
+  dorothy_dir .. "/commands.beta",
+  dorothy_dir .. "/user/commands",
 }
 
 -- Get dirs with private files from pattern match dirs.
@@ -64,164 +64,103 @@ local commands_public = {
 -- }
 
 local sources = {
-    dorothy_dir .. "/sources",
-    dorothy_dir .. "/user/sources",
+  dorothy_dir .. "/sources",
+  dorothy_dir .. "/user/sources",
 }
 
 local function search_dorothy_cmds()
-    local make_entry = require("telescope.make_entry")
-    require("telescope.builtin").find_files({
-        prompt_title = "Dorothy Commands",
-        entry_maker = function(entry)
-            local res = entry:match("dorothy/(.*)")
-            return {
-                value = entry,
-                display = res,
-                ordinal = res,
-            }
-        end,
-        search_dirs = {
-            dorothy_dir .. "/commands",
-            dorothy_dir .. "/commands.beta",
-            dorothy_dir .. "/user/commands",
-        },
-    })
+  local make_entry = require("telescope.make_entry")
+  require("telescope.builtin").find_files({
+    prompt_title = "Dorothy Commands",
+    entry_maker = function(entry)
+      local res = entry:match("dorothy/(.*)")
+      return {
+        value = entry,
+        display = res,
+        ordinal = res,
+      }
+    end,
+    search_dirs = {
+      dorothy_dir .. "/commands",
+      dorothy_dir .. "/commands.beta",
+      dorothy_dir .. "/user/commands",
+    },
+  })
 end
 
-local function search_dorothy_cmds()
-    local make_entry = require("telescope.make_entry")
-    require("telescope.builtin").find_files({
-        prompt_title = "Dorothy Commands",
-        entry_maker = function(entry)
-            local res = entry:match("dorothy/(.*)")
-            return {
-                value = entry,
-                display = res,
-                ordinal = res,
-            }
-        end,
-        search_dirs = {
-            dorothy_dir .. "/sources",
-            dorothy_dir .. "/user/sources",
-        },
-    })
+local function search_dorothy_sources()
+  local make_entry = require("telescope.make_entry")
+  require("telescope.builtin").find_files({
+    prompt_title = "Dorothy Sources",
+    entry_maker = function(entry)
+      local res = entry:match("dorothy/(.*)")
+      return {
+        value = entry,
+        display = res,
+        ordinal = res,
+      }
+    end,
+    search_dirs = {
+      dorothy_dir .. "/sources",
+      dorothy_dir .. "/user/sources",
+    },
+  })
 end
 
--- double leader
--- if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
---   table.insert(binds, {
---     "<leader>",
---     name = "+prefix",
---     {
---       "<leader>",
---       name = "+prefix",
---       {
---         {
---           "f",
---           name = "+my_find",
---           {
---
---             {
---               "d",
---               function()
---                 require("telescope.builtin").find_files({ cwd = "~/.config/dorothy" })
---               end,
---               name = "Dorothy User",
---             },
---             {
---               "D",
---               function()
---                 require("telescope.builtin").find_files({ cwd = "~/.local/share/dorothy" })
---               end,
---               name = "Dorothy",
---             },
---             -- {
---             --   "x",
---             --   function()
---             --     require("telescope.builtin").find_files({
---             --       cwd = "~/code/repos/github.com/molleweide/xdg_configs",
---             --     })
---             --   end,
---             --   name = "xdg_configs",
---             -- },
---             {
---               "s",
---               function()
---                 require("telescope.builtin").find_files({
---                   cwd = "~/code/repos/github.com/molleweide/doom-nvim/lua/doom/snips/",
---                 })
---               end,
---               name = "Find DOOM-NVIM snippets",
---             },
---             {
---               "n",
---               function()
---                 require("telescope.builtin").find_files({
---                   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
---                 })
---               end,
---               name = "Find DOOM-NVIM",
---             },
---             {
---               "m",
---               function()
---                 picker_all_doom_modules()
---
---                 -- require("telescope.builtin").find_files({
---                 --   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
---                 -- })
---               end,
---               name = "Find DOOM-NVIM modules only",
---             },
---             {
---               "w",
---               name = "Grep DOOM-NVIM",
---               function()
---                 require("telescope.builtin").live_grep({
---                   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
---                 })
---               end,
---             },
---           },
---         },
---       },
---     },
---   })
--- end
+local function grep_dorothy()
+  require("telescope.builtin").live_grep({
+    prompt_title = "Dorothy Grep",
+    search_dirs = { dorothy_dir, dorothy_dir .. "/user" },
+  })
+end
 
 dorothy.binds = {
+  "<leader>",
+  name = "+prefix",
+  {
     "<leader>",
     name = "+prefix",
     {
-        "<leader>",
-        name = "+prefix",
+      "d",
+      name = "+debug",       -- dorothy
+      {
+        "a",
+        name = "+add_file",
         {
-            "d",
-            name = "+debug", -- dorothy
-            {
-                "a",
-                name = "+add_file",
-                {
-                    {
-                        "c",
-                        name = "search dorothy commands",
-                        function()
-                            search_dorothy_cmds()
-                        end,
-                    }, -- user command
-                    -- { "m" }, -- user command minimal
-                    -- { "d" }, -- user command.local
-                    -- { "h" }, -- user config
-                    -- { "h" }, -- user config.local
-                    -- { "h" }, -- user source
-                    -- -- { "h" }, -- user source.local ???
-                    -- { "h" }, -- core command
-                    -- { "h" }, -- core source
-                    -- { "h" }, -- core config
-                },
-            },
+          {
+            "c",
+            name = "search dorothy commands",
+            function()
+              search_dorothy_cmds()
+            end,
+          },
+          {
+            "s",
+            name = "search dorothy sources",
+            function()
+              search_dorothy_sources()
+            end,
+          },           -- user command
+          {
+            "w",
+            name = "Grep Dorothy",
+            function()
+              grep_dorothy()
+            end,
+          },
+          -- { "m" }, -- user command minimal
+          -- { "d" }, -- user command.local
+          -- { "h" }, -- user config
+          -- { "h" }, -- user config.local
+          -- { "h" }, -- user source
+          -- -- { "h" }, -- user source.local ???
+          -- { "h" }, -- core command
+          -- { "h" }, -- core source
+          -- { "h" }, -- core config
         },
+      },
     },
+  },
 }
 
 return dorothy
