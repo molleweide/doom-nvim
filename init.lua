@@ -37,6 +37,7 @@ vim.fn.mkdir(vim.fn.stdpath("data"), "p")
 -- before we start using the plugins it lazy-loads.
 vim.opt.runtimepath:append(vim.fn.stdpath("data"))
 
+
 -- Load the doom-nvim framework
 require("doom.core")
 

@@ -1,5 +1,8 @@
 local lsp = {}
 
+-- TODO: telescope -> LSPs
+-- Take the LspInfo command and make a telescope version of it.
+
 -- TODO: Rename module to `lsp_config`
 
 -- TODO: Create a handler that ignores global variables from your doom config
@@ -199,10 +202,10 @@ lsp.binds = function()
                             "d",
                             name = "+diagnostics",
                             {
-                                { "[", vim.diagnostic.goto_prev, name = "Jump to prev" },
-                                { "]", vim.diagnostic.goto_next, name = "Jump to next" },
-                                { "p", vim.diagnostic.goto_prev, name = "Jump to prev" },
-                                { "n", vim.diagnostic.goto_next, name = "Jump to next" },
+                                -- { "[", vim.diagnostic.goto_prev, name = "Jump to prev" },
+                                -- { "]", vim.diagnostic.goto_next, name = "Jump to next" },
+                                -- { "p", vim.diagnostic.goto_prev, name = "Jump to prev" },
+                                -- { "n", vim.diagnostic.goto_next, name = "Jump to next" },
                                 {
                                     "L",
                                     function()
@@ -213,7 +216,7 @@ lsp.binds = function()
                                     end,
                                     name = "Line",
                                 },
-                                { "l", vim.diagnostic.setloclist, name = "Loclist" },
+                                -- { "l", vim.diagnostic.setloclist, name = "Loclist" },
                             },
                         },
                     },

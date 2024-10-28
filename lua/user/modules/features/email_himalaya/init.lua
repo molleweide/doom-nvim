@@ -16,7 +16,7 @@ email.settings = {
 -- https://github.com/ibhagwan/smartyank.nvim
 email.packages = {
   ["himalaya-vim"] = {
-    url = "https://git.sr.ht/~soywod/himalaya-vim",
+    url = "https://github.com/pimalaya/himalaya-vim",
   },
 }
 

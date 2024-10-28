@@ -1,5 +1,7 @@
 local lightspeed = {}
 
+-- FIX: Migrate to leap.nvim
+
 -- todo: abort timeout
 -- todo: leap enter/leave disable neorg rendered
 --
@@ -10,6 +12,9 @@ local lightspeed = {}
 lightspeed.settings = {
   timeoutlen = 500,
 }
+
+-- better f/F/t/T
+-- https://github.com/ggandor/flit.nvim
 
 lightspeed.packages = {
   -- ["leap.nvim"] = {"ggandor/leap.nvim" },

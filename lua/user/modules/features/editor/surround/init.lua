@@ -8,6 +8,9 @@ surround.packages = {
   -- https://github.com/echasnovski/mini.nvim/blob/main/lua/mini/surround.lua
   -- ["mini.surround"] = { 'echasnovski/mini.surround', version = '*' },
   ["vim-surround"] = { "tpope/vim-surround" },
+
+  -- TODO: Switch to this plugin
+-- ["nvim-surround"]={ "kylechui/nvim-surround" }
 }
 
 surround.configs = {}
