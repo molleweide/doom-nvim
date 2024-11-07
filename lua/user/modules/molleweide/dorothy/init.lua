@@ -58,6 +58,8 @@ local commands_public = {
   dorothy_dir .. "/user/commands",
 }
 
+-- TODO: just put all dorothy files in one big picker.
+
 -- Get dirs with private files from pattern match dirs.
 -- local private_files = {
 --     dorothy_dir .. "/user/commands.local",
@@ -65,7 +67,9 @@ local commands_public = {
 
 local sources = {
   dorothy_dir .. "/sources",
+  dorothy_dir .. "/config",
   dorothy_dir .. "/user/sources",
+  dorothy_dir .. "/user/config",
 }
 
 local function search_dorothy_cmds()
@@ -80,11 +84,7 @@ local function search_dorothy_cmds()
         ordinal = res,
       }
     end,
-    search_dirs = {
-      dorothy_dir .. "/commands",
-      dorothy_dir .. "/commands.beta",
-      dorothy_dir .. "/user/commands",
-    },
+    search_dirs = commands_public,
   })
 end
 
@@ -100,12 +100,12 @@ local function search_dorothy_sources()
         ordinal = res,
       }
     end,
-    search_dirs = {
-      dorothy_dir .. "/sources",
-      dorothy_dir .. "/user/sources",
-    },
+    search_dirs = sources,
   })
 end
+
+
+-- FIX: reuse same entry makes for grepping
 
 local function grep_dorothy()
   require("telescope.builtin").live_grep({

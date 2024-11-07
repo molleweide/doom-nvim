@@ -11,6 +11,11 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 -- TODO: move to config globals so that it is easier to reuse and debug
 --    packages
 
+-- TODO: Reload Single Module
+-- Only reload the module that you are working on.
+-- If you are editing a module file -> then only that module should be reloaded
+-- so that you dont reload the whole core for no reason..
+
 -- TODO: PackerCompile
 --
 --      how do I check if a config is dirty

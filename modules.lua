@@ -1,5 +1,5 @@
--- modules.lua - Doom nvim module selection
 --
+-- modules.lua - Doom nvim module selection
 -- modules.lua controls what Doom nvim plugins modules are enabled and
 -- what features are being used.
 --
@@ -96,9 +96,9 @@ return {
       -- "printer",
       -- "sort",            -- extra binds that help with sorting lines/objects
       -- "logging",         -- binds n stuff
-      "litee_symboltree",
-      "litee_bookmarks",
-      "litee_calltree",
+      -- "litee_symboltree",
+      -- "litee_bookmarks",
+      -- "litee_calltree",
       -- "code_outline",
       -- "readline",        -- ???
       "editing",
@@ -215,7 +215,7 @@ return {
       "diffview",       -- git diffview integration
       -- "repo_search",
       "github_octo",
-      "github_litee",
+      -- "github_litee",
     },
   },
 

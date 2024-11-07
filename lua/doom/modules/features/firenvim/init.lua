@@ -1,8 +1,23 @@
 local firenvim = {}
 
-
 -- Test this when using noice
 -- vim.g.firenvim_config.localSettings['.*'] = { cmdline = 'firenvim' }
+
+
+-- NOTE:
+-- vim.fn["firenvim#install"](0) No config detected for chromium. Skipping.
+-- vim.fn["firenvim#install"](0) No config detected for librewolf. Skipping.
+-- vim.fn["firenvim#install"](0) Installed native manifest for arc.
+-- vim.fn["firenvim#install"](0) No config detected for opera. Skipping.
+-- vim.fn["firenvim#install"](0) Installed native manifest for brave.
+-- vim.fn["firenvim#install"](0) No config detected for ungoogled-chromium. Skipping.
+-- vim.fn["firenvim#install"](0) Installed native manifest for chrome-dev.
+-- vim.fn["firenvim#install"](0) Installed native manifest for firefox.
+-- vim.fn["firenvim#install"](0) Installed native manifest for vivaldi.
+-- vim.fn["firenvim#install"](0) Installed native manifest for chrome-canary.
+-- vim.fn["firenvim#install"](0) Installed native manifest for chrome.
+-- vim.fn["firenvim#install"](0) Installed native manifest for edge.
+-- vim.fn["firenvim#install"](0) 0
 
 
 firenvim.settings = {
@@ -36,6 +51,7 @@ firenvim.packages = {
         build = function()
             vim.fn["firenvim#install"](0)
         end,
+        dev = true,
     },
 }
 
