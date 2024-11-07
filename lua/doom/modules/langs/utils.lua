@@ -383,7 +383,7 @@ end
 ---@param setup_fn function Function that sets up this language
 ---@return function Wrapped setup function
 module.wrap_language_setup = function(module_name, setup_fn)
-    log.info("[langs/utils]: wrap_language_setup()")
+  log.debug("[langs/utils]: wrap_language_setup()")
 
     local setup_language = function()
         vim.defer_fn(function()
