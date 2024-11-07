@@ -79,86 +79,7 @@ M.mapper = function(opts)
         local ts = require("doom.modules.features.dui.ts")
         local dq = require("doom.modules.features.dui.queries")
 
-        -- test_query = [[
-        --   (field
-        --   ) @leader_field
-        -- ]]
-
-        local test_query = [[
-          (table_constructor
-                . (field value: (string) @ld (#eq? @ld "\"<leader>\""))
-            ) @leader_table
-        ]]
-
-        local leader, buf = ts.get_captures(module_path, test_query, "leader_table")
-        if #leader > 0 then
-          print("has leaders !!!") -- , vim.inspect(leader)
-        else
-          print("no leader :(")
-        end
-
-        -- find bindings lhs_str table
-        print("keybind = ", vim.inspect(keybind))
-
-        -- TODO: find
-        --  1. check if lhs matches the char
-        --  >>> this can fail if the code is a table idenfier
-        -- 2. check if the description matches?
-        -- >>> iirc name desc is required
-        -- 3. if has mode attr then also check for the mode.
-        -- >>> this is important because some keys have the same
-        -- 4.
-
-        local function get_bind_table__from_lhs_string(lhs_str)
-          -- lhs_str = du.escape_str(lhs_str)
-          print("from lhs string >>>", vim.inspect(lhs_str))
-          return string.format(
-            [[
-              (table_constructor
-              . (field value:
-                  (string content:
-                    (string_content) @lhs (#lua-match? @lhs "%s")
-                  )
-                )
-              ) @bind_table
-            ]],
-            lhs_str
-          -- lhs_str.rhs,
-          -- lhs_str.name
-          )
-        end
-
-        local bind_table, buf = ts.get_captures(
-          module_path,
-          get_bind_table__from_lhs_string(keybind.keys),
-          "bind_table"
-        )
-
-        if #bind_table == 0 then
-          local function get_bind_table__by_name_attr(name_attr)
-            name_attr = du.escape_str(name_attr)
-            print("by name attr >>>", vim.inspect(name_attr))
-            return string.format(
-              [[
-              (table_constructor
-                (field
-                  name: (identifier)
-                  value:
-                    (string content:
-                      (string_content) @descr (#eq? @descr "%s")
-                    )
-                  )
-              ) @bind_table
-            ]],
-              name_attr
-            )
-          end
-          bind_table, buf = ts.get_captures(
-            module_path,
-            get_bind_table__by_name_attr(keybind.description),
-            "bind_table"
-          )
-        end
+        -- print("keybind = ", vim.inspect(keybind))
 
         -- keybind =  {
         --   buffer_only = false,
@@ -182,50 +103,27 @@ M.mapper = function(opts)
         --   value = "Luasnip next choice s"
         -- }
 
-        print("?????/")
-
-        -- test final query
-        -- local name_attr = du.escape_str(name_attr)
-        --
-
         local function getLastControlChar(keybinds)
           local lastControlChar = nil
-
-          -- TODO: also check for fnum keys as well. And also <A-.>
-
-          -- Pattern to match <C-.> where '.' can be any character
           local pattern = "<C%-.>"
-
+          local pattern2 = "<F%d>"
+          local pattern3 = "<A%-.>"
           for match in string.gmatch(keybinds, pattern) do
             lastControlChar = match -- Update lastControlChar to the current match
           end
-
           return lastControlChar
         end
 
         local function get_last_char(keys)
-
           local has_last_control_char = getLastControlChar(keys)
-
           if has_last_control_char then
             return has_last_control_char
           else
             return keys:sub(-1)
           end
-
-
         end
 
 
-        if keybind.keys:match("<C-.>") then
-          -- this means that the lhs contains a control char.
-          -- This means that we want to get the first control char from the end.
-        end
-
-        -- FIX: if the lhs is a control char, then i have to make sure that
-        -- it is handled properly.
-
-        -- print("by name attr >>>", vim.inspect(name_attr))
         local bind_query = string.format(
           [[
               (table_constructor
@@ -262,7 +160,7 @@ M.mapper = function(opts)
           keybind.mode
         )
 
-        bind_table, buf = ts.get_captures(
+        local bind_table, buf = ts.get_captures(
           module_path,
           bind_query,
           "lhs"
