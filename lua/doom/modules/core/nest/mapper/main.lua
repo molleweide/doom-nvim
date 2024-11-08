@@ -128,7 +128,7 @@ M.mapper = function(opts)
           [[
               (table_constructor
                 . [
-                    (field value: (string content: (string_content) sequence (#eq? sequence "%s")))
+                    (field value: (string content: (string_content) @sequence (#eq? sequence "%s")))
                     (field value: (string content: (string_content) @char (#eq? @char "%s")))
                     (field value: (dot_index_expression))] @lhs
 

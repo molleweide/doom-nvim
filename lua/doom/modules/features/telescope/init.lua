@@ -48,11 +48,22 @@ telescope.settings = {
       "╰",
     },
     color_devicons = true,
-    use_less = true,                           -- deprecated option > remove?
-    set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+    use_less = true,                               -- deprecated option > remove?
+    set_env = { ["COLORTERM"] = "truecolor" },     -- default = nil,
     -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
   },
-  extensions = {},
+
+  -- telescope builtin manner for specifying extension config.
+  extensions = {
+    ast_grep = {
+      command = {
+        "ast-grep",
+        "--json=stream",
+      },                             -- must have --json=stream
+      grep_open_files = false,       -- search in opened files
+      lang = nil,                    -- string value, specify language for ast-grep `nil` for default
+    },
+  },
 }
 
 telescope.packages = {
@@ -71,6 +82,7 @@ telescope.packages = {
     -- after = "telescope.nvim",
     lazy = true,
   },
+  ["telescope-sg"] = { "Marskey/telescope-sg", dev = true },
 }
 
 telescope.configs = {}
@@ -126,7 +138,7 @@ telescope.binds = function()
         end,
         name = "Browse cwd",
       },
-      { ".", "<cmd>Telescope file_browser<CR>", name = "Browse project" },
+      { ".", "<cmd>Telescope file_browser<CR>",    name = "Browse project" },
       {
         ",",
         function()
@@ -141,15 +153,23 @@ telescope.binds = function()
         name = "Search buffers",
       },
 
-      { "/", "<cmd>Telescope live_grep<CR>",    name = "Search text" },
-      { ";", "<cmd>Telescope commands<CR>",     name = "Browse cmds" },
+      { "/", "<cmd>Telescope live_grep<CR>",       name = "Search text" },
+      { ";", "<cmd>Telescope commands<CR>",        name = "Browse cmds" },
       { ":", "<cmd>Telescope command_history<CR>", name = "Search recent commands" },
       {
         "b",
         name = "+buffer",
         {
-          { "f", "<cmd>Telescope buffers show_all_buffers=true<CR>", name = "Find from all" },
-          { "s", "<cmd>Telescope current_buffer_fuzzy_find<CR>",     name = "Search text" },
+          {
+            "f",
+            "<cmd>Telescope buffers show_all_buffers=true<CR>",
+            name = "Find from all",
+          },
+          {
+            "s",
+            "<cmd>Telescope current_buffer_fuzzy_find<CR>",
+            name = "Search text",
+          },
         },
       },
       {
@@ -158,6 +178,7 @@ telescope.binds = function()
         {
           { "f", "<cmd>Telescope find_files<CR>", name = "Find in project" },
           { "r", "<cmd>Telescope oldfiles<CR>",   name = "Find recent" },
+          { "/", "<cmd>Telescope ast_grep<CR>", name = "Find in proj (ast-grep)" },
         },
       },
       {
@@ -181,11 +202,23 @@ telescope.binds = function()
         "s",
         name = "+search",
         {
-          { "r", "<cmd>Telescope resume<CR>",                    name = "Resume previous search" },
-          { "t", "<cmd>Telescope live_grep<CR>",                 name = "Search text" },
-          { "b", "<cmd>Telescope current_buffer_fuzzy_find<CR>", name = "Text in buffer" },
-          { "h", "<cmd>Telescope command_history<CR>",           name = "Recent commands" },
-          { "m", "<cmd>Telescope marks<CR>",                     name = "Marks" },
+          {
+            "r",
+            "<cmd>Telescope resume<CR>",
+            name = "Resume previous search",
+          },
+          { "t", "<cmd>Telescope live_grep<CR>", name = "Search text" },
+          {
+            "b",
+            "<cmd>Telescope current_buffer_fuzzy_find<CR>",
+            name = "Text in buffer",
+          },
+          {
+            "h",
+            "<cmd>Telescope command_history<CR>",
+            name = "Recent commands",
+          },
+          { "m", "<cmd>Telescope marks<CR>",     name = "Marks" },
         },
       },
       {
@@ -207,7 +240,12 @@ telescope.binds = function()
         "c",
         name = "+code",
         {
-          { "s", "<cmd>Telescope lsp_document_symbols<CR>", name = "Lsp symbols", remap = true },
+          {
+            "s",
+            "<cmd>Telescope lsp_document_symbols<CR>",
+            name = "Lsp symbols",
+            remap = true,
+          },
         },
       },
     })
