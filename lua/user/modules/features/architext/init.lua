@@ -1,5 +1,8 @@
 local ts_architext_ui = {}
 
+-- NOTE: treesitter/fltr || ts/architext; ts/ssr; ts/ast-grep;
+-- search filter and transform text with treesitter.
+
 -- TODO:
 --
 --    -  play around with the plugin and learn how it works, then make a cool ui
@@ -14,48 +17,21 @@ local ts_architext_ui = {}
 --
 --    	TODO: highlight captures from repl query.
 
-----------------------------
--- SETTINGS
-----------------------------
+-- ts_architext_ui.settings = {}
 
-ts_architext_ui.settings = {}
-
-----------------------------
--- PACKAGES
-----------------------------
-
+-- git@github.com:cshuaimin/ssr.nvim.git
 ts_architext_ui.packages = {
-  ["architext.nvim"] = { doom.settings.local_plugins_path .. "vigoux/architext.nvim" },
--- [""] = {},
--- [""] = {},
--- [""] = {},
+    ["architext.nvim"] = { "vigoux/architext.nvim", dev = true },
+    -- [""] = {},
+    -- [""] = {},
+    -- [""] = {},
 }
-
-----------------------------
--- CONFIGS
-----------------------------
-
-----------------------------
--- CMDS
-----------------------------
 
 -- ts_architext_ui.cmds = {}
 
---------------------------
--- AUTOCMDS
---------------------------
-
 -- ts_architext_ui.autocmds = {}
 
-----------------------------
--- BINDS
-----------------------------
-
 -- ts_architext_ui.binds = {}
-
-----------------------------
--- LEADER BINDS
-----------------------------
 
 -- if require("doom.utils").is_module_enabled("whichkey") then
 --   table.insert(ts_architext_ui.binds, {
@@ -73,10 +49,4 @@ ts_architext_ui.packages = {
 --   })
 -- end
 
-----------------------------
--- RETURN
-----------------------------
-
 return ts_architext_ui
-
-

@@ -421,14 +421,14 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
               function()
                 require("telescope.builtin").find_files({ cwd = "~/.config/dorothy" })
               end,
-              name = "Dorothy User",
+              name = "dorothy.user: find files",
             },
             {
               "D",
               function()
                 require("telescope.builtin").find_files({ cwd = "~/.local/share/dorothy" })
               end,
-              name = "Dorothy",
+              name = "dorothy: find files",
             },
             -- {
             --   "x",
@@ -446,7 +446,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                   cwd = "~/code/repos/github.com/molleweide/doom-nvim/lua/doom/snips/",
                 })
               end,
-              name = "Find DOOM-NVIM snippets",
+              name = "doom: search snip files",
             },
             {
               "n",
@@ -455,7 +455,7 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
                 })
               end,
-              name = "Find DOOM-NVIM",
+              name = "doom: find files",
             },
             {
               "m",
@@ -466,11 +466,11 @@ if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
                 --   cwd = "~/code/repos/github.com/molleweide/doom-nvim",
                 -- })
               end,
-              name = "Find DOOM-NVIM modules only",
+              name = "doom: search modules",
             },
             {
               "w",
-              name = "Grep DOOM-NVIM",
+              name = "doom: live grep",
               function()
                 require("telescope.builtin").live_grep({
                   cwd = "~/code/repos/github.com/molleweide/doom-nvim",

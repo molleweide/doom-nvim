@@ -128,6 +128,7 @@ end
 --   match = "/Users/hjalmarjakobsson/code/repos/github.com/molleweide/doom-nvim/config.lua"
 -- })
 reloader._reload_doom = function(args)
+  args = args or {}
   vim.cmd("hi clear")
 
   -- FIX: if `module` then only reload that specific module.
@@ -140,7 +141,8 @@ reloader._reload_doom = function(args)
   local args_table_str =vim.inspect(args)
 
 
-  if args.file:match("^%w-%.lua") then
+  if not args.file then
+  elseif args.file:match("^%w-%.lua") then
     -- log.info(string.format([[RELOADER: type of file = %s; args = %s]], "ROOT", args_table_str))
     _G._doom_reloader.current_type = "ROOT"
   elseif args.file:match("doom/modules") or args.file:match("user/modules") then

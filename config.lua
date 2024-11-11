@@ -6,7 +6,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
-
 -- task launcher with telescope integration: https://github.com/miroshQa/rittli.nvim
 
 -- https://github.com/kosayoda/nvim-lightbulb
@@ -263,8 +262,13 @@ vim.diagnostic.config({
 --
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(_, _, diagnostics_dict, _)
-    doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+  doom.modules.tabline.settings.options.diagnostics_indicator = function(
+      _,
+      _,
+      diagnostics_dict,
+      _
+  )
+    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
     local s = ""
     for e, _ in pairs(diagnostics_dict) do
       local sym = e == "error" and " " or (e == "warning" and " " or " ")
@@ -391,8 +395,13 @@ vim.diagnostic.config({
 ---------------------------
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(_, _, diagnostics_dict, _)
-    doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+  doom.modules.tabline.settings.options.diagnostics_indicator = function(
+      _,
+      _,
+      diagnostics_dict,
+      _
+  )
+    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
     local s = ""
     for e, _ in pairs(diagnostics_dict) do
       local sym = e == "error" and " " or (e == "warning" and " " or " ")
@@ -522,15 +531,18 @@ local Path = require("pathlib")
 ---Initialize new module from a target path and a user input name string.
 ---@param path_to any
 local function create_new_module_from_name(path_to)
-  vim.ui.input({ prompt = string.format('Enter new name for module @ [%s]: ', path_to) }, function(new_module_name)
-    local init = path_to / new_module_name / "init.lua"
-    local ok = init:touch(Path.permission("rw-r--r--"), true)
-    if ok then
-      local pu = require("doom.modules.features.dui.templates")
-      fs.write_file(init:tostring(), pu.gen_temp_from_mod_name(new_module_name), "w+")
-      vim.cmd(string.format("edit %s", init))
+  vim.ui.input(
+    { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
+    function(new_module_name)
+      local init = path_to / new_module_name / "init.lua"
+      local ok = init:touch(Path.permission("rw-r--r--"), true)
+      if ok then
+        local pu = require("doom.modules.features.dui.templates")
+        fs.write_file(init:tostring(), pu.gen_temp_from_mod_name(new_module_name), "w+")
+        vim.cmd(string.format("edit %s", init))
+      end
     end
-  end)
+  )
 end
 
 ---Recursive modules browser implemented with vim.ui.select()
@@ -538,7 +550,7 @@ end
 local function modules_browser(path_in)
   local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
   local possible_choices = {
-    current_dir
+    current_dir,
   }
   for path in current_dir:iterdir({ depth = 1 }) do
     if path:is_dir() then
@@ -562,7 +574,7 @@ local function modules_browser(path_in)
     end,
   }, function(choice)
     if not choice then
-      return -- eg. <esc>
+      return       -- eg. <esc>
     end
     if choice == current_dir then
       create_new_module_from_name(choice)
@@ -604,25 +616,29 @@ doom.use_keybind({
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
 doom.use_autocmd({
-  { "BufEnter", "*.norg", function()
-    print("[doom config]: buf enter for *.norg")
-  end }
+  {
+    "BufEnter",
+    "*.norg",
+    function()
+      print("[doom config]: buf enter for *.norg")
+    end,
+  },
 })
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
-doom.use_cmd(
+doom.use_cmd({
+  "MyTestingCmd",
+  function(args)
+    print("[doom config]: Hi from my testing cmd")
+    P(args)
+  end,
   {
-    "MyTestingCmd", function(args)
-      print("[doom config]: Hi from my testing cmd")
-      P(args)
-    end, {
-      nargs = 1,
-      complete = function(arg_lead, cmdline, curpos)
-        print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
-      end
-    }
-  }
-)
+    nargs = 1,
+    complete = function(arg_lead, cmdline, curpos)
+      print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+    end,
+  },
+})
 
 --
 -- Telescope picker for user-defined commands `:commands`

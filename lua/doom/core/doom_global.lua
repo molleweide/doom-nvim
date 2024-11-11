@@ -7,6 +7,16 @@
 --
 -- TODO: Rename to just `global.lua`
 
+-- TODO: add toggle switches debug logging for `langs/utils
+
+-- TODO: if doom table already exists, do a check and reset the
+--        table so that cmp keeps working
+
+-- TODO: format on save
+
+-- TODO: this one is used but hasn't been defined yet.
+-- complete_transparency = ??,
+
 --- TYPE DEFINITIONS
 --- @class DoomKeybindOptions
 --- @field noremap boolean
@@ -43,9 +53,6 @@
 --- @field requires DoomPackage[]|string[] Specify extra dependencies
 --- @field config string|function Command or function to run after the plugin is loaded.
 --- @field setup string|function Command or function to run before the plugin is loaded.
-
--- TODO: if doom table already exists, do a check and reset the
---        table so that cmp keeps working
 
 -- From here on, we have a hidden global `_doom` that holds state the user
 -- shouldn't mess with.
@@ -88,8 +95,6 @@ doom = {
     -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
     -- @default true
     rooter_or_project = true,
-
-    -- TODO: format on save
 
     -- Disable Vim macros
     -- false : Enable
@@ -224,9 +229,6 @@ doom = {
     -- @default = doom-one
     colorscheme = "tokyonight",
 
-    -- TODO: this one is used but hasn't been defined yet.
-    -- complete_transparency = ??,
-
     -- Doom One colorscheme settings
     doom_one = {
       -- If the cursor color should be blue
@@ -345,7 +347,10 @@ doom = {
     doom.packages = vim.tbl_filter(package_override_predicate, doom.packages)
 
     for _, packer_spec in ipairs(arg) do
-      table.insert(doom.packages, type(packer_spec) == "string" and { packer_spec } or packer_spec)
+      table.insert(
+        doom.packages,
+        type(packer_spec) == "string" and { packer_spec } or packer_spec
+      )
     end
   end,
 

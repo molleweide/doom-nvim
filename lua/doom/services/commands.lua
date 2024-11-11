@@ -19,52 +19,56 @@
 --- Wraps the nvim functionality to handle different neovim versions.
 local utils = require("doom.utils")
 
+-- TODO: Attach all doom cmds to the `:Doom` namespace.
+-- https://github.com/nvim-neorocks/nvim-best-practices?tab=readme-ov-file#speaking_head-user-commands
+
 -- Data to be stored globally so it can be accessed from the nvim-0.5 implementation
 local data = _G._doom_commands_service_data or {
-  command_actions = {},
+    command_actions = {},
 }
 _G._doom_commands_service_data = data
 
 local set_command_implementations = {
-  ["nvim-0.5"] = function(name, command, opts)
-    -- Build the command constructor
-    local cmd_string = "command! "
-    if opts and opts.nargs ~= nil then
-      cmd_string = cmd_string .. ("-nargs=%s "):format(opts.nargs)
-    end
-    if opts and opts.completion ~= nil then
-      cmd_string = cmd_string .. ("-complete=%s "):format(table.concat(opts.complete, ","))
-    end
-    cmd_string = cmd_string .. " " .. name .. " "
+    ["nvim-0.5"] = function(name, command, opts)
+        -- Build the command constructor
+        local cmd_string = "command! "
+        if opts and opts.nargs ~= nil then
+            cmd_string = cmd_string .. ("-nargs=%s "):format(opts.nargs)
+        end
+        if opts and opts.completion ~= nil then
+            cmd_string = cmd_string .. ("-complete=%s "):format(table.concat(opts.complete, ","))
+        end
+        cmd_string = cmd_string .. " " .. name .. " "
 
-    if type(command) == "string" then
-      cmd_string = cmd_string .. command .. " "
-    else
-      local uid = utils.unique_index()
-      data.command_actions[uid] = command
+        if type(command) == "string" then
+            cmd_string = cmd_string .. command .. " "
+        else
+            local uid = utils.unique_index()
+            data.command_actions[uid] = command
 
-      cmd_string = cmd_string .. ("lua _doom_commands_service_data.command_actions[%d]"):format(uid)
-      if opts.nargs ~= nil then
-        cmd_string = cmd_string .. "(<f-args>)"
-      else
-        cmd_string = cmd_string .. "()"
-      end
-    end
-    vim.cmd(cmd_string)
-  end,
-  ["nvim-0.8"] = function(name, command, opts)
-    vim.api.nvim_create_user_command(name, command, opts)
-  end,
+            cmd_string = cmd_string
+                .. ("lua _doom_commands_service_data.command_actions[%d]"):format(uid)
+            if opts.nargs ~= nil then
+                cmd_string = cmd_string .. "(<f-args>)"
+            else
+                cmd_string = cmd_string .. "()"
+            end
+        end
+        vim.cmd(cmd_string)
+    end,
+    ["nvim-0.8"] = function(name, command, opts)
+        vim.api.nvim_create_user_command(name, command, opts)
+    end,
 }
 local set_command_fn = utils.pick_compatible_field(set_command_implementations)
 
 local del_command_implementations = {
-  ["nvim-0.5"] = function(name)
-    vim.cmd(("delcommand %s"):format(name))
-  end,
-  ["nvim-0.8"] = function(name)
-    vim.api.nvim_del_user_command(name)
-  end,
+    ["nvim-0.5"] = function(name)
+        vim.cmd(("delcommand %s"):format(name))
+    end,
+    ["nvim-0.8"] = function(name)
+        vim.api.nvim_del_user_command(name)
+    end,
 }
 local del_command_fn = utils.pick_compatible_field(del_command_implementations)
 
@@ -80,22 +84,22 @@ commands_service.stored_names = {}
 ---@param command string|function(CommandArgs)
 ---@param opts SetCommandOptions|nil
 commands_service.set = function(name, command, opts)
-  commands_service.stored_names[name] = true
-  set_command_fn(name, command, opts or {})
+    commands_service.stored_names[name] = true
+    set_command_fn(name, command, opts or {})
 end
 
 commands_service.del = function(name)
-  commands_service.stored_names[name] = nil
-  del_command_fn(name)
+    commands_service.stored_names[name] = nil
+    del_command_fn(name)
 end
 
 commands_service.del_all = function()
-  for name, _ in pairs(commands_service.stored_names) do
-    if name then
-      del_command_fn(name)
+    for name, _ in pairs(commands_service.stored_names) do
+        if name then
+            del_command_fn(name)
+        end
     end
-  end
-  commands_service.stored_names = {}
+    commands_service.stored_names = {}
 end
 
 return commands_service

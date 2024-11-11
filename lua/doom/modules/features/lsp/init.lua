@@ -1,5 +1,8 @@
 local lsp = {}
 
+-- TODO: Formatter fallback if no LSP is found/connected.
+-- fallback to gg=G
+
 -- TODO: telescope -> LSPs
 -- Take the LspInfo command and make a telescope version of it.
 

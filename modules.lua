@@ -14,6 +14,7 @@ return {
     "nio",     -- asynch IO
   },
   features = {
+    "architext",
     buffers = {
       "buffer_management",
       "temporary_buffers",

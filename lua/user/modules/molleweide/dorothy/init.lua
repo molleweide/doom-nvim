@@ -2,6 +2,13 @@ local dorothy = {}
 
 --------------------------------------------
 
+-- TODO: dorothy menu
+-- ~ new source user
+-- ~ new source user local
+-- ~ new command user
+-- ~ new command user local
+
+
 -- TODO:
 --  - if ! --shell flag then prompt with a selection
 --    menu for possible shells, eg. bash or nvim
