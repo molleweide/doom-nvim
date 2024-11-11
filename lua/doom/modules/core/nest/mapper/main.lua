@@ -299,6 +299,8 @@ M.mapper = function(opts)
 
         print("Keys:", keybind.keys)
 
+        -- TODO: If branch, check parent name?
+
         local cnt = 0
 
         local t_captured_candidates = {}
@@ -306,20 +308,19 @@ M.mapper = function(opts)
         -- iterate all table constructors
         for id, capture_node, _ in qtw2i:iter_captures(root, buf) do
           -- iter
+          print("----------------------")
           local ci = 0
           local ci_named = 0
           local indexed = 0
 
           local indexed_nodes = {}
 
-          print("----------------------")
+          local candidate = {
+            table = capture_node,
+            named_attrs = {}
+          }
 
-          -- 0 "i"
-          -- 1 vim.lsp.buf.implementation
-          -- A: dot index expression vim.lsp.buf.implementation
-          -- 2 name = "Jump to implementation"
-          --  B: identifier
-          -- indexed > 1 | Captured table >>> { "i", vim.lsp.buf.implementation, name = "Jump to implementation" }
+
 
           local prev_chnamed_count
           local prev_was_indexed
@@ -345,6 +346,32 @@ M.mapper = function(opts)
 
               -- enter an indexed field
               if (child_node:named_child_count() > 1) then
+                local child2_second = child_node:named_child(1)
+
+                if child2_type == "identifier" then
+                  print("attr:", ts.get_node_text(child2, buf))
+                  local nt = ts.get_node_text(child2, buf)
+
+                  if child2_second:type() == "string" then
+                    local nt2 = ts.get_node_text(child2_second:named_child(), buf)
+                    if nt == "name" then
+                      local compare = nt2 == keybind.description
+                      print("::::", nt2, keybind.description, compare)
+                      candidate.named_attrs.name = child2
+                      candidate.named_attrs.name_match = compare
+                      print(">", nt2, keybind.description)
+                    elseif nt == "mode" then
+                      candidate.named_attrs.mode = child2
+                      candidate.named_attrs.mode_match = nt2 == keybind.mode
+                    end
+                  else
+                    if nt == "buffer" then
+                      candidate.named_attrs.buffer = child2
+                    elseif nt == "options" then
+                      candidate.named_attrs.options = child2
+                    end
+                  end
+                end
               elseif prev_was_indexed and indexed == 0 then
                 -- we dont want to
               else
@@ -366,6 +393,10 @@ M.mapper = function(opts)
                       valid = true
                       print(string.format("A (%s): keybind.keys (last char), ci_named = %s, %s", indexed, ci_named, text))
                     end
+                  end
+
+                  if valid then
+                    candidate.lhs = child_node
                   end
                 end
 
@@ -389,18 +420,23 @@ M.mapper = function(opts)
                     msg = " B: dot_index_expression:"
                   end
                   print(msg, text, child_node:named_child_count())
+                  if valid then
+                    candidate.rhs = child_node
+                  end
                 end
 
                 -- name
                 if indexed == 2 and child2_type == "string" then
                   valid = true
                   print("  C, NAME:", text)
+                  candidate.name = child_node
                 end
 
                 -- description
                 if indexed == 3 and child2_type == "string" then
                   valid = true
                   print("   D, DESCRIPTION:", text)
+                  candidate.description = child_node
                 end
 
                 if valid then
@@ -417,7 +453,10 @@ M.mapper = function(opts)
           end
 
           if indexed >= 2 then
-            table.insert(t_captured_candidates, { node = capture_node, indexed = indexed })
+            -- table.insert(t_captured_candidates, { node = capture_node, indexed = indexed })
+            candidate.indexed = indexed
+            table.insert(t_captured_candidates, candidate)
+            print(vim.inspect(candidate))
           end
 
           if indexed > 1 then
@@ -434,10 +473,36 @@ M.mapper = function(opts)
 
         print("captured nodes #:", #t_captured_candidates)
 
+        print("=================================")
+
+        local attrs = {
+          "name", "description", "mode"
+        }
+
+        -- print(vim.inspect(t_captured_candidates))
+
+        local count_mismatches =0
+
+
+        -- TODO: now if there are more than one candidate left,
+        -- i need to check the parent to see which one the binding
+        -- resides in.
+
         for i, v in ipairs(t_captured_candidates) do
-          local text = ts.get_node_text(v.node, buf)
-          print(v.indexed, text)
+          local text = ts.get_node_text(v.table, buf)
+          for index, value in ipairs(attrs) do
+            print(v.named_attrs[value .. "_match"])
+            if v.named_attrs[value .. "_match"] == false then
+              count_mismatches = count_mismatches + 1
+            end
+          end
+          if count_mismatches == 0 then
+            print(v.indexed, text)
+            -- print(vim.inspect(v))
+          end
         end
+
+        print("=================================")
 
         -- print("COUNT TABLES = ", cnt)
       end)
