@@ -25,7 +25,7 @@ local function getLastControlChar(keybinds)
   local pattern2 = "<F%d>"
   local pattern3 = "<A%-.>"
   for match in string.gmatch(keybinds, pattern) do
-    lastControlChar = match     -- Update lastControlChar to the current match
+    lastControlChar = match -- Update lastControlChar to the current match
   end
   return lastControlChar
 end
@@ -252,9 +252,10 @@ M.mapper = function(opts)
         end
 
         -- open file in split
-        vim.cmd("set splitright")
-        vim.cmd(string.format("vsplit %s", module_path))
-        vim.cmd("set splitright!")
+        -- vim.cmd("set splitright")
+        -- vim.cmd(string.format("vsplit %s", module_path))
+        -- vim.cmd("set splitright!")
+        vim.cmd(string.format("e %s", module_path))
         vim.cmd("stopinsert")
 
         local ts = require("doom.modules.features.dui.ts")
@@ -267,7 +268,7 @@ M.mapper = function(opts)
         local q, buf = ts.get_captures(module_path, query, "lhs")
 
         if #q > 0 then
-          print("range of bind table [1]:", vim.inspect(q[1].range))           -- , vim.inspect(leader)
+          print("range of bind table [1]:", vim.inspect(q[1].range)) -- , vim.inspect(leader)
           b.set_cursor_to_buf(buf, q[1].range)
         else
           print("no bind table found")
@@ -275,6 +276,9 @@ M.mapper = function(opts)
 
         -- TEST VERSION TWO
         -- Improved version
+        --
+        -- Programmatically find th exact bind table where a binding is
+        -- defined.
 
         local buf = dui_utils.get_buf_handle(module_path)
         local parser = vim.treesitter.get_parser(buf, "lua", {})
@@ -289,11 +293,15 @@ M.mapper = function(opts)
 
         local qtw2i = vim.treesitter.query.parse("lua", query__find_tbl_w_2_indices)
 
-        local nodes__tbls_w_2_indices = {}
-
         local ts = vim.treesitter
 
+        print("#######################################################")
+
+        print("Keys:", keybind.keys)
+
         local cnt = 0
+
+        local t_captured_candidates = {}
 
         -- iterate all table constructors
         for id, capture_node, _ in qtw2i:iter_captures(root, buf) do
@@ -304,78 +312,134 @@ M.mapper = function(opts)
 
           local indexed_nodes = {}
 
-          for child_node, child_name in capture_node:iter_children() do
+          print("----------------------")
+
+          -- 0 "i"
+          -- 1 vim.lsp.buf.implementation
+          -- A: dot index expression vim.lsp.buf.implementation
+          -- 2 name = "Jump to implementation"
+          --  B: identifier
+          -- indexed > 1 | Captured table >>> { "i", vim.lsp.buf.implementation, name = "Jump to implementation" }
+
+          local prev_chnamed_count
+          local prev_was_indexed
+
+          for child_node in capture_node:iter_children() do
             -- check for the first indexed occurence.
             if child_node:named() and child_node:type() == "field" then
               local valid = false
+
               local child2 = child_node:named_child()
               local child2_type = child_node:named_child():type()
+              local named_child_count = child_node:named_child_count()
+
               local text = ts.get_node_text(child2, buf)
 
-              -- lhs
-              if indexed == 0 then
-                if child2_type == "dot_index_expression" then
-                  valid = true
-                  print("A: dot index expression", text)
-                end
-                if child2_type == "string" then
-                  -- match against `string_content` literally.
-                  local ct = ts.get_node_text(child2:named_child(), buf)
+              -- print(ci_named, ts.get_node_text(child_node, buf), child2_type, text)
 
-                  if ct == keybind.keys then
+              -- if child_node:named_child_count() == 1 then
+              --   print("==1")
+              -- end
+
+              local is_indexed = false
+
+              -- enter an indexed field
+              if (child_node:named_child_count() > 1) then
+              elseif prev_was_indexed and indexed == 0 then
+                -- we dont want to
+              else
+                is_indexed = true
+
+                -- lhs
+                if indexed == 0 then
+                  -- print("?")
+                  if child2_type == "dot_index_expression" then
                     valid = true
-                    print("A: keybind.keys", text)
-                  elseif ct == get_last_char(keybind.keys) then
-                    valid = true
-                    print("A: keybind.keys (last char)", text)
+                    print(string.format("A (%s): dot index expression, ci_named = %s, %s", indexed, ci_named, text))
+                  elseif child2_type == "string" then
+                    -- match against `string_content` literally.
+                    local ct = ts.get_node_text(child2:named_child(), buf)
+                    if ct == keybind.keys then
+                      valid = true
+                      print(string.format("A (%s): keybind.keys, ci_named = %s, %s", indexed, ci_named, text))
+                    elseif ct == get_last_char(keybind.keys) then
+                      valid = true
+                      print(string.format("A (%s): keybind.keys (last char), ci_named = %s, %s", indexed, ci_named, text))
+                    end
                   end
                 end
+
+                -- RHS
+                -- we have found LHS candidate already. now we want to check that
+                -- the field only has one child count which indicates it is a RHS,
+                -- and not a named attr.
+                if indexed == 1 then
+                  local msg = ""
+                  if child2_type == "identifier" then
+                    valid = true
+                    msg = " B: identifier:"
+                  elseif child2_type == "string" then
+                    valid = true
+                    msg = " B: string:"
+                  elseif child2_type == "function_definition" then
+                    valid = true
+                    msg = " B: function_definition:"
+                  elseif child2_type == "dot_index_expression" then
+                    valid = true
+                    msg = " B: dot_index_expression:"
+                  end
+                  print(msg, text, child_node:named_child_count())
+                end
+
+                -- name
+                if indexed == 2 and child2_type == "string" then
+                  valid = true
+                  print("  C, NAME:", text)
+                end
+
+                -- description
+                if indexed == 3 and child2_type == "string" then
+                  valid = true
+                  print("   D, DESCRIPTION:", text)
+                end
+
+                if valid then
+                  table.insert(indexed_nodes, child_node)
+                  indexed = indexed + 1
+                end
               end
 
-              -- rhs
-              if indexed == 1 then
-                if child2_type == "identifier" then
-                  valid = true
-                  print(" B: identifier")
-                end
-                if child2_type == "string" then
-                  valid = true
-                  print(" B: string")
-                end
-                if child2_type == "function_definition" then
-                  valid = true
-                  print(" B: function_definition")
-                end
-                if child2_type == "dot_index_expression" then
-                  valid = true
-                  print(" B: dot_index_expression")
-                end
-              end
-
-              -- name
-              if indexed == 2 then
-              end
-
-              -- description
-              if indexed == 3 then
-              end
-
-              if valid then
-                table.insert(indexed_nodes, child_node)
-                indexed = indexed + 1
-              end
+              prev_was_indexed = is_indexed
               ci_named = ci_named + 1
             end
 
             ci = ci + 1
           end
 
-          print("children #:", ci, ci_named)
+          if indexed >= 2 then
+            table.insert(t_captured_candidates, { node = capture_node, indexed = indexed })
+          end
+
+          if indexed > 1 then
+            print(
+              "indexed > 1 | Captured table >>>",
+              ts.get_node_text(capture_node, buf)
+            )
+          end
+
+          -- print("children #:", ci, ci_named)
 
           cnt = cnt + 1
         end
 
-        print("COUNT TABLES = ", cnt)
+        print("captured nodes #:", #t_captured_candidates)
+
+        for i, v in ipairs(t_captured_candidates) do
+          local text = ts.get_node_text(v.node, buf)
+          print(v.indexed, text)
+        end
+
+        -- print("COUNT TABLES = ", cnt)
       end)
       return true
     end,
