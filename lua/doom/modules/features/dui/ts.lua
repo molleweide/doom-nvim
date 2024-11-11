@@ -14,7 +14,7 @@ end
 --
 --    >>> use varargs [ qN, cN ... ]
 ts.get_captures = function(path, q1, c1, q2, c2)
-  local path = path or utils.find_config("modules.lua")
+    path = path or utils.find_config("modules.lua")
   local buf = utils.get_buf_handle(path)
   local root = ts.get_root(buf)
 

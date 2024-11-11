@@ -4,6 +4,8 @@ local conf = require("telescope.config").values
 local system = require("doom.core.system")
 local fs = require("doom.utils.fs")
 
+local dui_utils = require("doom.modules.features.dui.utils")
+
 -- TODO: default <entre> selection should go to file in same buffer.
 
 -- TODO: vertical / horizontal split.
@@ -100,41 +102,89 @@ local function query__leaf(keybind)
   -- local keys = du.escape_str(keybind.keys)
   local keys = keybind.keys
 
-  -- NOTE: The issue now is that sometimes the name / descr comes before
-  -- index 2 and so this makes the ts matching fail. how should this be
-  -- handled? always enforce that shit?
+  -- NOTE: currently, in mapper the keybdings name prop is assigned to the description
+  -- prop in mapper, ie. name = description AND the real bindings description
+  -- prop is not used. <<< FIX: this !!
+  --
+  -- TODO: should i dynamically build the query?
+  --
+  --
+  -- TODO: get tables that have at least two string fields 1 and 2.
 
-  local ret = string.format([[ (table_constructor
+  -- NOTE: The goal is to have something that is ruthlessly stable so that we
+  -- can truly get back to whatever bindings that we ever define so that the
+  -- user can change them from whereever when ever.
+  -- TODO: 1. Capture all table constructors that have at least indexed fields.
+  -- then check for the first and second match. if match then check further.
+  -- narrow down and then fucking get the shit going.
+  -- 2. Is there a third and fourth indexed field? -> match with name/description.
+  -- 3. otherwise, check for the named keys [name | buffer | mode | options]
+  --
+  -- TEST:
+  -- 1. First get tables that have two indexed fields where the first one is
+  -- string = LHS, and second is <any> type indexed.
+  -- 2. Then check if there is a third indexed, or fourth?
+  -- 3. now start looking for all the named keys.
+
+  local ret = string.format(
+    [[ (table_constructor
                 . [
                     (field value: (string content: (string_content) @sequence (#eq? sequence "%s")))
                     (field value: (string content: (string_content) @char (#eq? @char "%s")))
                     (field value: (dot_index_expression))] @lhs
+
                 . (field value:
                     [(identifier)
                     (string)
                     (function_definition)
                     (dot_index_expression)]) @rhs
-                ; DESCR (required)
-                ; The name can either be the third index or the name key.
-                ; make both optional so that either one of them
-                . ((field) @description (#eq? @description "%s"))?
+
+                ; NAME
+                . ((field) @name (#eq? @name "%s"))?
                 (field
                   name: (identifier) @id (#eq? @id "name")
                   value:
                     (string content:
-                      (string_content) @description (#eq? @description "%s")))?
+                      (string_content) @name (#eq? @name "%s")))?
+
                 ; MODE (optional)
                 (field
                   name: (identifier) @ide (#eq? @ide "\"mode\"")
                   value: (string content: (string_content) @mode (#eq? @mode "%s"))
                 )?
+
+                ; OPTIONS
+                ; check for the optios table.
               ) @bind_table ]],
     keys,
     get_last_char(keys),
-    -- du.escape_str(keybind.keys),
     keybind.description,
     keybind.description,
     keybind.mode
+  )
+
+  ret = string.format(
+    [[ (table_constructor
+                . [
+                    (field value: (string content: (string_content) @sequence (#eq? sequence "%s")))
+                    (field value: (string content: (string_content) @char (#eq? @char "%s")))
+                    (field value: (dot_index_expression))] @lhs
+
+                . (field value:
+                    [(identifier)
+                    (string)
+                    (function_definition)
+                    (dot_index_expression)]) @rhs
+
+
+                ; name
+
+                ; description
+
+
+              ) @bind_table ]],
+    keys,
+    get_last_char(keys)
   )
 
   return ret
@@ -190,7 +240,7 @@ M.mapper = function(opts)
       actions.select_default:replace(function()
         local keybind = action_state.get_selected_entry()
 
-        -- print("keybind = ", vim.inspect(keybind))
+        print("keybind = ", vim.inspect(keybind))
 
         local module_path = get_abs_path_from_module_origin(keybind)
 
@@ -222,8 +272,111 @@ M.mapper = function(opts)
         else
           print("no bind table found")
         end
-      end)
 
+        -- TEST VERSION TWO
+        -- Improved version
+
+        local buf = dui_utils.get_buf_handle(module_path)
+        local parser = vim.treesitter.get_parser(buf, "lua", {})
+        local tree = parser:parse()[1]
+        local root = tree:root()
+
+        local query__find_tbl_w_2_indices = string.format(
+          [[ (table_constructor) @bind_table ]],
+          keybind.keys,
+          get_last_char(keybind.keys)
+        )
+
+        local qtw2i = vim.treesitter.query.parse("lua", query__find_tbl_w_2_indices)
+
+        local nodes__tbls_w_2_indices = {}
+
+        local ts = vim.treesitter
+
+        local cnt = 0
+
+        -- iterate all table constructors
+        for id, capture_node, _ in qtw2i:iter_captures(root, buf) do
+          -- iter
+          local ci = 0
+          local ci_named = 0
+          local indexed = 0
+
+          local indexed_nodes = {}
+
+          for child_node, child_name in capture_node:iter_children() do
+            -- check for the first indexed occurence.
+            if child_node:named() and child_node:type() == "field" then
+              local valid = false
+              local child2 = child_node:named_child()
+              local child2_type = child_node:named_child():type()
+              local text = ts.get_node_text(child2, buf)
+
+              -- lhs
+              if indexed == 0 then
+                if child2_type == "dot_index_expression" then
+                  valid = true
+                  print("A: dot index expression", text)
+                end
+                if child2_type == "string" then
+                  -- match against `string_content` literally.
+                  local ct = ts.get_node_text(child2:named_child(), buf)
+
+                  if ct == keybind.keys then
+                    valid = true
+                    print("A: keybind.keys", text)
+                  elseif ct == get_last_char(keybind.keys) then
+                    valid = true
+                    print("A: keybind.keys (last char)", text)
+                  end
+                end
+              end
+
+              -- rhs
+              if indexed == 1 then
+                if child2_type == "identifier" then
+                  valid = true
+                  print(" B: identifier")
+                end
+                if child2_type == "string" then
+                  valid = true
+                  print(" B: string")
+                end
+                if child2_type == "function_definition" then
+                  valid = true
+                  print(" B: function_definition")
+                end
+                if child2_type == "dot_index_expression" then
+                  valid = true
+                  print(" B: dot_index_expression")
+                end
+              end
+
+              -- name
+              if indexed == 2 then
+              end
+
+              -- description
+              if indexed == 3 then
+              end
+
+              if valid then
+                table.insert(indexed_nodes, child_node)
+                indexed = indexed + 1
+              end
+              ci_named = ci_named + 1
+            end
+
+            ci = ci + 1
+          end
+
+          print("children #:", ci, ci_named)
+
+          cnt = cnt + 1
+        end
+
+        print("COUNT TABLES = ", cnt)
+      end)
       return true
     end,
   })
