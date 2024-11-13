@@ -8,7 +8,7 @@ local round = require("doom.utils").round
 
 -- Configuration section
 local default_config = {
-    plugin = "doom",
+    plugin = "DOOM",
     use_console = true,
     highlights = true,
     use_file = true,

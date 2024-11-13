@@ -16,6 +16,13 @@ local rk = {}
 --         build/kept in mult files. IE. take inspiration from doom.
 --       ~
 
+-- TODO: Add autocmds for reaper and reaper keys that log shit and prints
+-- whatever file i am working in and shit.
+--
+-- TODO: Can I add bindigs similar to doom keybinds CRUD but check if we are
+-- in a reaper keys file and then use the reaper keys TS table checks instead
+-- of the doom keybind ts checks.
+
 -- FIX: xx
 
 -- rk.cmds = {}

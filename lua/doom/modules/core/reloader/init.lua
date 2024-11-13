@@ -6,6 +6,8 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
 -- BUG: reload in Dashboard -> line numbers become visible
 
+-- TODO: Dont reload autocmd jobs. I need to tag them eg. keep = true
+
 -- TODO: Prevent reloading if there are LSP errors in the current buffer.
 
 -- TODO: move to config globals so that it is easier to reuse and debug

@@ -4,13 +4,22 @@
 
 -- TODO: More documentation
 
+-- TODO: better naming. Since this is quite an advanced function, each
+-- component needs to have a very intuitive name that makes you understand
+-- instantly.
+
+-- TODO: add a self.name to each traverser so that we can create better
+-- debug statements.
+
 -- Default debugger print
-local default_debug_node = function(node, stack)
+local default_debug_node = function(node, stack, opts)
+  -- TODO: show leaves and branches differently
   local parent = stack[#stack]
-  local indent_str = string.rep("--", #stack)
+    local indent_str = string.rep(":--", #stack - 1) or ""
   local indent_cap = type(node) == "table" and "+" or ">"
   print(
-    ("default: %s%s %s"):format(
+    ("recurse@%s # default: %s%s %s"):format(
+      opts.name,
       indent_str,
       indent_cap,
       type(node) == "table" and parent.key or node
@@ -20,7 +29,7 @@ end
 
 -- Default debug levels
 local default_log_levels =
-  { debug = false }
+  { debug = false, name = "[anonymous traverser]" }
 
 local tree_traverser = {
   ---Build a function that does what ??
@@ -63,7 +72,7 @@ local tree_traverser = {
 
       if opts.debug and debug_node then
         for _, value in ipairs(result) do
-          debug_node(value.node, value.stack)
+          debug_node(value.node, value.stack, opts)
         end
       end
 

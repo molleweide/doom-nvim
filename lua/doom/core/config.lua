@@ -128,19 +128,19 @@ config.load = function()
             end
           end
         else
-          -- log.error(
-          --   string.format(
-          --     "There was an error loading module '%s'. Traceback:\n%s",
-          --     path_module,
-          --     result
-          --   )
-          -- )
-          log.error(string.format("There was an error loading module '%s'", path_module))
+          log.error(
+            string.format(
+              "There was an error loading module '%s'. Traceback:\n%s",
+              path_module,
+              result
+            )
+          )
+          -- log.error(string.format("There was an error loading module '%s'", path_module))
         end
 
         profiler.stop(profiler_message)
       end
-    end, { debug = doom.settings.logging == "trace" or doom.settings.logging == "debug" })
+    end, { name = "[ core/config ]: traverse enabled_modules" })
   end
 
   profiler.stop("framework|import modules")

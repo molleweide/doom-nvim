@@ -1,5 +1,9 @@
 local traverser = require("doom.services.traverser")
 
+-- TODO: move this file to doom/modules/utils.lua
+
+-- move everything from dui/modules to here??
+
 --
 -- This file hosts some common recurring traversers in doom.
 --

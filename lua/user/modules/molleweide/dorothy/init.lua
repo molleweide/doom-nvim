@@ -8,6 +8,16 @@ local dorothy = {}
 -- ~ new command user
 -- ~ new command user local
 
+-- TODO: autocmds for auto formatting and running tests and shit.
+-- 1. command for autocmd watch changes and run dry run test.
+-- 2. run tests on dorothy command that just had a change.
+--    ~ edit `choose` command.
+--    ~ run tests for choose.
+--    ~ edit other file.
+--    ~ run tests for other file.
+--    >> spit everything out to a specific dorothy log file.
+--    if there were any errors -> run notifier in nvim.
+
 
 -- TODO:
 --  - if ! --shell flag then prompt with a selection

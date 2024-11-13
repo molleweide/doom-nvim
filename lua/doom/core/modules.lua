@@ -67,7 +67,12 @@ modules.load_modules = function()
       -- Check module has necessary dependencies
       if module.requires_modules then
         for _, dependent_module in ipairs(module.requires_modules) do
-          if not utils.get_set_table_path(doom.modules, vim.split(dependent_module, "%.")) then
+          if
+              not utils.get_set_table_path(
+                doom.modules,
+                vim.split(dependent_module, "%.")
+              )
+          then
             should_enable_module = false
             logger.error(
               ('Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'):format(
@@ -111,7 +116,12 @@ modules.load_modules = function()
           local autocmds = type(module.autocmds) == "function" and module.autocmds()
               or module.autocmds
           for _, autocmd_spec in ipairs(autocmds) do
-            autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
+            autocmds_service.set(
+              autocmd_spec[1],
+              autocmd_spec[2],
+              autocmd_spec[3],
+              autocmd_spec
+            )
           end
         end
 
@@ -129,7 +139,7 @@ modules.load_modules = function()
       end
       profiler.stop(profile_msg)
     end
-  end, { debug = doom.logging == "trace" or doom.logging == "debug" })
+  end, { name = "[core/modules]: loaded modules", debug = false })
 end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.

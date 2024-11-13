@@ -3,7 +3,6 @@ local utils = require("doom.utils")
 local spec = require("doom.core.spec")
 local tree = require("doom.utils.tree")
 local tsq = require("vim.treesitter.query")
-local ntu = require("nvim-treesitter.ts_utils")
 
 local templ = require("doom.modules.features.dui.templates")
 local ts = require("doom.modules.features.dui.ts")
@@ -46,12 +45,12 @@ local function contains_node(outer, inner) end
 local function get_replacement_range(strings, comments, module_name, buf)
   if strings[1] then
     return {
-      strings[1].range[1],
-      strings[1].range[2] + 1,
-      strings[1].range[3],
-      strings[1].range[4] - 1,
-    },
-      true
+          strings[1].range[1],
+          strings[1].range[2] + 1,
+          strings[1].range[3],
+          strings[1].range[4] - 1,
+        },
+        true
   else
     for _, node in ipairs(comments) do
       local match_str = '--%s-"' .. module_name .. '",'
@@ -64,8 +63,8 @@ local function get_replacement_range(strings, comments, module_name, buf)
         local name_real_start = indentation + start_pos
         local name_real_end = indentation + end_pos
         return { node.range[1], name_real_start, node.range[3], name_real_end },
-          false,
-          node.range[2]
+            false,
+            node.range[2]
       end
     end
   end
@@ -155,14 +154,14 @@ end
 
 -- refactor: generalized `match_node_pattern`
 local function is_branch(ts_branch_field, buf)
-  local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-  local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+  local br_lhs = ts.child_n(ts_branch_field, { 0, 0, 0 })    -- (branch_field:named_child(0)):named_child(0)
+  local br_name = ts.child_n(ts_branch_field, { 0, 1, 1 })   -- (branch_field:named_child(1)):named_child(1)
   return (br_lhs:type() == "string" and ts_text(br_name, buf):match('^"+'))
 end
 
 -- refactor: utils/ts -> find lua_table_idx_node_match
 local function is_leader_lhs_match(field, lhs, buf)
-  local br_lhs = ts.child_n(field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local br_lhs = ts.child_n(field, { 0, 0, 0 })   -- (branch_field:named_child(0)):named_child(0)
   if br_lhs then
     -- print("is_leader_lhs_match:", ts_text(br_lhs, buf), "==", '"' .. lhs .. '"')
     local check = '"' .. lhs .. '"'
@@ -179,11 +178,12 @@ end
 --
 -- refactor: util/ts -> lua_find_deepest_table_pattern
 local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
+  local ntu = require("nvim-treesitter.ts_utils")
   local field = leader_table_field
 
   while true do
     local found = false
-    local binds_tc = ts.child_n(field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
+    local binds_tc = ts.child_n(field, { 0, 2, 0 })     -- (branch_field:named_child(0)):named_child(0)
     local binds_tc_children = ntu.get_named_children(binds_tc)
     local first_char = lhs_str:sub(1, 1)
     for k, child_field in pairs(binds_tc_children) do
@@ -192,7 +192,7 @@ local function find_deepest_leader_for_string(buf, leader_table_field, lhs_str)
         field = child_field
       end
     end
-    if not found then -- or lhs_str == "" then
+    if not found then     -- or lhs_str == "" then
       break
     end
     lhs_str = lhs_str:sub(2, -1)
@@ -245,13 +245,13 @@ end
 
 -- returns the last binds child table in a branch
 local function get_all_bind_sub_tables(ts_branch_field, buf)
-  local binds_tc = ts.child_n(ts_branch_field, { 0, 2, 0 }) -- (branch_field:named_child(0)):named_child(0)
+  local binds_tc = ts.child_n(ts_branch_field, { 0, 2, 0 })   -- (branch_field:named_child(0)):named_child(0)
   local t_binds = {}
   -- i could use nvu get_named_children() here as well
   for n in binds_tc:iter_children() do
     if n:named() then
-      local br_lhs = ts.child_n(branch_field, { 0, 0, 0 }) -- (branch_field:named_child(0)):named_child(0)
-      local br_name = ts.child_n(branch_field, { 0, 1, 1 }) -- (branch_field:named_child(1)):named_child(1)
+      local br_lhs = ts.child_n(branch_field, { 0, 0, 0 })        -- (branch_field:named_child(0)):named_child(0)
+      local br_name = ts.child_n(branch_field, { 0, 1, 1 })       -- (branch_field:named_child(1)):named_child(1)
 
       if not is_branch(n, buf) then
         table.insert(t_binds, n)
@@ -312,7 +312,7 @@ mod_util.check_if_module_name_exists = function(m, new_name)
   -- local sec = type(m) == "string" and m or m.section
   local results = tree.traverse_table({
     tree = require("doom.modules.utils").extend(),
-    filter = "doom_module_single", -- what makes a node in the tree
+    filter = "doom_module_single",     -- what makes a node in the tree
     leaf = function(_, _, v)
       -- todo: if m == string then do
       --
@@ -333,38 +333,34 @@ end
 mod_util.root_new = function(opts)
   local tables, buf = ts.get_captures(rmf, dq.root_section(opts.section), "section_table")
 
-  local ntu = #tables
-  b.insert_line(buf, tables[ntu].range[3], '    "' .. opts.new_name .. '",')
+  local _ntu = #tables
+  b.insert_line(buf, tables[_ntu].range[3], '    "' .. opts.new_name .. '",')
 end
 
 mod_util.root_rename = function(opts)
-  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local strings =
+      ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
   local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
-  local range, enabled, comment_start = get_replacement_range(
-    strings,
-    comments,
-    opts.module_name,
-    buf
-  )
+  local range, enabled, comment_start =
+      get_replacement_range(strings, comments, opts.module_name, buf)
   b.set_text(buf, range, opts.new_name)
 end
 
 mod_util.root_delete = function(opts)
-  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local strings =
+      ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
   local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
-  local range, enabled, comment_start = get_replacement_range(strings, comments, selected_mod, buf)
+  local range, enabled, comment_start =
+      get_replacement_range(strings, comments, selected_mod, buf)
   vim.api.nvim_buf_set_lines(buf, range[1], range[1] + 1, 0, {})
 end
 
 mod_util.root_toggle = function(opts)
-  local strings = ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
+  local strings =
+      ts.get_captures(rmf, dq.root_mod(opts.module_name, opts.section), "module_string")
   local comments, buf = ts.get_captures(rmf, dq.root_comments(opts.section), "section_comment")
-  local range, enabled, comment_start = get_replacement_range(
-    strings,
-    comments,
-    opts.module_name,
-    buf
-  )
+  local range, enabled, comment_start =
+      get_replacement_range(strings, comments, opts.module_name, buf)
 
   if enabled then
     b.insert_text_at(buf, range[1], range[2] - 1, "-- ")
@@ -432,7 +428,10 @@ mod_util.package_edit = function(opts)
       opts.selected_module.path .. "init.lua",
       dq.mod_tbl(opts.selected_component.component_type),
       "rhs",
-      dq.pkg_table(opts.selected_component.data.table_path, opts.selected_component.data.spec[1]),
+      dq.pkg_table(
+        opts.selected_component.data.table_path,
+        opts.selected_component.data.spec[1]
+      ),
       "pkg_table"
     )
   )
@@ -464,11 +463,8 @@ end
 --        - before cmds/autocmds/binds
 --
 mod_util.config_add = function(opts)
-  local captures, buf = ts.get_captures(
-    opts.selected_module.path .. "init.lua",
-    dq.config_func(),
-    "rhs"
-  )
+  local captures, buf =
+      ts.get_captures(opts.selected_module.path .. "init.lua", dq.config_func(), "rhs")
   act_on_capture(captures, buf)
 end
 
@@ -503,7 +499,10 @@ end
 mod_util.cmd_edit = function(opts)
   act_on_capture(
     ts.get_captures(
-      dq.mod_tbl(opts.selected_module.path .. "init.lua", opts.selected_component.component_type),
+      dq.mod_tbl(
+        opts.selected_module.path .. "init.lua",
+        opts.selected_component.component_type
+      ),
       "rhs",
       dq.cmd_table(opts.selected_component.data),
       "action"
@@ -565,6 +564,7 @@ mod_util.bind_add = function(opts)
 end
 
 mod_util.bind_add_after = function(opts)
+  local ntu = require("nvim-treesitter.ts_utils")
   -- TELESCOPE  -> then get the bind under cursor with queries
   -- REGULAR    -> get bind / enclosing with nvim treesitter cursor helpers.
   local binds_tbl, bind, buf = ts.get_captures(
@@ -578,7 +578,7 @@ mod_util.bind_add_after = function(opts)
   print("after; path_init:", opts.selected_module.path_init)
   -- print("leader_tbl:", vim.inspect(leader_tbl))
   -- print("bind:", vim.inspect(bind))
-  local new_leader = ntu.is_parent(leader_tbl[1].node, bind[1].node) -- Nodes
+  local new_leader = ntu.is_parent(leader_tbl[1].node, bind[1].node)   -- Nodes
   local captures = new_leader and get_all_sibling_binds(bind[1].node, buf) or bind
 
   print("new_leader:", new_leader)
@@ -609,7 +609,8 @@ mod_util.bind_replace = function(opts) end
 mod_util.bind_move = function(opts) end
 
 mod_util.bind_create_from_line = function(opts)
-  local binds_table, buf = ts.get_captures(opts.sel_mod.path_init, dq.mod_tbl(opts.sel_cmp), "rhs")
+  local binds_table, buf =
+      ts.get_captures(opts.sel_mod.path_init, dq.mod_tbl(opts.sel_cmp), "rhs")
 
   has_base_table("binds")
 
@@ -629,11 +630,8 @@ mod_util.bind_create_from_line = function(opts)
   local leader_tbl, branch_target
   if leader[1] then
     leader_tbl = leader[1].node
-    branch_target_field, new_lhs_subtracted = find_deepest_leader_for_string(
-      buf,
-      leader_tbl,
-      lhs_str
-    )
+    branch_target_field, new_lhs_subtracted =
+        find_deepest_leader_for_string(buf, leader_tbl, lhs_str)
   end
 
   if new_lhs_subtracted == "" then
@@ -706,15 +704,19 @@ mod_util.extend = function(filter)
   for _, p in ipairs(all) do
     local org, sec, name = get_mod_tbl_path_from_string(p)
     utils.get_set_table_path(m_all[org], { sec[1], name }, {
-      type = "doom_module_single", -- todo: how is type used?
+      type = "doom_module_single",       -- todo: how is type used?
       enabled = false,
       name = name,
-      section = sec[1], -- only `sec` later
+      section = sec[1],                  -- only `sec` later
       origin = org,
-      path = string.sub(p, 1, -9), -- only the dir path
+      path = string.sub(p, 1, -9),       -- only the dir path
       path_init = p,
     })
   end
+
+
+    -- FIX: update this with the traverser for enabled_modules
+
   tree.traverse_table({
     tree = require("doom.core.modules").enabled_modules,
     leaf = function(stack, _, v)
@@ -739,15 +741,18 @@ mod_util.extend = function(filter)
       if filter.origins then
         for o, origin in pairs(mods) do
           if vim.tbl_contains(filter.origins, o) then
-            table.remove(mods, o) -- filter origins
+            table.remove(mods, o)             -- filter origins
           else
             for s, section in pairs(origin) do
               if not vim.tbl_contains(filter.sections, s) then
-                table.remove(mods[o], s) -- filter sections
+                table.remove(mods[o], s)                 -- filter sections
               else
                 for m, _ in pairs(section) do
-                  if m.enabled ~= filter.enabled or not vim.tbl_contains(filter.names, m) then
-                    table.remove(mods[o][s], m) -- filter modules by name
+                  if
+                      m.enabled ~= filter.enabled
+                      or not vim.tbl_contains(filter.names, m)
+                  then
+                    table.remove(mods[o][s], m)                     -- filter modules by name
                   end
                 end
               end
@@ -763,5 +768,3 @@ mod_util.extend = function(filter)
 end
 
 return mod_util
-
-

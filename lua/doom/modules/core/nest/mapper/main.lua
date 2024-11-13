@@ -9,6 +9,11 @@ local dui_utils = require("doom.modules.features.dui.utils")
 
 -- TODO: default <entre> selection should go to file in same buffer.
 -- TODO: vertical / horizontal split.
+-- TODO: add new binding to same table if possible.
+-- TODO: add new leader.
+-- TODO: If one of the indexed fields is an identifier, then use LSP to
+-- obtain the real value and see if I can sus out more specific info.
+-- TODO:
 
 local du = require("doom.utils")
 
@@ -183,7 +188,13 @@ local function get_keybind_leaf_candidates(buf, keybind)
             -- then abort.
 
             if child2_second:type() == "string" then
+
+
+              -- FIX: child2_second:named_child() needs to be nil checked!!
+
+
               local nt2 = ts.get_node_text(child2_second:named_child(), buf)
+
               if nt == "name" then
                 local compare = nt2 == keybind.description
                 print("::::", nt2, keybind.description, compare)

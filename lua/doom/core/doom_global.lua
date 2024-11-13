@@ -223,7 +223,7 @@ doom = {
     -- Set Doom logging level
     -- @default = "info"
     --- @type "trace"|"debug"|"info"|"warn"|"error"|"fatal"
-    logging = "info",
+        logging = "trace",
 
     -- Default colorscheme
     -- @default = doom-one

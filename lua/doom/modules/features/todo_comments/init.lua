@@ -1,8 +1,10 @@
 local todo_comments = {}
 
 -- TODO: todo-comments.nvim snippets
--- https://github.com/L3MON4D3/LuaSnip/wiki/Cool-Snippets#all---todo-commentsnvim-snippets 
+-- https://github.com/L3MON4D3/LuaSnip/wiki/Cool-Snippets#all---todo-commentsnvim-snippets
 -----
+
+-- TODO: Add todo prefix to existing comment line/paragraph
 
 todo_comments.settings = {
   signs = true, -- show icons in the signs column

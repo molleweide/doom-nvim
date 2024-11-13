@@ -75,7 +75,8 @@ module.use_null_ls = function(package_name, null_ls_path, configure_function)
             local path = vim.split(null_ls_path, "%.", nil)
             if #path ~= 3 then
                 log.error(
-                    ("Error setting up null-ls provider `%s`.\n\n  null_ls_path should have 3 segments i.e. `builtins.formatting.stylua"):format(
+                    ("Error setting up null-ls provider `%s`.\n\n  null_ls_path should have 3 segments i.e. `builtins.formatting.stylua")
+                    :format(
                         null_ls_path
                     )
                 )
@@ -280,7 +281,8 @@ module.use_lsp_mason = function(lsp_name, options)
         local final_config = vim.tbl_deep_extend("keep", user_config or {}, capabilities_config)
         if lspconfig[config_name].setup == nil then
             log.warn(
-                ("Cannot start LSP %s with config name %s. Reason: The LSP config does not exist, please create an issue so this can be resolved."):format(
+                ("Cannot start LSP %s with config name %s. Reason: The LSP config does not exist, please create an issue so this can be resolved.")
+                :format(
                     lsp_name,
                     config_name
                 )
@@ -383,7 +385,8 @@ end
 ---@param setup_fn function Function that sets up this language
 ---@return function Wrapped setup function
 module.wrap_language_setup = function(module_name, setup_fn)
-  log.debug("[langs/utils]: wrap_language_setup()")
+
+    log.debug("[langs/utils]: wrap_language_setup()")
 
     local setup_language = function()
         vim.defer_fn(function()
