@@ -22,6 +22,9 @@ local utils = require("doom.utils")
 -- TODO: Attach all doom cmds to the `:Doom` namespace.
 -- https://github.com/nvim-neorocks/nvim-best-practices?tab=readme-ov-file#speaking_head-user-commands
 
+-- Add description for all commands so that you can always have a nice description
+-- with telescope.
+
 -- Data to be stored globally so it can be accessed from the nvim-0.5 implementation
 local data = _G._doom_commands_service_data or {
     command_actions = {},

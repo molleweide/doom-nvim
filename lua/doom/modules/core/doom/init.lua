@@ -7,8 +7,8 @@ required.settings = {
 required.packages = {
   ["luarocks.nvim"] = {
     "vhyrro/luarocks.nvim",
-    priority = 1000, -- We'd like this plugin to load first out of the rest
-    config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+    priority = 1000,     -- We'd like this plugin to load first out of the rest
+    config = true,       -- This automatically runs `require("luarocks-nvim").setup()`
   },
   ["lazy.nvim"] = {
     "folke/lazy.nvim",
@@ -40,9 +40,15 @@ required.configs = {}
 
 required.binds = function()
   local binds = {
-    { "ZZ", function () require("doom.core.functions").quit_doom(false, true) end, name = "Fast exit" },
-    { "<ESC>", ":noh<CR>", name = "Remove search highlight" },
-    { "<Tab>", ":bnext<CR>", name = "Jump to next buffer" },
+    {
+      "ZZ",
+      function()
+        require("doom.core.functions").quit_doom(false, true)
+      end,
+      name = "Fast exit",
+    },
+    { "<ESC>",   ":noh<CR>",       name = "Remove search highlight" },
+    { "<Tab>",   ":bnext<CR>",     name = "Jump to next buffer" },
     { "<S-Tab>", ":bprevious<CR>", name = "Jump to prev buffer" },
     {
       "<C-",
@@ -54,9 +60,9 @@ required.binds = function()
         {
           mode = "nv",
           {
-            { "Left>", ":vertical resize -2<CR>", name = "Resize window left" },
-            { "Down>", ":resize -2<CR>", name = "Resize window down" },
-            { "Up>", ":resize +2<CR>", name = "Resize window up" },
+            { "Left>",  ":vertical resize -2<CR>", name = "Resize window left" },
+            { "Down>",  ":resize -2<CR>",          name = "Resize window down" },
+            { "Up>",    ":resize +2<CR>",          name = "Resize window up" },
             { "Right>", ":vertical resize +2<CR>", name = "Resize window right" },
           },
         },
@@ -76,11 +82,11 @@ required.binds = function()
           "<a-",
           {
             { "j>", ":m '<+1<CR>gv=gv", name = "Move line down", mode = "v" },
-            { "k>", ":m '<-2<CR>gv=gv", name = "Move line up", mode = "v" },
+            { "k>", ":m '<-2<CR>gv=gv", name = "Move line up",   mode = "v" },
           },
         },
-        { ">", ">gv", mode = "v" }, -- Stay in visual after indent.
-        { "<", "<gv", mode = "v" }, -- Stay in visual after indent.
+        { ">", ">gv", mode = "v" },         -- Stay in visual after indent.
+        { "<", "<gv", mode = "v" },         -- Stay in visual after indent.
       },
     },
     {
@@ -90,14 +96,17 @@ required.binds = function()
           "<a-",
           {
             { "j>", "<ESC>:m '<+1<CR>==gi", name = "Move line down", mode = "i" },
-            { "k>", "<ESC>:m '<-2<CR>==gi", name = "Move line up", mode = "i" },
+            { "k>", "<ESC>:m '<-2<CR>==gi", name = "Move line up",   mode = "i" },
           },
         },
       },
     },
-    { mode = "t", {
-      { "<Esc>", "<C-\\><C-n>", name = "Exit insert in terminal" },
-    } },
+    {
+      mode = "t",
+      {
+        { "<Esc>", "<C-\\><C-n>", name = "Exit insert in terminal" },
+      },
+    },
   }
 
   -- Conditionally disable macros
@@ -134,7 +143,7 @@ required.binds = function()
         name = "+buffer",
         {
           { "b", "<cmd>e #<CR>", name = "Jump to recent" },
-          { "d", "<cmd>bd<CR>", name = "Delete" },
+          { "d", "<cmd>bd<CR>",  name = "Delete" },
         },
       },
       {
@@ -156,14 +165,14 @@ required.binds = function()
             require("doom.core.functions").open_docs,
             name = "Open documentation",
           },
-          { "R", "<cmd>DoomReload<CR>", name = "Reload config" },
+          { "R", "<cmd>DoomReload<CR>",   name = "Reload config" },
           -- { "r", "<cmd>DoomRollback<CR>", name = "Rollback" },
           -- { "R", "<cmd>DoomReport<CR>", name = "Report issue" },
-          { "u", "<cmd>DoomUpdate<CR>", name = "Update" },
-          { "Z", "<cmd>Lazy<CR>", name = "Open Lazy" },
-          { "s", "<cmd>Lazy sync<CR>", name = "Sync packages" },
+          { "u", "<cmd>DoomUpdate<CR>",   name = "Update" },
+          { "Z", "<cmd>Lazy<CR>",         name = "Open Lazy" },
+          { "s", "<cmd>Lazy sync<CR>",    name = "Sync packages" },
           { "I", "<cmd>Lazy install<CR>", name = "Install packages" },
-          { "C", "<cmd>Lazy clean<CR>", name = "Clean packages" },
+          { "C", "<cmd>Lazy clean<CR>",   name = "Clean packages" },
           -- { "b", "<cmd>Lazy build<CR>", name = "Build packages" },
           { "p", "<cmd>Lazy profile<CR>", name = "Profile" },
         },
@@ -173,7 +182,7 @@ required.binds = function()
         name = "+file",
         {
           { "n", (":%snew<CR>"):format(split_prefix), name = "Create new" },
-          { "w", "<cmd>w<CR>", name = "Write" },
+          { "w", "<cmd>w<CR>",                        name = "Write" },
           {
             "W",
             function()
@@ -223,7 +232,12 @@ required.binds = function()
         "h",
         name = "+help",
         {
-          { "h", "<cmd>Man<CR>", name = "Manual pages", options = { silent = false } },
+          {
+            "h",
+            "<cmd>Man<CR>",
+            name = "Manual pages",
+            options = { silent = false },
+          },
           { "D", "<cmd>DoomManual<CR>", name = "Open Doom" },
         },
       },
@@ -231,9 +245,9 @@ required.binds = function()
         "j",
         name = "+jump",
         {
-          { "a", "<C-^>", name = "Alternate file" },
-          { "j", "<C-o>", name = "Older file" },
-          { "k", "<C-i>", name = "Newer file" },
+          { "a", "<C-^>",        name = "Alternate file" },
+          { "j", "<C-o>",        name = "Older file" },
+          { "k", "<C-i>",        name = "Newer file" },
           { "p", "<cmd>tag<CR>", name = "Push tag" },
           { "P", "<cmd>pop<CR>", name = "Pop tag" },
         },
@@ -258,11 +272,19 @@ required.binds = function()
         name = "+tweak",
         {
           -- TODO: add toggle linebreak
-          { "b", require("doom.core.functions").toggle_background, name = "Toggle background" },
-          { "s", require("doom.core.functions").toggle_signcolumn, name = "Toggle sigcolumn" },
-          { "i", require("doom.core.functions").set_indent, name = "Set indent" },
+          {
+            "b",
+            require("doom.core.functions").toggle_background,
+            name = "Toggle background",
+          },
+          {
+            "s",
+            require("doom.core.functions").toggle_signcolumn,
+            name = "Toggle sigcolumn",
+          },
+          { "i", require("doom.core.functions").set_indent,    name = "Set indent" },
           { "n", require("doom.core.functions").change_number, name = "Toggle number" },
-          { "S", require("doom.core.functions").toggle_spell, name = "Toggle spelling" },
+          { "S", require("doom.core.functions").toggle_spell,  name = "Toggle spelling" },
           { "x", require("doom.core.functions").change_syntax, name = "Toggle syntax" },
         },
       },
@@ -291,10 +313,10 @@ required.binds = function()
           {
             "<C-",
             {
-              { "H>", "<C-w>5<", name = "Expand left" },
+              { "H>", "<C-w>5<",            name = "Expand left" },
               { "J>", "<cmd>resize +5<CR>", name = "Expand down" },
               { "K>", "<cmd>resize -5<CR>", name = "Expand up" },
-              { "L>", "<C-w>L", name = "Expand right" },
+              { "L>", "<C-w>L",             name = "Expand right" },
             },
           },
         },
@@ -309,7 +331,10 @@ required.autocmds = function()
   local autocmds = {}
 
   if doom.settings.autosave then
-    table.insert(autocmds, { { "TextChanged","InsertLeave" }, "<buffer>", "silent! write" })
+    table.insert(
+      autocmds,
+      { { "TextChanged", "InsertLeave" }, "<buffer>", "silent! write", descr = "Auto save" }
+    )
   end
 
   if doom.settings.highlight_yank then
@@ -319,6 +344,7 @@ required.autocmds = function()
       function()
         require("vim.highlight").on_yank({ higroup = "Search", timeout = 200 })
       end,
+      descr = "Highlight yank text after yanking.",
     })
   end
 
@@ -327,6 +353,7 @@ required.autocmds = function()
       "BufReadPost",
       "*",
       [[if &ft !~# 'commit\|rebase' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif]],
+      descr = "Preserve edit pos (I dunno what this one does?)"
     })
   end
   return autocmds
