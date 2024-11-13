@@ -701,9 +701,23 @@ local doom_autocmds_picker = function(opts)
   --     required vars are properly set.
   --
 
+  local doom_autocmds_namespace = require("doom.services.autocommands").namespace
+
   local conf = require("telescope.config").values
 
-  local autocmds = vim.api.nvim_get_autocmds({})
+  -- local autocmds = vim.api.nvim_get_autocmds({})
+
+  local all = vim.api.nvim_get_autocmds({})
+  local autocmds = {}
+  for i, v in ipairs(all) do
+    if v.group_name then
+      -- print(v.group_name, doom_autocmds_namespace)
+      if v.group_name == doom_autocmds_namespace then
+        -- print(v.group_name, doom_autocmds_namespace)
+        table.insert(autocmds, v)
+      end
+    end
+  end
 
   table.sort(autocmds, function(lhs, rhs)
     return lhs.event < rhs.event
@@ -714,11 +728,13 @@ local doom_autocmds_picker = function(opts)
         prompt_title = "autocommands",
         finder = finders.new_table({
           results = autocmds,
+
+          -- FIX: why isnt my descriptions showing?
           entry_maker = opts.entry_maker or make_entry.gen_from_autocommands(opts),
         }),
 
-      -- I need to have a custom previewer for doom so that I can show name and 
-      -- description
+        -- I need to have a custom previewer for doom so that I can show name and
+        -- description
         previewer = previewers.autocommands.new(opts),
 
         sorter = conf.generic_sorter(opts),

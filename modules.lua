@@ -20,6 +20,7 @@ return {
       "temporary_buffers",
       "cleanup_unused",
     },
+    "task_and_job_manager",
     lib = {
       "litee",
       "pathlib",
@@ -122,7 +123,7 @@ return {
     },
 
     nvim_help = {
-      "vimdoc_and_help_decorations"
+      "vimdoc_and_help_decorations",
     },
 
     "symbols_outline_sidebar",     -- Navigate between code symbols using telescope

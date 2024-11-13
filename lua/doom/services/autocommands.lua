@@ -13,6 +13,7 @@
 --- @field count number Any count supplied (if any)
 
 --- @class SetAutoCommandOptions
+--- @field descr string|nil
 --- @field nested boolean|nil
 --- @field once boolean|nil
 
@@ -23,16 +24,18 @@
 --- Wraps the nvim functionality to handle different neovim versions.
 local utils = require("doom.utils")
 
+local DOOM_AUTOCMDS_NAMESPACE = "DoomAutoCommands"
+
 -- Data to be stored globally so it can be accessed from the nvim-0.5 implementation
 local data = _G._doom_autocmds_service_data
-  or {
-    -- Stores data relating to the auto command so they can be deleted on neovim < 0.8
-    autocmd_signatures = {},
-    -- Stores the lua function handlers for nvim version < 0.8
-    autocmd_actions = {},
-    -- Stores created autocommand ids from vim.api.nvim_create_autocmd (or custom shim in the v0.5 version)
-    autocmd_ids = {},
-  }
+    or {
+      -- Stores data relating to the auto command so they can be deleted on neovim < 0.8
+      autocmd_signatures = {},
+      -- Stores the lua function handlers for nvim version < 0.8
+      autocmd_actions = {},
+      -- Stores created autocommand ids from vim.api.nvim_create_autocmd (or custom shim in the v0.5 version)
+      autocmd_ids = {},
+    }
 _G._doom_autocmds_service_data = data
 
 -- Store all autocommands inside of an augroup for doom-nvim
@@ -45,6 +48,10 @@ else
     augroup END
   ]])
 end
+
+-- WARN: If I make changes to how the opt table can be configured then,
+-- v0.5 will have to be made compatible as well. However, now 0.5 is so
+-- old and uncommon that it is not urgent..
 
 local set_autocmd_implementations = {
   ["nvim-0.5"] = function(event, pattern, action, opts)
@@ -68,7 +75,7 @@ local set_autocmd_implementations = {
       data.autocmd_actions[uid] = action
 
       cmd_string = cmd_string
-        .. (":lua _doom_autocmds_service_data.autocmd_actions[%d]()"):format(uid)
+          .. (":lua _doom_autocmds_service_data.autocmd_actions[%d]()"):format(uid)
     end
     vim.cmd(cmd_string)
     return uid
@@ -76,12 +83,19 @@ local set_autocmd_implementations = {
   ["latest"] = function(event, pattern, action, opts)
     local merged_opts = vim.tbl_extend("keep", opts, {
       pattern = pattern,
-      group = "DoomAutoCommands",
+      group = DOOM_AUTOCMDS_NAMESPACE,
     })
     if type(action) == "function" then
       merged_opts.callback = action
     else
       merged_opts.command = action
+    end
+
+    -- remove indexed fields from the opts table
+    if #merged_opts > 0 then
+      for i = 1, 3 do
+        table.remove(merged_opts)
+      end
     end
 
     local id = vim.api.nvim_create_autocmd(event, merged_opts)
@@ -122,6 +136,8 @@ local del_all_autocmd_fn = utils.pick_compatible_field(del_all_autocmd_implement
 -- API
 local autocmds_service = {}
 
+-- TEST: If opts is a <string> then use it for desc instead of opts..
+
 --- Set a neovim autocmd
 ---@param event string Name of autocmd
 ---@param pattern string Pattern to match autocommand with
@@ -129,12 +145,17 @@ local autocmds_service = {}
 ---@param opts SetAutoCommandOptions|nil
 ---@return number ID of autocommand, used to delete it later on
 autocmds_service.set = function(event, pattern, action, opts)
-  local resolved_opts = opts or {}
-  local stripped_opts = {
-    nested = resolved_opts.nested or false,
-    once = resolved_opts.once or false,
-  }
-  return set_autocmd_fn(event, pattern, action, stripped_opts)
+  -- local resolved_opts = opts or {}
+  opts = opts or {}
+
+  -- NOTE: Why arent we just doing a tbl extend here?
+
+  -- local stripped_opts = {
+  --     nested = resolved_opts.nested or false,
+  --     once = resolved_opts.once or false,
+  --     desc = resolved_opts.descr or nil
+  -- }
+  return set_autocmd_fn(event, pattern, action, opts)
 end
 
 --- Deletes an autocommand from a given id
@@ -149,5 +170,7 @@ end
 autocmds_service.del_all = function()
   del_all_autocmd_fn()
 end
+
+autocmds_service.namespace = DOOM_AUTOCMDS_NAMESPACE
 
 return autocmds_service
