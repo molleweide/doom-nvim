@@ -369,6 +369,10 @@ end
 
 M.get_match_for_keybind = function(opts)
 
+
+  opts.buf =dui_utils.get_buf_handle(opts.module_path)
+
+
   local final_match = false
 
 
@@ -494,7 +498,6 @@ M.mapper = function(opts)
       actions.select_default:replace(function()
         local keybind = action_state.get_selected_entry()
 
-        print("keybind = ", vim.inspect(keybind))
 
         local module_path = get_abs_path_from_module_origin(keybind)
 
@@ -512,10 +515,10 @@ M.mapper = function(opts)
         vim.cmd(string.format("e %s", module_path))
         vim.cmd("stopinsert")
 
-        local buf = dui_utils.get_buf_handle(module_path)
 
 
-        local matched_leaf = M.get_match_for_keybind({ buf = buf, keybind = keybind })
+        local matched_leaf = M.get_match_for_keybind({ module_path = module_path, keybind = keybind })
+        print("keybind = ", vim.inspect(keybind))
       end)
 
       return true
