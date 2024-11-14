@@ -12,13 +12,52 @@ local dui_utils = require("doom.modules.features.dui.utils")
 -- TODO: add new binding to same table if possible.
 -- TODO: add new leader.
 -- TODO: If one of the indexed fields is an identifier, then use LSP to
--- obtain the real value and see if I can sus out more specific info.
--- TODO:
+--          obtain the real value and see if I can sus out more specific info.
+-- TODO: if you dont specify a module to add bind/feature to, then, add
+--          the binding to root config.lua
+--
+-- TODO: add bind / add sibling to bind leaf.
+-- TODO: add bind -> type in the char pattern that we want to use for bind.
+--            find modules that have existing binds that match this new
+--            pattern, and ask, do you want to add this bind to an existing
+--            module with similar binds/leaders?
+--
+-- TODO: Add binds for editing every component of a binding.
+--        Again, use vim ui lib to get user input in a nice way and ensure
+--        that user enters a new valid good value.
+--
+
+-- TODO: doom module buffer bindigs.
+-- ~ [b ]b buffer mappings, (jump to next/prev binding), that only are
+-- ~ [c ]c jump to next/prev doom component.
+-- ~ [p ]p jump to next/prev package.
+-- added upon entering a doom module.
+-- !!!
+
+-- HACK: try out the `swap_nodes` function.
+
+local function has_grand_parent() end
+
+local function has_grand_parent_of_type() end
+
+local function has_parent_of_type() end
+
+local function has_child_of_type() end
+
+-- eg <name> = ....
+local function has_field_identifier() end
+
+local function has_n_named_children() end
+
+local function has_indexed_fields() end
+
+local function has_n_indexed_fields() end
 
 local du = require("doom.utils")
 
 local __attrs = {
-  "name", "mode" --, "description"
+  "name",
+  "mode",   --, "description"
 }
 
 -- telescope-mapper modules
@@ -32,7 +71,7 @@ local function getLastControlChar(keybinds)
   local pattern2 = "<F%d>"
   local pattern3 = "<A%-.>"
   for match in string.gmatch(keybinds, pattern) do
-    lastControlChar = match -- Update lastControlChar to the current match
+    lastControlChar = match     -- Update lastControlChar to the current match
   end
   return lastControlChar
 end
@@ -130,7 +169,6 @@ local function get_keybind_leaf_candidates(buf, keybind)
 
   local qtw2i = vim.treesitter.query.parse("lua", query__find_tbl_w_2_indices)
 
-
   -- TODO: If branch, check parent name?
   print("#######################################################")
   print("Keys:", keybind.keys)
@@ -148,10 +186,8 @@ local function get_keybind_leaf_candidates(buf, keybind)
 
     local candidate = {
       table = capture_node,
-      named_attrs = {}
+      named_attrs = {},
     }
-
-
 
     local prev_chnamed_count
     local prev_was_indexed
@@ -174,10 +210,9 @@ local function get_keybind_leaf_candidates(buf, keybind)
         --   print("==1")
         -- end
 
-
         -- Handle named fields. These can occur as first field in a table and
         -- so possibly might be [ indexed < 2 ]
-        if (named_child_count > 1) then
+        if named_child_count > 1 then
           local child2_second = child_node:named_child(1)
 
           if child2_type == "identifier" then
@@ -188,10 +223,7 @@ local function get_keybind_leaf_candidates(buf, keybind)
             -- then abort.
 
             if child2_second:type() == "string" then
-
-
               -- FIX: child2_second:named_child() needs to be nil checked!!
-
 
               local nt2 = ts.get_node_text(child2_second:named_child(), buf)
 
@@ -225,16 +257,37 @@ local function get_keybind_leaf_candidates(buf, keybind)
             -- print("?")
             if child2_type == "dot_index_expression" then
               valid = true
-              print(string.format("A (%s): dot index expression, ci_named = %s, %s", indexed, ci_named, child2_text))
+              print(
+                string.format(
+                  "A (%s): dot index expression, ci_named = %s, %s",
+                  indexed,
+                  ci_named,
+                  child2_text
+                )
+              )
             elseif child2_type == "string" then
               -- match against `string_content` literally.
               local ct = ts.get_node_text(child2:named_child(), buf)
               if ct == keybind.keys then
                 valid = true
-                print(string.format("A (%s): keybind.keys, ci_named = %s, %s", indexed, ci_named, child2_text))
+                print(
+                  string.format(
+                    "A (%s): keybind.keys, ci_named = %s, %s",
+                    indexed,
+                    ci_named,
+                    child2_text
+                  )
+                )
               elseif ct == get_last_char(keybind.keys) then
                 valid = true
-                print(string.format("A (%s): keybind.keys (last char), ci_named = %s, %s", indexed, ci_named, child2_text))
+                print(
+                  string.format(
+                    "A (%s): keybind.keys (last char), ci_named = %s, %s",
+                    indexed,
+                    ci_named,
+                    child2_text
+                  )
+                )
               end
             end
 
@@ -303,10 +356,7 @@ local function get_keybind_leaf_candidates(buf, keybind)
     end
 
     if indexed > 1 then
-      print(
-        "indexed > 1 | Captured table >>>",
-        ts.get_node_text(capture_node, buf)
-      )
+      print("indexed > 1 | Captured table >>>", ts.get_node_text(capture_node, buf))
     end
 
     -- print("children #:", ci, ci_named)
@@ -315,6 +365,123 @@ local function get_keybind_leaf_candidates(buf, keybind)
   end
 
   return t_captured_candidates
+end
+
+M.get_match_for_keybind = function(opts)
+
+  local final_match = false
+
+
+  local leaf_candidates = get_keybind_leaf_candidates(opts.buf, opts.keybind)
+
+  -- -- move cursor
+  -- if #q > 0 then
+  --   print("range of bind table [1]:", vim.inspect(q[1].range)) -- , vim.inspect(leader)
+  --   b.set_cursor_to_buf(buf, q[1].range)
+  -- else
+  --   print("no bind table found")
+  -- end
+
+  print("captured nodes #:", #leaf_candidates)
+
+  print("=================================")
+
+  -- print(vim.inspect(leaf_candidates))
+
+  -- FIX: This check for attr matches should be done directly in the
+  -- leaf candidate finder func.
+
+  local leaf_candidates_filtered = {}
+
+  for i, v in ipairs(leaf_candidates) do
+    local count_mismatches = 0
+    local text = ts.get_node_text(v.table, opts.buf)
+    for _, value in ipairs(__attrs) do
+      print(v.named_attrs[value .. "_match"])
+      if v.named_attrs[value .. "_match"] == false then
+        count_mismatches = count_mismatches + 1
+      end
+    end
+    if count_mismatches == 0 then
+      table.insert(leaf_candidates_filtered, v)
+      -- print(v.indexed, text)
+      -- print(vim.inspect(v))
+    end
+  end
+
+  print("=================================")
+
+  -- TODO: now if there are more than one candidate left,
+  -- i need to check the parent to see which one the binding
+  -- resides in.
+  -- TODO: handle case of  "<C-" "p>" branch, ie. broken up control
+  -- key branch. >>> how are these keymaps built up with the keybmap
+  -- service? I have to create a setup that only runs the service on a
+  -- specific module that i am working on.
+  --
+
+  -- 1. we have candidates that match the leaf pattern.
+  -- 2. this means that if the binding resides in side a branch, then:
+  --    i. it has a grand parent table constructor
+  --        with all the leaf/ branch children
+  -- TODO: This means that we have found a true parent branch,
+  -- TODO: Now refactor this into a helper for getting / checking the Nth
+  --        parent branch
+
+  -- add nil checks??
+
+  print(vim.inspect(leaf_candidates_filtered))
+
+  if #leaf_candidates_filtered > 1 then
+    for _, v in ipairs(leaf_candidates_filtered) do
+      -- A. has grandparent == table_constructor
+      local grand_parent_1 = v.table:parent():parent()
+      local correct_gp1
+
+      if grand_parent_1:type() == "table_constructor" then
+        correct_gp1 = true
+      end
+
+      local grand_parent_2 = grand_parent_1:parent():parent()
+      local correct_gp2
+
+      if grand_parent_2:type() == "table_constructor" then
+        correct_gp2 = true
+      end
+
+      -- HACK: How can i create an autocommand on the fly that runs this
+      -- check for a bind on every save.
+      -- i want to setup an autocommand that should dynamic.
+      -- I want to be able to update the autocommand and tweak it,
+      -- so.
+
+      print("gp", correct_gp1, correct_gp2)
+
+      if correct_gp1 and correct_gp2 then
+        -- TODO: check
+        -- 1. if has two indexed fields, and optionally also:
+        -- 2.        a field name identifier that equals to "name" = some string.
+        -- 3. check that the first indexed field matches the second last
+        -- char.
+        -- !! Here there has to be a loop that travels back up the branch
+        -- tree and checks N parents if parent N-1 had a match.
+        -- >>> Take the code for both of these from above.
+        --
+        --
+        -- This should make things go really fucking crazy and then
+        -- you can just put these up. this i
+      end
+
+      -- B. double grandpartent is table contructor; has two indexed fields,
+      -- AND optionally one extra field identifier called "name" == <string>
+    end
+  end
+
+  -- TODO: Use nvim-treesitter utils:
+  -- ~ `goto_node` for setting the cursor
+
+  -- print("COUNT TABLES = ", cnt)
+  return final_match
 end
 
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
@@ -347,55 +514,9 @@ M.mapper = function(opts)
 
         local buf = dui_utils.get_buf_handle(module_path)
 
-        local leaf_candidates = get_keybind_leaf_candidates(buf, keybind)
 
-        -- -- move cursor
-        -- if #q > 0 then
-        --   print("range of bind table [1]:", vim.inspect(q[1].range)) -- , vim.inspect(leader)
-        --   b.set_cursor_to_buf(buf, q[1].range)
-        -- else
-        --   print("no bind table found")
-        -- end
-
-
-        print("captured nodes #:", #leaf_candidates)
-
-        print("=================================")
-
-        -- print(vim.inspect(leaf_candidates))
-
-        local count_mismatches = 0
-
-        -- FIX: This check for attr matches should be done directly in the
-        -- leaf candidate finder func.
-
-        for i, v in ipairs(leaf_candidates) do
-          local text = ts.get_node_text(v.table, buf)
-          for index, value in ipairs(__attrs) do
-            print(v.named_attrs[value .. "_match"])
-            if v.named_attrs[value .. "_match"] == false then
-              count_mismatches = count_mismatches + 1
-            end
-          end
-          if count_mismatches == 0 then
-            print(v.indexed, text)
-            -- print(vim.inspect(v))
-          end
-        end
-
-        print("=================================")
-
-        -- TODO: now if there are more than one candidate left,
-        -- i need to check the parent to see which one the binding
-        -- resides in.
-        -- TODO: handle case of  "<C-" "p>" branch, ie. broken up control
-        -- key branch. >>> how are these keymaps built up with the keybmap
-        -- service? I have to create a setup that only runs the service on a
-        -- specific module that i am working on.
-
-        -- print("COUNT TABLES = ", cnt)
+        local matched_leaf = M.get_match_for_keybind({ buf = buf, keybind = keybind })
       end)
-
 
       return true
     end,

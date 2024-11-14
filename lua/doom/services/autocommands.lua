@@ -17,8 +17,7 @@
 --- @field nested boolean|nil
 --- @field once boolean|nil
 
--- TODO: add module name and description to each autocmd group so that it becomes easier
--- !! It is already builtin to be able to add a description.
+-- TEST: Does all autocmds reload when doom is reloading?
 
 --- IMPLEMENTATIONS
 --- Wraps the nvim functionality to handle different neovim versions.

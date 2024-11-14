@@ -1,58 +1,102 @@
-local utils = require("doom.utils")
+local autocmds_service = require("doom.services.autocommands")
 
--- TODO: rename to: command_monitor
+-- TODO: rename to: buffer_monitors
+
+local buffer_monitors_namespace = "DoomBufferMonitors"
 
 local M = {}
 
-local mod_name = "TjTest"
-
--- make open in a split buffer
-
--- NOTE: This allows you to setup an autocmd that looks at a specific
--- pattern. eg *.lua all lua files. and on save it will then run command
--- X and put whatever std io to the buffer we target.
---
--- TODO: put create new win / buf
---
 -- TEST: How can I stop the process after it has been started?
 -- >>> I need a picker to list all existing autocmds
 
-local attach_to_buffer = function(buf_out, pattern, command, name, descr)
-  print("chosen buf: ", buf_out)
+-- Rename to spawn_buffer_monitor()
+local attach_to_buffer = function(opts)
+    opts = opts or {}
 
-  local append_data = function(_, data)
-    if data then
-      vim.api.nvim_buf_set_lines(buf_out, -1, -1, false, data)
+    -- TODO: check if buf with same name already exists.
+
+    local complete_name_string =
+        string.format("%s @ %s : %s", buffer_monitors_namespace, opts.name, opts.description)
+
+    print(complete_name_string)
+
+    if not opts.buf then
+        local get_ls = vim.tbl_filter(function(buf)
+            return vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_option(buf, "buflisted")
+        end, vim.api.nvim_list_bufs())
+
+        vim.tbl_map(function(id)
+            if complete_name_string == vim.api.nvim_buf_get_name(id) then
+                opts.buf = id
+            end
+        end, get_ls)
     end
-  end
 
-    -- FIX: use vim.system() instead
+    if not opts.buf then
+        local buf = vim.api.nvim_create_buf(true, true)
+        -- -- set the name of the new buf
+        vim.api.nvim_buf_set_name(buf, complete_name_string)
+        vim.api.nvim_open_win(buf, false, {
+            split = "right",
+            -- win = 0,
+        })
+    end
 
-  -- FIX: doom autocmds so that I can add the name and description to them,
-  -- so that it becomes easier for myself to manage them and disable autocmds.
-  --
-  utils.make_autocmd("BufWritePost", pattern, function()
-    vim.api.nvim_buf_set_lines(buf_out, 0, -1, false, { "TESTING" })
-    vim.fn.jobstart(command, {
-      stdout_buffered = true,
-      on_stdout = append_data,
-      on_stderr = append_data,
-    })
-  end, mod_name)
+    local append_data = function(_, data)
+        if data then
+            vim.api.nvim_buf_set_lines(opts.buf, -1, -1, false, data)
+        end
+    end
+
+    print(vim.inspect(opts))
+
+    if false then
+        autocmds_service.set("BufWritePost", opts.pattern, function()
+            vim.api.nvim_buf_set_lines(opts.buf, 0, -1, false, { "TESTING" })
+
+            if type(opts.command) == "table" then
+                vim.fn.jobstart(opts.command, {
+                    stdout_buffered = true,
+                    on_stdout = append_data,
+                    on_stderr = append_data,
+                })
+            elseif type(opts.command) == "function" then
+                opts.command(opts.args)
+            end
+        end, {
+            group = buffer_monitors_namespace,
+            desc = string.format("%s : %s", opts.name, opts.description),
+        })
+    end
 end
 
 M.cmds = {
-  {
-    mod_name,
-    function()
-      local name = vim.fn.input("Job name: ")
-      local description = vim.fn.input("Job description: ")
-      local bufnr = vim.fn.input("Bufnr: ")
-      local pattern = vim.fn.input("Pattern: ")
-      local command = vim.split(vim.fn.input("Command: "), " ")
-      attach_to_buffer(tonumber(bufnr), pattern, command, name, description)
-    end,
-  },
+    {
+        "DoomAddBufferMonitor",
+        function()
+            attach_to_buffer({
+                name = vim.fn.input("Job name: "),
+                buf = tonumber(vim.fn.input("Bufnr (or empty for new buf): ")),
+                pattern = vim.fn.input("Pattern: "),
+                command = vim.fn.input("Command: "),
+                description = vim.fn.input("Job description: "),
+                dry_run = true,
+            })
+        end,
+    },
+    {
+        "Doomdebugbinds",
+        function()
+            attach_to_buffer({
+                name = "Debug binds",
+                buf = tonumber(vim.fn.input("Bufnr (or empty for new buf): ")),
+                pattern = "%",
+                require("doom.modules.core.nest.mapper.main").get_match_for_keybind,
+                description = vim.fn.input("Job description: "),
+                args = {},
+            })
+        end,
+    },
 }
 
 return M

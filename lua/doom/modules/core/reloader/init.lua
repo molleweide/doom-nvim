@@ -344,7 +344,7 @@ end
 reloader.autocmds = {
   {
     "BufWritePost",
-    "*.lua",
+    "*.lua", -- i should make this pattern explicitly look at ~/.config/nvim/*.lua
     function(args)
       target_config_files_only(args)
     end,
