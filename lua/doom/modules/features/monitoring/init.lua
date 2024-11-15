@@ -22,13 +22,6 @@ M.spawn_buffer_monitor = function(opts)
 
   vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
 
-  local append_data_callback = function(_, data)
-    print("MONITOR DATA = ", vim.inspect(data))
-    if data then
-      vim.api.nvim_buf_set_lines(opts.buf, -1, -1, false, data)
-    end
-  end
-
   local complete_name_string =
       string.format("%s [[[%s]]]: %s", M.buffer_monitors_namespace, opts.name, opts.description)
 
@@ -80,11 +73,28 @@ M.spawn_buffer_monitor = function(opts)
 
   print(vim.inspect(opts))
 
+  local header = {
+    string.rep("/", complete_name_string:len() + 6),
+    string.format("// %s //", complete_name_string),
+    string.rep("/", complete_name_string:len()+6),
+    "",
+    "``````",
+  }
+
+  local append_data_callback = function(_, data)
+    -- print("MONITOR DATA = ", vim.inspect(data))
+    if data then
+      table.insert(data,"``````")
+      vim.api.nvim_buf_set_lines(opts.buf, #header, -1, false, data)
+    end
+  end
+
   if true then
     autocmds_service.set("BufWritePost", opts.pattern, function()
-      vim.api.nvim_buf_set_lines(opts.buf, 0, -1, false, { "TESTING" })
+      vim.api.nvim_buf_set_lines(opts.buf, 0, -1, false, header)
 
-      print("????????????", type(opts.command))
+      vim.api.nvim_buf_set_lines(opts.buf, #header, -1, false, { "loading.." })
+      -- append_data_callback(_, { " loading..."})
 
       if type(opts.command) == "table" then
         vim.fn.jobstart(opts.command, {
@@ -95,19 +105,14 @@ M.spawn_buffer_monitor = function(opts)
       elseif type(opts.command) == "function" then
         -- FIX: pcall func -> if errors, then catch errs.
         --
-
-        print("pre pre pre pre")
-
         local ret = opts.command(_G[opts.args])
 
-        print("ret messages =",vim.inspect(ret.messages))
-
-        print("post post post post")
-
+        -- print("ret messages =",vim.inspect(ret.messages))
+        -- print("post post post post")
 
         append_data_callback(_, ret.messages)
       else
-        print"(monitor !!!!!!! no command match)"
+        print("(monitor !!!!!!! no command match)")
       end
     end, {
       group = M.buffer_monitors_namespace,
@@ -150,16 +155,16 @@ M.cmds = {
         -- pattern = "%",
         -- pattern = "/Users/hjalmarjakobsson/code/repos/github.com/molleweide/doom-nvim/lua/doom/modules/core/nest/mapper/main.lua",
         pattern = "lua/doom/modules/core/nest/mapper/main.lua",
+
+        -- This needs to be a middleman func so that we can dynamically update
+        -- and reset the target function
         command = function(...)
           return require("doom.modules.core.nest.mapper.main").get_match_for_keybind(...)
         end,
         description = 'require("doom.modules.core.nest.mapper.main").get_match_for_keybind',
-        -- { "D", vim.lsp.buf.declaration, "Jump to declaration" },
-        -- args = {
-        --   module_path =
-        --   "/Users/hjalmarjakobsson/code/repos/github.com/molleweide/doom-nvim/lua/doom/modules/features/lsp/init.lua",
-        --   { keys = "D", cmd = "<function>", description = "Jump to declaration" },
-        -- },
+
+        -- Specify which global variable that hosts the dynamically set
+        -- input args to test for.
         args = "__monitor_doom_debug_binds",
       })
     end,
