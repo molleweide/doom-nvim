@@ -1,28 +1,26 @@
 local log = require("doom.utils.logging")
 local utils = require("doom.utils")
 
--- NOTE: help autocmd-pattern
-
--- TODO: Add a nice buffer header.
-
 local autocmds_service = require("doom.services.autocommands")
 
+-- NOTE: help autocmd-pattern
 -- TODO: Add feature run server job and continuesly listen into a buffer.
+-- NOTE: I can use the clear key to reset all existing autocmds for a namespace.
 
 local M = {}
 
 M.buffer_monitors_namespace = "MONITOR"
 
--- NOTE: I can use the clear key to reset all existing autocmds for a namespace.
-
--- vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
+-- reset autocmds and remove buffers
+M.reset = function()
+  vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
+  -- todo remove bufs
+end
 
 M.spawn_buffer_monitor = function(opts)
   opts = opts or {}
 
-  vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
-
-  local complete_name_string =
+  local instance_name =
       string.format("%s [[[%s]]]: %s", M.buffer_monitors_namespace, opts.name, opts.description)
 
   if not opts.buf then
@@ -31,63 +29,58 @@ M.spawn_buffer_monitor = function(opts)
       return vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_option(buf, "buflisted")
     end, vim.api.nvim_list_bufs())
 
-    local complete_name_string_escaped = utils.escape_str(complete_name_string)
+    local complete_name_string_escaped = utils.escape_str(instance_name)
 
     -- print("ESCAPED = ", complete_name_string_escaped)
 
     -- If name match assign use for opts.buf
     vim.tbl_map(function(id)
       local full_buf_name = vim.api.nvim_buf_get_name(id)
-
-      -- print(
-      --   "??",
-      --   complete_name_string,
-      --   full_buf_name:match(string.format("%s$", complete_name_string_escaped))
-      -- )
-
       if
-          complete_name_string
+          instance_name
           == full_buf_name:match(string.format("%s$", complete_name_string_escaped))
       then
         log.debug(
-          string.format(
-            "MONITOR: buf w/custom name [%s] already exists!",
-            complete_name_string
-          )
+          string.format("MONITOR: buf w/custom name [%s] already exists!", instance_name)
         )
         opts.buf = id
       end
     end, get_ls)
   end
 
+  -- create new buf
   if not opts.buf then
     local buf = vim.api.nvim_create_buf(true, true)
-    -- -- set the name of the new buf
-    vim.api.nvim_buf_set_name(buf, complete_name_string)
-    vim.api.nvim_open_win(buf, false, {
-      split = "right",
-      -- win = 0,
-    })
+    vim.api.nvim_buf_set_name(buf, instance_name)
+    vim.api.nvim_open_win(buf, false, { split = "left" })
     opts.buf = buf
   end
 
-  print(vim.inspect(opts))
-
   local header = {
-    string.rep("/", complete_name_string:len() + 6),
-    string.format("// %s //", complete_name_string),
-    string.rep("/", complete_name_string:len()+6),
+    string.rep("/", instance_name:len() + 6),
+    string.format("// %s //", instance_name),
+    string.rep("/", instance_name:len() + 6),
     "",
     "``````",
   }
 
   local append_data_callback = function(_, data)
-    -- print("MONITOR DATA = ", vim.inspect(data))
+    print("MONITOR DATA = ", vim.inspect(data))
     if data then
-      table.insert(data,"``````")
+      if type(data) == "string" then
+        data = vim.split(data, "\n")
+        -- data = { data }
+      end
+
+      print(vim.inspect(data))
+
+      table.insert(data, "``````")
       vim.api.nvim_buf_set_lines(opts.buf, #header, -1, false, data)
     end
   end
+
+  -- FIX: If the buf has been accedientally removed/deleted, then just
+  -- recreate the buffer and reassign.
 
   if true then
     autocmds_service.set("BufWritePost", opts.pattern, function()
@@ -105,12 +98,14 @@ M.spawn_buffer_monitor = function(opts)
       elseif type(opts.command) == "function" then
         -- FIX: pcall func -> if errors, then catch errs.
         --
-        local ret = opts.command(_G[opts.args])
+        -- local ret = opts.command(_G[opts.args])
 
-        -- print("ret messages =",vim.inspect(ret.messages))
-        -- print("post post post post")
-
-        append_data_callback(_, ret.messages)
+        local ok, result = xpcall(opts.command, debug.traceback, _G[opts.args])
+        if not ok then
+          append_data_callback(_, result)
+        else
+          append_data_callback(_, result.messages)
+        end
       else
         print("(monitor !!!!!!! no command match)")
       end
@@ -140,15 +135,12 @@ M.cmds = {
     end,
   },
   {
-    -- TODO: add M.__doom_debug_binds = { module_path, keybind }, so that this
-    -- can be dynamically updated when selecting a bind and file from within the
-    -- nest/main func.
+    -- RENAME: monitor module func??
     "DoomDebugBinds",
-    -- desc = [[What does this command do??]],
     function()
-      -- apply changes to new buffer from name
       M.spawn_buffer_monitor({
         name = "Debug Binds",
+        description = "Helper when building the binds leaf finder.",
         -- NOTE: source/watch patterns
         -- TODO: if no pattern supplied -> user input.
         -- % for current file, <empty> for select file in current repo.
@@ -161,8 +153,6 @@ M.cmds = {
         command = function(...)
           return require("doom.modules.core.nest.mapper.main").get_match_for_keybind(...)
         end,
-        description = 'require("doom.modules.core.nest.mapper.main").get_match_for_keybind',
-
         -- Specify which global variable that hosts the dynamically set
         -- input args to test for.
         args = "__monitor_doom_debug_binds",

@@ -1,6 +1,9 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 
+-- TODO: MODES: 1. reload full on save; 2. only reload the least amount of files
+-- necessary. 3. Only do what..?
+
 -- NOTE: lazy reload plugin should be possible now:
 -- https://github.com/folke/lazy.nvim/issues/445
 

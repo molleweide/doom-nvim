@@ -147,7 +147,7 @@ local function get_abs_path_from_module_origin(keybind)
       status = "user"
     end
   end
-  print("[NEST PICKERS:]", status, module_path)
+  -- print("[NEST PICKERS:]", status, module_path)
   return module_path
 end
 
@@ -507,30 +507,37 @@ end
 
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
 M.mapper = function(opts)
+  local function prepare_args(keybind)
+    local args ={ module_path = get_abs_path_from_module_origin(keybind), keybind = keybind }
+
+    return  args
+  end
+
   opts = vim.tbl_extend("force", opts or {}, {
-    attach_mappings = function(prompt_bufnr)
+    attach_mappings = function(prompt_bufnr, map)
       local actions = require("telescope.actions")
       local action_state = require("telescope.actions.state")
 
-      actions.select_default:replace(function()
-        local keybind = action_state.get_selected_entry()
-
-        local module_path = get_abs_path_from_module_origin(keybind)
-
+      map({ "i", "n" }, "<C-s>", function()
+        __monitor_doom_debug_binds = prepare_args(action_state.get_selected_entry())
         actions.close(prompt_bufnr)
+      end, { desc = "Set the global __monitor_<name> var." })
 
-        if not module_path then
+      actions.select_default:replace(function()
+        local args = prepare_args(action_state.get_selected_entry())
+        if not args.module_path then
           log.info("nest telescope -> did not return a proper module_path")
           return
         end
+        actions.close(prompt_bufnr)
 
-        local args = { module_path = module_path, keybind = keybind }
+        print(">>>>>>>>", vim.inspect(args))
 
         -- open file in split
         -- vim.cmd("set splitright")
         -- vim.cmd(string.format("vsplit %s", module_path))
         -- vim.cmd("set splitright!")
-        vim.cmd(string.format("e %s", module_path))
+        vim.cmd(string.format("e %s", args.module_path))
         vim.cmd("stopinsert")
 
         -- Bind the output to the buffer monitor module so that we can
@@ -539,7 +546,7 @@ M.mapper = function(opts)
 
         local matched_leaf = M.get_match_for_keybind(args)
 
-        print("keybind = ", vim.inspect(keybind))
+        print("keybind = ", vim.inspect(args.keybind))
       end)
 
       return true

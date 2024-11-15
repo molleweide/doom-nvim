@@ -18,7 +18,7 @@ local dorothy = {}
 --    >> spit everything out to a specific dorothy log file.
 --    if there were any errors -> run notifier in nvim.
 
--- HACK: if editing a dorothy command, then try running the tests and put
+-- HACK: DOROTHY MONITORS: if editing a dorothy command, then try running the tests and put
 -- it in the `dorothy_tests` output buffer, and then prep the buffer with
 -- a nice header.
 
