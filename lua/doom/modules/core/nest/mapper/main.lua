@@ -201,7 +201,6 @@ local function get_keybind_leaf_candidates(buf, keybind)
         local child2 = child_node:named_child()
         local child2_type = child_node:named_child():type()
         local named_child_count = child_node:named_child_count()
-
         local child2_text = ts.get_node_text(child2, buf)
         local is_indexed = false
 
@@ -468,8 +467,9 @@ M.get_match_for_keybind = function(opts)
 
   if #leaf_candidates_filtered > 1 then
     msg("EACH LEAF_CANDIDATES_FILTERED")
-    for _, v in ipairs(leaf_candidates_filtered) do
-      -- A. has grandparent == table_constructor
+    msg(string.format("keybind lhs = %s", opts.keybind.keys))
+    for i, v in ipairs(leaf_candidates_filtered) do
+      -- check that grand parent 1 and 2 are table constructs
       local grand_parent_1 = v.table:parent():parent()
       local correct_gp1
 
@@ -480,20 +480,69 @@ M.get_match_for_keybind = function(opts)
       local grand_parent_2 = grand_parent_1:parent():parent()
       local correct_gp2
 
+
+      msg(string.format("---- grand parent %s of %s---------------------", i, #leaf_candidates_filtered))
+      msg(ts.get_node_text(grand_parent_2, opts.buf))
+
+
+
       if grand_parent_2:type() == "table_constructor" then
         correct_gp2 = true
       end
 
-      -- HACK: How can i create an autocommand on the fly that runs this
-      -- check for a bind on every save.
-      -- i want to setup an autocommand that should dynamic.
-      -- I want to be able to update the autocommand and tweak it,
-      -- so.
-
       -- FIX: mv string.format into the msg func
       msg(string.format("gp: %s %s", correct_gp1, correct_gp2))
 
+      local invalid = false
+
       if correct_gp1 and correct_gp2 then
+        -- B. check that grand parent 2 has two indexed fields,
+        -- AND optionally one extra field identifier called "name" == <string>
+
+        local indexed = 0
+        for child_node in grand_parent_2:iter_children() do
+          -- check for the first indexed occurence.
+          if child_node:named() and child_node:type() == "field" then
+            local child2 = child_node:named_child()
+            local child2_type = child_node:named_child():type()
+            local child_named_count = child_node:named_child_count()
+
+            local child2_text = ts.get_node_text(child2, opts.buf)
+
+            -- if child2_type == ""
+            if child_named_count > 1 then
+              if child2_type == "identifier" then
+                local child2_second = child_node:named_child(1)
+                local identifier_text = ts.get_node_text(child2, opts.buf)
+                -- local nt2 =
+                --     ts.get_node_text(child2_second:named_child(), opts.buf)
+                if child2_second:type() == "string" then
+                else
+                  invalid = true
+                end
+              else
+                invalid = true
+              end
+            else
+              if indexed == 0 and child2_type == "string" then
+                -- TODO: compare the branch info here.
+                -- !!!!!
+                -- Now is the time to get the previous parent char in the key
+                -- sequence and see if i have a match, because then we know
+                -- we are going to the right position for this shit.
+                --
+                msg(">>> " .. ts.get_node_text(child2, opts.buf))
+              elseif indexed == 1 and child2_type == "table_constructor" then
+              else
+                invalid = true
+              end
+              indexed = indexed + 1
+            end
+          end
+        end
+
+        msg("invalid = " .. tostring(invalid))
+
         -- TODO: check
         -- 1. if has two indexed fields, and optionally also:
         -- 2.        a field name identifier that equals to "name" = some string.
@@ -502,14 +551,7 @@ M.get_match_for_keybind = function(opts)
         -- !! Here there has to be a loop that travels back up the branch
         -- tree and checks N parents if parent N-1 had a match.
         -- >>> Take the code for both of these from above.
-        --
-        --
-        -- This should make things go really fucking crazy and then
-        -- you can just put these up. this i
       end
-
-      -- B. double grandpartent is table contructor; has two indexed fields,
-      -- AND optionally one extra field identifier called "name" == <string>
     end
   end
 
@@ -518,7 +560,6 @@ M.get_match_for_keybind = function(opts)
   msg(vim.inspect(leaf_candidates_filtered))
 
   for _, v in ipairs(leaf_candidates_filtered) do
-
     msg(ts.get_node_text(v.table, opts.buf))
   end
 
