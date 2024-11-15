@@ -66,6 +66,44 @@ local _finders = require("doom.modules.core.nest.mapper.finders")
 local _previewers = require("doom.modules.core.nest.mapper.previewers")
 local _utils = require("doom.modules.core.nest.mapper.utils")
 
+local function parse_key_sequence(keys)
+  local ret = {}
+  local patterns = {
+    { "<leader>", 8 },
+    { "<C%-.>",   5 },
+    { "<A%-.>",   5 },
+    { "<F%d>",    4 },
+    { "%a",       1 },
+    { "%p",       1 },
+    -- "<A%-.>",
+  }
+  local i = 1
+  while i < keys:len() + 1 do
+    local pi = 1
+    local pat
+    local has_match = false
+    while not has_match or not (pi <= #patterns) do
+      pat = patterns[pi]
+      local ok, substr = pcall(string.sub, keys, i, i + pat[2] - 1)
+      if ok then
+        if substr:match(pat[1]) then
+          -- print("MATCH = ", check_this)
+          has_match = true
+          table.insert(ret, substr)
+          i = i + pat[2]
+        end
+        print(substr, pat[1], has_match)
+      end
+      pi = pi + 1
+    end
+    if not has_match then
+      return "no match"
+    end
+  end
+
+  return ret
+end
+
 local function getLastControlChar(keybinds)
   local lastControlChar = nil
   local pattern = "<C%-.>"
@@ -415,6 +453,11 @@ M.get_match_for_keybind = function(opts)
   -- print("captured nodes #:", #leaf_candidates)
   msg("captured nodes #:" .. #leaf_candidates)
 
+  msg("=================================")
+  msg("original: " .. opts.keybind.keys)
+  msg("keys parsed:")
+  msg(vim.inspect(parse_key_sequence(opts.keybind.keys)))
+
   -- print("=================================")
   msg("=================================")
 
@@ -480,11 +523,14 @@ M.get_match_for_keybind = function(opts)
       local grand_parent_2 = grand_parent_1:parent():parent()
       local correct_gp2
 
-
-      msg(string.format("---- grand parent %s of %s---------------------", i, #leaf_candidates_filtered))
-      msg(ts.get_node_text(grand_parent_2, opts.buf))
-
-
+      -- msg(
+      --   string.format(
+      --     "---- grand parent %s of %s---------------------",
+      --     i,
+      --     #leaf_candidates_filtered
+      --   )
+      -- )
+      -- msg(ts.get_node_text(grand_parent_2, opts.buf))
 
       if grand_parent_2:type() == "table_constructor" then
         correct_gp2 = true
@@ -525,13 +571,13 @@ M.get_match_for_keybind = function(opts)
               end
             else
               if indexed == 0 and child2_type == "string" then
-                -- TODO: compare the branch info here.
-                -- !!!!!
-                -- Now is the time to get the previous parent char in the key
-                -- sequence and see if i have a match, because then we know
-                -- we are going to the right position for this shit.
-                --
-                msg(">>> " .. ts.get_node_text(child2, opts.buf))
+                -- TODO: now look at the keys parsed table and check that we
+                -- have the same comparer.
+                -- ISSUE: What if two similar ones are in the same branch but it is
+                -- not the branch we are looking for??
+                -- >>> maybe, i have to attach the branch name key to the
+                -- keybind as well so that it can be used when checkint the parent
+                msg(string.format(">>> real: %s, found gp: %s", opts.keys_parsed[#opts.keys_parsed-1] , ts.get_node_text(child2, opts.buf)))
               elseif indexed == 1 and child2_type == "table_constructor" then
               else
                 invalid = true
@@ -576,7 +622,11 @@ end
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
 M.mapper = function(opts)
   local function prepare_args(keybind)
-    return { module_path = get_abs_path_from_module_origin(keybind), keybind = keybind }
+    return {
+      module_path = get_abs_path_from_module_origin(keybind),
+      keybind = keybind,
+      keys_parsed = parse_key_sequence(keybind.keys),
+    }
   end
 
   local function open(args)   -- open file in split
