@@ -3,6 +3,9 @@ local utils = require("doom.utils")
 
 local autocmds_service = require("doom.services.autocommands")
 
+-- TODO: hide monitor bufs -> add doom keybind to access the monitor
+-- bufs. with custom keybinds to handle them.
+
 -- NOTE: help autocmd-pattern
 -- TODO: Add feature run server job and continuesly listen into a buffer.
 -- NOTE: I can use the clear key to reset all existing autocmds for a namespace.
@@ -10,6 +13,7 @@ local autocmds_service = require("doom.services.autocommands")
 local M = {}
 
 M.buffer_monitors_namespace = "MONITOR"
+-- vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
 
 -- reset autocmds and remove buffers
 M.reset = function()
@@ -65,15 +69,10 @@ M.spawn_buffer_monitor = function(opts)
   }
 
   local append_data_callback = function(_, data)
-    print("MONITOR DATA = ", vim.inspect(data))
     if data then
       if type(data) == "string" then
         data = vim.split(data, "\n")
-        -- data = { data }
       end
-
-      print(vim.inspect(data))
-
       table.insert(data, "``````")
       vim.api.nvim_buf_set_lines(opts.buf, #header, -1, false, data)
     end

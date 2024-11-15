@@ -368,6 +368,15 @@ local function get_keybind_leaf_candidates(buf, keybind)
   return t_captured_candidates
 end
 
+local function util_ensure_no_linesplits(data)
+  if type(data) == "string" then
+    data = vim.split(data, "\n")
+    -- data = { data }
+  end
+
+  return data
+end
+
 M.get_match_for_keybind = function(opts)
   if opts == nil then
     log.debug("opts cant be nil for nest/main.get_match_for_keybind()")
@@ -377,13 +386,24 @@ M.get_match_for_keybind = function(opts)
 
   local ret = { messages = {} }
 
-  local function message_add(input)
-    table.insert(ret.messages, input)
+  -- TODO: Add string.format so that I can easilly build up messages that
+  -- i easilly watch here.
+  -- TODO: Refactor this into a util func so that I can build up
+  -- messages easilly.
+  local function msg(input)
+    if input:match("\n") then
+      input = util_ensure_no_linesplits(input)
+      for _, v in ipairs(input) do
+        table.insert(ret.messages, v)
+      end
+    else
+      table.insert(ret.messages, input)
+    end
   end
 
   local leaf_candidates = get_keybind_leaf_candidates(opts.buf, opts.keybind)
 
-  message_add(opts.keybind.description)
+  msg(opts.keybind.description)
 
   -- -- move cursor
   -- if #q > 0 then
@@ -393,11 +413,11 @@ M.get_match_for_keybind = function(opts)
   --   print("no bind table found")
   -- end
 
-  print("captured nodes #:", #leaf_candidates)
-  message_add("captured nodes #:" .. #leaf_candidates)
+  -- print("captured nodes #:", #leaf_candidates)
+  msg("captured nodes #:" .. #leaf_candidates)
 
-  print("=================================")
-  message_add("=================================")
+  -- print("=================================")
+  msg("=================================")
 
   -- print(vim.inspect(leaf_candidates))
 
@@ -411,7 +431,7 @@ M.get_match_for_keybind = function(opts)
     local text = ts.get_node_text(v.table, opts.buf)
     for _, value in ipairs(__attrs) do
       print(v.named_attrs[value .. "_match"])
-      message_add(tostring(v.named_attrs[value .. "_match"]))
+      msg(tostring(v.named_attrs[value .. "_match"]))
       if v.named_attrs[value .. "_match"] == false then
         count_mismatches = count_mismatches + 1
       end
@@ -425,7 +445,7 @@ M.get_match_for_keybind = function(opts)
 
   print("=================================")
 
-  message_add("=================================")
+  msg("=================================")
 
   -- TODO: now if there are more than one candidate left,
   -- i need to check the parent to see which one the binding
@@ -446,9 +466,8 @@ M.get_match_for_keybind = function(opts)
 
   -- add nil checks??
 
-  print(vim.inspect(leaf_candidates_filtered))
-
   if #leaf_candidates_filtered > 1 then
+    msg("EACH LEAF_CANDIDATES_FILTERED")
     for _, v in ipairs(leaf_candidates_filtered) do
       -- A. has grandparent == table_constructor
       local grand_parent_1 = v.table:parent():parent()
@@ -471,9 +490,8 @@ M.get_match_for_keybind = function(opts)
       -- I want to be able to update the autocommand and tweak it,
       -- so.
 
-      print("gp", correct_gp1, correct_gp2)
-
-      message_add(string.format("gp: %s %s", correct_gp1, correct_gp2))
+      -- FIX: mv string.format into the msg func
+      msg(string.format("gp: %s %s", correct_gp1, correct_gp2))
 
       if correct_gp1 and correct_gp2 then
         -- TODO: check
@@ -495,6 +513,15 @@ M.get_match_for_keybind = function(opts)
     end
   end
 
+  msg(":::::::::::::::::::::::::::::::::")
+
+  msg(vim.inspect(leaf_candidates_filtered))
+
+  for _, v in ipairs(leaf_candidates_filtered) do
+
+    msg(ts.get_node_text(v.table, opts.buf))
+  end
+
   -- TODO: Use nvim-treesitter utils:
   -- ~ `goto_node` for setting the cursor
 
@@ -508,9 +535,15 @@ end
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
 M.mapper = function(opts)
   local function prepare_args(keybind)
-    local args ={ module_path = get_abs_path_from_module_origin(keybind), keybind = keybind }
+    return { module_path = get_abs_path_from_module_origin(keybind), keybind = keybind }
+  end
 
-    return  args
+  local function open(args)   -- open file in split
+    -- vim.cmd("set splitright")
+    -- vim.cmd(string.format("vsplit %s", module_path))
+    -- vim.cmd("set splitright!")
+    vim.cmd(string.format("e %s", args.module_path))
+    vim.cmd("stopinsert")
   end
 
   opts = vim.tbl_extend("force", opts or {}, {
@@ -519,7 +552,7 @@ M.mapper = function(opts)
       local action_state = require("telescope.actions.state")
 
       map({ "i", "n" }, "<C-s>", function()
-        __monitor_doom_debug_binds = prepare_args(action_state.get_selected_entry())
+        _G.__monitor_doom_debug_binds = prepare_args(action_state.get_selected_entry())
         actions.close(prompt_bufnr)
       end, { desc = "Set the global __monitor_<name> var." })
 
@@ -531,28 +564,20 @@ M.mapper = function(opts)
         end
         actions.close(prompt_bufnr)
 
-        print(">>>>>>>>", vim.inspect(args))
-
-        -- open file in split
-        -- vim.cmd("set splitright")
-        -- vim.cmd(string.format("vsplit %s", module_path))
-        -- vim.cmd("set splitright!")
-        vim.cmd(string.format("e %s", args.module_path))
-        vim.cmd("stopinsert")
+        open(args)
 
         -- Bind the output to the buffer monitor module so that we can
         -- use the output as the value for the output to the buff monitor.
-        __monitor_doom_debug_binds = args
+        _G.__monitor_doom_debug_binds = args
 
         local matched_leaf = M.get_match_for_keybind(args)
 
-        print("keybind = ", vim.inspect(args.keybind))
+        -- print("keybind = ", vim.inspect(args.keybind))
       end)
 
       return true
     end,
   })
-  -- end
 
   pickers
       .new(opts or {}, {
