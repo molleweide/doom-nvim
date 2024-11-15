@@ -655,7 +655,6 @@ local function demo_windows_and_bufs()
     --
     -- move all of this to the execute execute_anything_tj_style module
     -- and rename it and use this test system and see what happens.
-
 end
 
 -- FIX: Put this in `features/terminal` <<<<<<
@@ -702,8 +701,11 @@ local doom_autocmds_picker = function(opts)
     local autocmds = {}
     for i, v in ipairs(all) do
         if v.group_name then
-            -- print(v.group_name, doom_autocmds_namespace)
-            if v.group_name == doom_autocmds_namespace then
+            print(v.group_name, doom_autocmds_namespace)
+            if
+                v.group_name == doom_autocmds_namespace
+                or v.group_name == doom.features.monitoring.buffer_monitors_namespace
+            then
                 -- print(v.group_name, doom_autocmds_namespace)
                 table.insert(autocmds, v)
             end

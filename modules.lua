@@ -15,6 +15,8 @@ return {
   },
   features = {
     "architext",
+    "monitoring",
+
     buffers = {
       "buffer_management",
       "temporary_buffers",
@@ -351,9 +353,7 @@ return {
       -- "omni",
     },
   },
-  move_to_core = {
-    "execute_anything_tj_style",
-  },
+  move_to_core = {},
   molleweide = {
     "binds_personal",
     "reaper",

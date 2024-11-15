@@ -1,4 +1,5 @@
 -- telescope modules
+local log = require("doom.utils.logging")
 local pickers = require("telescope.pickers")
 local conf = require("telescope.config").values
 local system = require("doom.core.system")
@@ -368,15 +369,21 @@ local function get_keybind_leaf_candidates(buf, keybind)
 end
 
 M.get_match_for_keybind = function(opts)
+  if opts == nil then
+    log.debug("opts cant be nil for nest/main.get_match_for_keybind()")
+    return
+  end
+  opts.buf = dui_utils.get_buf_handle(opts.module_path)
 
+  local ret = { messages = {} }
 
-  opts.buf =dui_utils.get_buf_handle(opts.module_path)
-
-
-  local final_match = false
-
+  local function message_add(input)
+    table.insert(ret.messages, input)
+  end
 
   local leaf_candidates = get_keybind_leaf_candidates(opts.buf, opts.keybind)
+
+  message_add(opts.keybind.description)
 
   -- -- move cursor
   -- if #q > 0 then
@@ -387,8 +394,10 @@ M.get_match_for_keybind = function(opts)
   -- end
 
   print("captured nodes #:", #leaf_candidates)
+  message_add("captured nodes #:" .. #leaf_candidates)
 
   print("=================================")
+  message_add("=================================")
 
   -- print(vim.inspect(leaf_candidates))
 
@@ -402,6 +411,7 @@ M.get_match_for_keybind = function(opts)
     local text = ts.get_node_text(v.table, opts.buf)
     for _, value in ipairs(__attrs) do
       print(v.named_attrs[value .. "_match"])
+      message_add(tostring(v.named_attrs[value .. "_match"]))
       if v.named_attrs[value .. "_match"] == false then
         count_mismatches = count_mismatches + 1
       end
@@ -414,6 +424,8 @@ M.get_match_for_keybind = function(opts)
   end
 
   print("=================================")
+
+  message_add("=================================")
 
   -- TODO: now if there are more than one candidate left,
   -- i need to check the parent to see which one the binding
@@ -461,6 +473,8 @@ M.get_match_for_keybind = function(opts)
 
       print("gp", correct_gp1, correct_gp2)
 
+      message_add(string.format("gp: %s %s", correct_gp1, correct_gp2))
+
       if correct_gp1 and correct_gp2 then
         -- TODO: check
         -- 1. if has two indexed fields, and optionally also:
@@ -484,8 +498,11 @@ M.get_match_for_keybind = function(opts)
   -- TODO: Use nvim-treesitter utils:
   -- ~ `goto_node` for setting the cursor
 
+  ret.final_match = nil
+
   -- print("COUNT TABLES = ", cnt)
-  return final_match
+  print("pre ret from nest/main")
+  return ret
 end
 
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
@@ -498,7 +515,6 @@ M.mapper = function(opts)
       actions.select_default:replace(function()
         local keybind = action_state.get_selected_entry()
 
-
         local module_path = get_abs_path_from_module_origin(keybind)
 
         actions.close(prompt_bufnr)
@@ -508,6 +524,8 @@ M.mapper = function(opts)
           return
         end
 
+        local args = { module_path = module_path, keybind = keybind }
+
         -- open file in split
         -- vim.cmd("set splitright")
         -- vim.cmd(string.format("vsplit %s", module_path))
@@ -515,9 +533,12 @@ M.mapper = function(opts)
         vim.cmd(string.format("e %s", module_path))
         vim.cmd("stopinsert")
 
+        -- Bind the output to the buffer monitor module so that we can
+        -- use the output as the value for the output to the buff monitor.
+        __monitor_doom_debug_binds = args
 
+        local matched_leaf = M.get_match_for_keybind(args)
 
-        local matched_leaf = M.get_match_for_keybind({ module_path = module_path, keybind = keybind })
         print("keybind = ", vim.inspect(keybind))
       end)
 
