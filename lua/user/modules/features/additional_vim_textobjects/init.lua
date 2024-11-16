@@ -1,5 +1,7 @@
 local textobjects = {}
 
+-- TODO: conditionals, loops, tables/fields.
+
 -- Move this to `doom/modules/features/treesitter/<module>`.
 -- So that I can easilly toggle and try stuff.
 
