@@ -3,6 +3,9 @@ local utils = require("telescope.utils")
 local defaulter = utils.make_default_callable
 -- local mapper = require("nvim-mapper")
 
+-- TODO: show the origin module path in the previewer.
+-- get info about user/core
+
 local M = {}
 
 M.previewer = defaulter(function(_)

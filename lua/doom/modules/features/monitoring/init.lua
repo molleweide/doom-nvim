@@ -106,9 +106,9 @@ M.spawn_buffer_monitor = function(opts)
           on_stderr = append_data_callback,
         })
       elseif type(opts.command) == "function" then
-        -- FIX: pcall func -> if errors, then catch errs.
-        --
-        -- local ret = opts.command(_G[opts.args])
+
+        -- How to handle if there is no args passed or if
+        -- result is nil?
 
         local ok, result = xpcall(opts.command, debug.traceback, _G[opts.args])
         if not ok then
