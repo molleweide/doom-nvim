@@ -6,11 +6,11 @@ restclient.packages = {
   ["rest.nvim"] = {
     "rest-nvim/rest.nvim",
     -- commit = "090e253c114b6d5448bac5869a28a6623c195e3a",
-    cmd = {
-      "RestNvim",
-      "RestNvimPreview",
-      "RestNvimLast",
-    },
+    -- cmd = {
+    --   "RestNvim",
+    --   "RestNvimPreview",
+    --   "RestNvimLast",
+    -- },
   },
 }
 
@@ -20,7 +20,7 @@ restclient.configs["rest.nvim"] = function()
 end
 
 restclient.binds = {
-  { "<F7>", "<cmd>RestNvim<CR>", name = "Open http client" },
+  { "<F7>", "<cmd>Rest<CR>", name = "Open http client" },
   {
     "<leader>",
     name = "+prefix",
@@ -29,7 +29,7 @@ restclient.binds = {
         "o",
         name = "+open/close",
         {
-          { "h", "<cmd>RestNvim<CR>", name = "Http" },
+          { "h", "<cmd>Rest<CR>", name = "Open http client" },
         },
       },
     },

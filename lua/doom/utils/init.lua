@@ -13,12 +13,8 @@ utils.version = {
 --- Currently supported version of neovim for this build of doom-nvim
 utils.nvim_latest_supported = "nvim-0.8"
 
-utils.doom_version = string.format(
-  "%d.%d.%d",
-  utils.version.major,
-  utils.version.minor,
-  utils.version.patch
-)
+utils.doom_version =
+    string.format("%d.%d.%d", utils.version.major, utils.version.minor, utils.version.patch)
 
 -- Finds `filename` (where it is a doom config file).
 utils.find_config = function(filename)
@@ -34,10 +30,8 @@ utils.find_config = function(filename)
   if fs.file_exists(path) then
     return path
   end
-  local candidates = vim.api.nvim_get_runtime_file(
-    get_filepath("*" .. system.sep .. "doon-nvim"),
-    false
-  )
+  local candidates =
+      vim.api.nvim_get_runtime_file(get_filepath("*" .. system.sep .. "doon-nvim"), false)
   if not vim.tbl_isempty(candidates) then
     return candidates[1]
   end
@@ -143,7 +137,6 @@ end
 --- @param plugin string The module identifier, e.g. statusline
 --- @return boolean
 utils.is_module_enabled = function(section, plugin)
-
   local ok, modules = require("doom.core.modules").enabled_modules()
 
   if not ok then
@@ -306,5 +299,36 @@ utils.insert_text_at = function()
   -- { type = visual_selection}
 end
 
+-- This func is meant to work in conjunction with the doom's buffer
+-- monitors. You create a messenger func by passing it a target table,
+-- then later the target table will be used in the monitor to
+-- write to the target buffer.
+utils.new_message_builder = function(message_target_table)
+  local function util_ensure_no_linesplits(data)
+    if type(data) == "string" then
+      data = vim.split(data, "\n")
+    end
+    return data
+  end
+
+  -- TODO: Check if # select == and type == table -> treat each entry
+  -- as a line string
+  return function(...)
+    local input
+    if select("#", ...) > 0 then
+      input = string.format(...)
+    else
+      input = select(1, ...)
+    end
+    if input:match("\n") then
+      input = util_ensure_no_linesplits(input)
+      for _, v in ipairs(input) do
+        table.insert(message_target_table, v)
+      end
+    else
+      table.insert(message_target_table, input)
+    end
+  end
+end
 
 return utils

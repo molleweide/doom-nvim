@@ -7,8 +7,15 @@ local autocmds_service = require("doom.services.autocommands")
 -- bufs. with custom keybinds to handle them.
 
 -- NOTE: help autocmd-pattern
+-- NOTE: help luv.txt.
 -- TODO: Add feature run server job and continuesly listen into a buffer.
 -- NOTE: I can use the clear key to reset all existing autocmds for a namespace.
+
+--NOTE: patterns
+-- autocmd event  ->  lua func  -> buffer
+-- autocmd event  ->  job       -> buffer
+-- watch changes  ->            -> buffer
+-- server                       -> buffer
 
 local M = {}
 
@@ -24,20 +31,22 @@ end
 M.spawn_buffer_monitor = function(opts)
   opts = opts or {}
 
+  -- TODO: should show X -> Y, so that I can display a short eg. filename for
+  -- the source pattern and what it is running/calling that will then project
+  -- into the monitor buffer.
   local instance_name =
       string.format("%s [[[%s]]]: %s", M.buffer_monitors_namespace, opts.name, opts.description)
 
+  -- Filter lists of all shown/hidden bufs
   if not opts.buf then
-    -- Filter lists of all shown/hidden bufs
+    local complete_name_string_escaped = utils.escape_str(instance_name)
+
+    -- mv >> Utils get bufs
     local get_ls = vim.tbl_filter(function(buf)
       return vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_option(buf, "buflisted")
     end, vim.api.nvim_list_bufs())
 
-    local complete_name_string_escaped = utils.escape_str(instance_name)
-
-    -- print("ESCAPED = ", complete_name_string_escaped)
-
-    -- If name match assign use for opts.buf
+    -- mv >> Utils get buf with name XYZ, or create new handle with name..
     vim.tbl_map(function(id)
       local full_buf_name = vim.api.nvim_buf_get_name(id)
       if
@@ -55,7 +64,9 @@ M.spawn_buffer_monitor = function(opts)
   -- create new buf
   if not opts.buf then
     local buf = vim.api.nvim_create_buf(true, true)
+
     vim.api.nvim_buf_set_name(buf, instance_name)
+
     vim.api.nvim_open_win(buf, false, { split = "left" })
     opts.buf = buf
   end
@@ -156,6 +167,37 @@ M.cmds = {
         -- input args to test for.
         args = "__monitor_doom_debug_binds",
       })
+    end,
+  },
+  {
+    "MonitorRealTimeData",
+    function()
+      -- https://github.com/bytewax/awesome-public-real-time-datasets
+      --
+      -- https://ably.com/blog/10-realtime-data-sources-you-wont-believe-are-free
+      -- https://rapidapi.com/collection/real-time
+      -- TODO: setup an interval timer that regularly calls the apis for data
+      -- and monitors into a buffer.
+      --
+      -- TODO: Use https://github.com/rest-nvim/rest.nvim
+      -- to perform the http requests.
+      -- Rest has an awesome api and system for performing http requests
+      -- so that we can integrate the internet in this shit.
+      -- dependincies: https://github.com/rest-nvim/rest.nvim/tree/main?tab=readme-ov-file#dependencies
+    end,
+  },
+  {
+    "ReaperMonitorLogging",
+    function()
+      -- reaper has to send the information. Here we setup a listener that
+      -- then prints the logging data to the buffer.
+    end,
+  },
+  {
+    "MonitorSystemProcess",
+    function()
+      -- Use nio.process to interact with a running process.
+      --
     end,
   },
 }

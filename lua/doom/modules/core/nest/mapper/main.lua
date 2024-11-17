@@ -3,8 +3,11 @@ local log = require("doom.utils.logging")
 local pickers = require("telescope.pickers")
 local conf = require("telescope.config").values
 local system = require("doom.core.system")
+local utils = require("doom.utils")
 local fs = require("doom.utils.fs")
 local ts = vim.treesitter
+
+local b = require("doom.modules.features.dui.buf")
 
 -- HACK: If there is ambiguities, when i could just create a new
 -- telescope step for the leaf candidates and by so let the
@@ -57,8 +60,6 @@ local function has_n_named_children() end
 local function has_indexed_fields() end
 
 local function has_n_indexed_fields() end
-
-local du = require("doom.utils")
 
 local __attrs = {
   "name",
@@ -419,109 +420,159 @@ local function get_keybind_leaf_candidates(buf, keybind)
   return t_captured_candidates
 end
 
+--- Expects a doom keybind table_constructor node as input. It can be either
+--- a leaf or a branch.
+local function check_has_parent_branch_match(current_char, node_in, opts, build_msg)
+  -- TODO:
+  -- local status, gp = check_grand_parent(node, type)
+  -- get_douple_grand_parent_tbl_ctks()tod
+
+  -- Check that grand parent 1 and 2 are table constructs
+  local grand_parent_1 = node_in:parent():parent()
+  local correct_gp1
+  if grand_parent_1:type() == "table_constructor" then
+    correct_gp1 = true
+  end
+
+  local grand_parent_2 = grand_parent_1:parent():parent()
+  local correct_gp2
+  if grand_parent_2:type() == "table_constructor" then
+    correct_gp2 = true
+  end
+
+  -- msg(
+  --   string.format(
+  --     "---- grand parent %s of %s---------------------",
+  --     i,
+  --     #leaf_candidates_filtered
+  --   )
+  -- )
+  -- msg(ts.get_node_text(grand_parent_2, opts.buf))
+
+  build_msg("gp: %s %s", correct_gp1, correct_gp2)
+
+  local invalid = false
+
+  if correct_gp1 and correct_gp2 then
+    -- B. check that grand parent 2 has two indexed fields,
+    -- AND optionally one extra field identifier called "name" == <string>
+
+    -- TODO: is_keybind_branch()
+    local indexed = 0
+    for gp2_child in grand_parent_2:iter_children() do
+      local gp2c_named_child_count = gp2_child:named_child_count()
+
+      if gp2c_named_child_count > 3 then
+        return false
+      end
+
+      -- check for the first indexed occurence.
+      if gp2_child:named() and gp2_child:type() == "field" then
+        local gp2c_first_child = gp2_child:named_child()
+        local gp2c_first_child__type = gp2_child:named_child():type()
+
+        -- if child2_type == ""
+        -- TODO: check_field_identifier(..., <check_identifier>, <check_value>)
+
+        if gp2c_first_child__type == "identifier" then
+          local gp2c_second_child = gp2_child:named_child(1)
+
+          local text__field_identifier_name = ts.get_node_text(gp2c_first_child, opts.buf)
+          local text__field_identifier_value =
+              ts.get_node_text(gp2c_second_child:named_child(), opts.buf)
+          -- build_msg(
+          --   "text__ %s",
+          -- text__field_identifier_name
+          -- )
+
+          if
+              text__field_identifier_name == "name"
+              and gp2c_second_child:type() == "string"
+          then
+            build_msg(
+              "branch name identifier [name] == [%s]",
+              text__field_identifier_name
+            )
+          else
+            build_msg("? not name and second is string")
+            invalid = true
+          end
+        elseif
+
+        -- else
+        --   build_msg("")
+        --   invalid = true
+        -- end
+        -- TODO: check_indexed_fields()
+
+            indexed == 0 and gp2c_first_child__type == "string"
+        then
+          local string_content =
+              ts.get_node_text(gp2c_first_child:named_child(), opts.buf)
+          if current_char ~= string_content then
+            build_msg("branch char mismatch!!")
+            invalid = true
+          end
+
+          build_msg(
+            ">>> real: %s, found gp: %s",
+            current_char,
+            -- opts.keys_parsed[#opts.keys_parsed - 1],
+            ts.get_node_text(gp2c_first_child, opts.buf)
+          )
+          indexed = indexed + 1
+        elseif indexed == 1 and gp2c_first_child__type == "table_constructor" then
+          indexed = indexed + 1
+        else
+          invalid = true
+        end
+      end
+    end
+
+    build_msg("invalid = " .. tostring(invalid))
+  end
+
+  if not invalid then
+    return grand_parent_2
+  else
+    return false
+  end
+end
+
+--
+-- NOTE: We know that the candidates are in the correct file, so now
+-- we want to check if any of them are having a full branch match.
+-- IF NONE of them have a branch match, that means that the binds are
+-- dynamically put together, this means that we have throw
+-- up a telescope picker that allows you to choose the ambiguous
+-- candidates, but IRL this should be very uncommon..
+--
 -- For a given leaf table, check if the input target keybind
 -- has a full match with the branch bubbling up from the leaf?
 -- So, that we can determine which leaf candidate that has a
 -- full or better match with the input target.
-local function check_for_parent_branch_node(opts, v, msg)
-  local ret
+--
+-- Input can be either a leaf or a branch node...
+--
+---If we find a matching branch then return this candidate or false.
+---@return table|false
+local function check_for_full_branch_match(opts, node_in, build_msg)
+  local prev_br_node
 
+  -- try to bubble up keys_parsed backwards in the syntax tree.
+  for i = #opts.keys_parsed - 1, 1, -1 do
+    local current_char = opts.keys_parsed[i]
+    prev_br_node =
+        check_has_parent_branch_match(current_char, prev_br_node or node_in, opts, build_msg)
 
-  -- TODO: get_douple_grand_parent_tbl_ctks()tod
+    build_msg("type prevh_br_node " .. type(prev_br_node))
 
-      -- check that grand parent 1 and 2 are table constructs
-      local grand_parent_1 = v.table:parent():parent()
-      local correct_gp1
-      if grand_parent_1:type() == "table_constructor" then
-        correct_gp1 = true
-      end
+    if not prev_br_node then
+      return false
+    end
+  end
 
-      local grand_parent_2 = grand_parent_1:parent():parent()
-      local correct_gp2
-      if grand_parent_2:type() == "table_constructor" then
-        correct_gp2 = true
-      end
-
-      -- msg(
-      --   string.format(
-      --     "---- grand parent %s of %s---------------------",
-      --     i,
-      --     #leaf_candidates_filtered
-      --   )
-      -- )
-      -- msg(ts.get_node_text(grand_parent_2, opts.buf))
-
-      -- FIX: mv string.format into the msg func
-      msg(string.format("gp: %s %s", correct_gp1, correct_gp2))
-
-      local invalid = false
-
-      if correct_gp1 and correct_gp2 then
-        -- B. check that grand parent 2 has two indexed fields,
-        -- AND optionally one extra field identifier called "name" == <string>
-
-    -- TODO: check_branch_node_match()
-
-        local indexed = 0
-        for child_node in grand_parent_2:iter_children() do
-          -- check for the first indexed occurence.
-          if child_node:named() and child_node:type() == "field" then
-            local child2 = child_node:named_child()
-            local child2_type = child_node:named_child():type()
-            local child_named_count = child_node:named_child_count()
-
-            local child2_text = ts.get_node_text(child2, opts.buf)
-
-            -- if child2_type == ""
-            if child_named_count > 1 then
-
-          -- TODO: check_field_identifier(..., <check_identifier>, <check_value>)
-
-              if child2_type == "identifier" then
-                local child2_second = child_node:named_child(1)
-                local identifier_text = ts.get_node_text(child2, opts.buf)
-                -- local nt2 =
-                --     ts.get_node_text(child2_second:named_child(), opts.buf)
-                if child2_second:type() == "string" then
-                else
-                  invalid = true
-                end
-              else
-                invalid = true
-              end
-
-            else
-
-          -- TODO: check_indexed_fields()
-
-              if indexed == 0 and child2_type == "string" then
-                -- TODO: now look at the keys parsed table and check that we
-                -- have the same comparer.
-                -- ISSUE: What if two similar ones are in the same branch but it is
-                -- not the branch we are looking for??
-                -- >>> maybe, i have to attach the branch name key to the
-                -- keybind as well so that it can be used when checkint the parent
-                msg(
-                  string.format(
-                    ">>> real: %s, found gp: %s",
-                    opts.keys_parsed[#opts.keys_parsed - 1],
-                    ts.get_node_text(child2, opts.buf)
-                  )
-                )
-              elseif indexed == 1 and child2_type == "table_constructor" then
-              else
-                invalid = true
-              end
-              indexed = indexed + 1
-            end
-          end
-        end
-
-        msg("invalid = " .. tostring(invalid))
-
-      end
-
-  return ret
+  return true
 end
 
 -- Given a selected keybind try to  find the keybind leaf table
@@ -534,83 +585,39 @@ M.get_match_for_keybind = function(opts)
     return
   end
   opts.buf = dui_utils.get_buf_handle(opts.module_path)
+  opts.messages = {}
 
-  local ret = { messages = {} }
-
-  -- TODO: Refactor this into a doom.utils
-  -- TODO: string.format and pass ...
-  -- TODO: >>>>> `msg` should return a function so that I create an internal
-  -- ref to the message text variable, and then pass msg down further.
-  local function msg(input)
-    if input:match("\n") then
-      input = util_ensure_no_linesplits(input)
-      for _, v in ipairs(input) do
-        table.insert(ret.messages, v)
-      end
-    else
-      table.insert(ret.messages, input)
-    end
-  end
+  local build_msg = utils.new_message_builder(opts.messages)
 
   local leaf_candidates = get_keybind_leaf_candidates(opts.buf, opts.keybind)
 
-  msg(opts.keybind.description)
+  build_msg("keybind.keys = " .. opts.keybind.keys)
+  build_msg("keybind.descr = " .. opts.keybind.description)
 
-  -- -- move cursor
-  -- if #q > 0 then
-  --   print("range of bind table [1]:", vim.inspect(q[1].range)) -- , vim.inspect(leader)
-  --   b.set_cursor_to_buf(buf, q[1].range)
-  -- else
-  --   print("no bind table found")
-  -- end
-
-  -- print("captured nodes #:", #leaf_candidates)
-  msg("captured nodes #:" .. #leaf_candidates)
-
-  msg("=================================")
-  msg("original: " .. opts.keybind.keys)
-  msg("keys parsed:")
-  msg(vim.inspect(parse_key_sequence(opts.keybind.keys)))
-
-  -- print("=================================")
-  msg("=================================")
-
-  -- print(vim.inspect(leaf_candidates))
+  build_msg("parsed:" .. vim.inspect(parse_key_sequence(opts.keybind.keys)))
+  build_msg("=================================")
+  build_msg("[ CHECK NAMED IDENTIFIER MATCHES ]")
+  build_msg("captured nodes #:" .. #leaf_candidates)
 
   -- FIX: This check for attr matches should be done directly in the
   -- leaf candidate finder func.
-
   local leaf_candidates_filtered = {}
-
   for i, v in ipairs(leaf_candidates) do
     local count_mismatches = 0
     local text = ts.get_node_text(v.table, opts.buf)
+    build_msg("----" .. ts.get_node_text(v.table, opts.buf) .. "----")
     for _, value in ipairs(__attrs) do
-      print(v.named_attrs[value .. "_match"])
-      msg(tostring(v.named_attrs[value .. "_match"]))
+      build_msg(value .. " > " .. tostring(v.named_attrs[value .. "_match"]))
       if v.named_attrs[value .. "_match"] == false then
         count_mismatches = count_mismatches + 1
       end
     end
     if count_mismatches == 0 then
       table.insert(leaf_candidates_filtered, v)
-      -- print(v.indexed, text)
-      -- print(vim.inspect(v))
     end
   end
 
-  print("=================================")
-
-  msg("=================================")
-
-  -- TODO: now if there are more than one candidate left,
-  -- i need to check the parent to see which one the binding
-  -- resides in.
-  -- TODO: handle case of  "<C-" "p>" branch, ie. broken up control
-  -- key branch. >>> how are these keymaps built up with the keybmap
-  -- service? I have to create a setup that only runs the service on a
-  -- specific module that i am working on.
-  --
+  build_msg("=================================")
 
   -- 1. we have candidates that match the leaf pattern.
   -- 2. this means that if the binding resides in side a branch, then:
@@ -622,30 +629,41 @@ M.get_match_for_keybind = function(opts)
 
   -- add nil checks??
 
+  if #leaf_candidates_filtered == 0 then
+    return false
+  end
+
+  local t_full_branch_matches = {}
+
+  if #opts.keys_parsed > 1 then
+
   if #leaf_candidates_filtered > 1 then
-    msg("EACH LEAF_CANDIDATES_FILTERED")
-    msg(string.format("keybind lhs = %s", opts.keybind.keys))
-    for i, v in ipairs(leaf_candidates_filtered) do
-      check_for_parent_branch_node(opts, v, msg)
+    build_msg("[ BRANCH MATCHING ]")
+    for i, t_leaf in ipairs(leaf_candidates_filtered) do
+      build_msg("\n:: bubble branch %s ::", i)
+      local ok = check_for_full_branch_match(opts, t_leaf.table, build_msg)
+      if ok then
+        table.insert(t_full_branch_matches, t_leaf)
+      end
     end
   end
 
-  msg(":::::::::::::::::::::::::::::::::")
-
-  msg(vim.inspect(leaf_candidates_filtered))
-
-  for _, v in ipairs(leaf_candidates_filtered) do
-    msg(ts.get_node_text(v.table, opts.buf))
+  else
+    t_full_branch_matches=leaf_candidates_filtered
   end
 
-  -- TODO: Use nvim-treesitter utils:
-  -- ~ `goto_node` for setting the cursor
+  build_msg("=================================")
+  build_msg("[ CAPTURED STRUCTURE (CAPTURED LEAVES..) ]")
+  build_msg(vim.inspect(leaf_candidates_filtered[1]))
+  build_msg("Num full matches: " .. #t_full_branch_matches)
 
-  ret.final_match = nil
+  -- for _, v in ipairs(leaf_candidates_filtered) do
+  --   build_msg( vim.inspect(v) )
+  --   -- build_msg(ts.get_node_text(v.table, opts.buf))
+  -- end
 
-  -- print("COUNT TABLES = ", cnt)
-  print("pre ret from nest/main")
-  return ret
+  opts.final_match = t_full_branch_matches
+  return opts
 end
 
 -- if vim.g.mapper_action_on_enter == "definition" and vim.g.mapper_modules_dir then
@@ -690,9 +708,25 @@ M.mapper = function(opts)
         -- use the output as the value for the output to the buff monitor.
         _G.__monitor_doom_debug_binds = args
 
-        local matched_leaf = M.get_match_for_keybind(args)
+        local ret = M.get_match_for_keybind(args)
 
-        -- print("keybind = ", vim.inspect(args.keybind))
+        -- print("full branch matches = ", vim.inspect(ret.final_match))
+
+        -- -- move cursor
+        if ret and #ret.final_match > 0 then
+          -- print("range of bind table [1]:", vim.inspect(q[1].range)) -- , vim.inspect(leader)
+
+          local table_node = ret.final_match[1].table
+
+          local range = { table_node:range() }
+
+          b.set_cursor_to_buf(ret.buf, range)
+
+          -- local ts_utils = require("nvim-treesitter.utils")
+          -- ts_utils.goto_node(ret.final_match[1].table)
+        else
+          print("no bind table found")
+        end
       end)
 
       return true

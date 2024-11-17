@@ -23,6 +23,13 @@ local rk = {}
 -- in a reaper keys file and then use the reaper keys TS table checks instead
 -- of the doom keybind ts checks.
 
+-- HACK: Hook reaper to my doom buffer monitor in nvim. For all
+-- log messages in reaper, instead of printing them to reapers internal
+-- terminal, instead, send the data to nvim port XYZ, so that I can debug
+-- the code inside of nvim.
+-- !!! As a matter of fact, I could just send all log messages to nvim via
+-- this server.
+
 -- FIX: xx
 
 -- rk.cmds = {}
