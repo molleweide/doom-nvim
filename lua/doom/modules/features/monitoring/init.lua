@@ -19,6 +19,12 @@ local autocmds_service = require("doom.services.autocommands")
 
 local M = {}
 
+-- makaze watch does a lot of the things that I have wanted here.
+-- M.packages = {
+--   ["ast"] = { "Makaze/watch.nvim" },
+--   https://github.com/rktjmp/fwatch.nvim
+-- }
+
 M.buffer_monitors_namespace = "MONITOR"
 -- vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
 
@@ -26,6 +32,9 @@ M.buffer_monitors_namespace = "MONITOR"
 M.reset = function()
   vim.api.nvim_create_augroup(M.buffer_monitors_namespace, { clear = true })
   -- todo remove bufs
+  -- TODO: 1. get all bufs matching the namespace prefix,
+  -- 2. kill all these bufs
+  --
 end
 
 M.spawn_buffer_monitor = function(opts)
@@ -106,7 +115,6 @@ M.spawn_buffer_monitor = function(opts)
           on_stderr = append_data_callback,
         })
       elseif type(opts.command) == "function" then
-
         -- How to handle if there is no args passed or if
         -- result is nil?
 
@@ -198,6 +206,12 @@ M.cmds = {
     function()
       -- Use nio.process to interact with a running process.
       --
+    end,
+  },
+  {
+    "DoomResetMonitors",
+    function()
+      M.reset()
     end,
   },
 }

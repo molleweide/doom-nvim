@@ -207,22 +207,14 @@ whichkey.packages = {
   },
 }
 
-whichkey._which_key_add = function()
-end
+whichkey._which_key_add = function(opts)
+  local utils = require("doom.utils")
+  local ret = { messages = {} }
 
--- TODO: Not happy with how messy the integrations are.  Refactor!
-whichkey.configs = {}
-whichkey.configs["which-key.nvim"] = function()
-  local log = require("doom.utils.logging")
+  local _msg = utils.new_message_builder(ret.messages)
 
-  vim.g.mapleader = doom.features.whichkey.settings.leader
+  _msg("attempt debug whichkey")
 
-  local wk = require("which-key")
-
-  wk.setup(doom.features.whichkey.settings)
-
-  -- TODO: Move everything below into _which_key_add so that I can monitor
-  -- the function during dev.
   local get_whichkey_integration = function()
     --- @type NestIntegration
     local module = {}
@@ -300,8 +292,17 @@ whichkey.configs["which-key.nvim"] = function()
         end
       end
 
-      -- TODO: dont call wk if dry running!!
-      require("which-key").add(final_wk_entries)
+      print(vim.inspect(final_wk_entries))
+
+      if #final_wk_entries > 0 then
+        _msg(vim.inspect(final_wk_entries))
+      else
+        _msg("{}")
+      end
+
+      if not opts.dry_run then
+        require("which-key").add(final_wk_entries)
+      end
     end
 
     return module
@@ -328,7 +329,22 @@ whichkey.configs["which-key.nvim"] = function()
     end
   end)
 
-  -- log.info("Number of bind-trees =", bind_tree_count)
+  return ret
+end
+
+whichkey.configs = {}
+whichkey.configs["which-key.nvim"] = function()
+  local log = require("doom.utils.logging")
+
+  vim.g.mapleader = doom.features.whichkey.settings.leader
+
+  local wk = require("which-key")
+  wk.setup(doom.features.whichkey.settings)
+  whichkey._which_key_add()
+end
+
+local function command()
+  return require("doom.modules.features.whichkey")._which_key_add({ dry_run = true })
 end
 
 local function wk_monitor_setup()
@@ -338,9 +354,9 @@ local function wk_monitor_setup()
     description = "Fix the integration module",
     pattern = "lua/doom/modules/features/whichkey/init.lua",
 
-    command = function(...)
-      -- TODO: what put here??
-      -- return require("doom.modules.features.whichkey").get_match_for_keybind(...)
+    command = function()
+      -- return require("doom.modules.features.monitoring")._which_key_add({ dry_run = true })
+      return command()
     end,
     -- Specify which global variable that hosts the dynamically set
     -- input args to test for.

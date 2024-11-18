@@ -315,7 +315,7 @@ utils.new_message_builder = function(message_target_table)
   -- as a line string
   return function(...)
     local input
-    if select("#", ...) > 0 then
+    if select("#", ...) > 1 then
       input = string.format(...)
     else
       input = select(1, ...)
