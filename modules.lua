@@ -17,6 +17,8 @@ return {
     "architext",
     "monitoring",
 
+    "lsp_progress",
+
     buffers = {
       "buffer_management",
       "temporary_buffers",
@@ -112,7 +114,6 @@ return {
     "movement_lightspeed",
 
     -- UI COMPONENTS
-    "lsp_progress",     -- Check status of LSP loading
     "tabline",          -- Tab bar buffer switcher
     "dashboard",        -- A pretty dashboard upon opening
     "trouble",          -- A pretty diagnostic viewer

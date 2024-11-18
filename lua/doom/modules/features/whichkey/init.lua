@@ -8,19 +8,20 @@ local whichkey = {}
 whichkey.settings = {
   leader = " ",
   ---@type false | "classic" | "modern" | "helix"
-  preset = "classic",
+  preset = "modern",
   -- Delay before showing the popup. Can be a number or a function that returns a number.
   ---@type number | fun(ctx: { keys: string, mode: string, plugin?: string }):number
-  delay = function(ctx)
-    return ctx.plugin and 0 or 200
-  end,
+  delay = 0,
+  -- delay = function(ctx)
+  --   return ctx.plugin and 0 or 200
+  -- end,
   -- ---@param mapping wk.Mapping
   -- filter = function(mapping)
   --   -- example to exclude mappings without a description
   --   -- return mapping.desc and mapping.desc ~= ""
   --   return true
   -- end,
-  -- show a warning when issues were detected with your mappings
+  -- Show a warning when issues were detected with your mappings
   notify = true,
   -- Start hidden and wait for a key to be pressed before showing the popup
   -- Only used by enabled xo mapping modes.
@@ -210,19 +211,13 @@ whichkey.packages = {
 whichkey._which_key_add = function(opts)
   local utils = require("doom.utils")
   local ret = { messages = {} }
-
   local _msg = utils.new_message_builder(ret.messages)
-
-  _msg("attempt debug whichkey")
 
   local get_whichkey_integration = function()
     --- @type NestIntegration
-    local module = {}
+    local nest_integration_module = {}
 
-    -- Why do we add the name ? Oh, it is so the integration.name.
-    module.name = "whichkey"
-
-    -- TODO: I have to clean up here a bit..
+    nest_integration_module.name = "whichkey"
 
     local track_already_added = {}
 
@@ -233,9 +228,10 @@ whichkey._which_key_add = function(opts)
     local keymaps_v3_2 = {}
 
     --- Handles each node of the nest keymap config (except the top level)
+    --- ??? It is called/ran for each {branch ? leaf} ???
     --- @param node NestIntegrationNode
     --- @param node_settings NestSettings
-    module.handler = function(node, node_settings)
+    nest_integration_module.handler = function(node, node_settings)
       -- Keybinds service recurses each modules bind table. This means that we
       -- need to ignore all single char binds.
       --
@@ -272,11 +268,11 @@ whichkey._which_key_add = function(opts)
       end
     end
 
-    module.on_init = function()
+    nest_integration_module.on_init = function()
       keymaps_v3_2 = {}
     end
 
-    module.on_complete = function()
+    nest_integration_module.on_complete = function()
       local final_wk_entries = {}
 
       -- Ensure a mapping is only added once to `wk`.
@@ -305,7 +301,7 @@ whichkey._which_key_add = function(opts)
       end
     end
 
-    return module
+    return nest_integration_module
   end
 
   local bind_tree_count = 0
@@ -343,20 +339,13 @@ whichkey.configs["which-key.nvim"] = function()
   whichkey._which_key_add()
 end
 
-local function command()
-  return require("doom.modules.features.whichkey")._which_key_add({ dry_run = true })
-end
-
 local function wk_monitor_setup()
-  -- Setup the exact same way as the nest/main logging is done.
   doom.features.monitoring.spawn_buffer_monitor({
     name = "Whickkey",
     description = "Fix the integration module",
     pattern = "lua/doom/modules/features/whichkey/init.lua",
-
     command = function()
-      -- return require("doom.modules.features.monitoring")._which_key_add({ dry_run = true })
-      return command()
+      return require("doom.modules.features.whichkey")._which_key_add({ dry_run = true })
     end,
     -- Specify which global variable that hosts the dynamically set
     -- input args to test for.
