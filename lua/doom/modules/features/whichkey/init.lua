@@ -1,3 +1,4 @@
+local utils = require("doom.utils")
 local whichkey = {}
 
 -- TODO: concat clashing branch nodes like so `"+ doom | debug | docs"`. This
@@ -217,6 +218,7 @@ whichkey._which_key_add = function(opts)
 
   local get_whichkey_integration = function()
     local keymaps = {}
+    local track_already_added = {}
     --- @type NestIntegration
     return {
       name = "whichkey",
@@ -243,25 +245,54 @@ whichkey._which_key_add = function(opts)
         end
       end,
       on_complete = function()
+        -- NOTE: We track what bindings have already been added. This means that I
+        -- can check if:
+        --
+
         local final_wk_entries = {}
-        local track_already_added = {}
-        -- Avoid duplicate entries
         for mode, mode_table in pairs(keymaps) do
           for lhs_key, bind_settings in pairs(mode_table) do
             if track_already_added[mode] == nil then
               track_already_added[mode] = {}
             end
-            if not track_already_added[mode][lhs_key] then
-              track_already_added[mode][lhs_key] = true
+            local exists = track_already_added[mode][lhs_key]
+            if not exists then
+              -- Assign the first lhs_key to track that it has been added*
+              track_already_added[mode][lhs_key] = bind_settings
               table.insert(final_wk_entries, bind_settings)
+            else
+              -- Then, now that we know the branch node has been added, now we
+              -- can start to clashes.
+              local eg = exists.group
+              local bg = bind_settings.group
+
+              if eg and bg and eg ~= bg then
+                local egt = eg:sub(2,-1)
+                local bgt = bg:sub(2,-1)
+
+                if not egt:match(bgt) then
+                  -- if not egt:match(utils.escape_str(bgt)) then
+                  _msg(
+                    "%s -> %s | %s /// %s %s",
+                    lhs_key,
+                    exists.group,
+                    bind_settings.group,
+                    egt,
+                    bgt
+                  )
+                  exists.group = exists.group
+                  .. "|"
+                      .. bind_settings.group:sub(2, -1)
+                end
+              end
             end
           end
         end
-        if #final_wk_entries > 0 then
-          _msg(vim.inspect(final_wk_entries))
-        else
-          _msg("{}")
-        end
+        -- if #final_wk_entries > 0 then
+        --   _msg(vim.inspect(final_wk_entries))
+        -- else
+        --   _msg("{}")
+        -- end
         if not opts.dry_run then
           require("which-key").add(final_wk_entries)
         end
