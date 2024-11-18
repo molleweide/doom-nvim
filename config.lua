@@ -815,6 +815,9 @@ doom.use_keybind({
     },
 })
 
+-- TODO: telescope picker for options with a nice UI to set
+-- options.
+
 doom.use_keybind({
     {
         "<leader>D",

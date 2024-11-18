@@ -207,9 +207,12 @@ local function try_reloading_binds()
 end
 
 nest.cmds = {
-  { "ReloadBindings", function()
-    try_reloading_binds()
-  end },
+  {
+    "ReloadBindings",
+    function()
+      try_reloading_binds()
+    end,
+  },
 }
 
 nest.binds = {
@@ -231,8 +234,10 @@ nest.binds = {
               end
               require("doom.modules.core.nest.mapper.main").mapper()
             end,
-            name = "Browse bindings",
+            name = "Browse active binds",
           },
+          -- TODO: add binding for browsing all binds across
+          -- all modules.
         },
       },
     },

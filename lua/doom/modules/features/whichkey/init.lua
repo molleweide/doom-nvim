@@ -216,104 +216,57 @@ whichkey._which_key_add = function(opts)
   local _msg = utils.new_message_builder(ret.messages)
 
   local get_whichkey_integration = function()
-    --- @type NestIntegration
-    local nest_integration_module = {}
-
-    nest_integration_module.name = "whichkey"
-
-    local track_already_added = {}
-
     local keymaps = {}
-
-    local keymaps_v3 = {}
-
-    local keymaps_v3_2 = {}
-
-    --- Handles each node of the nest keymap config (except the top level)
-    --- ??? It is called/ran for each {branch ? leaf} ???
-    --- @param node NestIntegrationNode
-    --- @param node_settings NestSettings
-    nest_integration_module.handler = function(node, node_settings)
-      -- Keybinds service recurses each modules bind table. This means that we
-      -- need to ignore all single char binds.
-      --
-      -- `handler` is called for every node, ie. both branch and leaf.
-      -- This means that it returns
-
-      -- Only handle <leader> keys, and which  a 'Name' field
-      -- Ensure that we ignore any keybind tables that doesnt conaint
-      -- a name.
-      if node.lhs:find("<leader>") == nil or node.name == nil then
-        return
-      end
-
-      -- Iterate modes for each node of doom.module.
-      for _, v in ipairs(vim.split(node_settings.mode or "n", "")) do
-        -- Create mode entries. Notice there are two versions..
-        if keymaps[v] == nil then
-          keymaps[v] = {}
+    --- @type NestIntegration
+    return {
+      name = "whichkey",
+      on_init = function()
+        keymaps = {}
+      end,
+      --- Handles each node of the nest keymap config (except the top level)
+      --- @param node NestIntegrationNode
+      --- @param node_settings NestSettings
+      handler = function(node, node_settings)
+        if node.lhs:find("<leader>") == nil or node.name == nil then
+          return           -- Only handle <leader> keys, and which  a 'Name' field
         end
-        if keymaps_v3_2[v] == nil then
-          keymaps_v3_2[v] = {}
-        end
-
-        local rhs_type = type(node.rhs)
-
-        -- branch
-        if rhs_type == "table" then
-          keymaps[v][node.lhs] = { name = node.name }
-          -- v3
-          table.insert(keymaps_v3, { node.lhs, group = node.name })
-          keymaps_v3_2[v][node.lhs] = { node.lhs, group = node.name }
-        else         -- leaf
-          -- if rhs_type == "string" or rhs_type=="function" then
-          keymaps[v][node.lhs] = { node.name }
-          -- v3
-          table.insert(keymaps_v3, { node.lhs, node.rhs, mode = v, desc = node.name })
-          keymaps_v3_2[v][node.lhs] = { node.lhs, node.rhs, mode = v, desc = node.name }
-        end
-        if type(node.rhs) == "function" then
-          -- TODO: ???
-        end
-
-        -- build v3 keymap
-      end
-    end
-
-    nest_integration_module.on_init = function()
-      keymaps_v3_2 = {}
-    end
-
-    nest_integration_module.on_complete = function()
-      local final_wk_entries = {}
-
-      -- Ensure a mapping is only added once to `wk`.
-      for mode, mode_table in pairs(keymaps_v3_2) do
-        for lhs_key, bind_settings in pairs(mode_table) do
-          if track_already_added[mode] == nil then
-            track_already_added[mode] = {}
+        -- Duplicate entries for each mode
+        for _, v in ipairs(vim.split(node_settings.mode or "n", "")) do
+          if keymaps[v] == nil then
+            keymaps[v] = {}
           end
-          if not track_already_added[mode][lhs_key] then
-            track_already_added[mode][lhs_key] = true
-            table.insert(final_wk_entries, bind_settings)
+          if type(node.rhs) == "table" then
+            keymaps[v][node.lhs] = { node.lhs, group = node.name }
+          else
+            keymaps[v][node.lhs] = { node.lhs, node.rhs, mode = v, desc = node.name }
           end
         end
-      end
-
-      print(vim.inspect(final_wk_entries))
-
-      if #final_wk_entries > 0 then
-        _msg(vim.inspect(final_wk_entries))
-      else
-        _msg("{}")
-      end
-
-      if not opts.dry_run then
-        require("which-key").add(final_wk_entries)
-      end
-    end
-
-    return nest_integration_module
+      end,
+      on_complete = function()
+        local final_wk_entries = {}
+        local track_already_added = {}
+        -- Avoid duplicate entries
+        for mode, mode_table in pairs(keymaps) do
+          for lhs_key, bind_settings in pairs(mode_table) do
+            if track_already_added[mode] == nil then
+              track_already_added[mode] = {}
+            end
+            if not track_already_added[mode][lhs_key] then
+              track_already_added[mode][lhs_key] = true
+              table.insert(final_wk_entries, bind_settings)
+            end
+          end
+        end
+        if #final_wk_entries > 0 then
+          _msg(vim.inspect(final_wk_entries))
+        else
+          _msg("{}")
+        end
+        if not opts.dry_run then
+          require("which-key").add(final_wk_entries)
+        end
+      end,
+    }
   end
 
   local bind_tree_count = 0
