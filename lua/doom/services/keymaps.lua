@@ -285,6 +285,9 @@ module.traverse = function(node, settings, integrations)
   node.rhs = rhs
 
   -- Pass current keymap node to all integrations
+  --
+  -- Notice that the handler functin is ran on each node,
+  -- so regardless if leaf or branch.
   for _, integration in pairs(integrations) do
     integration.handler(node, mergedSettings, module.global_opts)
   end

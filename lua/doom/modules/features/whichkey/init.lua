@@ -1,9 +1,10 @@
 local whichkey = {}
 
--- FIX: names are not assigned properly
--- TODO: for each key, check if it exists an existing branch, and if so, continue,
--- otherwise concat mult branch names like so: "+nvim|neorg", or "+debug|doom|deno"
--- so that it is easier to always see what possibilites exist.
+-- TODO: concat clashing branch nodes like so `"+ doom | debug | docs"`. This
+-- would indicate that the contained bindings are some how related to one
+-- of the three above.
+
+-- TODO: include root config binds in whichkey!!
 
 whichkey.settings = {
   leader = " ",
@@ -209,6 +210,7 @@ whichkey.packages = {
 }
 
 whichkey._which_key_add = function(opts)
+  opts = opts or {}
   local utils = require("doom.utils")
   local ret = { messages = {} }
   local _msg = utils.new_message_builder(ret.messages)
@@ -235,33 +237,43 @@ whichkey._which_key_add = function(opts)
       -- Keybinds service recurses each modules bind table. This means that we
       -- need to ignore all single char binds.
       --
-      -- Only handle <leader> keys, which key needs a 'Name' field
+      -- `handler` is called for every node, ie. both branch and leaf.
+      -- This means that it returns
+
+      -- Only handle <leader> keys, and which  a 'Name' field
+      -- Ensure that we ignore any keybind tables that doesnt conaint
+      -- a name.
       if node.lhs:find("<leader>") == nil or node.name == nil then
         return
       end
 
+      -- Iterate modes for each node of doom.module.
       for _, v in ipairs(vim.split(node_settings.mode or "n", "")) do
+        -- Create mode entries. Notice there are two versions..
         if keymaps[v] == nil then
           keymaps[v] = {}
         end
-
         if keymaps_v3_2[v] == nil then
           keymaps_v3_2[v] = {}
         end
 
-        -- If this is a keymap group/branch node.
-        if type(node.rhs) == "table" then
+        local rhs_type = type(node.rhs)
+
+        -- branch
+        if rhs_type == "table" then
           keymaps[v][node.lhs] = { name = node.name }
           -- v3
           table.insert(keymaps_v3, { node.lhs, group = node.name })
           keymaps_v3_2[v][node.lhs] = { node.lhs, group = node.name }
-
-          -- If this is an actual keymap/leaf node.
-        elseif type(node.rhs) == "string" then
+        else         -- leaf
+          -- if rhs_type == "string" or rhs_type=="function" then
           keymaps[v][node.lhs] = { node.name }
           -- v3
           table.insert(keymaps_v3, { node.lhs, node.rhs, mode = v, desc = node.name })
           keymaps_v3_2[v][node.lhs] = { node.lhs, node.rhs, mode = v, desc = node.name }
+        end
+        if type(node.rhs) == "function" then
+          -- TODO: ???
         end
 
         -- build v3 keymap
