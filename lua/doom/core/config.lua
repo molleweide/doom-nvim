@@ -96,9 +96,11 @@ config.load = function()
         }
 
         local ok, result
+        local correct_path
         for _, path in ipairs(search_paths) do
           ok, result = xpcall(require, debug.traceback, path)
           if ok then
+            correct_path = path
             break
           end
         end
@@ -115,6 +117,7 @@ config.load = function()
             -- Add string tag so that we can easilly target modules with more
             -- traversers, ie. in `core/modules` when traversing `doom.modules`
             result.type = "doom_module_single"
+            result.name = correct_path
             utils.get_set_table_path(doom.modules, t_path, result)
 
             -- NOTE: I dunno if my package reloader file is still relevant...

@@ -308,14 +308,17 @@ whichkey._which_key_add = function(opts)
   local keymaps_service = require("doom.services.keymaps")
   local whichkey_integration = get_whichkey_integration()
 
-  -- Traverse loaded modules and add each bind tree to which key.
-  -- For each module we pass the bind-tree to `applyKeymaps`.
+  -- For each module we pass the bind-tree to `applyKeymaps`, ie. one
+  -- applyKeymaps call per doom module.
 
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
       local module = node
       if module.binds then
         bind_tree_count = bind_tree_count + 1
+
+        _msg("==== MODULE: %s ======", node.name)
+
         keymaps_service.applyKeymaps(
           type(module.binds) == "function" and module.binds() or module.binds,
           nil,
