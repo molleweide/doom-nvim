@@ -5,7 +5,7 @@ local whichkey = {}
 -- would indicate that the contained bindings are some how related to one
 -- of the three above.
 
--- TODO: include root config binds in whichkey!!
+-- FIX: add root config binds in whichkey!!
 
 whichkey.settings = {
   leader = " ",
@@ -307,6 +307,7 @@ whichkey._which_key_add = function(opts)
   -- For each module we pass the bind-tree to `applyKeymaps`, ie. one
   -- applyKeymaps call per doom module.
 
+    -- add module binds
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
       local module = node
@@ -323,6 +324,15 @@ whichkey._which_key_add = function(opts)
       end
     end
   end)
+
+    -- add user binds
+    if doom.binds then
+        keymaps_service.applyKeymaps(
+          type(doom.binds) == "function" and doom.binds() or doom.binds,
+          nil,
+          { whichkey_integration }
+        )
+    end
 
   return ret
 end
