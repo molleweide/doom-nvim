@@ -6,6 +6,8 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
+-- TODO: mode v -> `:` -> enter cmdline.
+
 -- task launcher with telescope integration: https://github.com/miroshQa/rittli.nvim
 
 -- https://github.com/kosayoda/nvim-lightbulb

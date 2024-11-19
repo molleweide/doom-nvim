@@ -10,6 +10,8 @@ version: 0.0.12
 
 ~ ( ) telescope search `:commands`, similar to how nvim-mapper allows for searching
       mappigs
+~ global settig -> cache doom config telescope vars in global which gives
+  quicke access but takes up more memory...
 
 
 

@@ -310,19 +310,20 @@ end
 mod_util.check_if_module_name_exists = function(m, new_name)
   -- local orig = type(m) == "string" and m or m.section
   -- local sec = type(m) == "string" and m or m.section
-  local results = tree.traverse_table({
-    tree = require("doom.modules.utils").extend(),
-    filter = "doom_module_single",     -- what makes a node in the tree
-    leaf = function(_, _, v)
-      -- todo: if m == string then do
-      --
-      if m.section == v.section and v.name == new_name then
-        log.debug("dui/actions check_if_module_exists: true")
-        return true
-      end
-    end,
-  })
-  return false
+
+  -- local results = tree.traverse_table({
+  --   tree = mod_util.extend(),
+  --   filter = "doom_module_single",     -- what makes a node in the tree
+  --   leaf = function(_, _, v)
+  --     -- todo: if m == string then do
+  --     --
+  --     if m.section == v.section and v.name == new_name then
+  --       log.debug("dui/actions check_if_module_exists: true")
+  --       return true
+  --     end
+  --   end,
+  -- })
+  -- return false
 end
 
 -- rename these `root_` files. They operate on the `./modules.lua`
@@ -698,9 +699,13 @@ mod_util.get_all_module_paths = function()
   return mutils.tbl_merge(m_glob("doom"), m_glob("user"))
 end
 
+
+-- filter_all_modules()
 mod_util.extend = function(filter)
   local all = mutils.tbl_merge(m_glob("doom"), m_glob("user"))
+
   local m_all = { doom = {}, user = {} }
+
   for _, p in ipairs(all) do
     local org, sec, name = get_mod_tbl_path_from_string(p)
     utils.get_set_table_path(m_all[org], { sec[1], name }, {
