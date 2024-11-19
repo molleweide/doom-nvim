@@ -137,6 +137,7 @@ required.binds = function()
         "<leader>",
         name = "+prefix",
         {
+            { "l", ":=", name = "Lua CLI", options = {silent = false} },
             { "m", "<cmd>w<CR>", name = "Write" },
             {
                 "b",

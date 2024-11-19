@@ -15,6 +15,10 @@ local b = require("doom.modules.features.dui.buf")
 
 local dui_utils = require("doom.modules.features.dui.utils")
 
+-- HACK: If there is no full match or whatever -> then just pass the
+-- leaf candidates to telescope and let user see a good preview of the
+-- code context.
+
 -- TODO: default <entre> selection should go to file in same buffer.
 -- TODO: vertical / horizontal split.
 -- TODO: add new binding to same table if possible.
