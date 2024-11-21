@@ -8,6 +8,13 @@ local system = require("doom.core.system")
 
 -- TODO: mode v -> `:` -> enter cmdline.
 
+-- TODO: add a module called hjkl_overrides, which should create overrides
+-- for the hjkl binds that are the most convenient to have on your homerow.
+-- each of hjkl are motions
+
+-- TODO: Dim bufs except active one: https://github.com/TaDaa/vimade
+-- makes easier for eyes to parse code.
+
 -- task launcher with telescope integration: https://github.com/miroshQa/rittli.nvim
 
 -- https://github.com/kosayoda/nvim-lightbulb

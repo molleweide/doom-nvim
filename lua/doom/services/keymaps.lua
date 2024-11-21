@@ -306,10 +306,12 @@ end
 --- Applies the given `keymapConfig`, creating nvim keymaps
 --- @param nest_config table<number, NestNode>
 --- @param settings NestSettings|nil
---- @param integrations table<number, NestIntegration> User can parse the nest config with a subset of integrations
+--- @param integrations table<number, NestIntegration>|nil User can parse the nest config with a subset of integrations
+--- @param opts table|nil Global options
 module.applyKeymaps = function(nest_config, settings, integrations, opts)
   local ints = integrations or module.integrations
 
+    -- NOTE: Why do I rename the table as `global_opts`?
   module.global_opts = opts or {}
 
   -- Pre hooks

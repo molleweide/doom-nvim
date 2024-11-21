@@ -7,6 +7,8 @@ local telescope = {}
 -- TODO: center everything in telescope so that you are always looking with you head
 -- in center position.
 
+-- Create a builtin picker for nvim options -> `:options`
+
 telescope.settings = {
     defaults = {
         find_command = {

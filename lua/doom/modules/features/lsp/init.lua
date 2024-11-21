@@ -25,8 +25,8 @@ lsp.settings = {
     virtual_text = true,
 }
 
--- NOTE: I need a better way of managing lsp servers??
 -- https://github.com/hinell/lsp-timeout.nvim
+-- https://git.sr.ht/~whynothugo/lsp_lines.nvim
 
 lsp.packages = {
     ["nvim-lspconfig"] = {

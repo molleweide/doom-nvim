@@ -69,7 +69,7 @@ required.binds = function()
       },
     },
     {
-      "<a-",
+      "<A-",
       {
         { "j>", ":m .+1<CR>==", name = "Move line down" },
         { "k>", ":m .-2<CR>==", name = "Move line up" },
@@ -79,7 +79,7 @@ required.binds = function()
       mode = "v",
       {
         { ";", ":", name = "Cmdline (visual mode)", options = { silent = false } },
-        { ":", ";", name = "semi-colon" },
+        { ":", function() vim.notify("[:] doesnt do anything") end, name = "Unused" },
         {
           "<a-",
           {

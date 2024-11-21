@@ -7,8 +7,6 @@
 
 local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
-local mod_utils = require("doom.utils.modules")
-local tree = require("doom.utils.tree")
 local filename = "modules.lua"
 
 local modules = {}
@@ -144,6 +142,7 @@ end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
+  local logger = require("doom.utils.logging")
   -- Handle extra user cmds
   for _, cmd_spec in pairs(doom.cmds) do
     commands_service.set(cmd_spec[1], cmd_spec[2], cmd_spec[3] or cmd_spec.opts)
@@ -155,9 +154,12 @@ modules.handle_user_config = function()
   end
 
   -- Handle extra user keybinds
+  -- FIX: Shouldn't this be moved to the nest module??
   for _, keybinds in ipairs(doom.binds) do
     keymaps_service.applyKeymaps(keybinds)
   end
+
+  logger.info("doom.modules -> loaded user configs (config.lua)")
 end
 
 ---Creates a user autocmd

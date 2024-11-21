@@ -174,32 +174,28 @@ nest.reload_binds = function()
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type then
       local module = node
-
       local t_path = vim.tbl_map(function(stack_node)
         return type(stack_node.key) == "string" and stack_node.key
       end, stack)
-
       local mod_path = table.concat(t_path, ".")
-
       if module.binds then
         count = count + 1
         vim.defer_fn(function()
           -- table.insert(all_keymaps, type(module.binds) == "function" and module.binds() or module.binds)
           local profiler_msg = ("keymaps(async)|module: %s"):format(mod_path)
           profiler.start(profiler_msg)
-
           keymaps_service.applyKeymaps(
             type(module.binds) == "function" and module.binds() or module.binds,
             nil,
             { mapper_integration },
             { module_origin = mod_path }
           )
-
           profiler.stop(profiler_msg)
         end, count)
       end
     end
   end)
+    vim.notify("Loaded [Nest] binds")
 end
 
 local function try_reloading_binds()
