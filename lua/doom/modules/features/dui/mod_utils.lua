@@ -3,6 +3,7 @@ local utils = require("doom.utils")
 local spec = require("doom.core.spec")
 local tree = require("doom.utils.tree")
 local tsq = require("vim.treesitter.query")
+local system = require("doom.core.system")
 
 local templ = require("doom.modules.features.dui.templates")
 local ts = require("doom.modules.features.dui.ts")
@@ -699,7 +700,6 @@ mod_util.get_all_module_paths = function()
   return mutils.tbl_merge(m_glob("doom"), m_glob("user"))
 end
 
-
 -- filter_all_modules()
 mod_util.extend = function(filter)
   local all = mutils.tbl_merge(m_glob("doom"), m_glob("user"))
@@ -719,25 +719,35 @@ mod_util.extend = function(filter)
     })
   end
 
+  require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
+    if node.type == "doom_module_single" then
+      -- log.info(">>> node.name =", vim.inspect(node))
 
-    -- FIX: update this with the traverser for enabled_modules
+      local pc = vim.split(node.name,".")
 
-  tree.traverse_table({
-    tree = require("doom.core.modules").enabled_modules,
-    leaf = function(stack, _, v)
-      local pc, path_concat = tree.flatten_stack(stack, v, ".")
-      for _, path in ipairs(search_paths(path_concat)) do
-        local origin = path:sub(1, 4)
-        local m = utils.get_set_table_path(m_all[origin], pc)
-        if m then
-          m.enabled = true
-          for i, j in pairs(utils.get_set_table_path(doom.modules, pc)) do
-            m[i] = j
-          end
+      -- local module = utils.get_set_table_path(m_all[node.origin], pc)
+
+      -- local pc, path_concat = tree.flatten_stack(stack, v, ".")
+      -- for i, j in pairs(utils.get_set_table_path(doom.modules, pc)) do
+      --
+      --
+
+      -- local mod_table_path = ({ node.origin, node.name }):concat("."):split(".")
+
+      local module = utils.get_set_table_path(m_all[node.origin], pc)
+
+      if module then
+
+        -- FIX: Why am i creating another sub path within the module, which already
+        -- exists on a subpath in m_all. Instead I could just map `real_module`
+        -- as a key in the module temp table for the picker
+        for i, j in pairs(pc) do
+          module[i] = j
         end
       end
-    end,
-  })
+
+    end
+  end)
 
   -- TODO: filter hasn't been adapted to recursive pattern yet. only pass through
   local function apply_filters(mods)

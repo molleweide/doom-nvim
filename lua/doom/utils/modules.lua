@@ -10,7 +10,8 @@ local traverser = require("doom.services.traverser")
 
 local M = {}
 
--- Designed to travers `modules.lua` file
+-- Designed to travers `modules.lua` file, ie. allows you to operate on
+-- each module `dot` path.
 M.traverse_enabled = traverser.build({
   -- Builds the traversal function defining how we should move through the tree
   -- @param node any The node itself
@@ -43,6 +44,8 @@ M.traverse_enabled = traverser.build({
   end,
 })
 
+---Recurse through the tree of loaded modules, ie `doom.<path.to.some.module>`
+---Allows user to perform actions based on the contents of each module.
 M.traverse_loaded = traverser.build({
   traverser = function(node, stack, traverse_in, traverse_out, err)
     if node.type == "doom_module_single" then

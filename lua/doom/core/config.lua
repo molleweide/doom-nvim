@@ -7,6 +7,7 @@
 local log = require("doom.utils.logging")
 local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
+local system = require("doom.core.system")
 -- local mod_utils = require("doom.utils.modules")
 -- local tree = require("doom.utils.tree")
 local config = {}
@@ -49,7 +50,7 @@ config.load = function()
   vim.opt.copyindent = true
   vim.opt.preserveindent = true
   vim.opt.cursorline = true
-    vim.opt.splitright = true
+  vim.opt.splitright = true
   vim.opt.splitbelow = true
   vim.opt.scrolloff = 4
   vim.opt.showmode = false
@@ -89,15 +90,9 @@ config.load = function()
         local profiler_message = ("modules|import `%s`"):format(path_module)
         profiler.start(profiler_message)
 
-        -- If the section is `user` resolves from `lua/user/modules`
-        local search_paths = {
-          ("user.modules.%s"):format(path_module),
-          ("doom.modules.%s"):format(path_module),
-        }
-
         local ok, result
         local correct_path
-        for _, path in ipairs(search_paths) do
+        for _, path in ipairs(system.get_mod_search_paths(path_module)) do
           ok, result = xpcall(require, debug.traceback, path)
           if ok then
             correct_path = path
@@ -114,10 +109,16 @@ config.load = function()
               )
             )
           else
+            -- NOTE: Some of these tags might be unnecessary or redundant but
+            -- for now i keep them since it makes it easier to merge some old
+            -- code from eg dui.
+
             -- Add string tag so that we can easilly target modules with more
             -- traversers, ie. in `core/modules` when traversing `doom.modules`
+            result.origin = correct_path:match("^(%w-)%.")
             result.type = "doom_module_single"
             result.name = correct_path
+            result.enabled = true
             utils.get_set_table_path(doom.modules, t_path, result)
 
             -- NOTE: I dunno if my package reloader file is still relevant...

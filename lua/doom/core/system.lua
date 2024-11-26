@@ -34,8 +34,6 @@ system.doom_report = table.concat({ stdpath("data"), "doom_report.md" }, system.
 -- The git workspace for doom-nvim, e.g. 'git -C /home/JohnDoe/.config/nvim'
 system.git_workspace = string.format("git -C %s ", system.doom_root)
 
-
-
 system.doom_modules_path = function()
   return string.format(
     "%s%slua%sdoom%smodules",
@@ -46,5 +44,16 @@ system.doom_modules_path = function()
   )
 end
 
+---Given a a module string, eg. `features.neorg`, returns table of possible
+---real paths for the module, curretly a module can reside in user/modules/..
+---or doom/modules/...
+---@param dot_sub_path string The module dot sub path
+---@return table Search path candidates
+system.get_mod_search_paths = function(dot_sub_path)
+  return {
+    ("user.modules.%s"):format(dot_sub_path),
+    ("doom.modules.%s"):format(dot_sub_path),
+  }
+end
 
 return system

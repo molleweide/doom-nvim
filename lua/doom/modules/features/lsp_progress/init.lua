@@ -9,7 +9,7 @@ fidget.settings = function() return {
     suppress_on_insert = false,       -- Suppress new messages while in insert mode
     ignore_done_already = false,      -- Ignore new tasks that are already complete
     ignore_empty_message = false,     -- Ignore new tasks that don't contain a message
-    -- Clear notification group when LSP server detaches
+        -- Clear notification group when LSP server detaches
     clear_on_detach = function(client_id)
       local client = vim.lsp.get_client_by_id(client_id)
       return client and client.name or nil
@@ -84,7 +84,7 @@ fidget.settings = function() return {
     poll_rate = 10,                   -- How frequently to update and render notifications
     filter = vim.log.levels.INFO,     -- Minimum notifications level
     history_size = 128,               -- Number of removed messages to retain in history
-    override_vim_notify = true,      -- Automatically override vim.notify() with Fidget
+    override_vim_notify = false,      -- Automatically override vim.notify() with Fidget
     -- How to configure notification groups when instantiated
     configs = { default = require("fidget.notification").default_config },
     -- Conditionally redirect notifications to another backend
@@ -110,8 +110,8 @@ fidget.settings = function() return {
     -- Options related to the notification window and buffer
     window = {
       normal_hl = "Comment",       -- Base highlight group in the notification window
-      winblend = 50,               -- Background color opacity in the notification window
-      border = "rounded",          -- Border around the notification window
+      winblend = 100,               -- Background color opacity in the notification window
+      border = "single",          -- Border around the notification window
       zindex = 45,                 -- Stacking priority of the notification window
       max_width = 100,               -- Maximum width of the notification window
       max_height = 999,            -- Maximum height of the notification window

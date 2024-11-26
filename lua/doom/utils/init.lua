@@ -222,10 +222,11 @@ end
 --
 -- if no data supplies -> returns table path node or false if not exists
 --
----@param head  table   The table to which you want target
----@param tp    table   Path that you wish to check in head
----@param data  any     If supplied, attaches this data to tp tip, eg. `{"a", "b"} -> b = data`
-utils.get_set_table_path = function(head, tp, data)
+---@param t_target  table   The table to which you want target
+---@param tp        table   Path that you wish to check in head
+---@param data      any     If supplied, attaches this data to tp tip, eg. `{"a", "b"} -> b = data`
+utils.get_set_table_path = function(t_target, tp, data)
+    local head = t_target
   if not head or not tp then
     return false
   end
