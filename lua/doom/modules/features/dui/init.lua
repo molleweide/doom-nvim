@@ -4,6 +4,10 @@ local log = require("doom.utils.logging")
 local crawl = require("doom.utils.tree").traverse_table
 local fs = require("doom.utils.fs")
 
+local ts = vim.treesitter
+
+local txt = ts.get_node_text
+
 local dui_utils = require("doom.modules.features.dui.utils")
 
 -- -- dui
@@ -420,53 +424,56 @@ local function __modules_browser_wrap()
     -- Recurse down to the target module leaf in ./modules.lua tree.
     -- The target segment is availble on args.mod_path_table.
     local function crud_handle_root_tree(args)
-      -- log.info("args = ", vim.inspect(args))
-      -- TODO: fix recursive add mod here.
-
-      print(">>>>>>", vim.inspect(args), args.node:type())
-
-      -- NOTE: keep track of the new components that should be added so that
-      -- I can compose the new module string..
+      print("-- crud in --", vim.inspect(args), args.node:type(), #args.mod_path_table)
 
       if #args.mod_path_table > 1 then
         local branch_string = args.mod_path_table[1]
         local branch
-        -- check for branch node table
-        for child in args.node:iter_children() do
-          if child:named() and child:type() == "field" then
-            -- TODO: check if has branch string
-            branch = child
+        for entry in args.node:iter_children() do
+          if
+              entry:type() == "field"
+              and entry:named_child_count() == 2
+              and txt(entry:named_child(0), args.buf) == branch_string
+          then
+            print("branch found =", txt(entry:named_child(0), args.buf))
+            branch = entry:named_child(1)             -- the child table contr
+            args.node = entry:named_child(1)
+            table.remove(args.mod_path_table, 1)
           end
         end
         if not branch then
-          -- TODO: If after looping table and check all branch node candidates,
-          -- no branch found -> This means that we need to build a new branch
-          -- segment from here up until the new leaf module.
         end
+        crud_handle_root_tree(args)
       elseif #args.mod_path_table == 1 then
         -- check for module leaf
-        -- add/rm/toggle/set
-        -- TODO: find module leaf as indexed or in start of comment.
+        local leaf_str = args.mod_path_table[1]
         local leaf
-        -- ? insert new line
-        -- ? rm line
-        -- ? toggle line comment
-        for child in args.node:iter_children() do
-          if child:named() and child:type() == "field" then
-
-            if is_comment then
-              leaf = child
-            elseif is_string then
-              leaf = child
+        for c in args.node:iter_children() do
+          if c:named() and c:named_child_count() == 1 then
+            if
+                (
+                  c:type() == "comment"
+                  and txt(c:named_child(), args.buf):match('-- "(%w-)",')
+                  == leaf_str
+                )
+                or (
+                  c:type() == "field"
+                  and txt(c:named_child():named_child(), args.buf) == leaf_str
+                )
+            then
+              leaf = c
             else
-              -- ??? err?
             end
           end
         end
         if not leaf then
           -- leaf does not exist -> add enabl/dis?
+        else
+          print(":: leaf found ::", txt(leaf, args.buf))
         end
+        table.remove(args.mod_path_table, 1)
       else
+        return
         -- error
       end
     end

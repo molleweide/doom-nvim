@@ -348,7 +348,7 @@ required.autocmds = function()
                 silent! write
                 ]])
         -- vim.notify(("Autosave: %s"):format(ev.file))
-        doom.modules.core.reloader.reload_doom_if_necessary(ev)
+        -- doom.modules.core.reloader.reload_doom_if_necessary(ev)
       end,
       desc = "Auto save",
     })

@@ -24,6 +24,7 @@ return {
       "temporary_buffers",
       "cleanup_unused",
     },
+    -- "testmodule",
     "task_and_job_manager",
     lib = {
       "litee",
