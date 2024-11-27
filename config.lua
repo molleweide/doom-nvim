@@ -3,7 +3,6 @@
 local utils = require("doom.utils")
 local is_module_enabled = utils.is_module_enabled
 local log = require("doom.utils.logging")
-local fs = require("doom.utils.fs")
 local system = require("doom.core.system")
 
 -- TODO: mode v -> `:` -> enter cmdline.
@@ -512,102 +511,6 @@ telescope_defaults.winblend = 10
 -- vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { bg = "SeaGreen", underline = true })
 
 --
--- ADD NEW DOOM MODULE
---
-
-local function __modules_browser_wrap()
-  local Path = require("pathlib")
-  -- FIX: Move this back to the `dui` module.
-  -- Follow all of the basics from the neovim plugin conventions
-  --
-  -- TODO: include user modules
-  -- TODO: If <CR> on `current` for dir AND no custom name string
-  -- has bee provided, then prompt user for a new module name.
-  -- parse / and create subdirs if required in `current`
-  --
-  -- TODO: binding to toggle modules visibility, ie. only show subdirs so
-  -- that it becomes easier to navigate maybe.
-  --
-  -- TODO: migrate this to telescope?
-  -- >> This is required if I want to be able to obtain the prompt string.
-  --
-  -- TODO: if is_module -> :e the file in vsplit to the right
-  --
-  -- TODO: toggle enabled_only modules
-
-  -- TEST: Is subdirs already supported?
-
-  ---Initialize new module from a target path and a user input name string.
-  ---@param path_to any
-  local function create_new_module_from_name(path_to)
-    vim.ui.input(
-      { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
-      function(new_module_name)
-        local init = path_to / new_module_name / "init.lua"
-        local ok = init:touch(Path.permission("rw-r--r--"), true)
-        if ok then
-          local pu = require("doom.modules.features.dui.templates")
-          fs.write_file(init:tostring(), pu.gen_temp_from_mod_name(new_module_name), "w+")
-          vim.cmd(string.format("edit %s", init))
-        end
-      end
-    )
-  end
-
-  ---Recursive modules browser implemented with vim.ui.select()
-  ---@param path_in string|nil: The dir that you wish to start from or doom modules base dir.
-  local function modules_browser(path_in)
-    local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
-    local possible_choices = {
-      current_dir,
-    }
-    for path in current_dir:iterdir({ depth = 1 }) do
-      if path:is_dir() then
-        table.insert(possible_choices, path)
-      end
-    end
-    vim.ui.select(possible_choices, {
-      prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
-      format_item = function(item)
-        if item == current_dir then
-          return string.format("current = %s", current_dir:basename())
-        elseif type(item) == "table" then
-          local is_module = false
-          for path in item:iterdir({ depth = 1 }) do
-            if path:match("init.lua$") then
-              is_module = true
-            end
-          end
-          return string.format("%s -> %s", is_module and "mod" or "dir", item:basename())
-        end
-      end,
-    }, function(choice)
-      if not choice then
-        return         -- eg. <esc>
-      end
-      if choice == current_dir then
-        create_new_module_from_name(choice)
-      else
-        local is_module = false
-        for path in choice:iterdir({ depth = 1 }) do
-          if path:match("init.lua$") then
-            is_module = true
-          end
-        end
-        if is_module then
-          vim.cmd(string.format("edit %s", choice / "init.lua"))
-        else
-          modules_browser(choice)
-        end
-      end
-    end)
-  end
-
-  -- main
-  modules_browser()
-end
-
---
 -- PLAYING AROUND WITH AUTOCMDS
 --
 
@@ -837,13 +740,6 @@ doom.use_keybind({
     "<leader>D",
     name = "+doom",
     {
-      {
-        "D",
-        function()
-          __modules_browser_wrap()
-        end,
-        name = "mod browse",
-      },
       {
         "A",
         function()

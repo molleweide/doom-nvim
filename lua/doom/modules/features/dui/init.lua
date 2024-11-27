@@ -2,6 +2,9 @@
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local crawl = require("doom.utils.tree").traverse_table
+local fs = require("doom.utils.fs")
+
+local dui_utils = require("doom.modules.features.dui.utils")
 
 -- -- dui
 local components = require("doom.modules.features.dui.results")
@@ -113,15 +116,15 @@ doom_ui.settings = {
     "<C-e>",
     "<C-f>",
     "<C-h>",
-    "<C-i>", -- does something.... duno what.
+    "<C-i>",     -- does something.... duno what.
     "<C-l>",
-    "<C-m>", -- enter linked
-    "<C-r>", -- tries to access registers or something and this breaks telescope?!
+    "<C-m>",     -- enter linked
+    "<C-r>",     -- tries to access registers or something and this breaks telescope?!
     "<C-s>",
     "<C-v>",
     "<C-x>",
     "<C-y>",
-    "<C-z>", -- closes prompt??
+    "<C-z>",     -- closes prompt??
     "<CR>",
     -- ,./
   },
@@ -286,86 +289,298 @@ end
 -- can I redo this passing an `opts` table as arg and start follow the opts pattern
 local function doom_picker()
   local actions_set = require("telescope.actions.set")
-  local results = make_results() --.get_results_for_query()
-  local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
+  local results = make_results()                 --.get_results_for_query()
+  local opts = DOOM_UI_STATE.query.topts or {}   -- require("telescope.themes").get_ivy()
 
   -- i(results)
   -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
   -- print("picker -> title:", title)
 
-  require("telescope.pickers").new(opts, {
-    -------------------------------------------------------
-    --
-    -- todo: move this to a split function again.
-    --
-    -- this is not a good way of keeping it.
-    prompt_title = (function()
-      local title
-      if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-        title = ":: MAIN MENU ::"
-      elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-        title = ":: USER SETTINGS ::"
-      elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-        title = ":: MODULES LIST ::"
-      elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-        local postfix = ""
-        local morig = DOOM_UI_STATE.selected_module.origin
-        local mfeat = DOOM_UI_STATE.selected_module.section
-        local mname = DOOM_UI_STATE.selected_module.name
-        local menab = DOOM_UI_STATE.selected_module.enabled
-        local on = menab and "enabled" or "disabled"
-        postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
-        title = "MODULE_FULL: " .. postfix -- make into const
-      elseif DOOM_UI_STATE.query.type == "component" then
-      elseif DOOM_UI_STATE.query.type == "all" then
-      end
-      return title
-    end)(),
-    -------------------------------------------------------
-    finder = require("telescope.finders").new_table({
-      results = results,
-      entry_maker = function(entry)
-        local entry_display = require("telescope.pickers.entry_display")
-        -- print(vim.inspect(entry))
-        local displayer = entry_display.create(
-          components[entry.component_type]().displayer(entry) or doom_ui.settings.displayer_default
-        )
-        local make_display = function(display_entry)
-          -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
-          return displayer(display_entry.value.items)
-        end
-        return {
-          value = entry,
-          display = make_display,
-          ordinal = entry.ordinal,
-        }
-      end,
-    }),
-    -------------------------------------------------------
-    sorter = require("telescope.config").values.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      -- select entry w/<CR>
-      actions_set.select:replace(function()
-        local fuzzy, line = picker_get_state(prompt_bufnr)
-        require("telescope.actions").close(prompt_bufnr)
-        fuzzy.value.mappings["<CR>"](fuzzy, line)
-      end)
-      -- create `insert` mode mappings to each entries repective custom mappings
-      for _, map_str in ipairs(doom_ui.settings.picker_insert_mode_mappings) do
-        map("i", map_str, function()
-          local fuzzy, line = picker_get_state(prompt_bufnr)
-          require("telescope.actions").close(prompt_bufnr)
-          if fuzzy.value.mappings[map_str] ~= nil then
-            print("dui mappings")
-            fuzzy.value.mappings[map_str](fuzzy, line)
+  require("telescope.pickers")
+      .new(opts, {
+        -------------------------------------------------------
+        --
+        -- todo: move this to a split function again.
+        --
+        -- this is not a good way of keeping it.
+        prompt_title = (function()
+          local title
+          if DOOM_UI_STATE.query.type == "MAIN_MENU" then
+            title = ":: MAIN MENU ::"
+          elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
+            title = ":: USER SETTINGS ::"
+          elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
+            title = ":: MODULES LIST ::"
+          elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
+            local postfix = ""
+            local morig = DOOM_UI_STATE.selected_module.origin
+            local mfeat = DOOM_UI_STATE.selected_module.section
+            local mname = DOOM_UI_STATE.selected_module.name
+            local menab = DOOM_UI_STATE.selected_module.enabled
+            local on = menab and "enabled" or "disabled"
+            postfix = postfix
+                .. "["
+                .. morig
+                .. ":"
+                .. mfeat
+                .. "] -> "
+                .. mname
+                .. " ("
+                .. on
+                .. ")"
+            title = "MODULE_FULL: " .. postfix         -- make into const
+          elseif DOOM_UI_STATE.query.type == "component" then
+          elseif DOOM_UI_STATE.query.type == "all" then
           end
-        end)
+          return title
+        end)(),
+        -------------------------------------------------------
+        finder = require("telescope.finders").new_table({
+          results = results,
+          entry_maker = function(entry)
+            local entry_display = require("telescope.pickers.entry_display")
+            -- print(vim.inspect(entry))
+            local displayer = entry_display.create(
+              components[entry.component_type]().displayer(entry)
+              or doom_ui.settings.displayer_default
+            )
+            local make_display = function(display_entry)
+              -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
+              return displayer(display_entry.value.items)
+            end
+            return {
+              value = entry,
+              display = make_display,
+              ordinal = entry.ordinal,
+            }
+          end,
+        }),
+        -------------------------------------------------------
+        sorter = require("telescope.config").values.generic_sorter(opts),
+        attach_mappings = function(prompt_bufnr, map)
+          -- select entry w/<CR>
+          actions_set.select:replace(function()
+            local fuzzy, line = picker_get_state(prompt_bufnr)
+            require("telescope.actions").close(prompt_bufnr)
+            fuzzy.value.mappings["<CR>"](fuzzy, line)
+          end)
+          -- create `insert` mode mappings to each entries repective custom mappings
+          for _, map_str in ipairs(doom_ui.settings.picker_insert_mode_mappings) do
+            map("i", map_str, function()
+              local fuzzy, line = picker_get_state(prompt_bufnr)
+              require("telescope.actions").close(prompt_bufnr)
+              if fuzzy.value.mappings[map_str] ~= nil then
+                print("dui mappings")
+                fuzzy.value.mappings[map_str](fuzzy, line)
+              end
+            end)
+          end
+          -- goback(prompt_bufnr, map)
+          return true
+        end,
+        initial_mode = "insert",
+      })
+      :find()
+end
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+--
+-- ADD NEW DOOM MODULE
+--
+
+local function __modules_browser_wrap()
+  local Path = require("pathlib")
+  -- FIX: Move this back to the `dui` module.
+  -- Follow all of the basics from the neovim plugin conventions
+  --
+  -- TODO: I need to visually make dirs vs mod become much clearer
+  --
+  -- TODO: include user modules
+  -- TODO: If <CR> on `current` for dir AND no custom name string
+  -- has bee provided, then prompt user for a new module name.
+  -- parse / and create subdirs if required in `current`
+  --
+  -- TODO: binding to toggle modules visibility, ie. only show subdirs so
+  -- that it becomes easier to navigate maybe.
+  --
+  -- TODO: migrate this to telescope?
+  -- >> This is required if I want to be able to obtain the prompt string.
+  --
+  -- TODO: if is_module -> :e the file in vsplit to the right
+  --
+  -- TODO: toggle enabled_only modules
+
+  -- TEST: Is subdirs already supported?
+
+  ---Initialize new module from a target path and a user input name string.
+  ---@param path_to any
+  local function create_new_module_from_name(path_to)
+    -- Recurse down to the target module leaf in ./modules.lua tree.
+    -- The target segment is availble on args.mod_path_table.
+    local function crud_handle_root_tree(args)
+      -- log.info("args = ", vim.inspect(args))
+      -- TODO: fix recursive add mod here.
+
+      print(">>>>>>", vim.inspect(args), args.node:type())
+
+      -- NOTE: keep track of the new components that should be added so that
+      -- I can compose the new module string..
+
+      if #args.mod_path_table > 1 then
+        local branch_string = args.mod_path_table[1]
+        local branch
+        -- check for branch node table
+        for child in args.node:iter_children() do
+          if child:named() and child:type() == "field" then
+            -- TODO: check if has branch string
+            branch = child
+          end
+        end
+        if not branch then
+          -- TODO: If after looping table and check all branch node candidates,
+          -- no branch found -> This means that we need to build a new branch
+          -- segment from here up until the new leaf module.
+        end
+      elseif #args.mod_path_table == 1 then
+        -- check for module leaf
+        -- add/rm/toggle/set
+        -- TODO: find module leaf as indexed or in start of comment.
+        local leaf
+        -- ? insert new line
+        -- ? rm line
+        -- ? toggle line comment
+        for child in args.node:iter_children() do
+          if child:named() and child:type() == "field" then
+
+            if is_comment then
+              leaf = child
+            elseif is_string then
+              leaf = child
+            else
+              -- ??? err?
+            end
+          end
+        end
+        if not leaf then
+          -- leaf does not exist -> add enabl/dis?
+        end
+      else
+        -- error
       end
-      -- goback(prompt_bufnr, map)
-      return true
-    end,
-    initial_mode = "insert",
-  }):find()
+    end
+
+    vim.ui.input(
+      { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
+      function(new_module_name)
+        local new_init_file = path_to / new_module_name / "init.lua"
+        local t_path_new_segment =
+            vim.split(new_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
+
+        -- add module to root table
+        --
+        -- TODO: TS parse the root file so that we can add new modules to it.
+        local rootfile = "modules.lua"
+        local rootbuf = dui_utils.get_buf_handle(utils.find_config(rootfile))
+
+        local parser = vim.treesitter.get_parser(rootbuf, "lua", {})
+        local tree = parser:parse()[1]
+        local root = tree:root()
+
+        -- get the modules table constructor under the return statement
+        local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
+        local return_node
+        for id, capture_node, _ in return_query:iter_captures(root, rootbuf) do
+          return_node = capture_node:named_child():named_child()
+        end
+
+        crud_handle_root_tree({
+          -- action = "add",
+          root = root,
+          node = return_node,
+          buf = rootbuf,
+          mod_path_table = t_path_new_segment,
+        })
+
+        -- only load the new module
+
+        -- Handle new path
+        if false then
+          -- make new path
+          local ok = new_init_file:touch(Path.permission("rw-r--r--"), true)
+
+          if ok then
+            -- add module template string
+            local pu = require("doom.modules.features.dui.templates")
+            fs.write_file(
+              new_init_file:tostring(),
+              pu.gen_temp_from_mod_name(new_module_name),
+              "w+"
+            )
+
+            -- optionally edit file
+            vim.cmd(string.format("edit %s", new_init_file))
+          end
+        end
+      end
+    )
+  end
+
+  ---Recursive modules browser implemented with vim.ui.select()
+  ---@param path_in string|nil: The dir that you wish to start from or doom modules base dir.
+  local function modules_browser(path_in)
+    local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
+    local possible_choices = {
+      current_dir,
+    }
+    for path in current_dir:iterdir({ depth = 1 }) do
+      if path:is_dir() then
+        table.insert(possible_choices, path)
+      end
+    end
+    vim.ui.select(possible_choices, {
+      prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
+      format_item = function(item)
+        if item == current_dir then
+          return string.format("current = %s", current_dir:basename())
+        elseif type(item) == "table" then
+          local is_module = false
+          for path in item:iterdir({ depth = 1 }) do
+            if path:match("init.lua$") then
+              is_module = true
+            end
+          end
+          return string.format("%s -> %s", is_module and "mod" or "dir", item:basename())
+        end
+      end,
+    }, function(choice)
+      -- TODO: Can I add keybind to toggle enabled here?
+      -- Or do I need to migrate to a real picker?
+
+      if not choice then
+        return         -- eg. <esc>
+      end
+      if choice == current_dir then
+        create_new_module_from_name(choice)
+      else
+        local is_module = false
+        for path in choice:iterdir({ depth = 1 }) do
+          if path:match("init.lua$") then
+            is_module = true
+          end
+        end
+        if is_module then
+          vim.cmd(string.format("edit %s", choice / "init.lua"))
+        else
+          modules_browser(choice)
+        end
+      end
+    end)
+  end
+
+  -- main
+  modules_browser()
 end
 
 -----------------------------------------------------------------------------
@@ -406,6 +621,12 @@ end
 
 doom_ui.cmds = {
   {
+    "DoomModulesBrowser",
+    function()
+      __modules_browser_wrap()
+    end,
+  },
+  {
     "DoomPickerMain",
     function()
       reset()
@@ -418,15 +639,18 @@ doom_ui.cmds = {
           -- theme = require("telescope.themes").get_cursor(),
           layout_stategy = "center",
           winblend = 25,
-          layout_config = { width = 0.4, center = {
+          layout_config = {
             width = 0.4,
-          } },
+            center = {
+              width = 0.4,
+            },
+          },
           selection_caret = "",
           initial_mode = "insert",
           -- border = false,
           -- todo: disable multible selection?
         },
-      } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
+      }       -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
       DOOM_UI_STATE.next()
     end,
   },
@@ -436,11 +660,14 @@ doom_ui.cmds = {
       reset()
       -- NOTE: SINCE THIS QUERY IS USED IN MULTIPLE PLACES. QUERIES SHOULD BE MOVED INTO ITS OWN FILE.
       DOOM_UI_STATE.query = {
-        type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
+        type = "LIST_ALL_MODULES",         -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
         topts = {
-          layout_config = { width = 0.8, center = {
+          layout_config = {
             width = 0.8,
-          } },
+            center = {
+              width = 0.8,
+            },
+          },
           -- selection_caret = "",
           initial_mode = "insert",
         },
@@ -518,7 +745,27 @@ doom_ui.binds = {
         "z",
         name = "+test",
         {
-          { "m", [[ :DoomPickerMain<cr> ]], name = "main menu", options = { silent = false } },
+          {
+            "m",
+            [[ :DoomPickerMain<cr> ]],
+            name = "main menu",
+            options = { silent = false },
+          },
+        },
+      },
+    },
+    {
+      "D",
+      name = "+doom",
+      {
+        -- FIX: Why isnt this bind being loaded? Is nest loader doing some kind
+        -- of overwrites?
+        {
+          "D",
+          function()
+            __modules_browser_wrap()
+          end,
+          name = "mod browse",
         },
       },
     },

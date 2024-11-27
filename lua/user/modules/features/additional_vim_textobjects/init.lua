@@ -5,6 +5,9 @@ local textobjects = {}
 -- Move this to `doom/modules/features/treesitter/<module>`.
 -- So that I can easilly toggle and try stuff.
 
+
+-- https://github.com/ColinKennedy/cursor-text-objects.nvim
+
 textobjects.packages = {
   ["nvim-treesitter-textobjects"] = { "nvim-treesitter/nvim-treesitter-textobjects" },
   -- ["targets.vim"] = {"wellle/targets.vim"},

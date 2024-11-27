@@ -331,7 +331,7 @@ reloader.cmds = {
     },
 }
 
-local function target_config_files_only(args)
+function reloader.reload_doom_if_necessary(args)
     if
         vim.fn.getcwd() == vim.fn.stdpath("config")
         or system.doom_configs_root == vim.fn.stdpath("config")
@@ -349,7 +349,7 @@ reloader.autocmds = {
         "BufWritePost",
         "*.lua", -- i should make this pattern explicitly look at ~/.config/nvim/*.lua
         function(args)
-            target_config_files_only(args)
+            reloader.reload_doom_if_necessary(args)
         end,
         desc = "Reload doom config on changes.",
     },

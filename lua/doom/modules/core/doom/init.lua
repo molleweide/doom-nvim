@@ -78,8 +78,14 @@ required.binds = function()
     {
       mode = "v",
       {
-        { ";", ":", name = "Cmdline (visual mode)", options = { silent = false } },
-        { ":", function() vim.notify("[:] doesnt do anything") end, name = "Unused" },
+        { ";", ":",   name = "Cmdline (visual mode)", options = { silent = false } },
+        {
+          ":",
+          function()
+            vim.notify("[:] doesnt do anything")
+          end,
+          name = "Unused",
+        },
         {
           "<a-",
           {
@@ -337,7 +343,13 @@ required.autocmds = function()
     table.insert(autocmds, {
       { "TextChanged", "InsertLeave" },
       "<buffer>",
-      "silent! write",
+      function(ev)
+        vim.cmd([[
+                silent! write
+                ]])
+        -- vim.notify(("Autosave: %s"):format(ev.file))
+        doom.modules.core.reloader.reload_doom_if_necessary(ev)
+      end,
       desc = "Auto save",
     })
   end

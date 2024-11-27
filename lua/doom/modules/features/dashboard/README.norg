@@ -1,0 +1,15 @@
+@document.meta
+title: README
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2024-11-27T06:08:20-0500
+updated: 2024-11-27T06:08:57-0500
+version: 1.1.1
+@end
+
+
+Add multiple dashboards in this dir.
+
+
+Only one can be enabled at a time.
