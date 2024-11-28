@@ -390,125 +390,124 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
---
--- ADD NEW DOOM MODULE
---
+---Recurse down to the target module leaf in ./modules.lua tree.
+---The target segment is availble on args.mod_path_table.
+---@param args table Takes the form of
+---         node = return_table_constructor,
+---         buf = rootbuf,
+---         parts = t_path_new_segment,
+---         is_comment?
+---         nodes = {
+---             parent
+---             leaf_node?
+---         }
+---@return table The same table as <args>
+local function ts_root_mod_tbl_try_find_target(args)
+  print("## enter recursive:", vim.inspect(args))
+  if not args.ret then
+    args.ret = {
+      buf = args.buf,
+      nodes = {},
+    }
+  end
+  args.ret.nodes.parent = args.node
+  if #args.parts > 1 then
+    local branch
+    for c in args.node:iter_children() do
+      if
+          c:type() == "field"
+          and c:named_child_count() == 2
+          and txt(c:named_child(0), args.buf) == args.parts[1]
+      then
+        print("branch:", txt(c:named_child(0), args.buf) )
+        branch = true
+        args.node = c:named_child(1)
+        table.remove(args.parts, 1)
+      end
+    end
+    if not branch then
+      return args
+    end
+    args = ts_root_mod_tbl_try_find_target(args)
+  elseif #args.parts == 1 then
+    for c in args.node:iter_children() do
+      if c:named() and c:named_child_count() == 1 then
+        if
+            c:type() == "comment"
+            and txt(c:named_child(), args.buf):match('-- "(%w-)",') == args.parts[1]
+        then
+          print("leaf: ", txt(c:named_child(), args.buf):match('-- "(%w-)",') )
+          args.ret.nodes.module = c
+          args.ret.leaf_is_comment = true
+        elseif
+            c:type() == "field"
+            and txt(c:named_child():named_child(), args.buf) == args.parts[1]
+        then
+          print("leaf: ", txt(c:named_child():named_child(), args.buf))
+          args.ret.nodes.module = c
+        end
+      end
+    end
+    table.remove(args.parts, 1)
+  end
+  return args
+end
 
+local function get_node_analyze(t_path_new_segment)
+  local rootfile = "modules.lua"
+  local rootbuf = dui_utils.get_buf_handle(utils.find_config(rootfile))
+  local parser = vim.treesitter.get_parser(rootbuf, "lua", {})
+  local tree = parser:parse()[1]
+  local root = tree:root()
+  -- get the modules table constructor under the return statement
+  local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
+  local return_table_constructor
+  for _, capture_node, _ in return_query:iter_captures(root, rootbuf) do
+    return_table_constructor = capture_node:named_child():named_child()
+  end
+
+  local arg = {
+    node = return_table_constructor,
+    buf = rootbuf,
+    parts = t_path_new_segment,
+  }
+
+  print("ARG =", vim.inspect(arg))
+
+  return ts_root_mod_tbl_try_find_target(arg)
+end
+
+-- TODO: I need to visually make dirs vs mod become much clearer
+--
+-- TODO: Include user modules.
+--
+-- TODO: If <CR> on `current` for dir AND no custom name string
+-- has bee provided, then prompt user for a new module name.
+--
+-- TODO: split module name on / and add the module to the table path from
+-- where you selected to add the new module
+--
+-- TODO: migrate this to telescope?
 local function __modules_browser_wrap()
   local Path = require("pathlib")
-  -- FIX: Move this back to the `dui` module.
-  -- Follow all of the basics from the neovim plugin conventions
-  --
-  -- TODO: I need to visually make dirs vs mod become much clearer
-  --
-  -- TODO: include user modules
-  -- TODO: If <CR> on `current` for dir AND no custom name string
-  -- has bee provided, then prompt user for a new module name.
-  -- parse / and create subdirs if required in `current`
-  --
-  -- TODO: binding to toggle modules visibility, ie. only show subdirs so
-  -- that it becomes easier to navigate maybe.
-  --
-  -- TODO: migrate this to telescope?
-  -- >> This is required if I want to be able to obtain the prompt string.
-  --
-  -- TODO: if is_module -> :e the file in vsplit to the right
-  --
-  -- TODO: toggle enabled_only modules
-
-  -- TEST: Is subdirs already supported?
 
   ---Initialize new module from a target path and a user input name string.
   ---@param path_to any
   local function create_new_module_from_name(path_to)
-    -- Recurse down to the target module leaf in ./modules.lua tree.
-    -- The target segment is availble on args.mod_path_table.
-    local function crud_handle_root_tree(args)
-      print("-- crud in --", vim.inspect(args), args.node:type(), #args.mod_path_table)
-
-      if #args.mod_path_table > 1 then
-        local branch_string = args.mod_path_table[1]
-        local branch
-        for entry in args.node:iter_children() do
-          if
-              entry:type() == "field"
-              and entry:named_child_count() == 2
-              and txt(entry:named_child(0), args.buf) == branch_string
-          then
-            print("branch found =", txt(entry:named_child(0), args.buf))
-            branch = entry:named_child(1)             -- the child table contr
-            args.node = entry:named_child(1)
-            table.remove(args.mod_path_table, 1)
-          end
-        end
-        if not branch then
-        end
-        crud_handle_root_tree(args)
-      elseif #args.mod_path_table == 1 then
-        -- check for module leaf
-        local leaf_str = args.mod_path_table[1]
-        local leaf
-        for c in args.node:iter_children() do
-          if c:named() and c:named_child_count() == 1 then
-            if
-                (
-                  c:type() == "comment"
-                  and txt(c:named_child(), args.buf):match('-- "(%w-)",')
-                  == leaf_str
-                )
-                or (
-                  c:type() == "field"
-                  and txt(c:named_child():named_child(), args.buf) == leaf_str
-                )
-            then
-              leaf = c
-            else
-            end
-          end
-        end
-        if not leaf then
-          -- leaf does not exist -> add enabl/dis?
-        else
-          print(":: leaf found ::", txt(leaf, args.buf))
-        end
-        table.remove(args.mod_path_table, 1)
-      else
-        return
-        -- error
-      end
-    end
-
     vim.ui.input(
       { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
       function(new_module_name)
         local new_init_file = path_to / new_module_name / "init.lua"
-        local t_path_new_segment =
-            vim.split(new_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
+        local res = get_node_analyze(
+          vim.split(new_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
+        )
 
-        -- add module to root table
+        print(">> [res] =", vim.inspect(res))
+
+        -- TODO: Check that I can insert a new entry last in parent table.
         --
-        -- TODO: TS parse the root file so that we can add new modules to it.
-        local rootfile = "modules.lua"
-        local rootbuf = dui_utils.get_buf_handle(utils.find_config(rootfile))
-
-        local parser = vim.treesitter.get_parser(rootbuf, "lua", {})
-        local tree = parser:parse()[1]
-        local root = tree:root()
-
-        -- get the modules table constructor under the return statement
-        local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
-        local return_node
-        for id, capture_node, _ in return_query:iter_captures(root, rootbuf) do
-          return_node = capture_node:named_child():named_child()
-        end
-
-        crud_handle_root_tree({
-          -- action = "add",
-          root = root,
-          node = return_node,
-          buf = rootbuf,
-          mod_path_table = t_path_new_segment,
-        })
+        -- ~ get range of parent node
+        --    check last line == "^%s},?"
 
         -- only load the new module
 
@@ -767,12 +766,21 @@ doom_ui.binds = {
       {
         -- FIX: Why isnt this bind being loaded? Is nest loader doing some kind
         -- of overwrites?
+        -- TODO: add more binds to the "+doom" table from across mult modules
+        -- in order to see if all of them are getting loaded properly in the end.
         {
           "D",
           function()
             __modules_browser_wrap()
           end,
           name = "mod browse",
+        },
+        {
+          "n",
+          function()
+            vim.notify("leader D n > from dui/init")
+          end,
+          name = "testing from dui/init",
         },
       },
     },

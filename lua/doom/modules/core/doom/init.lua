@@ -347,7 +347,7 @@ required.autocmds = function()
         vim.cmd([[
                 silent! write
                 ]])
-        -- vim.notify(("Autosave: %s"):format(ev.file))
+        vim.notify(("Autosave: %s"):format(ev.file:match("lua/(.-)$") or ev.file))
         -- doom.modules.core.reloader.reload_doom_if_necessary(ev)
       end,
       desc = "Auto save",
