@@ -397,16 +397,18 @@ end
 ---         buf = rootbuf,
 ---         parts = t_path_new_segment,
 ---         is_comment?
----         nodes = {
----             parent
----             leaf_node?
+---         ret = {
+---           leaf_is_comment
+---           nodes = {
+---               parent
+---               leaf_node?
+---           }
 ---         }
 ---@return table The same table as <args>
 local function ts_root_mod_tbl_try_find_target(args)
   print("## enter recursive:", vim.inspect(args))
   if not args.ret then
     args.ret = {
-      buf = args.buf,
       nodes = {},
     }
   end
@@ -477,6 +479,93 @@ local function get_node_analyze(t_path_new_segment)
   return ts_root_mod_tbl_try_find_target(arg)
 end
 
+---Handles adding, toggling, and removing modules from `./modules.lua`.
+---@param args table
+---         node = return_table_constructor,
+---         buf = rootbuf,
+---         parts = t_path_new_segment,
+---         is_comment?
+---         ret = {
+---           leaf_is_comment
+---           nodes = {
+---               parent
+---               leaf_node?
+---           }
+---         }
+local function transform_enabled_modules_tree(args)
+  print(">> [res] =", vim.inspect(args))
+  print(args.ret.nodes.parent:range())
+
+  local parent_range = { args.ret.nodes.parent:range() }
+  local parent_last_line = (vim.api.nvim_buf_get_lines(
+    args.buf,
+    parent_range[3] - 1,
+    parent_range[3],
+    true
+  ))[1]
+
+  -- NOTE: If there is a leaf found, that means that we want to operate
+  -- on an existing leaf, ie a module, otherwise, with the leaf missing,
+  -- we want to add a new branch, which can be only a leaf, in the returned
+  -- parent node.
+  local action = args.ret.nodes.module and "toggle" or "add"
+
+  local ensure_is_table_end = parent_last_line:match("^%s*},")
+
+  print(
+    ("action = %s | last lines = `%s`, match = %s"):format(
+      action,
+      vim.inspect(parent_last_line),
+      parent_last_line:match("^%s*},")
+    )
+  )
+
+  if action == "toggle" then
+    local module_range = { args.ret.nodes.module:range() }
+    local module_line = (vim.api.nvim_buf_get_lines(
+      args.buf,
+      module_range[1],
+      module_range[1] + 1,
+      true
+    ))[1]
+
+    -- print(("MODULE line = [%s]"):format(vim.inspect(module_line)))
+
+    local plug_comment = require("Comment.api")
+    if args.ret.leaf_is_comment then
+      local start_col, end_col = module_line:find("%-%-%s")       -- find first comment prefix
+      vim.api.nvim_buf_set_text(
+        args.buf,
+        module_range[1],
+        start_col,
+        module_range[1],
+        end_col,
+        {}
+      )
+    else
+      local start_col, end_col = module_line:find('"')       -- find first double quote
+      vim.api.nvim_buf_set_text(
+        args.buf,
+        module_range[1],
+        start_col,
+        module_range[1],
+        end_col,
+        { "-- " }
+      )
+    end
+  elseif action == "add" then
+    if not ensure_is_table_end then
+      log.error(
+        "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
+      )
+    else
+      -- TODO: add new branch/module to end
+    end
+  else
+    log.error("dui @ mod browser :: No valid action for root mod CRUD")
+  end
+end
+
 -- TODO: I need to visually make dirs vs mod become much clearer
 --
 -- TODO: Include user modules.
@@ -491,57 +580,26 @@ end
 local function __modules_browser_wrap()
   local Path = require("pathlib")
 
+  ---NOTE: This function should be named something like `handle_target_module`
+  ---so that it implies CRUD actions instead of just_adding_a_new_one.
+  ---
   ---Initialize new module from a target path and a user input name string.
   ---@param path_to any
-  local function create_new_module_from_name(path_to)
+  local function mod_browser_operate_on_current_dir(path_to)
     vim.ui.input(
       { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
       function(new_module_name)
         local new_init_file = path_to / new_module_name / "init.lua"
+
         local res = get_node_analyze(
           vim.split(new_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
         )
 
+        -- A. handle root modules tree:
         -- TODO: move all this into to `transform_enabled_modules_tree(opts)`
+        transform_enabled_modules_tree(res)
 
-        print(">> [res] =", vim.inspect(res))
-        print(res.ret.nodes.parent:range())
-
-        local parent_range = { res.ret.nodes.parent:range() }
-
-        local parent_last_line = (vim.api.nvim_buf_get_lines(
-          res.buf,
-          parent_range[3] - 1,
-          parent_range[3],
-          true
-        ))[1]
-
-        local action = res.ret.nodes.module and "toggle" or "add"
-
-        local ensure_is_table_end = parent_last_line:match("^%s*},")
-
-        print(
-          ("last lines = `%s`, match = %s"):format(
-            vim.inspect(parent_last_line),
-            parent_last_line:match("^%s*},")
-          )
-        )
-
-        if action == "toggle" then
-          -- TODO: use comment api to toggle module line
-        elseif action == "add" then
-          if not ensure_is_table_end then
-            log.error(
-              "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
-            )
-          else
-            -- TODO: add new branch/module to end
-          end
-        else
-          log.error("dui @ mod browser :: No valid action for root mod CRUD")
-        end
-
-        -- Handle new path
+        -- B. Handle creating new module file
         if false then
           -- make new path
           local ok = new_init_file:touch(Path.permission("rw-r--r--"), true)
@@ -558,6 +616,11 @@ local function __modules_browser_wrap()
             -- optionally edit file
             vim.cmd(string.format("edit %s", new_init_file))
           end
+        end
+
+        -- C. (Re)load stuff if necessary
+        if false then
+          print("todo: reload stuff if necessary")
         end
       end
     )
@@ -598,7 +661,7 @@ local function __modules_browser_wrap()
         return         -- eg. <esc>
       end
       if choice == current_dir then
-        create_new_module_from_name(choice)
+        mod_browser_operate_on_current_dir(choice)
       else
         local is_module = false
         for path in choice:iterdir({ depth = 1 }) do
