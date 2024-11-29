@@ -1,9 +1,9 @@
 local linter = {}
 
 linter.settings = {
-  format_on_save = false,
+  format_on_save = true,
   null_ls_settings = {
-    default_timeout = 2000,
+        default_timeout = 2000,
     diagnostics_format = "#{m} (#{s})",
   },
 }

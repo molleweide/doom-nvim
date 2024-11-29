@@ -436,7 +436,7 @@ local function ts_root_mod_tbl_try_find_target(args)
       if c:named() and c:named_child_count() == 1 then
         if
             c:type() == "comment"
-          and txt(c:named_child(), args.buf):match('-- "([%w_]-)",') == args.parts[1]
+            and txt(c:named_child(), args.buf):match('-- "([%w_]-)",') == args.parts[1]
         then
           print("leaf: ", txt(c:named_child(), args.buf):match('-- "(%w-)",'))
           args.ret.nodes.module = c
@@ -536,7 +536,7 @@ local function transform_enabled_modules_tree(args)
       vim.api.nvim_buf_set_text(
         args.buf,
         module_range[1],
-        start_col- 1,
+        start_col - 1,
         module_range[1],
         end_col,
         {}
@@ -553,18 +553,46 @@ local function transform_enabled_modules_tree(args)
       )
     end
   elseif action == "add" then
-    if not ensure_is_table_end then
-      log.error(
-        "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
-      )
-    else
-      local test_text = { "{", "\"xxxxxx\",", "},"}
+    -- if not ensure_is_table_end then
+    --   log.error(
+    --     "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
+    --   )
+    -- else
+    local pre = ""
+    local post = ""
+    local str
+
+    for i, v in ipairs(args.parts) do
+      if i < #args.parts then
+        pre = pre .. v .. " = {"
+        post = post .. "},"
+      else
+        str = pre .. '"' .. v .. '"' .. post
+      end
     end
+
+    vim.api.nvim_buf_set_lines(
+      args.buf,
+      parent_range[1] + 1,
+      parent_range[1] + 1,
+      true,
+      { str }
+    -- vim.split(vim.inspect(args.parts), "\n")
+    )
+    -- end
   else
     log.error("dui @ mod browser :: No valid action for root mod CRUD")
   end
 
-  -- TODO: ( ) always call format file on the table afterwards
+  print(vim.inspect(parent_range))
+
+  -- format and save
+  vim.api.nvim_buf_call(args.buf, function()
+    vim.lsp.buf.format({
+      async = true,
+    })
+    vim.cmd("write")
+  end)
 end
 
 -- TODO: I need to visually make dirs vs mod become much clearer
@@ -573,9 +601,6 @@ end
 --
 -- TODO: If <CR> on `current` for dir AND no custom name string
 -- has bee provided, then prompt user for a new module name.
---
--- TODO: split module name on / and add the module to the table path from
--- where you selected to add the new module
 --
 -- TODO: migrate this to telescope?
 local function __modules_browser_wrap()
@@ -590,6 +615,10 @@ local function __modules_browser_wrap()
     vim.ui.input(
       { prompt = string.format("Enter new name for module @ [%s]: ", path_to) },
       function(new_module_name)
+        -- TODO: Validate user input
+        -- allow for / so that we can build new branches
+        -- If bad -> re-prompt
+
         local new_init_file = path_to / new_module_name / "init.lua"
 
         local res = get_node_analyze(
