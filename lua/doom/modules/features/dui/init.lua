@@ -436,7 +436,7 @@ local function ts_root_mod_tbl_try_find_target(args)
       if c:named() and c:named_child_count() == 1 then
         if
             c:type() == "comment"
-            and txt(c:named_child(), args.buf):match('-- "(%w-)",') == args.parts[1]
+          and txt(c:named_child(), args.buf):match('-- "([%w_]-)",') == args.parts[1]
         then
           print("leaf: ", txt(c:named_child(), args.buf):match('-- "(%w-)",'))
           args.ret.nodes.module = c
@@ -531,13 +531,12 @@ local function transform_enabled_modules_tree(args)
 
     -- print(("MODULE line = [%s]"):format(vim.inspect(module_line)))
 
-    local plug_comment = require("Comment.api")
     if args.ret.leaf_is_comment then
       local start_col, end_col = module_line:find("%-%-%s")       -- find first comment prefix
       vim.api.nvim_buf_set_text(
         args.buf,
         module_range[1],
-        start_col,
+        start_col- 1,
         module_range[1],
         end_col,
         {}
@@ -547,9 +546,9 @@ local function transform_enabled_modules_tree(args)
       vim.api.nvim_buf_set_text(
         args.buf,
         module_range[1],
-        start_col,
+        start_col - 1,
         module_range[1],
-        end_col,
+        end_col - 1,
         { "-- " }
       )
     end
@@ -559,11 +558,13 @@ local function transform_enabled_modules_tree(args)
         "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
       )
     else
-      -- TODO: add new branch/module to end
+      local test_text = { "{", "\"xxxxxx\",", "},"}
     end
   else
     log.error("dui @ mod browser :: No valid action for root mod CRUD")
   end
+
+  -- TODO: ( ) always call format file on the table afterwards
 end
 
 -- TODO: I need to visually make dirs vs mod become much clearer
