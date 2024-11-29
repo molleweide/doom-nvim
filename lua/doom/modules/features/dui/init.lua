@@ -419,7 +419,7 @@ local function ts_root_mod_tbl_try_find_target(args)
           and c:named_child_count() == 2
           and txt(c:named_child(0), args.buf) == args.parts[1]
       then
-        print("branch:", txt(c:named_child(0), args.buf) )
+        print("branch:", txt(c:named_child(0), args.buf))
         branch = true
         args.node = c:named_child(1)
         table.remove(args.parts, 1)
@@ -436,7 +436,7 @@ local function ts_root_mod_tbl_try_find_target(args)
             c:type() == "comment"
             and txt(c:named_child(), args.buf):match('-- "(%w-)",') == args.parts[1]
         then
-          print("leaf: ", txt(c:named_child(), args.buf):match('-- "(%w-)",') )
+          print("leaf: ", txt(c:named_child(), args.buf):match('-- "(%w-)",'))
           args.ret.nodes.module = c
           args.ret.leaf_is_comment = true
         elseif
@@ -502,14 +502,44 @@ local function __modules_browser_wrap()
           vim.split(new_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
         )
 
+        -- TODO: move all this into to `transform_enabled_modules_tree(opts)`
+
         print(">> [res] =", vim.inspect(res))
+        print(res.ret.nodes.parent:range())
 
-        -- TODO: Check that I can insert a new entry last in parent table.
-        --
-        -- ~ get range of parent node
-        --    check last line == "^%s},?"
+        local parent_range = { res.ret.nodes.parent:range() }
 
-        -- only load the new module
+        local parent_last_line = (vim.api.nvim_buf_get_lines(
+          res.buf,
+          parent_range[3] - 1,
+          parent_range[3],
+          true
+        ))[1]
+
+        local action = res.ret.nodes.module and "toggle" or "add"
+
+        local ensure_is_table_end = parent_last_line:match("^%s*},")
+
+        print(
+          ("last lines = `%s`, match = %s"):format(
+            vim.inspect(parent_last_line),
+            parent_last_line:match("^%s*},")
+          )
+        )
+
+        if action == "toggle" then
+          -- TODO: use comment api to toggle module line
+        elseif action == "add" then
+          if not ensure_is_table_end then
+            log.error(
+              "When attempting to add new module to root table with TS, doom could not establish a standalone table end."
+            )
+          else
+            -- TODO: add new branch/module to end
+          end
+        else
+          log.error("dui @ mod browser :: No valid action for root mod CRUD")
+        end
 
         -- Handle new path
         if false then
