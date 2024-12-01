@@ -1,6 +1,8 @@
 local luv = vim.loop
 local fs = {}
 
+-- TODO: Replace everything here with `fs` utils from rocks-nvim.
+
 if jit ~= nil then
     fs.is_windows = jit.os == "Windows"
 else
