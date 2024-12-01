@@ -12,7 +12,13 @@ return {
         "nio", -- asynch IO
     },
     features = {
-        "ddd",
+        "www",
+        "zzz",
+        "kkk",
+        "ggg",
+        "eee",
+        "ccc",
+        "bbb",
         "aaa",
         "architext",
         "monitoring",

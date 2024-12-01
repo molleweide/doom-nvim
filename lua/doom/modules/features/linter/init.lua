@@ -1,7 +1,7 @@
 local linter = {}
 
 linter.settings = {
-    format_on_save = true,
+    format_on_save = false,
     null_ls_settings = {
         default_timeout = 2000,
         diagnostics_format = "#{m} (#{s})",
@@ -15,7 +15,6 @@ linter.packages = {
     -- Only the repo name is changed for compatibility concerns. All the API and future changes will keep in place as-is.
     ["none-ls.nvim"] = {
         "nvimtools/none-ls.nvim",
-        -- commit = "915558963709ea17c5aa246ca1c9786bfee6ddb4",
         dependencies = { "neovim/nvim-lspconfig" },
         lazy = true,
     },
@@ -26,6 +25,7 @@ linter.configs["none-ls.nvim"] = function()
     local null_ls = require("null-ls")
 
     local null_ls_settings = doom.features.linter.settings.null_ls_settings
+
     null_ls.setup(vim.tbl_deep_extend("force", null_ls_settings, {
         on_attach = function(client)
             if
@@ -33,11 +33,11 @@ linter.configs["none-ls.nvim"] = function()
                 and doom.features.linter.settings.format_on_save
             then
                 vim.cmd([[
-        augroup LspFormatting
-          autocmd! * <buffer>
-          autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
-        augroup END
-        ]])
+                augroup LspFormatting
+                  autocmd! * <buffer>
+                  autocmd BufWritePre <buffer> lua vim.lsp.buf.format()
+                augroup END
+                ]])
             end
         end,
     }))

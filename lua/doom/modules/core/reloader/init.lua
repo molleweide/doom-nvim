@@ -336,6 +336,10 @@ function reloader.reload_doom_if_necessary(args)
         vim.fn.getcwd() == vim.fn.stdpath("config")
         or system.doom_configs_root == vim.fn.stdpath("config")
     then
+    log.info("args.file:",args.file)
+        if args.file:match("modules.lua") then
+      return
+        end
         if doom.modules.core.reloader.settings.reload_on_save then
             reloader.reload(args)
         else
