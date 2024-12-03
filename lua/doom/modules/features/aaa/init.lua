@@ -1,4 +1,4 @@
-local aaa = {}
+local nil = {}
 
 -- TODO:
 --
@@ -8,13 +8,13 @@ local aaa = {}
 -- SETTINGS
 ----------------------------
 
--- aaa.settings = {}
+-- nil.settings = {}
 	
 ----------------------------
 -- PACKAGES
 ----------------------------
 
--- aaa.packages = {
+-- nil.packages = {
 -- [""] = {},
 -- -- [""] = {},
 -- -- [""] = {},
@@ -29,26 +29,26 @@ local aaa = {}
 -- CMDS
 ----------------------------
 
--- aaa.cmds = {}
+-- nil.cmds = {}
   
 --------------------------
 -- AUTOCMDS
 --------------------------
 
--- aaa.autocmds = {}
+-- nil.autocmds = {}
 	
 ----------------------------
 -- BINDS
 ----------------------------
 
--- aaa.binds = {}
+-- nil.binds = {}
   
 ----------------------------
 -- LEADER BINDS
 ----------------------------
 
 -- if require("doom.utils").is_module_enabled("whichkey") then
---   table.insert(aaa.binds, {
+--   table.insert(nil.binds, {
 --     "<leader>",
 --     name = "+prefix",
 --     {
@@ -67,6 +67,6 @@ local aaa = {}
 -- RETURN
 ----------------------------
 
-return aaa
+return nil
   
   

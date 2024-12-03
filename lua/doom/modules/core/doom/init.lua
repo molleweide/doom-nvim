@@ -47,8 +47,8 @@ required.binds = function()
             end,
             name = "Fast exit",
         },
-        { "<ESC>",   ":noh<CR>",       name = "Remove search highlight" },
-        { "<Tab>",   ":bnext<CR>",     name = "Jump to next buffer" },
+        { "<ESC>", ":noh<CR>", name = "Remove search highlight" },
+        { "<Tab>", ":bnext<CR>", name = "Jump to next buffer" },
         { "<S-Tab>", ":bprevious<CR>", name = "Jump to prev buffer" },
         {
             "<C-",
@@ -60,9 +60,9 @@ required.binds = function()
                 {
                     mode = "nv",
                     {
-                        { "Left>",  ":vertical resize -2<CR>", name = "Resize window left" },
-                        { "Down>",  ":resize -2<CR>",          name = "Resize window down" },
-                        { "Up>",    ":resize +2<CR>",          name = "Resize window up" },
+                        { "Left>", ":vertical resize -2<CR>", name = "Resize window left" },
+                        { "Down>", ":resize -2<CR>", name = "Resize window down" },
+                        { "Up>", ":resize +2<CR>", name = "Resize window up" },
                         { "Right>", ":vertical resize +2<CR>", name = "Resize window right" },
                     },
                 },
@@ -78,7 +78,7 @@ required.binds = function()
         {
             mode = "v",
             {
-                { ";", ":",   name = "Cmdline (visual mode)", options = { silent = false } },
+                { ";", ":", name = "Cmdline (visual mode)", options = { silent = false } },
                 {
                     ":",
                     function()
@@ -90,7 +90,7 @@ required.binds = function()
                     "<a-",
                     {
                         { "j>", ":m '<+1<CR>gv=gv", name = "Move line down", mode = "v" },
-                        { "k>", ":m '<-2<CR>gv=gv", name = "Move line up",   mode = "v" },
+                        { "k>", ":m '<-2<CR>gv=gv", name = "Move line up", mode = "v" },
                     },
                 },
                 { ">", ">gv", mode = "v" }, -- Stay in visual after indent.
@@ -104,7 +104,7 @@ required.binds = function()
                     "<a-",
                     {
                         { "j>", "<ESC>:m '<+1<CR>==gi", name = "Move line down", mode = "i" },
-                        { "k>", "<ESC>:m '<-2<CR>==gi", name = "Move line up",   mode = "i" },
+                        { "k>", "<ESC>:m '<-2<CR>==gi", name = "Move line up", mode = "i" },
                     },
                 },
             },
@@ -145,14 +145,14 @@ required.binds = function()
         "<leader>",
         name = "+prefix",
         {
-            { "l", ":=",         name = "Lua CLI", options = { silent = false } },
+            { "l", ":=", name = "Lua CLI", options = { silent = false } },
             { "m", "<cmd>w<CR>", name = "Write" },
             {
                 "b",
                 name = "+buffer",
                 {
                     { "b", "<cmd>e #<CR>", name = "Jump to recent" },
-                    { "d", "<cmd>bd<CR>",  name = "Delete" },
+                    { "d", "<cmd>bd<CR>", name = "Delete" },
                 },
             },
             {
@@ -174,14 +174,14 @@ required.binds = function()
                         require("doom.core.functions").open_docs,
                         name = "Open documentation",
                     },
-                    { "R", "<cmd>DoomReload<CR>",   name = "Reload config" },
+                    { "R", "<cmd>DoomReload<CR>", name = "Reload config" },
                     -- { "r", "<cmd>DoomRollback<CR>", name = "Rollback" },
                     -- { "R", "<cmd>DoomReport<CR>", name = "Report issue" },
-                    { "u", "<cmd>DoomUpdate<CR>",   name = "Update" },
-                    { "Z", "<cmd>Lazy<CR>",         name = "Open Lazy" },
-                    { "s", "<cmd>Lazy sync<CR>",    name = "Sync packages" },
+                    { "u", "<cmd>DoomUpdate<CR>", name = "Update" },
+                    { "Z", "<cmd>Lazy<CR>", name = "Open Lazy" },
+                    { "s", "<cmd>Lazy sync<CR>", name = "Sync packages" },
                     { "I", "<cmd>Lazy install<CR>", name = "Install packages" },
-                    { "C", "<cmd>Lazy clean<CR>",   name = "Clean packages" },
+                    { "C", "<cmd>Lazy clean<CR>", name = "Clean packages" },
                     -- { "b", "<cmd>Lazy build<CR>", name = "Build packages" },
                     { "p", "<cmd>Lazy profile<CR>", name = "Profile" },
                 },
@@ -191,7 +191,7 @@ required.binds = function()
                 name = "+file",
                 {
                     { "n", (":%snew<CR>"):format(split_prefix), name = "Create new" },
-                    { "w", "<cmd>w<CR>",                        name = "Write" },
+                    { "w", "<cmd>w<CR>", name = "Write" },
                     {
                         "W",
                         function()
@@ -254,9 +254,9 @@ required.binds = function()
                 "j",
                 name = "+jump",
                 {
-                    { "a", "<C-^>",        name = "Alternate file" },
-                    { "j", "<C-o>",        name = "Older file" },
-                    { "k", "<C-i>",        name = "Newer file" },
+                    { "a", "<C-^>", name = "Alternate file" },
+                    { "j", "<C-o>", name = "Older file" },
+                    { "k", "<C-i>", name = "Newer file" },
                     { "p", "<cmd>tag<CR>", name = "Push tag" },
                     { "P", "<cmd>pop<CR>", name = "Pop tag" },
                 },
@@ -291,9 +291,9 @@ required.binds = function()
                         require("doom.core.functions").toggle_signcolumn,
                         name = "Toggle sigcolumn",
                     },
-                    { "i", require("doom.core.functions").set_indent,    name = "Set indent" },
+                    { "i", require("doom.core.functions").set_indent, name = "Set indent" },
                     { "n", require("doom.core.functions").change_number, name = "Toggle number" },
-                    { "S", require("doom.core.functions").toggle_spell,  name = "Toggle spelling" },
+                    { "S", require("doom.core.functions").toggle_spell, name = "Toggle spelling" },
                     { "x", require("doom.core.functions").change_syntax, name = "Toggle syntax" },
                 },
             },
@@ -322,10 +322,10 @@ required.binds = function()
                     {
                         "<C-",
                         {
-                            { "H>", "<C-w>5<",            name = "Expand left" },
+                            { "H>", "<C-w>5<", name = "Expand left" },
                             { "J>", "<cmd>resize +5<CR>", name = "Expand down" },
                             { "K>", "<cmd>resize -5<CR>", name = "Expand up" },
-                            { "L>", "<C-w>L",             name = "Expand right" },
+                            { "L>", "<C-w>L", name = "Expand right" },
                         },
                     },
                 },
@@ -344,11 +344,17 @@ required.autocmds = function()
             { "TextChanged", "InsertLeave" },
             "<buffer>",
             function(ev)
+                -- NOTE: Once, it seemed that silent writing did not trigger Neogit
+                -- refresh, but usually it should.
                 vim.cmd([[
                 silent! write
+                " write!
                 ]])
                 -- vim.notify(("Autosave: %s"):format(ev.file:match("lua/(.-)$") or ev.file))
+
+                -- if doom.modules.core.reloader.settings.reload_on_save then
                 -- doom.modules.core.reloader.reload_doom_if_necessary(ev)
+                -- end
             end,
             desc = "Auto save",
         })

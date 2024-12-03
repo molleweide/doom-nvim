@@ -3,6 +3,9 @@ local utils = require("doom.utils")
 
 local autocmds_service = require("doom.services.autocommands")
 
+-- FIX: handle async -> instead of printing, override the print function
+-- with a custom print that just puts  the data into my target buffer.
+
 -- TODO: hide monitor bufs -> add doom keybind to access the monitor
 -- bufs. with custom keybinds to handle them.
 

@@ -120,15 +120,15 @@ doom_ui.settings = {
     "<C-e>",
     "<C-f>",
     "<C-h>",
-    "<C-i>", -- does something.... duno what.
+    "<C-i>",     -- does something.... duno what.
     "<C-l>",
-    "<C-m>", -- enter linked
-    "<C-r>", -- tries to access registers or something and this breaks telescope?!
+    "<C-m>",     -- enter linked
+    "<C-r>",     -- tries to access registers or something and this breaks telescope?!
     "<C-s>",
     "<C-v>",
     "<C-x>",
     "<C-y>",
-    "<C-z>", -- closes prompt??
+    "<C-z>",     -- closes prompt??
     "<CR>",
     -- ,./
   },
@@ -293,8 +293,8 @@ end
 -- can I redo this passing an `opts` table as arg and start follow the opts pattern
 local function doom_picker()
   local actions_set = require("telescope.actions.set")
-  local results = make_results()               --.get_results_for_query()
-  local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
+  local results = make_results()                 --.get_results_for_query()
+  local opts = DOOM_UI_STATE.query.topts or {}   -- require("telescope.themes").get_ivy()
 
   -- i(results)
   -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
@@ -332,7 +332,7 @@ local function doom_picker()
                 .. " ("
                 .. on
                 .. ")"
-            title = "MODULE_FULL: " .. postfix -- make into const
+            title = "MODULE_FULL: " .. postfix         -- make into const
           elseif DOOM_UI_STATE.query.type == "component" then
           elseif DOOM_UI_STATE.query.type == "all" then
           end
@@ -495,9 +495,9 @@ local function transform_enabled_modules_tree(new_module_file, action)
     true
   ))[1]
 
-  if not action then
-    action = args.ret.nodes.module and "toggle" or "add"
-  end
+  -- if not action then
+  --   action = args.ret.nodes.module and "toggle" or "add"
+  -- end
 
   -- local ensure_is_table_end = parent_last_line:match("^%s*},")
 
@@ -519,7 +519,7 @@ local function transform_enabled_modules_tree(new_module_file, action)
     ))[1]
 
     if args.ret.leaf_is_comment then
-      local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+      local start_col, end_col = module_line:find("%-%-%s")       -- find first comment prefix
       vim.api.nvim_buf_set_text(
         args.buf,
         module_range[1],
@@ -529,7 +529,7 @@ local function transform_enabled_modules_tree(new_module_file, action)
         {}
       )
     else
-      local start_col, end_col = module_line:find('"') -- find first double quote
+      local start_col, end_col = module_line:find('"')       -- find first double quote
       vim.api.nvim_buf_set_text(
         args.buf,
         module_range[1],
@@ -539,7 +539,7 @@ local function transform_enabled_modules_tree(new_module_file, action)
         { "-- " }
       )
     end
-  elseif action == "add" then
+  elseif action == "ADD" then
     local pre = ""
     local post = ""
     local str
@@ -561,6 +561,9 @@ local function transform_enabled_modules_tree(new_module_file, action)
       { str }
     )
   elseif action == "REMOVE" then
+    if not args.ret.nodes.module then
+      return false
+    end
     local module_range = { args.ret.nodes.module:range() }
     vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
   else
@@ -575,15 +578,132 @@ local function transform_enabled_modules_tree(new_module_file, action)
   log.info(("dui :: transformed modules.lua / action: %s"):format(action))
 end
 
+-- NOTE: Use semaphore to ensure that only one module operation is run at once?
+-- !! All core rocks nvim actions are ran with semaphore to ensure that
+-- only one is ran at a time.
+-- >>> Copy over the rocks operations helper file and
+
+-- TODO: I have to prepare these async modules as if they were part of
+-- Rocks nvim so that I do all of this properly.
+
+local function module__create_dir_await(file_path, name)
+  local nio = require("nio")
+  local Path = require("pathlib")
+  local pu = require("doom.modules.features.dui.templates")
+  local ok
+
+  log.info(("Adding new module: %s -> %s"):format(name, file_path:tostring()))
+
+  -- local ok_touch = file_path:touch(Path.permission("rw-r--r--"), true)
+  -- if ok_touch then
+  --   vim.schedule(function()
+  --     local file = io.open(file_path:tostring(), "w+")
+  --     if file then
+  --       file:write(pu.gen_temp_from_mod_name(name))
+  --       file:close()
+  --       return true
+  --     end
+  --     log.error("DUI: couldnt write template to new module")
+  --   end)
+  -- end
+
+  ok = file_path:touch(Path.permission("rw-r--r--"), true)
+  if not ok then
+    log.error("DUI: couldnt touch new module init file")
+    return
+  end
+
+  ok = (fs.get_write_file_awaiter())(file_path:tostring(), "w", pu.gen_temp_from_mod_name(name))
+
+  if ok then
+    return true
+  end
+  log.error("DUI: couldnt write template to new module")
+
+  -- local ok_write = (nio.create(function(location, mode, contents)
+  --     local future = nio.control.future()
+  --     vim.schedule(function()
+  --         fs.write_file2(location, mode, contents, function()
+  --             future.set(true)
+  --         end)
+  --     end)
+  --     return future.wait()
+  -- end, 3))(file_path:tostring(), "w", pu.gen_temp_from_mod_name(name))
+
+  -- if ok_touch then
+  --   vim.schedule(function()
+  --     local file = io.open(file_path:tostring(), "w+")
+  --     if file then
+  --       file:write(pu.gen_temp_from_mod_name(name))
+  --       file:close()
+  --       return true
+  --     end
+  --     log.error("DUI: couldnt write template to new module")
+  --   end)
+  --
+  --   -- local ok_write =
+  --   --     write_file_await(file_path:tostring(), "w", pu.gen_temp_from_mod_name(name))
+  --
+  --   -- if ok_write then
+  --   --   return true
+  --   -- else
+  --   --   log.error("DUI: couldnt write template to new module")
+  --   -- end
+  --
+  --   -- vim.schedule(function()
+  --   --     fs.write_file(file_path:tostring(), pu.gen_temp_from_mod_name(name), "w+", function()
+  --   --         future.set(true)
+  --   --     end)
+  --   -- end)
+  --   -- else
+  --   --     -- could not create path -> fail
+  --   --     future.set(false)
+  -- else
+  --   log.error("DUI: couldnt touch new module")
+  -- end
+  -- return false
+end
+local function module__dir_move()
+  log.info("Moving a module...")
+end
+
+local function module__dir_remove_async(dir_path)
+  local nio = require("nio")
+  log.info("Removing a module...")
+  local future = nio.control.future()
+  fs.rm_dir(dir_path)
+  future.set(true)
+  return future
+end
+
+local function module_load_single()
+  -- model this after rocks load_dynamic
+end
+
+local function nvim_open_file(file, where)
+  if where == "current" then
+    print("nvim open current")
+    vim.cmd(string.format("edit %s", file))
+  elseif where == "split" then
+  elseif where == "vsplit" then
+  else
+  end
+end
+
 ---Entry point for performing modules related operations, eg. CRUD. It
 ---ensures that the modules.lua file and the modules directory stay in
 ---sync and allows you to easilly manage modules from eg. telescope.
+---
+---target_module_dir is assumed to be a Pathlib Path object.
+--- NOTE: Should this be an async func that I use create to run with.
 local function manage_modules_tree(opts)
-
-  -- target_module_dir is assumed to be a Pathlib Path object.
-
-  local target_module_init_file = opts.target_module_dir / "init.lua"
-
+  local nio = require("nio")
+  local Path = require("pathlib")
+  local helpers = require("doom.modules.features.dui.operations.helpers")
+  if not nio or not Path then
+    log.error("Dui requires nio and pathlib for async.")
+    return
+  end
   if
       not (
         opts.target_module_dir:match("nvim/lua/doom/modules")
@@ -593,49 +713,45 @@ local function manage_modules_tree(opts)
     log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
     return
   end
+  local m_init_file = opts.target_module_dir / "init.lua"
 
-  -- Handle modules.lua
-  transform_enabled_modules_tree(target_module_init_file, opts.action)
+  -- A. Sync transform the modules.lua file
+  transform_enabled_modules_tree(m_init_file, opts.action)
 
-  -- Create new module/init file
-  if not target_module_init_file:exists() then
-    local ok = target_module_init_file:touch(Path.permission("rw-r--r--"), true)
-    if ok then
-      -- add contents template
-      local pu = require("doom.modules.features.dui.templates")
-
-      -- sync method
-      local file = io.open(target_module_init_file:tostring(), "w+")
-      if file then
-        file:write(pu.gen_temp_from_mod_name(module_target_name))
-        file:close()
-        vim.cmd(string.format("edit %s", target_module_init_file))
+  -- -- sync method
+  -- local file = io.open(target_module_init_file:tostring(), "w+")
+  -- if file then
+  --   -- use match /...$ instead
+  --   file:write(pu.gen_temp_from_mod_name(opts.module_target_name))
+  --   file:close()
+  --   vim.cmd(string.format("edit %s", target_module_init_file))
+  -- end
+  nio.run(function()
+    helpers.semaphore.with(function()
+      -- B. Async handle modules directory.
+      if opts.action == "ADD" and not m_init_file:exists() then
+        local ok = module__create_dir_await(m_init_file, opts.target_module_name)         -- .wait()
+        if ok then
+          log.info(("DUI :: Success creating new module: %s"):format(m_init_file))
+          nvim_open_file(m_init_file, "current")
+        end
+      elseif opts.action == "MOVE" then
+      elseif opts.action == "REMOVE" then
+        local ok = module__dir_remove_async(opts.target_module_dir:tostring())
+        if ok then
+          log.info("DUI: Success removing dir:", opts.target_module_dir:tostring())
+        end
       end
 
-      -- -- async method
-      -- local nio = require("nio")
-      -- local future = nio.control.future()
-      -- fs.write_file(
-      --     target_module_init_file:tostring(),
-      --     pu.gen_temp_from_mod_name(module_target_name),
-      --     "w+",
-      --     function()
-      --         future.set(true)
-      --     end
-      -- )
-      -- future.wait()
-      -- vim.cmd(string.format("edit %s", target_module_init_file))
-    end
-    log.info(("DUI :: Created new module: %s"):format(target_module_init_file))
-  elseif opts.action == "REMOVE" then
-    log.info("DUI: Removing dir:", opts.target_module_dir)
-    fs.rm_dir(opts.target_module_dir:tostring())
-  end
-
-  -- Reload
-  if false then
-    doom.modules.core.reloader.reload()
-  end
+      -- Load / reload (single module?)
+      -- if remove then reload all.
+      -- if add only load single.
+      if false then
+        -- doom.modules.core.reloader.reload()
+        -- FIX: Only load the new module
+      end
+    end)
+  end)
 end
 
 -- TODO: I need to visually make dirs vs mod become much clearer
@@ -672,20 +788,28 @@ local function __modules_browser_wrap()
           module_target_name = module_target_name:sub(2)
         end
 
+        if move_to_destination then
+          action = "MOVE"
+        end
+
+        if not action then
+          action = "ADD"
+    end
+
         -- Validate | Do both src and dest?
         if module_target_name:match("[^%a_]") then
           log.error("!! INVALID MODULE TARGET STRING !!")
           return
         end
 
-
         -- NOTE: From here I should call the function manage_modules_tree()
 
         local target_module_dir = path_to / module_target_name
 
         manage_modules_tree({
+          target_module_name = module_target_name,
           target_module_dir = target_module_dir,
-          action = action
+          action = action,
         })
 
         -- if
@@ -777,7 +901,7 @@ local function __modules_browser_wrap()
       -- Or do I need to migrate to a real picker?
 
       if not choice then
-        return -- eg. <esc>
+        return         -- eg. <esc>
       end
       if choice == current_dir then
         mod_browser_operate_on_current_dir(choice)
@@ -868,7 +992,7 @@ doom_ui.cmds = {
           -- border = false,
           -- todo: disable multible selection?
         },
-      } -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
+      }       -- .exec_next() would be nice so that the uppercase keyword only is shown in one place.
       DOOM_UI_STATE.next()
     end,
   },
@@ -878,7 +1002,7 @@ doom_ui.cmds = {
       reset()
       -- NOTE: SINCE THIS QUERY IS USED IN MULTIPLE PLACES. QUERIES SHOULD BE MOVED INTO ITS OWN FILE.
       DOOM_UI_STATE.query = {
-        type = "LIST_ALL_MODULES", -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
+        type = "LIST_ALL_MODULES",         -- could be renamed to `LIST_MODULES_STATUS` since we are listing information about modules NOT modules from within modules, which would be `COMPONENTS`
         topts = {
           layout_config = {
             width = 0.8,

@@ -590,7 +590,6 @@ M.get_match_for_keybind = function(opts)
   end
   opts.buf = dui_utils.get_buf_handle(opts.module_path)
   opts.messages = {}
-
   local build_msg = utils.new_message_builder(opts.messages)
 
   local leaf_candidates = get_keybind_leaf_candidates(opts.buf, opts.keybind)

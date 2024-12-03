@@ -281,7 +281,7 @@ end
 -- end
 
 reloader.settings = {
-    reload_on_save = true,
+    reload_on_save = false,
     packer_sync_and_compile = true,
     autocmd_patterns = {
 
