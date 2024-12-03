@@ -12,8 +12,6 @@ return {
     "nio",     -- asynch IO
   },
   features = {
-    "xxx",
-    "aaa",
     "architext",
     "monitoring",
 

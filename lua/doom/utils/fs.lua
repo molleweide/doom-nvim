@@ -132,6 +132,7 @@ fs.get_write_file_awaiter = function()
     end, 3)
 end
 
+---Recursively remove a dir.
 fs.rm_dir = function(path)
     local handle = luv.fs_scandir(path)
 
