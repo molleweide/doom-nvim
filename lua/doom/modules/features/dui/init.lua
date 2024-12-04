@@ -632,53 +632,6 @@ local function open_file(file, where)
     end)
 end
 
----Entry point for performing modules related operations, eg. CRUD. It
----ensures that the modules.lua file and the modules directory stay in
----sync and allows you to easilly manage modules from eg. telescope.
----
----target_module_dir is assumed to be a Pathlib Path object.
---- NOTE: Should this be an async func that I use create to run with.
-local function manage_modules_tree(opts)
-    local nio = require("nio")
-    local Path = require("pathlib")
-    local helpers = require("doom.modules.features.dui.operations.helpers")
-    if not nio or not Path then
-        log.error("Dui requires nio and pathlib for async.")
-        return
-    end
-    if
-        not (
-            opts.target_module_dir:match("nvim/lua/doom/modules")
-            or opts.target_module_dir:match("nvim/lua/user/modules")
-        )
-    then
-        log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
-        return
-    end
-    local m_init_file = opts.target_module_dir / "init.lua"
-
-    -- Sync transform the modules.lua file
-    transform_enabled_modules_tree(m_init_file, opts.action)
-
-    -- Async handle dir operations
-    nio.run(function()
-        helpers.semaphore.with(function()
-            if opts.action == "ADD" and not m_init_file:exists() then
-                local ok = module__create_dir_await(m_init_file, opts.target_module_name) -- .wait()
-                if ok then
-                    log.info(("DUI :: Success creating new module: %s"):format(m_init_file))
-                    open_file(m_init_file, "current")
-                end
-            elseif opts.action == "MOVE" then
-            elseif opts.action == "REMOVE" then
-                local ok = module__dir_remove_async(opts.target_module_dir:tostring())
-                if ok then
-                    log.info("DUI: Success removing dir:", opts.target_module_dir:tostring())
-                end
-            end
-        end)
-    end)
-end
 
 -- TODO: I need to visually make dirs vs mod become much clearer
 --
@@ -728,11 +681,10 @@ local function __modules_browser_wrap()
                     return
                 end
 
-                -- NOTE: From here I should call the function manage_modules_tree()
-
                 local target_module_dir = path_to / module_target_name
 
-                manage_modules_tree({
+                -- everything in manager should go into the manager file.
+                require("doom.modules.features.dui.modules_manager").manage_modules_tree({
                     target_module_name = module_target_name,
                     target_module_dir = target_module_dir,
                     action = action,
