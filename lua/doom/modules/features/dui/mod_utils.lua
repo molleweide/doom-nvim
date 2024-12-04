@@ -704,48 +704,39 @@ end
 mod_util.extend = function(filter)
   local all = mutils.tbl_merge(m_glob("doom"), m_glob("user"))
 
-  local m_all = { doom = {}, user = {} }
+  -- local m_all = { doom = {}, user = {} }
+  local m_all = {}
 
   for _, p in ipairs(all) do
     local org, sec, name = get_mod_tbl_path_from_string(p)
-    utils.get_set_table_path(m_all[org], { sec[1], name }, {
+
+    -- print("SECTION:",vim.inspect(sec))
+
+    if not sec then
+      sec = {}
+    end
+
+    if not name then
+      name = "NIL"
+    end
+
+    m_all[("%s.%s.%s.%s"):format(org, "modules", table.concat(sec, "."), name)] = {
       type = "doom_module_single",       -- todo: how is type used?
       enabled = false,
       name = name,
+      section2 = table.concat(sec, "."),
       section = sec[1],                  -- only `sec` later
       origin = org,
       path = string.sub(p, 1, -9),       -- only the dir path
       path_init = p,
-    })
+    }
   end
 
   require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
     if node.type == "doom_module_single" then
-      -- log.info(">>> node.name =", vim.inspect(node))
-
-      local pc = vim.split(node.name,".")
-
-      -- local module = utils.get_set_table_path(m_all[node.origin], pc)
-
-      -- local pc, path_concat = tree.flatten_stack(stack, v, ".")
-      -- for i, j in pairs(utils.get_set_table_path(doom.modules, pc)) do
-      --
-      --
-
-      -- local mod_table_path = ({ node.origin, node.name }):concat("."):split(".")
-
-      local module = utils.get_set_table_path(m_all[node.origin], pc)
-
-      if module then
-
-        -- FIX: Why am i creating another sub path within the module, which already
-        -- exists on a subpath in m_all. Instead I could just map `real_module`
-        -- as a key in the module temp table for the picker
-        for i, j in pairs(pc) do
-          module[i] = j
-        end
-      end
-
+      if m_all[node.name] then
+        m_all[node.name].enabled = true
+    end
     end
   end)
 

@@ -132,7 +132,7 @@ local function transform_enabled_modules_tree(new_module_file, action)
         )
     )
 
-    if action == "toggle" then
+    if action == "TOGGLE" then
         local module_range = { args.ret.nodes.module:range() }
         local module_line = (vim.api.nvim_buf_get_lines(
             args.buf,
@@ -292,6 +292,7 @@ M.manage_modules_tree = function(opts)
                     log.info(("DUI :: Success creating new module: %s"):format(m_init_file))
                     open_file(m_init_file, "current")
                 end
+            elseif opts.action == "TOGGLE" then
             elseif opts.action == "MOVE" then
             elseif opts.action == "REMOVE" then
                 local ok = module__dir_remove_async(opts.target_module_dir:tostring())
