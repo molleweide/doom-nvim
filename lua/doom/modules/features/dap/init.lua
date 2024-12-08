@@ -1,5 +1,9 @@
 local dap = {}
 
+-- NOTE:-------------------------------------------------
+-- https://github.com/nvim-lua/wishlist/issues/37#issuecomment-1023363686
+--
+
 dap.settings = {
   debugger_dir = vim.fn.stdpath("data") .. "/dapinstall/",
   debugger_map = {},
@@ -37,6 +41,8 @@ dap.settings = {
     },
   },
 }
+
+
 
 dap.packages = {
   ["nvim-dap"] = {

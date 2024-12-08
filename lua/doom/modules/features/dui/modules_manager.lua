@@ -9,9 +9,7 @@ local txt = ts.get_node_text
 local pu = require("doom.modules.features.dui.templates")
 local dui_utils = require("doom.modules.features.dui.utils")
 
-
 local M = {}
-
 
 ---Recurse down to the target module leaf in ./modules.lua tree.
 ---The target segment is availble on args.mod_path_table.
@@ -30,6 +28,9 @@ local M = {}
 ---@return table The same table as <args>
 local function ts_root_mod_tbl_try_find_target(args)
     print("## enter recursive:", vim.inspect(args))
+
+    -- FIX: Ensure that args.node:type() == "table_constructor"
+
     if not args.ret then
         args.ret = {
             nodes = {},
@@ -254,7 +255,6 @@ local function open_file(file, where)
     end)
 end
 
-
 ---Entry point for performing modules related operations, eg. CRUD. It
 ---ensures that the modules.lua file and the modules directory stay in
 ---sync and allows you to easilly manage modules from eg. telescope.
@@ -280,8 +280,31 @@ M.manage_modules_tree = function(opts)
     end
     local m_init_file = opts.target_module_dir / "init.lua"
 
+    -- TODO: I have to backwards add / remove elements from the buffer
+    -- so that I dont garble the indices.
+
     -- Sync transform the modules.lua file
     transform_enabled_modules_tree(m_init_file, opts.action)
+
+    -- TODO: I have to allow for passing a set of multiple module paths
+    -- create / remove multiple modules.
+    -- >>> Gather all actions and only perform reloading / updating stuff
+    -- with lazy after all async actions have been gathered.
+
+    -- local actions = vim.iter(to_install)
+    --     :map(function(entry)
+    --         return nio.create(function()
+    --             local future = nio.control.future()
+    --             require("rocks.api").install(entry.name, entry.version, {
+    --                 callback = function()
+    --                     future.set(true)
+    --                 end,
+    --             })
+    --             future.wait()
+    --         end)
+    --     end)
+    --     :totable()
+    -- nio.gather(actions)
 
     -- Async handle dir operations
     nio.run(function()
@@ -293,7 +316,9 @@ M.manage_modules_tree = function(opts)
                     open_file(m_init_file, "current")
                 end
             elseif opts.action == "TOGGLE" then
+                -- toggle doesnt require any fs operations
             elseif opts.action == "MOVE" then
+                -- moving dirs does require fs op
             elseif opts.action == "REMOVE" then
                 local ok = module__dir_remove_async(opts.target_module_dir:tostring())
                 if ok then
