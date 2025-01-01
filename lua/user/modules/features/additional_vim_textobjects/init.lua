@@ -10,6 +10,7 @@ textobjects.packages = {
     -- https://github.com/ColinKennedy/cursor-text-objects.nvim
     -- { 'echasnovski/mini.ai', version = '*' }
     -- ["targets.vim"] = {"wellle/targets.vim"},
+    -- https://github.com/wellle/targets.vim
     -- ["nvim-treesitter-textsubjects"] = { "RRethy/nvim-treesitter-textsubjects", }
     -- ["treesitter-unit"] = {"David-Kunz/treesitter-unit"},
     -- ["hatchet.nvim"] = {"zacharydscott/hatchet.nvim"},

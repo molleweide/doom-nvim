@@ -54,6 +54,11 @@ telescope.settings = {
         set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
         -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
     },
+    pickers = {
+        find_files = {
+            theme = "ivy",
+        },
+    },
 
     -- telescope builtin manner for specifying extension config.
     extensions = {
@@ -65,7 +70,7 @@ telescope.settings = {
             grep_open_files = false, -- search in opened files
             lang = nil,              -- string value, specify language for ast-grep `nil` for default
         },
-        "fzf"
+        "fzf",
     },
 }
 
@@ -77,7 +82,7 @@ telescope.packages = {
         lazy = true,
         dev = true,
     },
-    ["telescope-fzf-native.nvim"]={ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+    ["telescope-fzf-native.nvim"] = { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     ["telescope-file-browser.nvim"] = {
         "nvim-telescope/telescope-file-browser.nvim",
         -- commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
@@ -182,6 +187,22 @@ telescope.binds = function()
                 name = "+file",
                 {
                     { "f", "<cmd>Telescope find_files<CR>", name = "Find in project" },
+                    {
+                        "g",
+                        function()
+                            require("doom.modules.features.telescope.multigrep")()
+                        end,
+                        name = "Live multi grep",
+                    },
+                    {
+                        "l",
+                        function()
+                            require("telescope.builtin").find_files({
+                                cwd = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy"),
+                            })
+                        end,
+                        name = "Find in Lazy pgks",
+                    },
                     { "r", "<cmd>Telescope oldfiles<CR>",   name = "Find recent" },
                     { "/", "<cmd>Telescope ast_grep<CR>",   name = "Find in proj (ast-grep)" },
                 },

@@ -98,7 +98,7 @@ required.binds = function()
             },
         },
         {
-            mode = "i",
+            mode = "i", -- this means that we can remove the contained mode = i fields
             {
                 {
                     "<a-",
