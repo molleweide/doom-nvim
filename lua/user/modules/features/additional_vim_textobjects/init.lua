@@ -5,73 +5,72 @@ local textobjects = {}
 -- Move this to `doom/modules/features/treesitter/<module>`.
 -- So that I can easilly toggle and try stuff.
 
-
--- https://github.com/ColinKennedy/cursor-text-objects.nvim
-
 textobjects.packages = {
-  ["nvim-treesitter-textobjects"] = { "nvim-treesitter/nvim-treesitter-textobjects" },
-  -- ["targets.vim"] = {"wellle/targets.vim"},
-  -- ["nvim-treesitter-textsubjects"] = { "RRethy/nvim-treesitter-textsubjects", }
-  -- ["treesitter-unit"] = {"David-Kunz/treesitter-unit"},
-  -- ["hatchet.nvim"] = {"zacharydscott/hatchet.nvim"},
+    ["nvim-treesitter-textobjects"] = { "nvim-treesitter/nvim-treesitter-textobjects" },
+    -- https://github.com/ColinKennedy/cursor-text-objects.nvim
+    -- { 'echasnovski/mini.ai', version = '*' }
+    -- ["targets.vim"] = {"wellle/targets.vim"},
+    -- ["nvim-treesitter-textsubjects"] = { "RRethy/nvim-treesitter-textsubjects", }
+    -- ["treesitter-unit"] = {"David-Kunz/treesitter-unit"},
+    -- ["hatchet.nvim"] = {"zacharydscott/hatchet.nvim"},
 }
 
 textobjects.configs = {}
 
 textobjects.configs["nvim-treesitter-textobjects"] = function()
-  require'nvim-treesitter.configs'.setup {
-    textobjects = {
-      select = {
-        enable = true,
-        -- Automatically jump forward to textobj, similar to targets.vim
-        lookahead = true,
-        keymaps = {
-          -- You can use the capture groups defined in textobjects.scm
-          ["af"] = "@function.outer",
-          ["if"] = "@function.inner",
-          ["ac"] = "@class.outer",
-          ["ic"] = "@class.inner",
+    require("nvim-treesitter.configs").setup({
+        textobjects = {
+            select = {
+                enable = true,
+                -- Automatically jump forward to textobj, similar to targets.vim
+                lookahead = true,
+                keymaps = {
+                    -- You can use the capture groups defined in textobjects.scm
+                    ["af"] = "@function.outer",
+                    ["if"] = "@function.inner",
+                    ["ac"] = "@class.outer",
+                    ["ic"] = "@class.inner",
+                },
+            },
+            move = {
+                enable = true,
+                set_jumps = true, -- whether to set jumps in the jumplist
+                goto_next_start = {
+                    ["]m"] = "@function.outer",
+                    ["]]"] = "@class.outer",
+                },
+                goto_next_end = {
+                    ["]M"] = "@function.outer",
+                    ["]["] = "@class.outer",
+                },
+                goto_previous_start = {
+                    ["[m"] = "@function.outer",
+                    ["[["] = "@class.outer",
+                },
+                goto_previous_end = {
+                    ["[M"] = "@function.outer",
+                    ["[]"] = "@class.outer",
+                },
+            },
+            -- swap = {
+            --   enable = true,
+            --   swap_next = {
+            --     ["<leader>a"] = "@parameter.inner",
+            --   },
+            --   swap_previous = {
+            --     ["<leader>A"] = "@parameter.inner",
+            --   },
+            -- },
+            -- lsp_interop = {
+            --   enable = true,
+            --   border = 'none',
+            --   peek_definition_code = {
+            --     ["<leader>df"] = "@function.outer",
+            --     ["<leader>dF"] = "@class.outer",
+            --   },
+            -- },
         },
-      },
-      move = {
-        enable = true,
-        set_jumps = true, -- whether to set jumps in the jumplist
-        goto_next_start = {
-          ["]m"] = "@function.outer",
-          ["]]"] = "@class.outer",
-        },
-        goto_next_end = {
-          ["]M"] = "@function.outer",
-          ["]["] = "@class.outer",
-        },
-        goto_previous_start = {
-          ["[m"] = "@function.outer",
-          ["[["] = "@class.outer",
-        },
-        goto_previous_end = {
-          ["[M"] = "@function.outer",
-          ["[]"] = "@class.outer",
-        },
-      },
-      -- swap = {
-      --   enable = true,
-      --   swap_next = {
-      --     ["<leader>a"] = "@parameter.inner",
-      --   },
-      --   swap_previous = {
-      --     ["<leader>A"] = "@parameter.inner",
-      --   },
-      -- },
-      -- lsp_interop = {
-      --   enable = true,
-      --   border = 'none',
-      --   peek_definition_code = {
-      --     ["<leader>df"] = "@function.outer",
-      --     ["<leader>dF"] = "@class.outer",
-      --   },
-      -- },
-    },
-  }
+    })
 end
 
 -- textobjects.configs["nvim-treesitter-textsubjects"] = function()

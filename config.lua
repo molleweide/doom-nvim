@@ -5,6 +5,9 @@ local is_module_enabled = utils.is_module_enabled
 local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 
+-- NOTE: Review of AI plugins 2024
+-- https://www.joshmedeski.com/posts/ai-in-neovim-neovimconf-2024/
+
 -- TODO: mode v -> `:` -> enter cmdline.
 
 -- TODO: add a module called hjkl_overrides, which should create overrides

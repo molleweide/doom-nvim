@@ -1,0 +1,5 @@
+-- NOTE: This video shows some nice automatis with treesitter for
+-- js/ts
+-- https://www.youtube.com/watch?v=_m7amJZpQQ8&list=PLhlaLyAlbLlq9xWf2xm_9p422GgqvATXk&index=13
+-- josep alpiste also has a nice find node ancestor func that i can reuse.
+-- https://github.com/joosepalviste/dotfiles/

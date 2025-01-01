@@ -73,9 +73,9 @@ local dorothy = {}
 local dorothy_dir = os.getenv("DOROTHY")
 
 local commands_public = {
-  dorothy_dir .. "/commands",
-  dorothy_dir .. "/commands.beta",
-  dorothy_dir .. "/user/commands",
+    dorothy_dir .. "/commands",
+    dorothy_dir .. "/commands.beta",
+    dorothy_dir .. "/user/commands",
 }
 
 -- TODO: just put all dorothy files in one big picker.
@@ -86,101 +86,115 @@ local commands_public = {
 -- }
 
 local sources = {
-  dorothy_dir .. "/sources",
-  dorothy_dir .. "/config",
-  dorothy_dir .. "/user/sources",
-  dorothy_dir .. "/user/config",
+    dorothy_dir .. "/sources",
+    dorothy_dir .. "/config",
+    dorothy_dir .. "/user/sources",
+    dorothy_dir .. "/user/config",
 }
 
 local function search_dorothy_cmds()
-  local make_entry = require("telescope.make_entry")
-  require("telescope.builtin").find_files({
-    prompt_title = "Dorothy Commands",
-    entry_maker = function(entry)
-      local res = entry:match("dorothy/(.*)")
-      return {
-        value = entry,
-        display = res,
-        ordinal = res,
-      }
-    end,
-    search_dirs = commands_public,
-  })
+    local make_entry = require("telescope.make_entry")
+    require("telescope.builtin").find_files({
+        prompt_title = "Dorothy Commands",
+        entry_maker = function(entry)
+            local res = entry:match("dorothy/(.*)")
+            return {
+                value = entry,
+                display = res,
+                ordinal = res,
+            }
+        end,
+        search_dirs = commands_public,
+    })
 end
 
 local function search_dorothy_sources()
-  local make_entry = require("telescope.make_entry")
-  require("telescope.builtin").find_files({
-    prompt_title = "Dorothy Sources",
-    entry_maker = function(entry)
-      local res = entry:match("dorothy/(.*)")
-      return {
-        value = entry,
-        display = res,
-        ordinal = res,
-      }
-    end,
-    search_dirs = sources,
-  })
+    local make_entry = require("telescope.make_entry")
+    require("telescope.builtin").find_files({
+        prompt_title = "Dorothy Sources",
+        entry_maker = function(entry)
+            local res = entry:match("dorothy/(.*)")
+            return {
+                value = entry,
+                display = res,
+                ordinal = res,
+            }
+        end,
+        search_dirs = sources,
+    })
 end
-
 
 -- FIX: reuse same entry makes for grepping
 
 local function grep_dorothy()
-  require("telescope.builtin").live_grep({
-    prompt_title = "Dorothy Grep",
-    search_dirs = { dorothy_dir, dorothy_dir .. "/user" },
-  })
+    require("telescope.builtin").live_grep({
+        prompt_title = "Dorothy Grep",
+        search_dirs = { dorothy_dir, dorothy_dir .. "/user" },
+    })
 end
-
+local function add_package_to_user_setup()
+    -- create a UI that allows one to add a package name string to a new
+    -- array in users setup.bash file.
+    --
+    -- maybe i could also reuse some of the existing dorothy config funcs
+    -- here
+    --
+end
 dorothy.binds = {
-  "<leader>",
-  name = "+prefix",
-  {
     "<leader>",
     name = "+prefix",
     {
-      "d",
-      name = "+debug",       -- dorothy
-      {
-        "a",
-        name = "+add_file",
+        "<leader>",
+        name = "+prefix",
         {
-          {
-            "c",
-            name = "search dorothy commands",
-            function()
-              search_dorothy_cmds()
-            end,
-          },
-          {
-            "s",
-            name = "search dorothy sources",
-            function()
-              search_dorothy_sources()
-            end,
-          },           -- user command
-          {
-            "w",
-            name = "Grep Dorothy",
-            function()
-              grep_dorothy()
-            end,
-          },
-          -- { "m" }, -- user command minimal
-          -- { "d" }, -- user command.local
-          -- { "h" }, -- user config
-          -- { "h" }, -- user config.local
-          -- { "h" }, -- user source
-          -- -- { "h" }, -- user source.local ???
-          -- { "h" }, -- core command
-          -- { "h" }, -- core source
-          -- { "h" }, -- core config
+            "d",
+            name = "+debug", -- dorothy
+            {
+                "a",
+                name = "+ayo",
+                {
+                    {
+                        "c",
+                        name = "search dorothy commands",
+                        function()
+                            search_dorothy_cmds()
+                        end,
+                    },
+                    {
+                        "s",
+                        name = "search dorothy sources",
+                        function()
+                            search_dorothy_sources()
+                        end,
+                    }, -- user command
+                    {
+                        "w",
+                        name = "Grep Dorothy",
+                        function()
+                            grep_dorothy()
+                        end,
+                    },
+                    {
+                        "p",
+                        function()
+                            -- eg brew -> wezterm
+                            add_package_to_user_setup()
+                        end,
+                        name = "dorothy add package",
+                    },
+                    -- { "m" }, -- user command minimal
+                    -- { "d" }, -- user command.local
+                    -- { "h" }, -- user config
+                    -- { "h" }, -- user config.local
+                    -- { "h" }, -- user source
+                    -- -- { "h" }, -- user source.local ???
+                    -- { "h" }, -- core command
+                    -- { "h" }, -- core source
+                    -- { "h" }, -- core config
+                },
+            },
         },
-      },
     },
-  },
 }
 
 return dorothy

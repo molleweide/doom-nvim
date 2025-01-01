@@ -5,6 +5,11 @@
 -- the bindings with the `picker_state.entry.category`.
 
 local mappings = {
+
+    -- ENTRY ITEM: MODULE
+    --
+    -- When an entry represents a full module, then these binds will apply
+    -- to that entry.
   modules = {
     -- EDIT
     ["<CR>"] = function(prompt_bufnr, entry, key)
