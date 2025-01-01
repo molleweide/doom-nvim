@@ -55,9 +55,9 @@ telescope.settings = {
         -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
     },
     pickers = {
-        find_files = {
-            theme = "ivy",
-        },
+        -- find_files = {
+        --     theme = "ivy",
+        -- },
     },
 
     -- telescope builtin manner for specifying extension config.

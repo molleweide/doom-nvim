@@ -5,7 +5,7 @@ local conf = require("telescope.config").values
 
 -- local M = {}
 ---Multi grepping with filter by ft by appending two empty spaces followed
----by desired ft(s).
+---by desired ft(s). You can use any glob syntax!!
 ---@param opts any
 local live_multigrep = function(opts)
     opts = opts or {}
