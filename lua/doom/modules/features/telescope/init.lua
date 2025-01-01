@@ -65,6 +65,7 @@ telescope.settings = {
             grep_open_files = false, -- search in opened files
             lang = nil,              -- string value, specify language for ast-grep `nil` for default
         },
+        "fzf"
     },
 }
 
@@ -76,6 +77,7 @@ telescope.packages = {
         lazy = true,
         dev = true,
     },
+    ["telescope-fzf-native.nvim"]={ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
     ["telescope-file-browser.nvim"] = {
         "nvim-telescope/telescope-file-browser.nvim",
         -- commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
