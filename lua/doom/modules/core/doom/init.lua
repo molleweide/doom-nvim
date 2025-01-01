@@ -47,7 +47,7 @@ required.binds = function()
             end,
             name = "Fast exit",
         },
-        { "<ESC>", ":noh<CR>", name = "Remove search highlight" },
+        { "<Esc>", ":noh<CR>", name = "Remove search highlight" },
         { "<Tab>", ":bnext<CR>", name = "Jump to next buffer" },
         { "<S-Tab>", ":bprevious<CR>", name = "Jump to prev buffer" },
         {
@@ -103,8 +103,8 @@ required.binds = function()
                 {
                     "<a-",
                     {
-                        { "j>", "<ESC>:m '<+1<CR>==gi", name = "Move line down", mode = "i" },
-                        { "k>", "<ESC>:m '<-2<CR>==gi", name = "Move line up", mode = "i" },
+                        { "j>", "<Esc>:m '<+1<CR>==gi", name = "Move line down", mode = "i" },
+                        { "k>", "<Esc>:m '<-2<CR>==gi", name = "Move line up", mode = "i" },
                     },
                 },
             },
@@ -132,7 +132,7 @@ required.binds = function()
 
     -- Exit insert mode fast
     for _, esc_seq in pairs(doom.settings.escape_sequences) do
-        table.insert(binds, { esc_seq, "<ESC>", mode = "i" })
+        table.insert(binds, { esc_seq, "<Esc>", mode = "i" })
     end
 
     local split_modes = {
