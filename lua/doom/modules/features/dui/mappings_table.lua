@@ -3,20 +3,24 @@
 -- action for an bind.
 -- This allows for keeping all bindings on one place here, and then I access
 -- the bindings with the `picker_state.entry.category`.
+local actions = require("telescope.actions")
 
 local mappings = {
 
-    -- ENTRY ITEM: MODULE
-    --
-    -- When an entry represents a full module, then these binds will apply
-    -- to that entry.
+  -- ENTRY ITEM: MODULE
+  --
+  -- When an entry represents a full module, then these binds will apply
+  -- to that entry.
   modules = {
     -- EDIT
     ["<CR>"] = function(prompt_bufnr, entry, key)
       -- DOOM_UI_STATE.selected_module = fuzzy.value
-      -- -- ax.m_edit(fuzzy.value)
+      -- ax.m_edit(fuzzy.value)
       P(entry.value)
-      print(("Hi from mappigs: %s"):format(key))
+      -- print(("Hi from mappigs: %s"):format(key))
+      -- print(entry.value.path_init)
+      actions.close(prompt_bufnr)
+      vim.cmd(string.format("edit %s", entry.value.path_init))
     end,
     -- INSPECT MODULE
     ["<C-a>"] = function(fuzzy, line, key)

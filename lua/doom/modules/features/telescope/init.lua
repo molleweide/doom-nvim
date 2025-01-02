@@ -8,6 +8,11 @@ local telescope = {}
 -- in center position.
 
 -- Create a builtin picker for nvim options -> `:options`
+-- ??
+
+-- NOTE: Show mappings legend by mode:
+-- normal: ?
+-- insert: ^/ or ^_
 
 telescope.settings = {
     defaults = {

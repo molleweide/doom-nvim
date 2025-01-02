@@ -17,6 +17,8 @@ return {
 
     "lsp_progress",
 
+    "file_explorer_oil",
+
     buffers = {
       "buffer_management",
       "temporary_buffers",

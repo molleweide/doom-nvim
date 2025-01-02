@@ -115,6 +115,11 @@ required.binds = function()
                 { "<Esc>", "<C-\\><C-n>", name = "Exit insert in terminal" },
             },
         },
+        -- Quickfix binds
+        { "<Left>", ":cprev<cr>", name = "cnext" },
+        { "<Right>", ":cnext<cr>", name = "cprev" },
+        { "<Up>", ":copen<cr>", name = "copen/cfocus" },
+        { "<Down>", ":cclose<cr>", name = "cclose" },
     }
 
     -- Conditionally disable macros
