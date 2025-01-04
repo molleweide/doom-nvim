@@ -3,89 +3,125 @@
 -- action for an bind.
 -- This allows for keeping all bindings on one place here, and then I access
 -- the bindings with the `picker_state.entry.category`.
+local action_state = require "telescope.actions.state"
 local actions = require("telescope.actions")
+local action_utils = require "telescope.actions.utils"
+
+local function current_picker__get_selected_entries()
+    local prompt_bufnr = vim.api.nvim_get_current_buf()
+    -- local current_picker = action_state.get_current_picker(prompt_bufnr)
+    local results = {}
+    action_utils.map_selections(prompt_bufnr, function(entry, index)
+        -- P(entry)
+        -- results[index] = entry.value
+        table.insert(results, entry)
+    end)
+    return results
+end
 
 local mappings = {
 
-  -- ENTRY ITEM: MODULE
-  --
-  -- When an entry represents a full module, then these binds will apply
-  -- to that entry.
-  modules = {
-    -- EDIT
-    ["<CR>"] = function(prompt_bufnr, entry, key)
-      -- DOOM_UI_STATE.selected_module = fuzzy.value
-      -- ax.m_edit(fuzzy.value)
-      P(entry.value)
-      -- print(("Hi from mappigs: %s"):format(key))
-      -- print(entry.value.path_init)
-      actions.close(prompt_bufnr)
-      vim.cmd(string.format("edit %s", entry.value.path_init))
-    end,
-    -- INSPECT MODULE
-    ["<C-a>"] = function(fuzzy, line, key)
-      print(("Hi from mappigs: %s"):format(key))
-      -- DOOM_UI_STATE.query = {
-      --     type = "SHOW_SINGLE_MODULE",
-      --     -- components = {}
-      -- }
-      -- DOOM_UI_STATE.selected_module = fuzzy.value
-      -- DOOM_UI_STATE.next()
-    end,
+    -- ENTRY ITEM: MODULE
+    --
+    -- When an entry represents a full module, then these binds will apply
+    -- to that entry.
+    modules = {
+        -- EDIT
+        ["<CR>"] = function(prompt_bufnr, entry, key)
+            -- DOOM_UI_STATE.selected_module = fuzzy.value
+            -- ax.m_edit(fuzzy.value)
+            P(entry.value)
+            -- print(("Hi from mappigs: %s"):format(key))
+            -- print(entry.value.path_init)
+            actions.close(prompt_bufnr)
+            vim.cmd(string.format("edit %s", entry.value.path_init))
+        end,
+        -- INSPECT MODULE
+        ["<C-a>"] = function(fuzzy, line, key)
+            print(("Hi from mappigs: %s"):format(key))
+            -- DOOM_UI_STATE.query = {
+            --     type = "SHOW_SINGLE_MODULE",
+            --     -- components = {}
+            -- }
+            -- DOOM_UI_STATE.selected_module = fuzzy.value
+            -- DOOM_UI_STATE.next()
+        end,
 
-    ["<C-b>"] = function(fuzzy, _)
-      -- DOOM_UI_STATE.query = {
-      --   type = "MODULE_COMPONENT",
-      --   -- components = {}
-      -- }
-      -- DOOM_UI_STATE.selected_component = fuzzy.value
-      -- DOOM_UI_STATE.next()
-    end,
-    ["<C-e>"] = function(sel, line)
-      -- ax.m_create(sel, line)
-    end,
-    ["<C-r>"] = function(fuzzy, _)     -- note: atm it seems that ^r closes the window or does something wierd. registers?!
-      -- ax.m_rename(fuzzy.value)
-    end,
-    ["<C-x>"] = function(fuzzy, _)
-      -- ax.m_delete(fuzzy.value)
-    end,
-    ["<C-t>"] = function(prompt_bufnr, entry, key)     -- TOGGLE MODULE(S)
-      print(
-        ("entry.value.enabled: %s -> %s"):format(
-          entry.value.enabled,
-          not entry.value.enabled
-        )
-      )
-      entry.value.enabled = not entry.value.enabled
+        ["<C-b>"] = function(fuzzy, _)
+            -- DOOM_UI_STATE.query = {
+            --   type = "MODULE_COMPONENT",
+            --   -- components = {}
+            -- }
+            -- DOOM_UI_STATE.selected_component = fuzzy.value
+            -- DOOM_UI_STATE.next()
+        end,
+        ["<C-e>"] = function(prompt_bufnr, entry, key)
+            -- ax.m_create(sel, line)
+            print("CONTROL E:")
+            P(entry)
+        end,
+        ["<C-r>"] = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
+            -- ax.m_rename(fuzzy.value)
+        end,
+        ["<C-x>"] = function(fuzzy, _)
+            -- ax.m_delete(fuzzy.value)
+        end,
+        ["<C-t>"] = function(_, entry, key) -- TOGGLE MODULE(S)
+            print("CONTROL T")
 
-      -- local state = require("telescope.actions.state")
-      -- local line = state.get_current_line(prompt_bufnr)
-      local action_state = require("telescope.actions.state")
+            -- get multiple or single selection
+            local selection = current_picker__get_selected_entries()
+            if #selection == 0 then
+                selection = { action_state.get_selected_entry() }
+            end
 
-      action_state.get_current_picker(prompt_bufnr):refresh()
+            P(selection)
 
-      print("post refresh")
+            print(
+                ("entry.value.enabled: %s -> %s"):format(
+                    entry.value.enabled,
+                    not entry.value.enabled
+                )
+            )
+            entry.value.enabled = not entry.value.enabled
 
-      local Path = require("pathlib")
-      print("PATH:", Path(entry.value.path))
+            -- Doesnt work for modifying entries internal values. it does
+            -- not trigger a refresh. telescope does not have this feature
+            -- yet.
+            -- action_state.get_current_picker(prompt_bufnr):refresh()
 
-      require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-        target_module_name = entry.value.name,
-        target_module_dir = Path(entry.value.path),
-        action = "TOGGLE",
-      })
-    end,
-    ["<C-y>"] = function(fuzzy, _)
-      -- ax.m_move(fuzzy.value)
-    end,
-    ["<C-h>"] = function(fuzzy, _)
-      -- ax.m_merge()
-    end,
-    ["<C-q>"] = function(fuzzy, _)
-      -- ax.m_submit_module_to_upstream()
-    end,
-  },
+            local Path = require("pathlib")
+            local target_paths = vim.iter(selection):map(function(entry)
+                return Path(entry.value.path)
+            end):totable()
+
+            for _, path in ipairs(target_paths) do
+                print("PATHS:", path)
+            end
+
+
+            -- TODO: Handle multiple target dirs in manage_modules_tree.
+            if false then
+                require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                    target_module_name = entry.value.name,
+                    target_module_dir = Path(entry.value.path),
+                    action = "TOGGLE",
+                })
+            end
+        end,
+        ["<C-y>"] = function(fuzzy, _)
+            -- ax.m_move(fuzzy.value)
+        end,
+        ["<C-h>"] = function(fuzzy, _)
+            -- ax.m_merge()
+        end,
+        ["<C-q>"] = function(fuzzy, _)
+            -- ax.m_submit_module_to_upstream()
+        end,
+
+        ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+        ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+    },
 }
 
 return mappings
