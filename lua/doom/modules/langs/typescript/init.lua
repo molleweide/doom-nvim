@@ -14,7 +14,7 @@ typescript.settings = {
   disable_lsp = false,
   --- Name of the language server
   --- @type string
-  lsp_name = "tsserver",
+  lsp_name = "ts_ls",
   --- Custom config to pass to nvim-lspconfig
   --- @type table|nil
   lsp_config = nil,
@@ -65,6 +65,7 @@ typescript.autocmds = {
     "BufWinEnter",
     "*.js,*.mjs,*.jsx,*.ts,*tsx",
     langs_utils.wrap_language_setup("typescript/javascript", function()
+            vim.notify("TS!!")
       if not typescript.settings.disable_lsp then
         langs_utils.use_lsp_mason(typescript.settings.lsp_name)
       end
