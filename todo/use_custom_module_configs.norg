@@ -1,0 +1,14 @@
+@document.meta
+title: use_custom_module_configs
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2025-01-05T17:29:23-0500
+updated: 2025-01-05T17:31:36-0500
+version: 1.1.1
+@end
+
+
+I dont always want to load the same set of modules when running nvim. We
+need a way of doing this shit which is then the table of that shit.
+you took a cab to the airport..
