@@ -3,6 +3,9 @@
 -- what features are being used.
 --
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
+--
+-- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
+-- automatically.
 
 return {
   ai = {

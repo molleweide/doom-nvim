@@ -109,10 +109,14 @@ end
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
 local function transform_enabled_modules_tree(opts)
   -- setup
-  local got_leaves_only = true
   local ts_module_node_info = {}
 
   print("transform enabled modules ???")
+
+  -- NOTE: if a full node is not found then that is not a problemi i just need
+  -- to figure out how to handle the other way  and so
+  -- this is goig to be a lot of fun you know and the
+  -- thing is diddeli fuck sturp derperliz
 
   vim.iter(opts.targets):each(function(elem)
     -- Get table path of target module table
@@ -125,12 +129,7 @@ local function transform_enabled_modules_tree(opts)
     print(">> [res] =", vim.inspect(args))
     print(args.ret.nodes.parent:range())
 
-    if not args.ret.nodes.module then
-      got_leaves_only = false
-      args.range = args.ret.nodes.parent:range()
-    else
-      args.range = args.ret.nodes.module:range()
-    end
+    args.range = args.ret.nodes.module and args.ret.nodes.module:range() or args.ret.nodes.parent:range()
 
     table.insert(ts_module_node_info, args)
   end)
@@ -141,6 +140,10 @@ local function transform_enabled_modules_tree(opts)
 
   P(ts_module_node_info)
 
+
+  if #ts_module_node_info == 0 then
+    return
+  end
 
   -- local parent_range = { args.ret.nodes.parent:range() }
   -- local parent_last_line = (vim.api.nvim_buf_get_lines(
@@ -170,73 +173,81 @@ local function transform_enabled_modules_tree(opts)
     return
   end
 
-  if opts.action == "TOGGLE" then
-    local module_range = { args.ret.nodes.module:range() }
-    local module_line = (vim.api.nvim_buf_get_lines(
-      args.buf,
-      module_range[1],
-      module_range[1] + 1,
-      true
-    ))[1]
+  vim.iter(ts_module_node_info)
+      :rev()
+      :each(function(args)
+        if opts.action == "TOGGLE" then
+          local module_range = { args.ret.nodes.module:range() }
+          local module_line = (vim.api.nvim_buf_get_lines(
+            args.buf,
+            module_range[1],
+            module_range[1] + 1,
+            true
+          ))[1]
 
-    if args.ret.leaf_is_comment then
-      local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-      vim.api.nvim_buf_set_text(
-        args.buf,
-        module_range[1],
-        start_col - 1,
-        module_range[1],
-        end_col,
-        {}
-      )
-    else
-      local start_col, end_col = module_line:find('"') -- find first double quote
-      vim.api.nvim_buf_set_text(
-        args.buf,
-        module_range[1],
-        start_col - 1,
-        module_range[1],
-        end_col - 1,
-        { "-- " }
-      )
-    end
-  elseif opts.action == "ENABLE" then
-  elseif opts.action == "DISABLE" then
-  elseif opts.action == "ADD" then
-    local pre = ""
-    local post = ""
-    local str
+          if args.ret.leaf_is_comment then
+            local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+            vim.api.nvim_buf_set_text(
+              args.buf,
+              module_range[1],
+              start_col - 1,
+              module_range[1],
+              end_col,
+              {}
+            )
+          else
+            local start_col, end_col = module_line:find('"') -- find first double quote
+            vim.api.nvim_buf_set_text(
+              args.buf,
+              module_range[1],
+              start_col - 1,
+              module_range[1],
+              end_col - 1,
+              { "-- " }
+            )
+          end
+        elseif opts.action == "ENABLE" then
+        elseif opts.action == "DISABLE" then
+        elseif opts.action == "ADD" then
+          local pre = ""
+          local post = ""
+          local str
 
-    for i, v in ipairs(args.parts) do
-      if i < #args.parts then
-        pre = pre .. v .. " = {"
-        post = post .. "},"
-      else
-        str = ([[%s "%s", %s]]):format(pre, v, post)
-      end
-    end
+          for i, v in ipairs(args.parts) do
+            if i < #args.parts then
+              pre = pre .. v .. " = {"
+              post = post .. "},"
+            else
+              str = ([[%s "%s", %s]]):format(pre, v, post)
+            end
+          end
 
-    local parent_range = { args.ret.nodes.parent:range() }
+          local parent_range = { args.ret.nodes.parent:range() }
 
-    vim.api.nvim_buf_set_lines(
-      args.buf,
-      parent_range[1] + 1,
-      parent_range[1] + 1,
-      true,
-      { str }
-    )
-  elseif opts.action == "REMOVE" then
-    if not args.ret.nodes.module then
-      return false
-    end
-    local module_range = { args.ret.nodes.module:range() }
-    vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
-  else
-    log.error("dui @ mod browser :: No valid action for root mod CRUD")
-  end
+          vim.api.nvim_buf_set_lines(
+            args.buf,
+            parent_range[1] + 1,
+            parent_range[1] + 1,
+            true,
+            { str }
+          )
+        elseif opts.action == "REMOVE" then
+          if not args.ret.nodes.module then
+            return false
+          end
+          local module_range = { args.ret.nodes.module:range() }
+          vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+        else
+          log.error("dui @ mod browser :: No valid action for root mod CRUD")
+          return
+        end
+      end)
+
+  -- This is a bit ugly, but it is a quick fix for now..
+  local enabled_modules_buf = ts_module_node_info[1].buf
 
   -- format and save
-  vim.api.nvim_buf_call(args.buf, function()
+  vim.api.nvim_buf_call(enabled_modules_buf, function()
     vim.lsp.buf.format({ async = false })
     vim.cmd("write")
     log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
