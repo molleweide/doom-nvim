@@ -6,6 +6,12 @@
 --
 -- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
 -- automatically.
+--
+-- TODO: Make every single module as a boolean here below, that would make it
+-- possible to do `module = <boolean>` and that would only require loading this
+-- table in order to get the info quickly on every single module.
+-- This would allow for easilly loading and unloading modules without having to
+-- write to this file.
 
 return {
   ai = {

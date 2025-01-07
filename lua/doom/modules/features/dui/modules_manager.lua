@@ -111,7 +111,7 @@ local function transform_enabled_modules_tree(opts)
   -- setup
   local ts_module_node_info = {}
 
-  print("transform enabled modules ???")
+  -- print("transform enabled modules ???")
 
   -- NOTE: if a full node is not found then that is not a problemi i just need
   -- to figure out how to handle the other way  and so
@@ -169,79 +169,261 @@ local function transform_enabled_modules_tree(opts)
 
   -- act
 
-  if true then
-    return
-  end
+  -- TODO:
+  -- ~ If multiple tables has the same range, this means that there can be
+  --    mult modules for the same table that does not yet exist. then i need to
+  --    first add all of these modules template string, and then insert all of
+  --    them at the same time.
+  -- ~ >>> THEREfore, i need to do this with a regular reverse loop so that I
+  --    can control how to increment the index and jump forward if i process
+  --    multiple ones at once.
+  --    1. reverse the table with vim iter.
+  --    2. now, just loop the table and look ahead for same ranges.
+  --
 
-  vim.iter(ts_module_node_info)
-      :rev()
-      :each(function(args)
-        if opts.action == "TOGGLE" then
-          local module_range = { args.ret.nodes.module:range() }
-          local module_line = (vim.api.nvim_buf_get_lines(
-            args.buf,
-            module_range[1],
-            module_range[1] + 1,
-            true
-          ))[1]
+  -- local reversed = vim.iter(ts_module_node_info):rev():totable()
 
-          if args.ret.leaf_is_comment then
-            local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-            vim.api.nvim_buf_set_text(
-              args.buf,
-              module_range[1],
-              start_col - 1,
-              module_range[1],
-              end_col,
-              {}
-            )
-          else
-            local start_col, end_col = module_line:find('"') -- find first double quote
-            vim.api.nvim_buf_set_text(
-              args.buf,
-              module_range[1],
-              start_col - 1,
-              module_range[1],
-              end_col - 1,
-              { "-- " }
-            )
-          end
-        elseif opts.action == "ENABLE" then
-        elseif opts.action == "DISABLE" then
-        elseif opts.action == "ADD" then
-          local pre = ""
-          local post = ""
-          local str
+  -- TODO: collect not yet existing modules
+  -- should i put null ones in their own table. hmm, but i still need to fucking
+  -- loop over this shit.
+  local args_by_range = {}
+  local order = {}
+  vim.iter(ts_module_node_info):rev():each(function(el)
+    if not args_by_range[el.range] then
+      args_by_range[el.range] = {}
+      table.insert(order, el.range)
+    end
+    table.insert(args_by_range[el.range], el)
+  end)
 
-          for i, v in ipairs(args.parts) do
-            if i < #args.parts then
-              pre = pre .. v .. " = {"
-              post = post .. "},"
-            else
-              str = ([[%s "%s", %s]]):format(pre, v, post)
-            end
-          end
+  -- -- local has_next = false
+  -- -- local prev
+  -- -- local curr
+  -- -- local next
+  --
+  -- -- Only makes sense to diddy up the argts tables to handle correct buf insert
+  -- -- sequence ONLY IF there are 2 or more  args.
+  --
+  -- for i = 1, #reversed, 1 do
+  -- end
+  --
+  -- -- if #args_by_range > 1 then
+  -- --   for i = 1, #reversed, 1 do
+  -- --     curr = reversed[i]
+  -- --     next = i < #reversed and reversed[i + 1]
+  -- --
+  -- --
+  -- --     -- First elem
+  -- --     if not prev then
+  -- --       if curr.range == next.range then
+  -- --         if not args_by_range[i] then
+  -- --           args_by_range[i] = {}
+  -- --         end
+  -- --         table.insert(args_by_range[i], curr)
+  -- --       else
+  -- --         args_by_range[i] = curr
+  -- --       end
+  -- --     elseif not next then -- Last elem
+  -- --       if prev.range == curr.range then
+  -- --         table.insert(args_by_range[prev.range], curr) -- add to previous table
+  -- --       else
+  -- --         table.insert(args_by_range[curr.range], curr) -- add new last args table
+  -- --       end
+  -- --     else -- Middle elems
+  -- --       -- First to N-1 elems
+  -- --       --
+  -- --       -- if == prev then has existing range
+  -- --       --
+  -- --       -- if not prev and not next single own range
+  -- --       --
+  -- --       -- if not prev but next create new table.
+  -- --       --
+  -- --       -- >> This should handle all possible cases.
+  -- --       --
+  -- --       --
+  -- --       --
+  -- --       if curr.range == next.range then
+  -- --         has_next = true
+  -- --         if not args_by_range[i] then
+  -- --           args_by_range[i] = {}
+  -- --         end
+  -- --         -- table.insert(args_by_range[i], )
+  -- --       else
+  -- --         has_next = false
+  -- --         args_by_range[i] = curr
+  -- --       end
+  -- --       prev = curr
+  -- --     end
+  -- --   end
+  -- -- else
+  -- --   local curr
+  -- --   args_by_range[curr.range] = curr
+  -- -- end
 
-          local parent_range = { args.ret.nodes.parent:range() }
+  print("<ARGS MAPPED BY RANGE>")
+  -- P(args_by_range)
+  -- print("-----")
+  -- P(order)
 
-          vim.api.nvim_buf_set_lines(
-            args.buf,
-            parent_range[1] + 1,
-            parent_range[1] + 1,
-            true,
-            { str }
-          )
-        elseif opts.action == "REMOVE" then
-          if not args.ret.nodes.module then
-            return false
-          end
-          local module_range = { args.ret.nodes.module:range() }
-          vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+  -- Reverse loop each injection range.
+  vim.iter(order):each(function(i)
+    local args_same_range = args_by_range[i]
+
+    -- Now loop all args tables and build resulting string that should
+    -- be injected. This is done differently for each action.
+
+    -- vim.iter(args_same_range):each(function(args)
+    --   -- P(args)
+    -- end)
+
+    if true then
+      return
+    end
+
+    if opts.action == "TOGGLE" then
+      local module_range = { args.ret.nodes.module:range() }
+      local module_line = (vim.api.nvim_buf_get_lines(
+        args.buf,
+        module_range[1],
+        module_range[1] + 1,
+        true
+      ))[1]
+
+      if args.ret.leaf_is_comment then
+        local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+        vim.api.nvim_buf_set_text(
+          args.buf,
+          module_range[1],
+          start_col - 1,
+          module_range[1],
+          end_col,
+          {}
+        )
+      else
+        local start_col, end_col = module_line:find('"') -- find first double quote
+        vim.api.nvim_buf_set_text(
+          args.buf,
+          module_range[1],
+          start_col - 1,
+          module_range[1],
+          end_col - 1,
+          { "-- " }
+        )
+      end
+    elseif opts.action == "ENABLE" then
+    elseif opts.action == "DISABLE" then
+    elseif opts.action == "ADD" then
+      local pre = ""
+      local post = ""
+      local str
+
+      for i, v in ipairs(args.parts) do
+        if i < #args.parts then
+          pre = pre .. v .. " = {"
+          post = post .. "},"
         else
-          log.error("dui @ mod browser :: No valid action for root mod CRUD")
-          return
+          str = ([[%s "%s", %s]]):format(pre, v, post)
         end
-      end)
+      end
+
+      local parent_range = { args.ret.nodes.parent:range() }
+
+      vim.api.nvim_buf_set_lines(
+        args.buf,
+        parent_range[1] + 1,
+        parent_range[1] + 1,
+        true,
+        { str }
+      )
+    elseif opts.action == "REMOVE" then
+      if not args.ret.nodes.module then
+        return false
+      end
+      local module_range = { args.ret.nodes.module:range() }
+      vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+    else
+      log.error("dui @ mod browser :: No valid action for root mod CRUD")
+      return
+    end
+  end)
+
+  -- for i, el in pairs(args_by_range) do
+  --   print(i)
+  -- end
+
+  -- if true then
+  --   return
+  -- end
+  --
+  -- for i = 1, #reversed, 1 do
+  --   local args = reversed[i]
+  --
+  --   if opts.action == "TOGGLE" then
+  --     local module_range = { args.ret.nodes.module:range() }
+  --     local module_line = (vim.api.nvim_buf_get_lines(
+  --       args.buf,
+  --       module_range[1],
+  --       module_range[1] + 1,
+  --       true
+  --     ))[1]
+  --
+  --     if args.ret.leaf_is_comment then
+  --       local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+  --       vim.api.nvim_buf_set_text(
+  --         args.buf,
+  --         module_range[1],
+  --         start_col - 1,
+  --         module_range[1],
+  --         end_col,
+  --         {}
+  --       )
+  --     else
+  --       local start_col, end_col = module_line:find('"') -- find first double quote
+  --       vim.api.nvim_buf_set_text(
+  --         args.buf,
+  --         module_range[1],
+  --         start_col - 1,
+  --         module_range[1],
+  --         end_col - 1,
+  --         { "-- " }
+  --       )
+  --     end
+  --   elseif opts.action == "ENABLE" then
+  --   elseif opts.action == "DISABLE" then
+  --   elseif opts.action == "ADD" then
+  --     local pre = ""
+  --     local post = ""
+  --     local str
+  --
+  --     for i, v in ipairs(args.parts) do
+  --       if i < #args.parts then
+  --         pre = pre .. v .. " = {"
+  --         post = post .. "},"
+  --       else
+  --         str = ([[%s "%s", %s]]):format(pre, v, post)
+  --       end
+  --     end
+  --
+  --     local parent_range = { args.ret.nodes.parent:range() }
+  --
+  --     vim.api.nvim_buf_set_lines(
+  --       args.buf,
+  --       parent_range[1] + 1,
+  --       parent_range[1] + 1,
+  --       true,
+  --       { str }
+  --     )
+  --   elseif opts.action == "REMOVE" then
+  --     if not args.ret.nodes.module then
+  --       return false
+  --     end
+  --     local module_range = { args.ret.nodes.module:range() }
+  --     vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+  --   else
+  --     log.error("dui @ mod browser :: No valid action for root mod CRUD")
+  --     return
+  --   end
+  -- end
 
   -- This is a bit ugly, but it is a quick fix for now..
   local enabled_modules_buf = ts_module_node_info[1].buf
