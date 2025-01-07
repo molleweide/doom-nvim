@@ -95,6 +95,8 @@ local mappings = {
         return { target_module_name = entry.value.name, target_module_dir = Path(entry.value.path) }
       end):totable()
 
+      print("????")
+
       vim.ui.select({ 'ENABLE', 'DISABLE' }, {
         prompt = 'Select enable or disable:',
         format_item = function(item)
