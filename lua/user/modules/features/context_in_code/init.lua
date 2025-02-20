@@ -1,5 +1,8 @@
 local tsctx = {}
 
+-- TODO: ( ) Use highlight that differentiates nvim_context_vt from regular
+-- comments AND git blame.
+
 -- tsctx.settings = {
 --   context_header = {
 --     enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
