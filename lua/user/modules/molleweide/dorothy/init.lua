@@ -8,6 +8,8 @@ local dorothy = {}
 -- ~ new command user
 -- ~ new command user local
 
+-- TODO: cmd gh clone/fork plugin into dorothy `ghm` management.
+
 -- TODO: autocmds for auto formatting and running tests and shit.
 -- 1. command for autocmd watch changes and run dry run test.
 -- 2. run tests on dorothy command that just had a change.

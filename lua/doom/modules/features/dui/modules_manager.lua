@@ -12,11 +12,11 @@ local dui_utils = require("doom.modules.features.dui.utils")
 
 local M = {}
 
+--
+-- This properly puts together the correct output table that we want to
+-- inject at a new position.
+--
 local function build_new_inject_string(ranges)
-  --
-  -- This properly puts together the correct output table that we want to
-  -- inject at a new position.
-  --
   local result_table = {}
   for _, args in ipairs(ranges) do
     if #args.parts > 1 then
@@ -32,9 +32,7 @@ local function build_new_inject_string(ranges)
       table.insert(result_table, args.parts[1])
     end
   end
-
   local stringified = vim.split(vim.inspect(result_table), "\n")
-
   -- trim surrounding braces {...}
   if #stringified > 2 then
     table.remove(stringified, 1)
@@ -45,6 +43,10 @@ local function build_new_inject_string(ranges)
   return stringified
 end
 
+-- PERF: Currently this func recursively searches the tree once for each
+-- target path. Reduce this to only one recursive call, by for each leaf,
+-- check against the list of target modules every time.
+--
 ---Recurse down to the target module leaf in ./modules.lua tree.
 ---The target segment is availble on args.mod_path_table.
 ---@param args table Takes the form of
@@ -180,6 +182,22 @@ local function transform_enabled_modules_tree(opts)
     return
   end
 
+  -- FIX:
+  -- This is a bit ugly, but it is a quick fix for now..
+  local enabled_modules_buf = ts_module_node_info[1].buf
+
+  local function enable_module_line()
+  end
+  local function disable_module_line()
+  end
+  local function remove_module_line()
+  end
+
+  if not opts.action then
+    log.error("No action supplied")
+    return
+  end
+
   -- local parent_range = { args.ret.nodes.parent:range() }
   -- local parent_last_line = (vim.api.nvim_buf_get_lines(
   --   args.buf,
@@ -187,13 +205,7 @@ local function transform_enabled_modules_tree(opts)
   --   parent_range[3],
   --   true
   -- ))[1]
-  --
-  -- -- if not action then
-  -- --   action = args.ret.nodes.module and "toggle" or "add"
-  -- -- end
-  --
   -- -- local ensure_is_table_end = parent_last_line:match("^%s*},")
-  --
   -- print(
   --   ("action = %s | last lines = `%s`, match = %s"):format(
   --     opts.action,
@@ -204,23 +216,6 @@ local function transform_enabled_modules_tree(opts)
 
   -- act
 
-  -- TODO:
-  -- ~ If multiple tables has the same range, this means that there can be
-  --    mult modules for the same table that does not yet exist. then i need to
-  --    first add all of these modules template string, and then insert all of
-  --    them at the same time.
-  -- ~ >>> THEREfore, i need to do this with a regular reverse loop so that I
-  --    can control how to increment the index and jump forward if i process
-  --    multiple ones at once.
-  --    1. reverse the table with vim iter.
-  --    2. now, just loop the table and look ahead for same ranges.
-  --
-
-  -- local reversed = vim.iter(ts_module_node_info):rev():totable()
-
-  -- TODO: collect not yet existing modules
-  -- should i put null ones in their own table. hmm, but i still need to fucking
-  -- loop over this shit.
   local args_by_range = {}
   local order = {}
   vim.iter(ts_module_node_info):rev():each(function(el)
@@ -231,111 +226,31 @@ local function transform_enabled_modules_tree(opts)
     table.insert(args_by_range[el.range], el)
   end)
 
-  -- -- local has_next = false
-  -- -- local prev
-  -- -- local curr
-  -- -- local next
-  --
-  -- -- Only makes sense to diddy up the argts tables to handle correct buf insert
-  -- -- sequence ONLY IF there are 2 or more  args.
-  --
-  -- for i = 1, #reversed, 1 do
-  -- end
-  --
-  -- -- if #args_by_range > 1 then
-  -- --   for i = 1, #reversed, 1 do
-  -- --     curr = reversed[i]
-  -- --     next = i < #reversed and reversed[i + 1]
-  -- --
-  -- --
-  -- --     -- First elem
-  -- --     if not prev then
-  -- --       if curr.range == next.range then
-  -- --         if not args_by_range[i] then
-  -- --           args_by_range[i] = {}
-  -- --         end
-  -- --         table.insert(args_by_range[i], curr)
-  -- --       else
-  -- --         args_by_range[i] = curr
-  -- --       end
-  -- --     elseif not next then -- Last elem
-  -- --       if prev.range == curr.range then
-  -- --         table.insert(args_by_range[prev.range], curr) -- add to previous table
-  -- --       else
-  -- --         table.insert(args_by_range[curr.range], curr) -- add new last args table
-  -- --       end
-  -- --     else -- Middle elems
-  -- --       -- First to N-1 elems
-  -- --       --
-  -- --       -- if == prev then has existing range
-  -- --       --
-  -- --       -- if not prev and not next single own range
-  -- --       --
-  -- --       -- if not prev but next create new table.
-  -- --       --
-  -- --       -- >> This should handle all possible cases.
-  -- --       --
-  -- --       --
-  -- --       --
-  -- --       if curr.range == next.range then
-  -- --         has_next = true
-  -- --         if not args_by_range[i] then
-  -- --           args_by_range[i] = {}
-  -- --         end
-  -- --         -- table.insert(args_by_range[i], )
-  -- --       else
-  -- --         has_next = false
-  -- --         args_by_range[i] = curr
-  -- --       end
-  -- --       prev = curr
-  -- --     end
-  -- --   end
-  -- -- else
-  -- --   local curr
-  -- --   args_by_range[curr.range] = curr
-  -- -- end
-
   print("<ARGS MAPPED BY RANGE>")
-  -- P(args_by_range)
-  print("-----")
-  -- P(order)
 
   -- Reverse loop each injection range.
   vim.iter(order):each(function(i)
     local current_range = i
     local ranges = args_by_range[i]
     print("---------------------------------------")
-    print("---- ranges ---------------------------")
-    -- P(ranges)
-    -- print("--")
-
     P(build_new_inject_string(ranges))
 
     if true then
       return
     end
 
-    -- NOTE: Now we are looping over all injection ranges and I want to insert
-    -- new modules or apply changes to existing modules.
-    -- For the same range the children can have a module or
-    --
-    -- each action
-    --    if mult?
-    --    else
-    --
-    --    So if there are mult entries for a range, then that means that we
-    --    are dealing with not existing modules.
-
     local is_mult = #ranges > 1
-    local single_new = ranges[1].ret.nodes.module and true
-
+    local single_new = not ranges[1].ret.nodes.module
 
     if opts.action == "TOGGLE" then
       if is_mult or single_new then
         -- TODO: build string to inject new modules as `enabled`
         -- >>> Call action ADD
+        --      Just add new (*)
+        --      Remember: mult or single -> new means that we are only
+        --      adding modules, ie. no commenting/toggling.
       else
-        -- Toggle existing single module
+        -- Toggle single lines / modules, ie one module line per range
         local args = ranges[1]
         local module_range = { args.ret.nodes.module:range() }
         local module_line = (vim.api.nvim_buf_get_lines(
@@ -344,7 +259,11 @@ local function transform_enabled_modules_tree(opts)
           module_range[1] + 1,
           true
         ))[1]
+
+        -- TODO: refator these into enable_module_line() and disable_module_line()
+
         if args.ret.leaf_is_comment then
+          -- enable_module_line() -- from comment..
           local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
           vim.api.nvim_buf_set_text(
             args.buf,
@@ -355,6 +274,7 @@ local function transform_enabled_modules_tree(opts)
             {}
           )
         else
+          -- disable_module_line() -- from regular module name string.
           local start_col, end_col = module_line:find('"') -- find first double quote
           vim.api.nvim_buf_set_text(
             args.buf,
@@ -370,6 +290,7 @@ local function transform_enabled_modules_tree(opts)
       if is_mult or single_new then
         -- TODO: build string to inject new modules as `enabled`
         -- >>> Call action ADD
+        --      Just add new (*)
       else
         -- -- Toggle existing single module
         -- local args = ranges[1]
@@ -406,39 +327,38 @@ local function transform_enabled_modules_tree(opts)
       if is_mult or single_new then
         -- TODO: build string to inject new modules as `enabled`
         -- >>> Call action ADD as disabled
+        --      Get the inject string BUT apply a comment prefix to each
+        --      module entry.
+        print("!!")
       else
         -- single add comment prefix
+        print("!!")
+        -- TODO: If not disabled, then disable_module_line,
+        -- else enable_module_line
       end
     elseif opts.action == "ADD" then
-      -- Add implies not existing, which means that we can then just add
-      -- Need to loop over all args for same range and build inject string.
-      --
-      --
+      local t_inject_new_lines = build_new_inject_string(ranges)
 
-      local inject_string = build_new_inject_string(ranges)
+      -- local pre = ""
+      -- local post = ""
+      -- local str
+      -- for i, v in ipairs(args.parts) do
+      --   if i < #args.parts then
+      --     pre = pre .. v .. " = {"
+      --     post = post .. "},"
+      --   else
+      --     str = ([[%s "%s", %s]]):format(pre, v, post)
+      --   end
+      -- end
 
-
-      local pre = ""
-      local post = ""
-      local str
-
-      for i, v in ipairs(args.parts) do
-        if i < #args.parts then
-          pre = pre .. v .. " = {"
-          post = post .. "},"
-        else
-          str = ([[%s "%s", %s]]):format(pre, v, post)
-        end
-      end
-
-      local parent_col_start = args.ret.nodes.parent:range()
-
+      local parent_col_start = current_range
+      -- inject_lines_at_col()
       vim.api.nvim_buf_set_lines(
-        args.buf,
+        enabled_modules_buf,
         parent_col_start + 1,
         parent_col_start + 1,
         true,
-        { str }
+        t_inject_new_lines
       )
     elseif opts.action == "REMOVE" then
       -- Only remove module if it exists as a node.
@@ -530,8 +450,6 @@ local function transform_enabled_modules_tree(opts)
   --   end
   -- end
 
-  -- This is a bit ugly, but it is a quick fix for now..
-  local enabled_modules_buf = ts_module_node_info[1].buf
 
   -- format and save
   vim.api.nvim_buf_call(enabled_modules_buf, function()

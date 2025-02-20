@@ -109,7 +109,7 @@ git.settings = {
       },
     },
     live_blame = {
-      enabled = true,
+      enabled = false,
       format = function(blame, git_config)
         local config_author = git_config["user.name"]
         local author = blame.author
@@ -159,7 +159,7 @@ git.settings = {
       end,
     },
     live_gutter = {
-      enabled = true,
+      enabled = false,
     },
     scene = {
       diff_preference = "unified",
