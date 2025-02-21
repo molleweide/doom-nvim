@@ -3,6 +3,9 @@ local neogit = {}
 -- NOTE: How to keep `leap` on `s` mapping inside Neogit
 -- https://github.com/NeogitOrg/neogit/issues/564
 --
+-- FIX: neogit complains about telescope fzf not existing
+-- https://github.com/NeogitOrg/neogit/issues/1186
+-- check all the possible telescope config options below.
 
 -- neogit.settings = {
 --   -- override/add mappings
