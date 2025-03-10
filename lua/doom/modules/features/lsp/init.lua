@@ -139,30 +139,32 @@ local function diagnostics_testing()
   print("--- DIAGNOSTIC TESTING END ---")
 end
 
-lsp.autocmds = {
-  -- {
-  --   "LspRequest",
-  --   callback = function(args)
-  --     local bufnr = args.buf
-  --     local client_id = args.data.client_id
-  --     local request_id = args.data.request_id
-  --     local request = args.data.request
-  --     local log = require("doom.utils.logging")
-  --     log.info("REQUESt =", vim.inspect(request))
-  --     -- if request.type == 'pending' then
-  --     --   -- do something with pending requests
-  --     --   track_pending(client_id, bufnr, request_id, request)
-  --     -- elseif request.type == 'cancel' then
-  --     --   -- do something with pending cancel requests
-  --     --   track_canceling(client_id, bufnr, request_id, request)
-  --     -- elseif request.type == 'complete' then
-  --     --   -- do something with finished requests. this pending
-  --     --   -- request entry is about to be removed since it is complete
-  --     --   track_finish(client_id, bufnr, request_id, request)
-  --     -- end
-  --   end,
-  -- },
-}
+-- NOTE: I believe this is only for testing purposes, as of now..
+--
+-- lsp.autocmds = {
+--   -- {
+--   --   "LspRequest",
+--   --   callback = function(args)
+--   --     local bufnr = args.buf
+--   --     local client_id = args.data.client_id
+--   --     local request_id = args.data.request_id
+--   --     local request = args.data.request
+--   --     local log = require("doom.utils.logging")
+--   --     log.info("REQUESt =", vim.inspect(request))
+--   --     -- if request.type == 'pending' then
+--   --     --   -- do something with pending requests
+--   --     --   track_pending(client_id, bufnr, request_id, request)
+--   --     -- elseif request.type == 'cancel' then
+--   --     --   -- do something with pending cancel requests
+--   --     --   track_canceling(client_id, bufnr, request_id, request)
+--   --     -- elseif request.type == 'complete' then
+--   --     --   -- do something with finished requests. this pending
+--   --     --   -- request entry is about to be removed since it is complete
+--   --     --   track_finish(client_id, bufnr, request_id, request)
+--   --     -- end
+--   --   end,
+--   -- },
+-- }
 
 lsp.binds = function()
   return {

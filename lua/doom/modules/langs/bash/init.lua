@@ -62,7 +62,7 @@ local langs_utils = require("doom.modules.langs.utils")
 bash.autocmds = {
   {
     "FileType",
-    "bash,sh",
+    "bash,sh,zsh",
     langs_utils.wrap_language_setup("bash", function()
       if not bash.settings.disable_lsp then
         langs_utils.use_lsp_mason(bash.settings.lsp_name, {
