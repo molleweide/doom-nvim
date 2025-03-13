@@ -10,6 +10,10 @@ if vim.fn.has("nvim-0.7.0") ~= 1 then
   vim.notify(message, vim.log.levels.ERROR)
 end
 
+local doom_startup_mode= os.getenv("DOOM_STARTUP_MODE")
+
+print(string.format("[doom init.lua]: doom_startup_mode: %s", doom_startup_mode))
+
 local profiler = require("doom.services.profiler")
 
 profiler.start("framework|init.lua")
