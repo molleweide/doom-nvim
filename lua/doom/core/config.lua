@@ -17,9 +17,6 @@ config.source = nil
 
 --- Entry point to bootstrap doom-nvim.
 config.load = function()
-    --
-    -- Set vim sensible defaults
-    --
     -- Set vim defaults on first load. To override these, the user can just
     -- override vim.opt in their own config, no bells or whistles attached.
     vim.opt.hidden = true
@@ -65,9 +62,9 @@ config.load = function()
     vim.opt.foldenable = true
     vim.opt.foldtext = require("doom.core.functions").sugar_folds()
 
-    --
-    -- Load modules | Based on their [enabled] and [tag] attributes.
-    --
+    -------------------------------------------------------------------
+    -- Load modules | Based on their [enabled] and [tag] attributes. --
+    -------------------------------------------------------------------
 
     profiler.start("framework|import modules")
 
@@ -75,25 +72,123 @@ config.load = function()
 
     -- log.info(vim.inspect(enabled_modules))
 
+    local DOOM_STARTUP_MODE = os.getenv("DOOM_STARTUP_MODE")
+    local DOOM_LOAD_SECTIONS = os.getenv("DOOM_LOAD_SECTIONS")
+    local DOOM_LOAD_TAGS = os.getenv("DOOM_LOAD_TAGS")
+
+    print(
+        string.format(
+            "ENV VARS:\nstartup = %s\nsections = %s\ntags = %s",
+            DOOM_STARTUP_MODE,
+            DOOM_LOAD_SECTIONS,
+            DOOM_LOAD_TAGS
+        )
+    )
+
+    -- TODO: ( ) Handle DOOM_STARTUP_MODE
+    -- if "first load and startup mode env var" then
+    --     -- override DOOM_LOAD_SECTIONS and DOOM_LOAD_TAGS with predefined presets
+    --     print(arst)
+    -- end
+
     -- if modules_ok then...
     if not modules_ok then
-        -- log.error(
-        --   string.format(
-        --     "There was an error loading enabled modules. Traceback:\n%s",
-        --     result
-        --   )
-        -- )
-        log.error("[core.config] > There was an error loading enabled modules.")
+        log.error("[core.config] > There was an error loading enabled [modules.lua] table.")
     else
+        -- handle modules declared as <tables> and also <strings> for backwards compatability.
+        local check_is_module = function(node, stack)
+            local parent = stack[#stack]
+            if
+                (type(node) == "string")                                               -- string module
+                or (parent and type(parent.key) == "number" and type(node) == "table") -- table module
+            then
+                return true
+            end
+        end
+
+        -- returns true if a module should not be loaded.
+        local filter_module_declaration = function(check_filter_str, compare)
+            local is_inclusive = check_filter_str:match("^!"):sub(2)
+            local t_filter = vim.split(check_filter_str, ".")
+            local t_compare = type(compare) == "string" and { compare } or compare
+            if type(check_filter_str) == "string" then
+                for _, compare_str in ipairs(t_compare) do
+                    local match = vim.tbl_contains(t_filter, compare_str)
+                    if is_inclusive and not match then
+                        return true
+                    end
+                    if not is_inclusive and match then
+                        return true
+                    end
+                end
+            end
+        end
+
+        -- TODO: Rename `node` to `module_declaration`
+
+        -- TODO: Currently, modules, can only be strings, >>> Need to change
+        -- this so that one can supply a module table instead.
+
         -- Combine enabled modules (`modules.lua`) with core modules.
         require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
-            if type(node) == "string" then
-                local t_path = vim.tbl_map(function(stack_node)
-                    return type(stack_node.key) == "string" and stack_node.key or stack_node.node
-                end, stack)
+            if check_is_module(node, stack) then
 
+                -- WARN: ignore table modules for now...
+                if type(node) == "table" then
+                    return
+                end
+
+                -- TODO: ( ) handle both old and new way
+                -- put together path
+                local t_path = vim.tbl_map(function(stack_node)
+                    return type(stack_node.key) == "string" and stack_node.key
+                        -- table declaration
+                        or type(stack_node) == "table" and stack_node[1]
+                        -- single string declaration
+                        or stack_node.node
+                end, stack)
                 local path_module = table.concat(t_path, ".")
 
+                ---------------------------------------------------------
+                -- Filter modules START
+                ---------------------------------------------------------
+                --
+                -- TODO: Later, move this into meta __eq operator on the doom table
+                -- itself. So that it can be reused in other settigs.
+                --
+                -- WARN: Need to handle <string> | <table> for module spec.
+                -- 1. (x) debug print the `traverse_enabled` func and see what happens in it.
+                -- 2. (x) Add new step to include module-tables.
+                -- 3. (x) Try and see if everything loads as expected.
+                --          First try seemed to work fine.
+                -- 4. (=) Migrate an existing module and try running vim. Does it work?
+                -- 5. ( ) Start building the loading mechanism
+
+                -- check if enabled or backwards compatible "string"
+                if not (type(node) == "string" or node.enabled) then
+                    return
+                end
+
+                if false then
+                    -- make lower case and trim the module name from the string
+                    if
+                        filter_module_declaration(
+                            DOOM_LOAD_SECTIONS,
+                            path_module:lower():gsub("%.[^%.]+$", "")
+                        )
+                    then
+                        return
+                    end
+                    if filter_module_declaration(DOOM_LOAD_TAGS, node.tags) then
+                        return
+                    end
+                end
+
+                ---------------------------------------------------------
+                -- Filter modules END
+                ---------------------------------------------------------
+
+                -- profile each module
                 local profiler_message = ("modules|import `%s`"):format(path_module)
                 profiler.start(profiler_message)
 
@@ -108,6 +203,7 @@ config.load = function()
                 end
 
                 if ok then
+                    -- empty module
                     if type(result) == "boolean" and result then
                         log.debug(
                             string.format(
@@ -116,9 +212,15 @@ config.load = function()
                             )
                         )
                     else
+                        -- valid non empty module
+
                         -- NOTE: Some of these tags might be unnecessary or redundant but
                         -- for now i keep them since it makes it easier to merge some old
                         -- code from eg dui.
+
+                        -- TODO: Move this mapping of import to doom table into own func,
+                        -- so that one can either load single/set of modules, or
+                        -- everything..
 
                         -- Add string tag so that we can easilly target modules with more
                         -- traversers, ie. in `core/modules` when traversing `doom.modules`
@@ -139,6 +241,7 @@ config.load = function()
                         end
                     end
                 else
+                    -- bad module
                     log.error(
                         string.format(
                             "There was an error loading module '%s'. Traceback:\n%s",
@@ -222,7 +325,7 @@ config.load = function()
 
     -- Color column
     vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
-            and tostring(doom.settings.max_columns)
+        and tostring(doom.settings.max_columns)
         or ""
 
     -- Number column

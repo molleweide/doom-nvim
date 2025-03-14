@@ -24,6 +24,8 @@ return {
     "architext",
     "monitoring",
 
+    { "DUMMY" },
+
     "lsp_progress",
 
     "file_explorer_oil",

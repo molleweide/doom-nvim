@@ -7,11 +7,9 @@
 -- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
 -- automatically.
 --
--- TODO: Make every single module as a boolean here below, that would make it
--- possible to do `module = <boolean>` and that would only require loading this
--- table in order to get the info quickly on every single module.
--- This would allow for easilly loading and unloading modules without having to
--- write to this file.
+-- TODO: Check if we can define custom rules for how to format this table with
+-- luacheck/stylua, eg. so that each module becomes its own line, but all sections
+-- are broken up into multiline.
 
 -- TEST: new modules pattern
 -- 1. use uppercase for category keys.
@@ -158,15 +156,15 @@ return {
     { "dap",                         enabled = true }, -- Debug code through neovim
     { "repl",                        enabled = true },
     { "email_himalaya",              enabled = true },
-    { "explorer",                    enabled = true },                   -- An enhanced filetree explorer
-    { "firenvim",                    enabled = true },                   -- Embed neovim in your browser
-    { "lazygit",                     enabled = true },                   -- Lazy git integration
-    { "neogit",                      enabled = true },                   -- A git client for neovim
+    { "explorer",                    enabled = true },                    -- An enhanced filetree explorer
+    { "firenvim",                    enabled = true },                    -- Embed neovim in your browser
+    { "lazygit",                     enabled = true },                    -- Lazy git integration
+    { "neogit",                      enabled = true },                    -- A git client for neovim
     -- {"netrw", enabled = true},
-    { "neorg",                       enabled = true },                   -- Organise your life
-    { "superman",                    enabled = true },                   -- Read unix man pages in neovim
-    { "suda",                        enabled = true },                   -- Save using sudo when necessary
-    { "telescope",                   enabled = true },                   -- Fuzzy searcher to find files, grep code and more
+    { "neorg",                       enabled = true },                    -- Organise your life
+    { "superman",                    enabled = true },                    -- Read unix man pages in neovim
+    { "suda",                        enabled = true },                    -- Save using sudo when necessary
+    { "telescope",                   enabled = true },                    -- Fuzzy searcher to find files, grep code and more
     -- {"telescope_extensions_various", enabled = true},
     { "whichkey",                    enabled = true, tags = { "reduced", "firenvim" } }, -- An interactive sheet
     { "zen",                         enabled = true },

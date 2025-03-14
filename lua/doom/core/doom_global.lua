@@ -60,6 +60,9 @@ _G._doom = _G._doom ~= nil and _G._doom or {}
 
 --- Global object
 doom = setmetatable({
+
+    first_load = true, -- maybe put this in the _doom hidden table?
+
     settings = {
         -- Use the global statusline
         -- @default = true

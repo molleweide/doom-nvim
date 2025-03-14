@@ -90,7 +90,7 @@ g.loaded_rrhelper = 1
 local profiler = require("doom.services.profiler")
 
 --
--- Sets the `doom` global object
+-- 1. Sets the `doom` global object
 --
 
 profiler.start("framework|doom.core.doom_global")
@@ -108,7 +108,7 @@ local utils = require("doom.utils")
 profiler.stop("framework|doom.utils")
 
 --
--- Boostraps the doom-nvim framework, runs the user's `config.lua` file.
+-- 2. Boostraps the doom-nvim framework, runs the user's `config.lua` file.
 --
 
 profiler.start("framework|doom.core.config (setup + user)")
@@ -126,16 +126,18 @@ if not utils.is_module_enabled("features", "netrw") then
 end
 
 --
--- Set some extra commands
+-- 3. Set some extra commands
 --
 
 utils.safe_require("doom.core.commands")
 
+--
+-- Loading of modules
+--
+
 profiler.start("framework|doom.core.modules")
 
---
--- Load Doom modules.
---
+-- 4. Load Doom modules.
 
 local modules = utils.safe_require("doom.core.modules")
 
@@ -143,10 +145,16 @@ profiler.start("framework|init enabled modules")
 modules.load_modules()
 profiler.stop("framework|init enabled modules")
 
+-- 5. Load user's config
+
 profiler.start("framework|user settings")
 modules.handle_user_config()
 profiler.stop("framework|user settings")
 
+
+
+-- WARN: This is problematic, if one uses a reduced set of modules...
+-- Need to rethink this. -> Only allow syncing if running [DOOM_RUN_STATE == FULL]
 modules.try_sync()
 
 modules.handle_lazynvim()
@@ -156,16 +164,22 @@ profiler.stop("framework|doom.core.modules")
 doom.core.nest.reload_binds()
 
 --
--- Load the colourscheme
+-- 6. Load the colourscheme
 --
 
 profiler.start("framework|doom.core.ui")
 utils.safe_require("doom.core.ui")
 profiler.stop("framework|doom.core.ui")
 
+--
+-- 7. Trigger loading custom config via autocmd
+--
+
 -- Execute autocommand for user to hook custom config into
 vim.api.nvim_exec_autocmds("User", {
   pattern = "DoomStarted",
 })
+
+doom.first_loade = false
 
 -- vim: fdm=marker
