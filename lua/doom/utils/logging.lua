@@ -3,6 +3,17 @@
 --
 -- This library is free software; you can redistribute it and/or modify it
 -- under the terms of the MIT license. See LICENSE for details.
+--
+-- TODO: Move this to core module, and map it to a global variable.
+-- ^ Which also reduces the need to import this func everywhere...
+--
+-- TODO: When this is moved into its own module, then we can add settigs to
+-- make the output more granular.
+--
+-- TEST: When module, then this module should also be requireable by core,
+-- so that we can also use it in the core itself, and maybe have some kind of
+-- meta shenanigans that makes the loaded module takes over after it has been
+-- loaded so that we can reload it even for core..
 
 local round = require("doom.utils").round
 
@@ -68,8 +79,23 @@ log.new = function(config, standalone)
         return table.concat(t, " ")
     end
 
+    -- TODO: Modify so that this shows the source file and its parent dir.
+    -- TODO: Show parent function where called.
     local console_output = vim.schedule_wrap(function(level_config, info, nameupper, msg)
-        local console_lineinfo = vim.fn.fnamemodify(info.short_src, ":t") .. ":" .. info.currentline
+        -- local console_lineinfo = vim.fn.fnamemodify(info.short_src, ":t") .. ":" .. info.currentline
+
+        -- only filename
+        local fname = vim.fn.fnamemodify(info.short_src, ":t")
+        -- capture filename and parent dir which reveals `init.lua` files location
+        local pattern_dir_and_filename = "/([^/]+/[^/]+)$"
+
+        local console_lineinfo = string.format(
+            "%s:%s%s",
+            info.short_src:match(pattern_dir_and_filename),
+            info.currentline,
+            info.name and " in " .. info.name or ""
+        )
+
         local console_string =
             string.format("[%-6s%s] %s: %s", nameupper, os.date("%H:%M:%S"), console_lineinfo, msg)
 
@@ -85,8 +111,9 @@ log.new = function(config, standalone)
         local nameupper = level_config.name:upper()
 
         local msg = message_maker(...)
-        local info = debug.getinfo(2, "Sl")
+        local info = debug.getinfo(2, "Sln")
         local lineinfo = info.short_src .. ":" .. info.currentline
+        -- local lineinfo = "XXX" .. ":" .. info.currentline
 
         -- Output to console
         if config.use_console then
