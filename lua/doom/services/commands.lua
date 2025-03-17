@@ -91,6 +91,7 @@ commands_service.set = function(name, command, opts)
     set_command_fn(name, command, opts or {})
 end
 
+-- NOTE: note used anywhere!
 commands_service.del = function(name)
     commands_service.stored_names[name] = nil
     del_command_fn(name)
