@@ -180,6 +180,6 @@ vim.api.nvim_exec_autocmds("User", {
   pattern = "DoomStarted",
 })
 
-doom.first_loade = false
+-- _doom_first_load = false
 
 -- vim: fdm=marker

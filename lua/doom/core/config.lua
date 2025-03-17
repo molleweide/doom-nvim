@@ -76,14 +76,18 @@ config.load = function()
     local DOOM_LOAD_SECTIONS = os.getenv("DOOM_LOAD_SECTIONS")
     local DOOM_LOAD_TAGS = os.getenv("DOOM_LOAD_TAGS")
 
-    print(
-        string.format(
-            "ENV VARS:\nstartup = %s\nsections = %s\ntags = %s",
-            DOOM_STARTUP_MODE,
-            DOOM_LOAD_SECTIONS,
-            DOOM_LOAD_TAGS
-        )
-    )
+    print(string.format(
+        [[ ENV VARS:
+                startup = %s
+                sections = %s
+                tags = %s
+                _doom_first_load = %s
+            ]],
+        DOOM_STARTUP_MODE,
+        DOOM_LOAD_SECTIONS,
+        DOOM_LOAD_TAGS,
+        _doom_first_load
+    ))
 
     -- TODO: ( ) Handle DOOM_STARTUP_MODE
     -- if "first load and startup mode env var" then
@@ -110,9 +114,8 @@ config.load = function()
         local filter_module_declaration = function(check_filter_str, compare)
             local is_inclusive = check_filter_str:match("^!"):sub(2)
             local t_filter = vim.split(check_filter_str, ".")
-            local t_compare = type(compare) == "string" and { compare } or compare
             if type(check_filter_str) == "string" then
-                for _, compare_str in ipairs(t_compare) do
+                for _, compare_str in ipairs(type(compare) == "string" and { compare } or compare) do
                     local match = vim.tbl_contains(t_filter, compare_str)
                     if is_inclusive and not match then
                         return true
@@ -132,60 +135,59 @@ config.load = function()
         -- Combine enabled modules (`modules.lua`) with core modules.
         require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
             if check_is_module(node, stack) then
-
-                -- WARN: ignore table modules for now...
-                if type(node) == "table" then
-                    return
-                end
+                -- if type(node) == "table" then
+                --     return
+                -- end
 
                 -- TODO: ( ) handle both old and new way
                 -- put together path
                 local t_path = vim.tbl_map(function(stack_node)
-                    return type(stack_node.key) == "string" and stack_node.key
+                    -- print(string.format("[stack node]: %s", vim.inspect(stack_node)))
+                    return type(stack_node.key) == "string" and stack_node.key:lower()
                         -- table declaration
-                        or type(stack_node) == "table" and stack_node[1]
+                        or type(stack_node) == "table" and stack_node.node[1]
                         -- single string declaration
                         or stack_node.node
                 end, stack)
+
+                -- print(vim.inspect(t_path))
+
                 local path_module = table.concat(t_path, ".")
 
                 ---------------------------------------------------------
-                -- Filter modules START
+                -- filter modules
                 ---------------------------------------------------------
                 --
                 -- TODO: Later, move this into meta __eq operator on the doom table
                 -- itself. So that it can be reused in other settigs.
-                --
-                -- WARN: Need to handle <string> | <table> for module spec.
-                -- 1. (x) debug print the `traverse_enabled` func and see what happens in it.
-                -- 2. (x) Add new step to include module-tables.
-                -- 3. (x) Try and see if everything loads as expected.
-                --          First try seemed to work fine.
-                -- 4. (=) Migrate an existing module and try running vim. Does it work?
-                -- 5. ( ) Start building the loading mechanism
 
                 -- check if enabled or backwards compatible "string"
                 if not (type(node) == "string" or node.enabled) then
                     return
                 end
 
-                if false then
+                -- only load by env vars if it is the first time.
+                if false and _doom.first_load then
                     -- make lower case and trim the module name from the string
                     if
-                        filter_module_declaration(
+                        DOOM_LOAD_SECTIONS
+                        and filter_module_declaration(
                             DOOM_LOAD_SECTIONS,
                             path_module:lower():gsub("%.[^%.]+$", "")
                         )
                     then
                         return
                     end
-                    if filter_module_declaration(DOOM_LOAD_TAGS, node.tags) then
+                    if
+                        DOOM_LOAD_TAGS
+                        and filter_module_declaration(DOOM_LOAD_TAGS, node.tags or {})
+                    then
                         return
                     end
                 end
 
                 ---------------------------------------------------------
-                -- Filter modules END
+                -- load and attach modules to [doom]
                 ---------------------------------------------------------
 
                 -- profile each module
@@ -214,23 +216,15 @@ config.load = function()
                     else
                         -- valid non empty module
 
-                        -- NOTE: Some of these tags might be unnecessary or redundant but
-                        -- for now i keep them since it makes it easier to merge some old
-                        -- code from eg dui.
+                        -- TODO: Extract this so that single modules can be loaded with [modules browser.]
 
-                        -- TODO: Move this mapping of import to doom table into own func,
-                        -- so that one can either load single/set of modules, or
-                        -- everything..
-
-                        -- Add string tag so that we can easilly target modules with more
-                        -- traversers, ie. in `core/modules` when traversing `doom.modules`
+                        -- Attach additional meta data.
                         result.origin = correct_path:match("^(%w-)%.")
                         result.type = "doom_module_single"
                         result.name = correct_path
-                        result.enabled = true
-                        utils.get_set_table_path(doom.modules, t_path, result)
+                        result.enabled = type(node) == "table" and node.enabled or true
 
-                        -- NOTE: I dunno if my package reloader file is still relevant...
+                        utils.get_set_table_path(doom.modules, t_path, result)
 
                         -- Needs to be attached to custom table since each package is unaware
                         -- of its respective doom module.

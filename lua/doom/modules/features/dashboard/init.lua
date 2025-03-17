@@ -81,6 +81,8 @@ dashboard.configs["dashboard-nvim"] = function()
   local db = require("dashboard")
   local is_module_enabled = utils.is_module_enabled
 
+    print("DASHBOARD !!!!!!!!!!!!!")
+
   if is_module_enabled("features", "auto_session") then
     vim.g.dashboard_session_directory = doom.features.auto_session.settings.dir
   end

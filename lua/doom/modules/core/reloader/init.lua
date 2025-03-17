@@ -4,6 +4,9 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or {}
 -- TODO: MODES: 1. reload full on save; 2. only reload the least amount of files
 -- necessary. 3. Only do what..?
 
+-- TODO: ( ) When disabling/turning-off a module, make sure to remove it from
+-- package.loaded to optimally control memory load.
+
 -- NOTE: lazy reload plugin should be possible now:
 -- https://github.com/folke/lazy.nvim/issues/445
 

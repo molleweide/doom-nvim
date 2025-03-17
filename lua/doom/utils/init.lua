@@ -5,9 +5,9 @@ local fs = require("doom.utils.fs")
 
 --- Doom Nvim version
 utils.version = {
-  major = 4,
-  minor = 1,
-  patch = 0,
+    major = 4,
+    minor = 1,
+    patch = 0,
 }
 
 --- Currently supported version of neovim for this build of doom-nvim
@@ -18,27 +18,27 @@ utils.doom_version =
 
 -- Finds `filename` (where it is a doom config file).
 utils.find_config = function(filename)
-  local function get_filepath(dir)
-    return table.concat({ dir, filename }, system.sep)
-  end
+    local function get_filepath(dir)
+        return table.concat({ dir, filename }, system.sep)
+    end
 
-  local path = get_filepath(system.doom_configs_root)
-  if fs.file_exists(path) then
-    return path
-  end
-  path = get_filepath(system.doom_root)
-  if fs.file_exists(path) then
-    return path
-  end
-  local candidates =
-      vim.api.nvim_get_runtime_file(get_filepath("*" .. system.sep .. "doon-nvim"), false)
-  if not vim.tbl_isempty(candidates) then
-    return candidates[1]
-  end
-  -- TODO: Consider copying the default to the user config dir.
-  -- Can't use log yet, doom doesn't exist.
-  print(("Error while loading %s: Not found"):format(filename))
-  vim.cmd("qa!")
+    local path = get_filepath(system.doom_configs_root)
+    if fs.file_exists(path) then
+        return path
+    end
+    path = get_filepath(system.doom_root)
+    if fs.file_exists(path) then
+        return path
+    end
+    local candidates =
+        vim.api.nvim_get_runtime_file(get_filepath("*" .. system.sep .. "doon-nvim"), false)
+    if not vim.tbl_isempty(candidates) then
+        return candidates[1]
+    end
+    -- TODO: Consider copying the default to the user config dir.
+    -- Can't use log yet, doom doesn't exist.
+    print(("Error while loading %s: Not found"):format(filename))
+    vim.cmd("qa!")
 end
 
 -- If it receives a bool, returns the corresponding number. Otherwise
@@ -46,80 +46,80 @@ end
 --
 -- Useful for setting vim-style boolean options.
 utils.bool2num = function(bool_or_num)
-  if type(bool_or_num) == "boolean" then
-    return bool_or_num and 1 or 0
-  end
-  return bool_or_num
+    if type(bool_or_num) == "boolean" then
+        return bool_or_num and 1 or 0
+    end
+    return bool_or_num
 end
 
 --- Useful in vim `:set <option>` style commands
 ---@param bool boolean Bool to convert to string
 ---@return string "on" or "off"
 utils.bool2str = function(bool)
-  return bool and "on" or "off"
+    return bool and "on" or "off"
 end
 
 --- Wraps lua's require function in an xpcall and logs errors.
 ---@param path string
 ---@return any
 utils.safe_require = function(path)
-  local log = require("doom.utils.logging")
-  log.debug(string.format("Doom: loading '%s'... ", path))
-  local ok, result = xpcall(require, debug.traceback, path)
-  if not ok and result then
-    log.error(string.format("There was an error requiring '%s'. Traceback:\n%s", path, result))
-    return nil
-  else
-    log.debug(string.format("Successfully loaded '%s' module", path))
-    return result
-  end
+    local log = require("doom.utils.logging")
+    log.debug(string.format("Doom: loading '%s'... ", path))
+    local ok, result = xpcall(require, debug.traceback, path)
+    if not ok and result then
+        log.error(string.format("There was an error requiring '%s'. Traceback:\n%s", path, result))
+        return nil
+    else
+        log.debug(string.format("Successfully loaded '%s' module", path))
+        return result
+    end
 end
 
 utils.get_sysname = function()
-  return vim.loop.os_uname().sysname
+    return vim.loop.os_uname().sysname
 end
 
 local index = 1
 utils.unique_index = function()
-  local ret = index
-  index = index + 1
-  return ret
+    local ret = index
+    index = index + 1
+    return ret
 end
 
 --- Wraps nvim_replace_termcodes
 --- @param str string
 --- @return string
 function utils.replace_termcodes(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
 --- Check if string is empty or if it's nil
 --- @param str string The string to be checked
 --- @return boolean
 utils.is_empty = function(str)
-  return str == "" or str == nil
+    return str == "" or str == nil
 end
 
 --- Escapes a string
 --- @param str string String to escape
 --- @return string
 utils.escape_str = function(str)
-  local escape_patterns = {
-    "%^",
-    "%$",
-    "%(",
-    "%)",
-    "%[",
-    "%]",
-    "%%",
-    "%.",
-    "%-",
-    "%*",
-    "%+",
-    "%?",
-  }
+    local escape_patterns = {
+        "%^",
+        "%$",
+        "%(",
+        "%)",
+        "%[",
+        "%]",
+        "%%",
+        "%.",
+        "%-",
+        "%*",
+        "%+",
+        "%?",
+    }
 
-  return str:gsub(("([%s])"):format(table.concat(escape_patterns)), "%%%1")
+    return str:gsub(("([%s])"):format(table.concat(escape_patterns)), "%%%1")
 end
 
 --- Wraps the appropriate diagnostics function according to nvim version
@@ -127,9 +127,9 @@ end
 --- @param severity string The name of desired severity
 --- @return number The count of items
 utils.get_diagnostic_count = function(bufnr, severity)
-  return vim.tbl_count(vim.diagnostic.get(bufnr, {
-    severity = severity,
-  }))
+    return vim.tbl_count(vim.diagnostic.get(bufnr, {
+        severity = severity,
+    }))
 end
 
 --- Check if the given plugin is disabled in doom-nvim/modules.lua
@@ -137,20 +137,31 @@ end
 --- @param plugin string The module identifier, e.g. statusline
 --- @return boolean
 utils.is_module_enabled = function(section, plugin)
-  local ok, modules = require("doom.core.modules").enabled_modules()
+    local ok, modules = require("doom.core.modules").enabled_modules()
 
-  if not ok then
-    return false
-  end
+    if not ok then
+        return false
+    end
 
-  if type(section) == "table" then
-    local tp = section
-    local name = table.remove(tp, #tp)
-    local subsec = utils.get_set_table_path(modules, tp)
-    return vim.tbl_contains(subsec, name)
-  else
-    return modules[section] and vim.tbl_contains(modules[section], plugin)
-  end
+    if type(section) == "table" then
+        local count = 0
+        local it = vim.iter(section):map(function(v)
+            count = count + 1
+            return count ~= #section and v:upper() or v
+        end)
+        local tp = it:totable()
+        print(string.format([[tp: %s]], vim.inspect(tp)))
+        local name = table.remove(tp, #tp)
+        local subsec = utils.get_set_table_path(modules, tp)
+        return vim.tbl_contains(subsec, function(v)
+            return v[1] == name
+        end, { predicate = true })
+    else
+        return modules[section] --vim.tbl_contains(modules[section:upper()], plugin)
+            and vim.tbl_contains(section:upper(), function(v)
+                return v[1] == plugin
+            end, { predicate = true })
+    end
 end
 
 --- Rounds a number, optionally to the nearest decimal place
@@ -158,17 +169,17 @@ end
 --- @param decimalplace number|nil - Number of decimal places
 --- @return number
 utils.round = function(num, decimalplace)
-  local mult = 10 ^ (decimalplace or 0)
-  return math.floor(num * mult + 0.5) / mult
+    local mult = 10 ^ (decimalplace or 0)
+    return math.floor(num * mult + 0.5) / mult
 end
 
 --- Searches for a number of executables in the user's path
 --- @param executables table<number, string> Table of executables to search for
 --- @return string|nil First valid executable in table
 utils.find_executable_in_path = function(executables)
-  return vim.tbl_filter(function(c)
-    return c ~= vim.NIL and vim.fn.executable(c) == 1
-  end, executables)[1]
+    return vim.tbl_filter(function(c)
+        return c ~= vim.NIL and vim.fn.executable(c) == 1
+    end, executables)[1]
 end
 
 --- Picks a field from a table by checking the keys if it's compatible
@@ -184,35 +195,35 @@ end
 ---print(val) -- > 'this will be picked'
 ---```
 utils.pick_compatible_field = function(compatibility_table)
-  -- Sort the keys in order of neovim version
-  local sorted = vim.tbl_keys(compatibility_table)
-  table.sort(sorted, function(a, b)
-    return a < b
-  end)
-  -- Need "latest" to be last as it is a catch all for the default behaviour
-  if sorted[1] == "latest" then
-    table.remove(sorted, 1)
-    table.insert(sorted, "latest")
-  end
-
-  -- Find the last key that is compatible with this neovim version
-  local last_field = nil
-  for _, version in ipairs(sorted) do
-    local field = compatibility_table[version]
-    local ver = version == "latest" and utils.nvim_latest_supported or version
-
-    if vim.fn.has(ver) == 1 then
-      last_field = field
-    else
-      break
+    -- Sort the keys in order of neovim version
+    local sorted = vim.tbl_keys(compatibility_table)
+    table.sort(sorted, function(a, b)
+        return a < b
+    end)
+    -- Need "latest" to be last as it is a catch all for the default behaviour
+    if sorted[1] == "latest" then
+        table.remove(sorted, 1)
+        table.insert(sorted, "latest")
     end
-  end
 
-  -- Must always return a value.
-  if last_field == nil then
-    error("Error getting compatible field.")
-  end
-  return last_field
+    -- Find the last key that is compatible with this neovim version
+    local last_field = nil
+    for _, version in ipairs(sorted) do
+        local field = compatibility_table[version]
+        local ver = version == "latest" and utils.nvim_latest_supported or version
+
+        if vim.fn.has(ver) == 1 then
+            last_field = field
+        else
+            break
+        end
+    end
+
+    -- Must always return a value.
+    if last_field == nil then
+        error("Error getting compatible field.")
+    end
+    return last_field
 end
 
 -- Get or Set a table path list.
@@ -227,33 +238,33 @@ end
 ---@param data      any     If supplied, attaches this data to tp tip, eg. `{"a", "b"} -> b = data`
 utils.get_set_table_path = function(t_target, tp, data)
     local head = t_target
-  if not head or not tp then
-    return false
-  end
-  local last = #tp
-  for i, p in ipairs(tp) do
-    if i ~= last then
-      if head[p] == nil then
-        if not data then
-          -- if a nil occurs, this means the path does no exist >> return
-          return false
-        end
-        head[p] = {}
-      end
-      head = head[p]
-    else
-      if data then
-        if type(data) == "function" then
-          data(head[p])
-        else
-          head[p] = data
-        end
-      else
-        -- print(vim.inspect(head), p)
-        return head[p]
-      end
+    if not head or not tp then
+        return false
     end
-  end
+    local last = #tp
+    for i, p in ipairs(tp) do
+        if i ~= last then
+            if head[p] == nil then
+                if not data then
+                    -- if a nil occurs, this means the path does no exist >> return
+                    return false
+                end
+                head[p] = {}
+            end
+            head = head[p]
+        else
+            if data then
+                if type(data) == "function" then
+                    data(head[p])
+                else
+                    head[p] = data
+                end
+            else
+                -- print(vim.inspect(head), p)
+                return head[p]
+            end
+        end
+    end
 end
 
 --- Pads a string with chars on the right hand side.
@@ -262,9 +273,9 @@ end
 ---@param char string|nil Single char to fill with
 ---@return string,boolean Padded string,Flag if padding was needed
 utils.right_pad = function(str, length, char)
-  local res = str .. string.rep(char or " ", length - #str)
+    local res = str .. string.rep(char or " ", length - #str)
 
-  return res, res ~= str
+    return res, res ~= str
 end
 --- Pads a string with chars on the left hand side.
 ---@param str string String to pad
@@ -272,9 +283,9 @@ end
 ---@param char string|nil Single char to fill with
 ---@return string,boolean Padded string,Flag if padding was needed
 utils.left_pad = function(str, length, char)
-  local res = string.rep(char or " ", length - #str) .. str
+    local res = string.rep(char or " ", length - #str) .. str
 
-  return res, res ~= str
+    return res, res ~= str
 end
 
 -- https://neovim.discourse.group/t/function-that-return-visually-selected-text/1601/2
@@ -282,22 +293,22 @@ end
 --- Returns a multiline string of the visually selected area.
 ---@return string
 utils.get_visual_selection = function()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
-  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-  lines[1] = string.sub(lines[1], s_start[3], -1)
-  if n_lines == 1 then
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
-  else
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
-  end
-  return table.concat(lines, "\n")
+    local s_start = vim.fn.getpos("'<")
+    local s_end = vim.fn.getpos("'>")
+    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+    lines[1] = string.sub(lines[1], s_start[3], -1)
+    if n_lines == 1 then
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
+    else
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
+    end
+    return table.concat(lines, "\n")
 end
 
 utils.insert_text_at = function()
-  -- NOTE:
-  -- { type = visual_selection}
+    -- NOTE:
+    -- { type = visual_selection}
 end
 
 -- This func is meant to work in conjunction with the doom's buffer
@@ -305,31 +316,31 @@ end
 -- then later the target table will be used in the monitor to
 -- write to the target buffer.
 utils.new_message_builder = function(message_target_table)
-  local function util_ensure_no_linesplits(data)
-    if type(data) == "string" then
-      data = vim.split(data, "\n")
+    local function util_ensure_no_linesplits(data)
+        if type(data) == "string" then
+            data = vim.split(data, "\n")
+        end
+        return data
     end
-    return data
-  end
 
-  -- TODO: Check if # select == and type == table -> treat each entry
-  -- as a line string
-  return function(...)
-    local input
-    if select("#", ...) > 1 then
-      input = string.format(...)
-    else
-      input = select(1, ...)
+    -- TODO: Check if # select == and type == table -> treat each entry
+    -- as a line string
+    return function(...)
+        local input
+        if select("#", ...) > 1 then
+            input = string.format(...)
+        else
+            input = select(1, ...)
+        end
+        if input:match("\n") then
+            input = util_ensure_no_linesplits(input)
+            for _, v in ipairs(input) do
+                table.insert(message_target_table, v)
+            end
+        else
+            table.insert(message_target_table, input)
+        end
     end
-    if input:match("\n") then
-      input = util_ensure_no_linesplits(input)
-      for _, v in ipairs(input) do
-        table.insert(message_target_table, v)
-      end
-    else
-      table.insert(message_target_table, input)
-    end
-  end
 end
 
 return utils

@@ -1,3 +1,5 @@
+_doom_first_load = true
+
 -- Check if user is running Doom in a supported Neovim version before trying to load anything
 if vim.fn.has("nvim-0.7.0") ~= 1 then
   local message = table.concat({
@@ -11,7 +13,6 @@ if vim.fn.has("nvim-0.7.0") ~= 1 then
 end
 
 local doom_startup_mode= os.getenv("DOOM_STARTUP_MODE")
-
 print(string.format("[doom init.lua]: doom_startup_mode: %s", doom_startup_mode))
 
 local profiler = require("doom.services.profiler")
@@ -53,6 +54,8 @@ vim.defer_fn(function()
 end, 1)
 
 profiler.stop("framework|init.lua")
+
+_doom_first_load = false
 
 -- NOTE: should i use this here?
 -- vim.defer_fn(function()

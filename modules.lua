@@ -7,375 +7,371 @@
 -- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
 -- automatically.
 --
--- TODO: Make every single module as a boolean here below, that would make it
--- possible to do `module = <boolean>` and that would only require loading this
--- table in order to get the info quickly on every single module.
--- This would allow for easilly loading and unloading modules without having to
--- write to this file.
+-- TODO: Check if we can define custom rules for how to format this table with
+-- luacheck/stylua, eg. so that each module becomes its own line, but all sections
+-- are broken up into multiline.
+
+-- TEST: new modules pattern
+-- 1. use uppercase for category keys.
+-- 2. use tables for each module
 
 return {
-  ai = {
-    "ai_chat_gpt",
-  },
-  lib = {
-    "nio", -- asynch IO
-  },
-  features = {
-    "architext",
-    "monitoring",
-
-    { "DUMMY" },
-
-    "lsp_progress",
-
-    "file_explorer_oil",
-
-    buffers = {
-      "buffer_management",
-      "temporary_buffers",
-      "cleanup_unused",
+    AI = {
+        { "ai_chat_gpt", enabled = true },
     },
-    -- "testmodule",
-    "task_and_job_manager",
-    lib = {
-      "litee",
-      "pathlib",
+    LIB = {
+        { "nio", enabled = true }, -- asynch IO
+    },
+    FEATURES = {
+        { "architext",         enabled = true },
+        { "monitoring",        enabled = true },
+        { "lsp_progress",      enabled = true },
+        { "file_explorer_oil", enabled = true },
+        BUFFERS = {
+            { "buffer_management", enabled = true },
+            { "temporary_buffers", enabled = true },
+            { "cleanup_unused",    enabled = true },
+        },
+        { "testmodule",           enabled = false },
+        { "task_and_job_manager", enabled = true },
+        LIB = {
+            { "litee",   enabled = true },
+            { "pathlib", enabled = true },
+        },
+        COMPLETIONS = {
+            { "cmp_nvim", enabled = false },
+            -- "coc"
+        },
+        SNIPPETS = {
+            { "extra_snippets",               enabled = true }, -- Code snippets for all languages
+            { "luasnip_engine",               enabled = true, tags = { "reduced", "firenvim" } },
+            { "additional_friendly_snippets", enabled = true, tags = { "reduced", "firenvim" } },
+            { "luasnip_telescope",            enabled = true },
+        },
+
+        -- Language features
+        { "annotations",                enabled = true }, -- Code annotation generator
+        { "auto_install",               enabled = true }, -- Auto install LSP providers
+        { "autopairs",                  enabled = true }, -- Automatically close character pairs
+        { "comment",                    enabled = true }, -- Adds keybinds to comment in any language
+        { "linter",                     enabled = true }, -- Linting and formatting for languages
+        { "lsp",                        enabled = true }, -- Code completion
+        { "lsp_cmp",                    enabled = true },
+        { "lsp_signature_hints",        enabled = true },
+        { "context_in_code",            enabled = true },
+        { "additional_vim_textobjects", enabled = true },
+        LANGUAGE_FEATURES = {
+            -- {"virtual_types", enabled = false},
+            { "auto_add_end_keyword",                    enabled = true },
+            { "highlight_args_and_params",               enabled = true },
+            { "preview_edit_and_navigate_lsp_locations", enabled = false },
+            { "swap_args_and_elems",                     enabled = true },
+            { "ts_plugins",                              enabled = true },
+        },
+
+        -- TODO: Move all lsp stuff into this directory...
+        LSP = {
+            { "lspconfig", enabled = false },
+        },
+
+        -- Editor
+        { "auto_session",      enabled = true }, -- Remember sessions between loads
+        { "colorizer",         enabled = true }, -- Show colors in neovim
+        { "editorconfig",      enabled = true }, -- Support editorconfig files
+        { "gitsigns",          enabled = false }, -- Show git changes in sidebar
+        { "illuminate",        enabled = true }, -- Highlight other copies of the word you're hovering on
+        { "indentlines",       enabled = true }, -- Show indent lines with special characters
+        { "range_highlight",   enabled = true }, -- Highlight selected range from commands
+        { "todo_comments",     enabled = true }, -- Highlight TODO: comments
+        { "doom_themes",       enabled = true }, -- Extra themes for doom
+        { "color_pickers",     enabled = true },
+        { "clipboard_neoclip", enabled = true },
+        { "clipboard_images",  enabled = true },
+        REFACTOR = { { "refactoring", enabled = true }, "exemplum" },
+        { "search_and_replace",            enabled = true },
+        { "quickfix_improvements",         enabled = true },
+        { "increment_and_toggle_values",   enabled = true },
+        { "project_root_and_cwd",          enabled = true },
+        { "comments_block_headers",        enabled = true },
+        { "marks",                         enabled = true },
+        { "folds",                         enabled = true },
+        { "help_and_doc_bindings_various", enabled = true }, -- Support for help with binds and stuff
+        { "cursor",                        enabled = true },
+        { "formatting",                    enabled = true },
+        EDITOR = {
+            { "spellcheck",              enabled = false },
+            { "surround",                enabled = true }, -- Surround text objects, eg. {([])}
+            { "gestures",                enabled = false }, -- Mouse gestures
+            { "tabs",                    enabled = false }, -- ???
+            { "scroll",                  enabled = true },
+            { "registers",               enabled = true },
+            { "undo_tree_visualization", enabled = true },
+            { "printer",                 enabled = false },
+            { "sort",                    enabled = false }, -- extra binds that help with sorting lines/objects
+            { "logging",                 enabled = false }, -- binds n stuff
+            { "litee_symboltree",        enabled = false },
+            { "litee_bookmarks",         enabled = false },
+            { "litee_calltree",          enabled = false },
+            { "code_outline",            enabled = false },
+            { "readline",                enabled = false }, -- ???
+            { "editing",                 enabled = true },
+        },
+
+        -- CURSOR MOVEMENT
+        { "movement_lightspeed", enabled = true },
+
+        -- UI COMPONENTS
+        { "tabline",             enabled = true }, -- Tab bar buffer switcher
+        { "dashboard",           enabled = true }, -- A pretty dashboard upon opening
+        { "trouble",             enabled = true }, -- A pretty diagnostic viewer
+        { "statusline",          enabled = true }, -- A pretty status line at the bottom of the buffer
+        { "minimap",             enabled = false }, -- Shows current position in document
+
+        { "terminal",            enabled = true }, -- Integrated terminal in neovim
+        TERMINAL = {
+            -- TODO: Move terminal related plugins into this dir
+        },
+
+        NVIM_HELP = {
+            { "vimdoc_and_help_decorations", enabled = true },
+        },
+
+        { "symbols_outline_sidebar",    enabled = true }, -- Navigate between code symbols using telescope
+        { "ranger",                     enabled = true }, -- File explorer in neovim (TODO: Test)
+        { "restclient",                 enabled = true }, -- Test HTTP requests from neovim (TODO: Test)
+        { "show_registers",             enabled = true }, -- Show and navigate between registers
+        { "dui",                        enabled = true }, -- [WIP] Managen your doom config with Telescope.
+        { "ui_make_transparent",        enabled = true },
+        { "ui_custom_vim_input_select", enabled = true },
+        UI = {
+            { "noice_ergonomic_ui", enabled = true },
+        },
+
+        -- TOOLS
+        { "dap",                          enabled = true }, -- Debug code through neovim
+        { "repl",                         enabled = true },
+        { "email_himalaya",               enabled = true },
+        { "explorer",                     enabled = true },               -- An enhanced filetree explorer
+        { "firenvim",                     enabled = true },               -- Embed neovim in your browser
+        { "lazygit",                      enabled = true },               -- Lazy git integration
+        { "neogit",                       enabled = true },               -- A git client for neovim
+        { "netrw",                        enabled = false },
+        { "neorg",                        enabled = true },               -- Organise your life
+        { "superman",                     enabled = true },               -- Read unix man pages in neovim
+        { "suda",                         enabled = true },               -- Save using sudo when necessary
+        { "telescope",                    enabled = true },               -- Fuzzy searcher to find files, grep code and more
+        { "telescope_extensions_various", enabled = false },
+        { "whichkey",                     enabled = true, tags = { "reduced", "firenvim" } }, -- An interactive sheet
+        { "zen",                          enabled = true },
+        { "music_and_audio_engineering",  enabled = true },
+        { "figlet",                       enabled = true },
+        { "markup_bindings_and_tools",    enabled = true },
+
+        TOOLS = {
+            { "spreadsheets", enabled = true },
+            { "flutter",      enabled = false },
+            { "google_docs",  enabled = false },
+            { "ssh",          enabled = false },
+            { "open_scad",    enabled = false },
+            { "docker",       enabled = false }, -- Docker tools
+            { "pandoc",       enabled = false },
+            { "remote_dev",   enabled = false }, -- ???
+            { "gpg",          enabled = false },
+            { "collaborate",  enabled = false }, -- Google docs collaborative editing.
+        },
+
+        -- LIBRARIES
+        -- "litee"
+        -- "libmodal"
+
+        SOCIAL_MEDIA = {
+            { "discord", enabled = true },
+        },
+
+        VARIOUS = {
+            -- "move anything that cant be categorized into this folder",
+            -- "everything else should be in a sub category direactory",
+            -- "so that things are kept clean and not so fucking random you know"
+        },
+        DOCUMENTATION = {
+            { "various_docs", enabled = true },
+        },
+        WINDOWS = {
+            { "auto_focus_and_auto_resize", enabled = true },
+            { "center_focused_window",      enabled = true },
+        },
+
+        WORKSPACE_MANAGEMENT = {
+            { "projects",         enabled = true }, -- Quickly switch between projects
+            { "system_git_repos", enabled = true },
+            { "ghq",              enabled = true },
+        },
+
+        -- TODO: ypc and clipboard should go under `editor`
+        -- Rename to `ypc_and_clipboard`
+        YANK_PUT_AND_CUT = {
+            { "ypc_binds",       enabled = true },
+            { "yank_cmp_source", enabled = false },
+            { "yank_improved",   enabled = false },
+            { "yank_smart_flow", enabled = false },
+        },
+    },
+    UI = {
+        { "sidebar_generic_modular", enabled = false },
+    },
+    VERSION_CONTROL = {
+        GIT = {
+            { "git",          enabled = true }, -- git basic support
+            { "gitsigns",     enabled = false },
+            { "vgit",         enabled = false },
+            { "diffview",     enabled = true }, -- git diffview integration
+            { "repo_search",  enabled = false },
+            { "github_octo",  enabled = true },
+            { "github_litee", enabled = false },
+        },
     },
 
-    completions = {
-      -- "cmp_nvim",
-      -- "coc"
+    -- UI = {
+    --   heirline,
+    --   fidget,
+    --   ...
+    -- },
+    -- VERSION_CONTROL = {
+    --   GIT = {},
+    --   GITHUB = {},
+    -- },
+    LANGS = {
+        { "lua",         enabled = true },
+        { "python",      enabled = true },
+        { "bash",        enabled = true },
+        { "fish",        enabled = false },
+        { "nu",          enabled = false, tags = { "beta" } },
+        { "gdscript",    enabled = false },
+        { "gdscript",    enabled = false },
+        { "php",         enabled = false },
+        { "ruby",        enabled = false },
+
+        -- Web
+        { "html",        enabled = true },
+        { "javascript",  enabled = true },
+        { "typescript",  enabled = true },
+        { "css",         enabled = true },
+        { "vue",         enabled = true },
+        { "tailwindcss", enabled = true },
+        { "svelte",      enabled = false },
+
+        -- Compiled
+        { "rust",        enabled = true },
+        { "cc",          enabled = true },
+        { "ocaml",       enabled = false },
+        { "haskell",     enabled = false },
+
+        -- JIT
+        { "c_sharp",     enabled = false },
+        { "kotlin",      enabled = false },
+        { "java",        enabled = false },
+
+        { "json",        enabled = true },
+        { "yaml",        enabled = false },
+        { "toml",        enabled = false },
+        { "markdown",    enabled = true },
+        { "terraform",   enabled = false }, -- Terraform / hcl files support
+        { "dockerfile",  enabled = true },
+        { "nix",         enabled = false }, -- Nix declarations
     },
 
-    snippets = {
-      "extra_snippets", -- Code snippets for all languages
-      "luasnip_engine",
-      "additional_friendly_snippets",
-      "luasnip_telescope",
+    -- NOTE: move all these into a module called various color schemes
+    THEMES = {
+        -- Themes designed for neovim
+        NVIM = {
+            { "apprentice",    enabled = false },
+            { "aurora",        enabled = false },
+            { "cassiopeia",    enabled = false },
+            { "catppuccin",    enabled = false },
+            { "github",        enabled = false },
+            { "gruvbox",       enabled = false },
+            { "gruvbuddy",     enabled = false },
+            { "material",      enabled = false },
+            { "monochrome",    enabled = false },
+            { "monokai",       enabled = false },
+            { "moonlight",     enabled = false },
+            { "neon",          enabled = false },
+            { "nightfox",      enabled = true },
+            { "nord",          enabled = false },
+            { "nvcode",        enabled = false },
+            { "nvim_deus",     enabled = false },
+            { "oak",           enabled = false },
+            { "oceanic_next",  enabled = false },
+            { "one",           enabled = false },
+            { "onedark",       enabled = false },
+            { "onenord",       enabled = false },
+            { "roshivim",      enabled = false },
+            { "solarized",     enabled = false },
+            { "sonokai",       enabled = false },
+            { "spaceduck",     enabled = false },
+            { "starry",        enabled = false },
+            { "sunflower",     enabled = false },
+            { "tokyonight",    enabled = true },
+            { "vscode",        enabled = false },
+            { "base16",        enabled = false },
+            { "blue_moon",     enabled = false },
+            { "boo",           enabled = false },
+            { "calvera",       enabled = false },
+            { "catpuccino",    enabled = false },
+            { "cobalt",        enabled = false },
+            { "codeschool",    enabled = false },
+            { "dracula",       enabled = false },
+            { "edge",          enabled = false },
+            { "everforest",    enabled = false },
+            { "falcon",        enabled = false },
+            { "gloombuddy",    enabled = false },
+            -- "gruvbox-baby",
+            -- "gruvbox-material",
+            { "hybrid",        enabled = false },
+            { "jellybeans",    enabled = false },
+            { "kanagawa",      enabled = false },
+            { "kosmikoa",      enabled = false },
+            { "kyoto",         enabled = false },
+            { "modus",         enabled = false },
+            { "nordic",        enabled = false },
+            { "one_monokai",   enabled = false },
+            { "onebuddy",      enabled = false },
+            { "onedarkpro",    enabled = false },
+            { "papadark",      enabled = false },
+            { "rasmus",        enabled = false },
+            { "rdark",         enabled = false },
+            { "space",         enabled = false },
+            { "substrata",     enabled = false },
+            { "tokyodark",     enabled = false },
+            { "uwu",           enabled = false },
+            { "vim_code_dark", enabled = false },
+            { "vimdark",       enabled = false },
+            { "vn_night",      enabled = false },
+            { "xresources",    enabled = false },
+            { "zenbones",      enabled = false },
+            { "zephyr",        enabled = false },
+            { "zephyrium",     enabled = false },
+        },
+        -- Themes designed for original Vim
+        VIM = {
+            { "ariake",   enabled = false },
+            { "iceberg",  enabled = false },
+            { "tender",   enabled = false },
+            { "fly",      enabled = true },
+            { "aquarium", enabled = false },
+            { "omni",     enabled = false },
+        },
     },
-
-    -- Language features
-    "annotations",  -- Code annotation generator
-    "auto_install", -- Auto install LSP providers
-    "autopairs",    -- Automatically close character pairs
-    "comment",      -- Adds keybinds to comment in any language
-    "linter",       -- Linting and formatting for languages
-    "lsp",          -- Code completion
-    "lsp_cmp",
-    "lsp_signature_hints",
-    "context_in_code",
-    "additional_vim_textobjects",
-    language_features = {
-      -- "virtual_types", -- ???
-      "auto_add_end_keyword",
-      "highlight_args_and_params",
-      -- "preview_edit_and_navigate_lsp_locations",
-      "swap_args_and_elems",
-      "ts_plugins",
+    MOVE_TO_CORE = {},
+    MOLLEWEIDE = {
+        { "binds_personal",    enabled = true },
+        { "reaper",            enabled = true },
+        { "tamton_essentials", enabled = true, tags = { "beta" } },
+        { "tweak",             enabled = true },
+        { "dorothy",           enabled = true },
+        { "plugins_reloader",  enabled = true, tags = { "beta" } }, -- Watch local packages for changes during development
+        { "nvim_dev_binds",    enabled = true },
     },
-
-    -- TODO: Move all lsp stuff into this directory...
-    lsp = {
-      -- "lspconfig",
-    },
-
-    -- Editor
-    "auto_session",    -- Remember sessions between loads
-    "colorizer",       -- Show colors in neovim
-    "editorconfig",    -- Support editorconfig files
-    -- "gitsigns", -- Show git changes in sidebar
-    "illuminate",      -- Highlight other copies of the word you're hovering on
-    "indentlines",     -- Show indent lines with special characters
-    "range_highlight", -- Highlight selected range from commands
-    "todo_comments",   -- Highlight TODO: comments
-    "doom_themes",     -- Extra themes for doom
-    "color_pickers",
-    "clipboard_neoclip",
-    "clipboard_images",
-    refactor = { "refactoring", "exemplum" },
-    "search_and_replace",
-    "quickfix_improvements",
-    "increment_and_toggle_values",
-    "project_root_and_cwd",
-    "comments_block_headers",
-    "marks",
-    "folds",
-    "help_and_doc_bindings_various", -- Support for help with binds and stuff
-    "cursor",
-    "formatting",
-    editor = {
-      -- "spellcheck",
-      "surround", -- Surround text objects, eg. {([])}
-      -- "gestures",        -- Mouse gestures
-      -- "tabs",            -- ???
-      "scroll",
-      "registers",
-      "undo_tree_visualization",
-      -- "printer",
-      -- "sort",            -- extra binds that help with sorting lines/objects
-      -- "logging",         -- binds n stuff
-      -- "litee_symboltree",
-      -- "litee_bookmarks",
-      -- "litee_calltree",
-      -- "code_outline",
-      -- "readline",        -- ???
-      "editing",
-    },
-
-    -- CURSOR MOVEMENT
-    "movement_lightspeed",
-
-    -- UI COMPONENTS
-    "tabline",    -- Tab bar buffer switcher
-    "dashboard",  -- A pretty dashboard upon opening
-    "trouble",    -- A pretty diagnostic viewer
-    "statusline", -- A pretty status line at the bottom of the buffer
-    -- "minimap",         -- Shows current position in document
-
-    "terminal", -- Integrated terminal in neovim
-    terminal = {
-      -- TODO: Move terminal related plugins into this dir
-    },
-
-    nvim_help = {
-      "vimdoc_and_help_decorations",
-    },
-
-    "symbols_outline_sidebar", -- Navigate between code symbols using telescope
-    "ranger",                  -- File explorer in neovim (TODO: Test)
-    "restclient",              -- Test HTTP requests from neovim (TODO: Test)
-    "show_registers",          -- Show and navigate between registers
-    "dui",                     -- [WIP] Managen your doom config with Telescope.
-    "ui_make_transparent",
-    "ui_custom_vim_input_select",
-    ui = {
-      "noice_ergonomic_ui",
-    },
-
-    -- TOOLS
-    "dap", -- Debug code through neovim
-    "repl",
-    "email_himalaya",
-    "explorer",  -- An enhanced filetree explorer
-    "firenvim",  -- Embed neovim in your browser
-    "lazygit",   -- Lazy git integration
-    "neogit",    -- A git client for neovim
-    -- "netrw",
-    "neorg",     -- Organise your life
-    "superman",  -- Read unix man pages in neovim
-    "suda",      -- Save using sudo when necessary
-    "telescope", -- Fuzzy searcher to find files, grep code and more
-    -- "telescope_extensions_various",
-    "whichkey",  -- An interactive sheet
-    "zen",
-    "music_and_audio_engineering",
-    "figlet",
-    "markup_bindings_and_tools",
-
-    tools = {
-      "spreadsheets",
-      -- "flutter",
-      -- "google_docs",
-      -- "ssh",
-      -- "open_scad",
-      -- "docker",          -- Docker tools
-      -- "pandoc",
-      -- "remote_dev",      -- ???
-      -- "gpg",
-      -- "collaborate", -- Google docs collaborative editing.
-    },
-
-    -- LIBRARIES
-    -- "litee"
-    -- "libmodal"
-
-    social_media = {
-      "discord",
-    },
-
-    various = {
-      -- "move anything that cant be categorized into this folder",
-      -- "everything else should be in a sub category direactory",
-      -- "so that things are kept clean and not so fucking random you know"
-    },
-    documentation = {
-      "various_docs",
-    },
-    windows = {
-      "auto_focus_and_auto_resize",
-      "center_focused_window",
-    },
-
-    workspace_management = {
-      "projects", -- Quickly switch between projects
-      "system_git_repos",
-      "ghq",
-    },
-
-    -- TODO: ypc and clipboard should go under `editor`
-    -- Rename to `ypc_and_clipboard`
-    yank_put_and_cut = {
-      "ypc_binds",
-      -- "yank_cmp_source",
-      -- "yank_improved",
-      -- "yank_smart_flow",
-    },
-  },
-  ui = {
-    -- "sidebar_generic_modular",
-  },
-  version_control = {
-    git = {
-      "git", -- git basic support
-      -- "gitsigns",
-      -- "vgit",
-      "diffview", -- git diffview integration
-      -- "repo_search",
-      "github_octo",
-      -- "github_litee",
-    },
-  },
-
-  -- ui = {
-  --   heirline,
-  --   fidget,
-  --   ...
-  -- },
-  -- version_control = {
-  --   git = {},
-  --   github = {},
-  -- },
-  langs = {
-    "lua",
-    "python",
-    "bash",
-    -- "fish",
-    -- "gdscript",
-    -- "gdscript",
-    -- "php",
-    -- "ruby",
-
-    -- Web
-    "html",
-    "javascript",
-    "typescript",
-    "css",
-    "vue",
-    "tailwindcss",
-    -- "svelte",
-
-    -- Compiled
-    "rust",
-    "cc",
-    -- "ocaml",
-    -- "haskell",
-
-    -- JIT
-    -- "c_sharp",
-    -- "kotlin",
-    -- "java",
-
-    "json",
-    -- "yaml",
-    -- "toml",
-    "markdown",
-    -- "terraform",       -- Terraform / hcl files support
-    "dockerfile",
-    -- "nix",             -- Nix declarations
-  },
-
-  -- NOTE: move all these into a module called various color schemes
-  themes = {
-    -- Themes designed for neovim
-    nvim = {
-      -- "apprentice",
-      -- "aurora",
-      -- "cassiopeia",
-      -- "catppuccin",
-      -- "github",
-      -- "gruvbox",
-      -- "gruvbuddy",
-      -- "material",
-      -- "monochrome",
-      -- "monokai",
-      -- "moonlight",
-      -- "neon",
-      "nightfox",
-      -- "nord",
-      -- "nvcode",
-      -- "nvim_deus",
-      -- "oak",
-      -- "oceanic_next",
-      -- "one",
-      -- "onedark",
-      -- "onenord",
-      -- "roshivim",
-      -- "solarized",
-      -- "sonokai",
-      -- "spaceduck",
-      -- "starry",
-      -- "sunflower",
-      "tokyonight",
-      -- "vscode",
-      -- "base16",
-      -- "blue_moon",
-      -- "boo",
-      -- "calvera",
-      -- "catpuccino",
-      -- "cobalt",
-      -- "codeschool",
-      -- "dracula",
-      -- "edge",
-      -- "everforest",
-      -- "falcon",
-      -- "gloombuddy",
-      -- "gruvbox-baby",
-      -- "gruvbox-material",
-      -- "hybrid",
-      -- "jellybeans",
-      -- "kanagawa",
-      -- "kosmikoa",
-      -- "kyoto",
-      -- "modus",
-      -- "nordic",
-      -- "one_monokai",
-      -- "onebuddy",
-      -- "onedarkpro",
-      -- "papadark",
-      -- "rasmus",
-      -- "rdark",
-      -- "space",
-      -- "substrata",
-      -- "tokyodark",
-      -- "uwu",
-      -- "vim_code_dark",
-      -- "vimdark",
-      -- "vn_night",
-      -- "xresources",
-      -- "zenbones",
-      -- "zephyr",
-      -- "zephyrium",
-    },
-    -- Themes designed for original Vim
-    vim = {
-      -- "ariake",
-      -- "iceberg",
-      -- "tender",
-      "fly",
-      -- "aquarium",
-      -- "omni",
-    },
-  },
-  move_to_core = {},
-  molleweide = {
-    "binds_personal",
-    "reaper",
-    "tamton_essentials",
-    "tweak",
-    "dorothy",
-    "plugins_reloader", -- Watch local packages for changes during development
-    "nvim_dev_binds",
-  },
 }
 
--- vim: sw=2 sts=2 ts=2 fdm=indent expandtab
+-- vim: sw=4 sts=4 ts=4 fdm=indent expandtab
