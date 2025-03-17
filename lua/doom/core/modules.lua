@@ -63,6 +63,8 @@ modules.load_module = function(module, path_module)
     local profile_msg = ("modules|init `%s`"):format(path_module)
     profiler.start(profile_msg)
 
+    -- print(path_module)
+
     -- Flag to continue enabling module
     local should_enable_module = true
 

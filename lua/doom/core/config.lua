@@ -19,7 +19,6 @@ config.source = nil
 -- Currently the [node] arg is only used to check
 config.attach_module = function(t_path)
     local path_module = table.concat(t_path, ".")
-
     -- profile each module
     local profiler_message = ("modules|import `%s`"):format(path_module)
     profiler.start(profiler_message)
@@ -35,7 +34,6 @@ config.attach_module = function(t_path)
     end
 
     if ok then
-        -- empty module
         if type(result) == "boolean" and result then
             log.debug(
                 string.format(
@@ -63,7 +61,6 @@ config.attach_module = function(t_path)
             end
         end
     else
-        -- bad module
         log.error(
             string.format(
                 "There was an error loading module '%s'. Traceback:\n%s",
@@ -71,10 +68,10 @@ config.attach_module = function(t_path)
                 result
             )
         )
-        -- log.error(string.format("There was an error loading module '%s'", path_module))
     end
 
     profiler.stop(profiler_message)
+    return result
 end
 
 --- Entry point to bootstrap doom-nvim.

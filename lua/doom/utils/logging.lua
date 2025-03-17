@@ -90,10 +90,10 @@ log.new = function(config, standalone)
         local pattern_dir_and_filename = "/([^/]+/[^/]+)$"
 
         local console_lineinfo = string.format(
-            "%s:%s%s",
+            "[%s]:%s%s",
             info.short_src:match(pattern_dir_and_filename),
             info.currentline,
-            info.name and " in " .. info.name or ""
+            info.name and " in [" .. info.name .. "]" or ""
         )
 
         local console_string =

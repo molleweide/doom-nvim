@@ -138,11 +138,9 @@ end
 --- @return boolean
 utils.is_module_enabled = function(section, plugin)
     local ok, modules = require("doom.core.modules").enabled_modules()
-
     if not ok then
         return false
     end
-
     if type(section) == "table" then
         local count = 0
         local it = vim.iter(section):map(function(v)
@@ -150,7 +148,7 @@ utils.is_module_enabled = function(section, plugin)
             return count ~= #section and v:upper() or v
         end)
         local tp = it:totable()
-        print(string.format([[tp: %s]], vim.inspect(tp)))
+        -- print(string.format([[tp: %s]], vim.inspect(tp)))
         local name = table.remove(tp, #tp)
         local subsec = utils.get_set_table_path(modules, tp)
         return vim.tbl_contains(subsec, function(v)
