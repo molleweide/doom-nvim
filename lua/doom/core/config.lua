@@ -15,7 +15,9 @@ local filename = "config.lua"
 
 config.source = nil
 
-config.load_and_attach_module = function(t_path, node)
+-- Load module and attach it to the [doom] table.
+-- Currently the [node] arg is only used to check
+config.attach_module = function(t_path)
     local path_module = table.concat(t_path, ".")
 
     -- profile each module
@@ -44,18 +46,11 @@ config.load_and_attach_module = function(t_path, node)
         else
             -- valid non empty module
 
-            -- TODO: Extract this so that single modules can be loaded with [modules browser.]
-
             -- Attach additional meta data.
             result.origin = correct_path:match("^(%w-)%.")
             result.type = "doom_module_single"
             result.name = correct_path
-
-            if node then
-                result.enabled = type(node) == "table" and node.enabled
-            else
-                result.enabled = true
-            end
+            result.enabled = true
 
             utils.get_set_table_path(doom.modules, t_path, result)
 
@@ -259,7 +254,7 @@ config.load = function()
                 -- load and attach module to [doom]
                 ---------------------------------------------------------
 
-                config.load_and_attach_module(t_path, node)
+                config.attach_module(t_path)
             end
         end, { name = "[ core/config ]: traverse enabled_modules" })
     end
