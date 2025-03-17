@@ -15,6 +15,73 @@ local filename = "config.lua"
 
 config.source = nil
 
+config.load_and_attach_module = function(t_path, node)
+    local path_module = table.concat(t_path, ".")
+
+    -- profile each module
+    local profiler_message = ("modules|import `%s`"):format(path_module)
+    profiler.start(profiler_message)
+
+    local ok, result
+    local correct_path
+    for _, path in ipairs(system.get_mod_search_paths(path_module)) do
+        ok, result = xpcall(require, debug.traceback, path)
+        if ok then
+            correct_path = path
+            break
+        end
+    end
+
+    if ok then
+        -- empty module
+        if type(result) == "boolean" and result then
+            log.debug(
+                string.format(
+                    "'%s' is an empty module that returned nothing. Ignoring...",
+                    path_module
+                )
+            )
+        else
+            -- valid non empty module
+
+            -- TODO: Extract this so that single modules can be loaded with [modules browser.]
+
+            -- Attach additional meta data.
+            result.origin = correct_path:match("^(%w-)%.")
+            result.type = "doom_module_single"
+            result.name = correct_path
+
+            if node then
+                result.enabled = type(node) == "table" and node.enabled
+            else
+                result.enabled = true
+            end
+
+            utils.get_set_table_path(doom.modules, t_path, result)
+
+            -- Needs to be attached to custom table since each package is unaware
+            -- of its respective doom module.
+            if result.package_reloaders then
+                for k, v in pairs(result.package_reloaders) do
+                    doom.package_reloaders[k] = v
+                end
+            end
+        end
+    else
+        -- bad module
+        log.error(
+            string.format(
+                "There was an error loading module '%s'. Traceback:\n%s",
+                path_module,
+                result
+            )
+        )
+        -- log.error(string.format("There was an error loading module '%s'", path_module))
+    end
+
+    profiler.stop(profiler_message)
+end
+
 --- Entry point to bootstrap doom-nvim.
 config.load = function()
     -- Set vim defaults on first load. To override these, the user can just
@@ -103,7 +170,7 @@ config.load = function()
         local check_is_module = function(node, stack)
             local parent = stack[#stack]
             if
-                (type(node) == "string")                                               -- string module
+                (type(node) == "string") -- string module
                 or (parent and type(parent.key) == "number" and type(node) == "table") -- table module
             then
                 return true
@@ -154,6 +221,8 @@ config.load = function()
 
                 local path_module = table.concat(t_path, ".")
 
+                -- print("path: ", path_module)
+
                 ---------------------------------------------------------
                 -- filter modules
                 ---------------------------------------------------------
@@ -173,7 +242,7 @@ config.load = function()
                         DOOM_LOAD_SECTIONS
                         and filter_module_declaration(
                             DOOM_LOAD_SECTIONS,
-                            path_module:lower():gsub("%.[^%.]+$", "")
+                            table.concat(t_path, "."):lower():gsub("%.[^%.]+$", "")
                         )
                     then
                         return
@@ -187,66 +256,10 @@ config.load = function()
                 end
 
                 ---------------------------------------------------------
-                -- load and attach modules to [doom]
+                -- load and attach module to [doom]
                 ---------------------------------------------------------
 
-                -- profile each module
-                local profiler_message = ("modules|import `%s`"):format(path_module)
-                profiler.start(profiler_message)
-
-                local ok, result
-                local correct_path
-                for _, path in ipairs(system.get_mod_search_paths(path_module)) do
-                    ok, result = xpcall(require, debug.traceback, path)
-                    if ok then
-                        correct_path = path
-                        break
-                    end
-                end
-
-                if ok then
-                    -- empty module
-                    if type(result) == "boolean" and result then
-                        log.debug(
-                            string.format(
-                                "'%s' is an empty module that returned nothing. Ignoring...",
-                                path_module
-                            )
-                        )
-                    else
-                        -- valid non empty module
-
-                        -- TODO: Extract this so that single modules can be loaded with [modules browser.]
-
-                        -- Attach additional meta data.
-                        result.origin = correct_path:match("^(%w-)%.")
-                        result.type = "doom_module_single"
-                        result.name = correct_path
-                        result.enabled = type(node) == "table" and node.enabled or true
-
-                        utils.get_set_table_path(doom.modules, t_path, result)
-
-                        -- Needs to be attached to custom table since each package is unaware
-                        -- of its respective doom module.
-                        if result.package_reloaders then
-                            for k, v in pairs(result.package_reloaders) do
-                                doom.package_reloaders[k] = v
-                            end
-                        end
-                    end
-                else
-                    -- bad module
-                    log.error(
-                        string.format(
-                            "There was an error loading module '%s'. Traceback:\n%s",
-                            path_module,
-                            result
-                        )
-                    )
-                    -- log.error(string.format("There was an error loading module '%s'", path_module))
-                end
-
-                profiler.stop(profiler_message)
+                config.load_and_attach_module(t_path, node)
             end
         end, { name = "[ core/config ]: traverse enabled_modules" })
     end
@@ -319,7 +332,7 @@ config.load = function()
 
     -- Color column
     vim.opt.colorcolumn = type(doom.settings.max_columns) == "number"
-        and tostring(doom.settings.max_columns)
+            and tostring(doom.settings.max_columns)
         or ""
 
     -- Number column
