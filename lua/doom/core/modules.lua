@@ -177,6 +177,7 @@ end
 
 modules.handle_lazynvim = function()
     if doom.settings.using_ghq then
+        print("handle_lazynvim -> using_ghq")
         for _, spec in ipairs(doom.packages) do
             if spec.dev then
                 local plugin_name = spec[1]

@@ -1,13 +1,7 @@
 -- Store state that persists between reloads here.
 _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or { reload_on_save = false }
 
--- FIX: Need a way to reload if the reloader fails...
-
--- TODO: MODES: 1. reload full on save; 2. only reload the least amount of files
--- necessary. 3. Only do what..?
-
--- TODO: ( ) When disabling/turning-off a module, make sure to remove it from
--- package.loaded to optimally control memory load.
+-- FIX: ( ) Need a way to reload if the reloader fails...
 
 -- NOTE: lazy reload plugin should be possible now:
 -- https://github.com/folke/lazy.nvim/issues/445
@@ -16,33 +10,7 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or { reload_o
 
 -- TODO: Dont reload autocmd jobs. I need to tag them eg. keep = true
 
--- TODO: Prevent reloading if there are LSP errors in the current buffer.
-
--- TODO: move to config globals so that it is easier to reuse and debug
---    packages
-
--- TODO: Reload Single Module
--- Only reload the module that you are working on.
--- If you are editing a module file -> then only that module should be reloaded
--- so that you dont reload the whole core for no reason..
-
--- TODO: PackerCompile
---
---      how do I check if a config is dirty
---
---      if _doom.has_dirty_configs then
---        :PackerCompile
---      end
-
--- TODO: PackerSync -> PackerCompile
---
---
---  get list of packages pre/post reload.
---      if #pre ~= #post -> run PackerSync.
---
---      on PackerSync.complete -> run PackerCompile
---
---
+-- TODO: ( ) Prevent reloading if there are LSP errors in the current buffer.
 
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
@@ -228,11 +196,7 @@ reloader._reload_doom = function(opts)
     -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
 
     -- Reset state
-    if reload_type == "single" then
-        -- TODO: delete only target commands/autocmds
-        -- require("doom.services.commands").del()
-        -- require("doom.services.autocommands").del()
-    else
+    if reload_type == "full" then
         require("doom.services.commands").del_all()
         require("doom.services.autocommands").del_all()
     end
@@ -249,6 +213,19 @@ reloader._reload_doom = function(opts)
 
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
+
+        if module.cmds then
+            for _, cmd in ipairs(module.cmds) do
+                require("doom.services.commands").del(cmd[1])
+            end
+        end
+
+        if module.autocmds then
+            for _, cmd in ipairs(module.autocmds) do
+                -- require("doom.services.autocommands").del()
+            end
+        end
+
         require("doom.core.modules").load_module(module, table.concat(t_path, "."))
     else
         bulk_unload_all_doom_modules()
@@ -262,7 +239,6 @@ reloader._reload_doom = function(opts)
         require("doom.core.modules"):handle_user_config()
     end
 
-    -- this one makes the editor freeze for a moment.
     require("doom.core.modules"):handle_lazynvim()
 
     --
@@ -390,9 +366,9 @@ reloader.cmds = {
 function reloader.reload_doom_if_necessary(event)
     local is_config_dir = vim.fn.getcwd() == vim.fn.stdpath("config")
     if is_config_dir or system.doom_configs_root == vim.fn.stdpath("config") then
-        log.debug("reload file:", event.file)
+        log.debug(event.file)
         -- ignore reloading when manually changing the modules declaration file
-        if event.file:match("modules.lua") then
+        if event.file == "modules.lua" then
             return
         end
         if _doom_reloader.reload_on_save then

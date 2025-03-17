@@ -87,11 +87,11 @@ commands_service.stored_names = {}
 ---@param command string|function(CommandArgs)
 ---@param opts SetCommandOptions|nil
 commands_service.set = function(name, command, opts)
+    print("command name:", name)
     commands_service.stored_names[name] = true
     set_command_fn(name, command, opts or {})
 end
 
--- NOTE: note used anywhere!
 commands_service.del = function(name)
     commands_service.stored_names[name] = nil
     del_command_fn(name)
