@@ -261,6 +261,10 @@ reloader._reload_doom = function(opts)
         -- reload
         require("doom.core.modules").load_module(module, path_module)
         require("doom.core.modules"):handle_lazynvim()
+
+        if module.on_reload and type(module.on_reload) == "function" then
+            module.on_reload()
+        end
     else
         -- cleanup
         require("doom.services.commands").del_all()
@@ -272,12 +276,12 @@ reloader._reload_doom = function(opts)
     end
 
     if is_new_state_same_as_old(old_modules, old_packages) then
-        if not _G._doom_reloader._has_shown_packer_compile_message then
-            log.warn(
-                "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
-            )
-            _G._doom_reloader._has_shown_packer_compile_message = true
-        end
+        -- if not _G._doom_reloader._has_shown_packer_compile_message then
+        log.warn(
+            "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
+        )
+        --     _G._doom_reloader._has_shown_packer_compile_message = true
+        -- end
     else
         log.warn("RELOADER: Run `:Lazy sync` to install and configure new plugins.")
     end
@@ -295,8 +299,6 @@ reloader._reload_doom = function(opts)
     end
 end
 
--- FIX: This function should not be responsible for check if `reload_on_save`,
--- rather that should be done in a preceding stage.
 --- Reload Neovim and simulate a new run
 reloader.reload = function(opts)
     local ok = require("doom.core.modules").enabled_modules()

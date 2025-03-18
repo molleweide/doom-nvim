@@ -161,7 +161,7 @@ modules.handle_lazynvim()
 
 profiler.stop("framework|doom.core.modules")
 
-doom.core.nest.reload_binds()
+-- doom.core.nest.reload_binds()
 
 --
 -- 6. Load the colourscheme
