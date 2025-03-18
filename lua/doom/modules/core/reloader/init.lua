@@ -32,7 +32,7 @@ reloader.has_failed_reload = false
 xpcall(require, debug.traceback, "plenary")
 
 local function bulk_unload_all_doom_modules()
-    log.info("unload all")
+    -- log.debug("unload all")
     for k, _ in pairs(package.loaded) do
         if
             -- this is just so you can toggle/test more easilly
@@ -84,7 +84,7 @@ reloader.reload_lua_module = function(mod_path_pre, quiet)
         mod_path = mod_path_pre
     end
 
-    print("mod_path:", mod_path)
+    -- print("mod_path:", mod_path)
 
     -- If doom-nvim fails to reload, warn user once per session
     if mod_path == nil then
@@ -197,12 +197,8 @@ reloader._reload_doom = function(opts)
 
     -- Reset state
     if reload_type == "full" then
-        log.info("DELETE ALL AUTO")
         require("doom.services.commands").del_all()
         require("doom.services.autocommands").del_all()
-
-        -- local allc = require("doom.services.autocommands").get_all()
-        -- print("NUMBER AUTOCMDS:", #allc)
     end
 
     -- reset the profiler
@@ -223,11 +219,19 @@ reloader._reload_doom = function(opts)
         end
         if module.autocmds then
             for _, autocmd in ipairs(module.autocmds) do
-                require("doom.services.autocommands").del_by_signature(path_module, autocmd[1], autocmd[2])
+                require("doom.services.autocommands").del_by_signature(
+                    path_module,
+                    autocmd[1],
+                    autocmd[2]
+                )
             end
         end
         require("doom.core.modules").load_module(module, path_module)
     else
+        -- WARN: Here is why autocommand duplicates are created (probably)
+        -- >>> Both [doom.core] and [doom.core.config] will trigger [load_modules]
+        -- which should be the reason why autocmds are loaded twice.
+
         bulk_unload_all_doom_modules()
         reloader.reload_lua_module("doom.core", false)
         reloader.reload_lua_module("doom.core.modules", false)
