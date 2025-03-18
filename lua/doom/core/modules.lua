@@ -110,6 +110,8 @@ modules.load_module = function(module, path_module)
             end
         end
 
+        -- TODO: pass the whole spec to the service
+
         -- Setup package autogroups
         if module.autocmds then
             local autocmds = type(module.autocmds) == "function" and module.autocmds()
@@ -147,6 +149,9 @@ modules.unload_module = function() end
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
     local logger = require("doom.utils.logging")
+
+    -- TODO: pass the whole spec to the service
+
     -- Handle extra user cmds
     for _, cmd_spec in pairs(doom.cmds) do
         commands_service.set(cmd_spec[1], cmd_spec[2], cmd_spec[3] or cmd_spec.opts)
@@ -154,7 +159,13 @@ modules.handle_user_config = function()
 
     -- Handle extra user autocmds
     for _, autocmd_spec in pairs(doom.autocmds) do
-        autocmds_service.set(autocmd_spec[1], autocmd_spec[2], autocmd_spec[3], autocmd_spec)
+        autocmds_service.set(
+            autocmd_spec[1],
+            autocmd_spec[2],
+            autocmd_spec[3],
+            autocmd_spec,
+            "config.lua"
+        )
     end
 
     -- Handle extra user keybinds

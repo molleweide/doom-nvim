@@ -8,8 +8,6 @@ _G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or { reload_o
 
 -- BUG: reload in Dashboard -> line numbers become visible
 
--- TODO: Dont reload autocmd jobs. I need to tag them eg. keep = true
-
 -- TODO: ( ) Prevent reloading if there are LSP errors in the current buffer.
 
 local utils = require("doom.utils")
@@ -168,60 +166,89 @@ reloader._reload_doom = function(opts)
 
     -- TODO: If subset, then only get old state from those modules.
 
-    -- Collect old package state
-    local ok, old_modules = require("doom.core.modules").enabled_modules()
-    if not ok then
-        log.warn(
-            string.format(
-                [[RELOADER: Could not load enabled modules! Type of `old_modules`:%s]],
-                type(old_modules)
-            )
-        )
-        return
-    end
-    local old_packages = vim.tbl_map(function(t)
-        return t[1]
-    end, doom.packages)
-    -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
-
     -- reset the profiler
     require("doom.services.profiler").reset() -- ???????????
 
-    -- TODO: Handle if type(module.component) == "function"
     -- TODO: Move cleanup back into [core.modules]
 
     if reload_type == "ROOT" then
-        -- TODO: remove stuff first
+        -- cleanup
+        for _, cmd_spec in pairs(doom.cmds) do
+            require("doom.services.commands").del(cmd_spec[1])
+        end
+        for _, autocmd_spec in pairs(doom.autocmds) do
+            require("doom.services.autocommands").del_by_signature(
+                "config.lua", -- maybe make these user-autocmd logic into their own api funcs
+                autocmd_spec[1],
+                autocmd_spec[2]
+            )
+        end
+        -- reload
         require("doom.core.config").handle_post_import_modules()
         require("doom.core.modules"):handle_user_config()
+        require("doom.core.modules"):handle_lazynvim()
     elseif reload_type == "SINGLE" then
+        -- TODO: extract func
+        --          -> core.modules:unload_modules() -- mult
+        --          -> core.modules:unload_module() -- single
+
+        -- get table path from project path
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
+
         local path_module = table.concat(t_path, ".")
+
         -- log.info("mod_path:", event_target_module, "t_path:", t_path)
+
+        -- cleanup
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
         if module.cmds then
-            for _, cmd in ipairs(module.cmds) do
-                require("doom.services.commands").del(cmd[1])
+            for _, cmd_spec in
+                ipairs(type(module.cmds) == "function" and module.cmds() or module.cmds)
+            do
+                require("doom.services.commands").del(cmd_spec[1])
             end
         end
         if module.autocmds then
-            for _, autocmd in ipairs(module.autocmds) do
+            for _, autocmd_spec in
+                ipairs(type(module.autocmds) == "function" and module.autocmds() or module.autocmds)
+            do
                 require("doom.services.autocommands").del_by_signature(
                     path_module,
-                    autocmd[1],
-                    autocmd[2]
+                    autocmd_spec[1],
+                    autocmd_spec[2]
                 )
             end
         end
+        -- reload
         require("doom.core.modules").load_module(module, path_module)
+        require("doom.core.modules"):handle_lazynvim()
     else
+        -- Collect old package state
+        local ok, old_modules = require("doom.core.modules").enabled_modules()
+        if not ok then
+            log.warn(
+                string.format(
+                    [[RELOADER: Could not load enabled modules! Type of `old_modules`:%s]],
+                    type(old_modules)
+                )
+            )
+            return
+        end
+        local old_packages = vim.tbl_map(function(t)
+            return t[1]
+        end, doom.packages)
+        -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
+
+        -- cleanup
         require("doom.services.commands").del_all()
         require("doom.services.autocommands").del_all()
         bulk_unload_all_doom_modules()
+        -- reload
         reloader.reload_lua_module("doom.core", false)
+        require("doom.core.modules"):handle_lazynvim()
 
         -- All of the below just duplicates what [doom.core] already does...
         -- reloader.reload_lua_module("doom.core.modules", false)
@@ -229,36 +256,34 @@ reloader._reload_doom = function(opts)
         -- require("doom.core.config"):load()
         -- require("doom.core.modules"):load_modules()
         -- require("doom.core.modules"):handle_user_config()
-    end
 
-    require("doom.core.modules"):handle_lazynvim()
+        -- NOTE: Why did connor and ntb compare modules to each other? if the
+        -- plugin has changed somehow,
 
-    --
-    -- Post reload modules comparison
-    --
+        -- Post reload modules comparison
+        local ok, modules = require("doom.core.modules").enabled_modules()
+        local packages = vim.tbl_map(function(t)
+            return t[1]
+        end, doom.packages)
 
-    local ok, modules = require("doom.core.modules").enabled_modules()
-    local packages = vim.tbl_map(function(t)
-        return t[1]
-    end, doom.packages)
-    local needs_install = vim.deep_equal(modules, old_modules)
-        and vim.deep_equal(packages, old_packages)
-    if needs_install then
-        if not _G._doom_reloader._has_shown_packer_compile_message then
-            log.warn(
-                "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
-            )
-            _G._doom_reloader._has_shown_packer_compile_message = true
+        local needs_install = vim.deep_equal(modules, old_modules)
+            and vim.deep_equal(packages, old_packages)
+
+        if needs_install then
+            if not _G._doom_reloader._has_shown_packer_compile_message then
+                log.warn(
+                    "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
+                )
+                _G._doom_reloader._has_shown_packer_compile_message = true
+            end
+        else
+            log.warn("RELOADER: Run `:Lazy sync` to install and configure new plugins.")
         end
-    else
-        log.warn("RELOADER: Run `:Lazy sync` to install and configure new plugins.")
-    end
 
-    -- Lazy
-    -- TODO: Only run lazy sync if there are packages that have been added or changed?
-    -- vim.cmd("Lazy sync")
+        -- Lazy
+        -- TODO: Only run lazy sync if there are packages that have been added or changed?
+        -- vim.cmd("Lazy sync")
 
-    if reload_type == "FULL" then
         -- VimEnter to emulate loading neovim
         vim.cmd("doautocmd VimEnter")
         -- vim.cmd("doautocmd BufEnter")

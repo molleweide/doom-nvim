@@ -17,10 +17,9 @@
 --- @field nested boolean|nil
 --- @field once boolean|nil
 
--- TEST: Does all autocmds reload when doom is reloading?
-
--- TODO: In order to make the signatures unique, I should pass along the module
--- name and prefix it, to avoid ambiguity.
+-- TODO: We should just pass the autocmd_spec table to the api directly and then
+-- handle all of the table indexing here, so that modules consuming this api look
+-- a bit cleaner. >> Now it looks kinda ugly with all the table indexes.
 
 --- IMPLEMENTATIONS
 --- Wraps the nvim functionality to handle different neovim versions.
