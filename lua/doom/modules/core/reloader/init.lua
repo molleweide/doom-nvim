@@ -120,29 +120,14 @@ reloader.reload_lua_module = function(mod_path_pre, quiet)
     end
 end
 
--- TODO: add ability to more granularly reload parts of doom depending on what
--- was changed.
--- NOTE: What types of reloading are necessary:
--- ~ full
--- ~ single module
--- ~ subset of modules
--- ~ user config / root
--- ~ core files
--- ~~ utils
--- ~ snippets
--- NOTE:: Currently _reload_doom only takes an [event] argument.
--- A. If no opts -> full reload
--- B. If opts.event -> reload target file.
--- C. If opts.{modules|sections|tags} -> reload a set of target modules.
-
 --- Reload all Neovim configurations
 reloader._reload_doom = function(opts)
     opts = opts or {}
 
-    local reload_type = "full"
+    local reload_type = "FULL"
     local event_target_module
 
-    -- log.debug("opts:", vim.inspect(opts))
+    log.warn("opts:", vim.inspect(opts))
 
     -- FIX: if `module` then only reload that specific module.
     -- FIX: if `root file` then only reload that file/module.
@@ -151,26 +136,30 @@ reloader._reload_doom = function(opts)
 
     -- doom file type
     if opts.event then
-        event_target_module =
-            opts.event.file:match("lua/(.+)%.lua$"):gsub("/", "."):gsub("%.init$", "")
-
+        -- if opts.event.file:match("^%w-%.lua") then
         if opts.event.file:match("^%w-%.lua") then
-            _G._doom_reloader.current_type = "ROOT"
+            reload_type = "ROOT"
         elseif opts.event.file:match("doom/modules") or opts.event.file:match("user/modules") then
-            reload_type = "single"
+            reload_type = "SINGLE"
+            event_target_module =
+                opts.event.file:match("lua/(.+)%.lua$"):gsub("/", "."):gsub("%.init$", "")
         else
-            _G._doom_reloader.current_type = "CORE"
+            reload_type = "CORE"
         end
         log.debug(
             string.format(
                 "_doom_reloader.current_type = %s, event = %s",
-                _doom_reloader.current_type,
+                reload_type,
                 args_table_str
             )
         )
     end
 
-    if reload_type == "full" then
+    if reload_type == "CORE" then
+        reload_type = "FULL"
+    end
+
+    if reload_type == "FULL" then
         vim.cmd("hi clear")
         if vim.fn.exists(":LspRestart") ~= 0 then
             vim.cmd("silent! LspRestart")
@@ -195,16 +184,17 @@ reloader._reload_doom = function(opts)
     end, doom.packages)
     -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
 
-    -- Reset state
-    if reload_type == "full" then
-        require("doom.services.commands").del_all()
-        require("doom.services.autocommands").del_all()
-    end
-
     -- reset the profiler
     require("doom.services.profiler").reset() -- ???????????
 
-    if reload_type == "single" then
+    -- TODO: Handle if type(module.component) == "function"
+    -- TODO: Move cleanup back into [core.modules]
+
+    if reload_type == "ROOT" then
+        -- TODO: remove stuff first
+        require("doom.core.config").handle_post_import_modules()
+        require("doom.core.modules"):handle_user_config()
+    elseif reload_type == "SINGLE" then
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
@@ -228,19 +218,17 @@ reloader._reload_doom = function(opts)
         end
         require("doom.core.modules").load_module(module, path_module)
     else
-        -- WARN: Here is why autocommand duplicates are created (probably)
-        -- >>> Both [doom.core] and [doom.core.config] will trigger [load_modules]
-        -- which should be the reason why autocmds are loaded twice.
-
+        require("doom.services.commands").del_all()
+        require("doom.services.autocommands").del_all()
         bulk_unload_all_doom_modules()
         reloader.reload_lua_module("doom.core", false)
-        reloader.reload_lua_module("doom.core.modules", false)
-        reloader.reload_lua_module("doom.core.config", false)
-        require("doom.core.config"):load()
 
-        -- Install, bind, add autocmds etc for all modules and user configs
-        require("doom.core.modules"):load_modules()
-        require("doom.core.modules"):handle_user_config()
+        -- All of the below just duplicates what [doom.core] already does...
+        -- reloader.reload_lua_module("doom.core.modules", false)
+        -- reloader.reload_lua_module("doom.core.config", false)
+        -- require("doom.core.config"):load()
+        -- require("doom.core.modules"):load_modules()
+        -- require("doom.core.modules"):handle_user_config()
     end
 
     require("doom.core.modules"):handle_lazynvim()
@@ -270,8 +258,7 @@ reloader._reload_doom = function(opts)
     -- TODO: Only run lazy sync if there are packages that have been added or changed?
     -- vim.cmd("Lazy sync")
 
-    if reload_type == "full" then
-        log.info("FULL RELOAD")
+    if reload_type == "FULL" then
         -- VimEnter to emulate loading neovim
         vim.cmd("doautocmd VimEnter")
         -- vim.cmd("doautocmd BufEnter")
@@ -303,57 +290,6 @@ reloader.reload = function(opts)
         )
     )
 end
-
--- remove this. it is depr
--- reloader.reload_if_on_save_enabled = function(event)
---   if _doom_reloader.reload_on_save then
---     reloader.reload(event)
---   else
---     log.info("[Reloader]: Reload disabled...")
---   end
--- end
-
--- reloader.settings = {
---     reload_on_save = false,
---     packer_sync_and_compile = true,
---
---     -- this is pretty much obsolete now that we do more granular checks in the
---     -- [reload_doom_if_necessary] function
---     autocmd_patterns = {
---
---         -- 							*file-pattern*
---         -- The pattern is interpreted like mostly used in file names:
---         -- 	*	matches any sequence of characters; Unusual: includes path
---         -- 		separators
---         -- 	?	matches any single character
---         -- 	\?	matches a '?'
---         -- 	.	matches a '.'
---         -- 	~	matches a '~'
---         -- 	,	separates patterns
---         -- 	\,	matches a ','
---         -- 	{ }	like \( \) in a |pattern|
---         -- 	,	inside { }: like \| in a |pattern|
---         -- 	\}	literal }
---         -- 	\{	literal {
---         -- 	\\\{n,m\}  like \{n,m} in a |pattern|
---         -- 	\	special meaning like in a |pattern|
---         -- 	[ch]	matches 'c' or 'h'
---         -- 	[^ch]   match any character but 'c' and 'h'
---
---         basic = "*/doom/**/*.lua,*/user/**/*.lua",
---         detailed = {
---             -- doom
---             "*/lua/doom/core/**/*.lua",
---             "*/lua/doom/modules/**/*.lua",
---             "*/lua/doom/services/**/*.lua",
---             "*/lua/doom/tools/**/*.lua",
---             "*/lua/doom/utils/**/*.lua",
---             -- user
---             "*lua/user/modules/**/*.lua",
---             "*lua/user/utils/**/*.lua",
---         },
---     },
--- }
 
 reloader.packages = {}
 reloader.configs = {}

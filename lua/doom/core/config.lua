@@ -15,116 +15,10 @@ local filename = "config.lua"
 
 config.source = nil
 
--- Load module and attach it to the [doom] table.
--- Currently the [node] arg is only used to check
-config.attach_module = function(t_path)
-    local path_module = table.concat(t_path, ".")
-    -- profile each module
-    local profiler_message = ("modules|import `%s`"):format(path_module)
-    profiler.start(profiler_message)
+config.set_defaults = function() end
 
-    local ok, result
-    local correct_path
-    for _, path in ipairs(system.get_mod_search_paths(path_module)) do
-        ok, result = xpcall(require, debug.traceback, path)
-        if ok then
-            correct_path = path
-            break
-        end
-    end
-
-    if ok then
-        if type(result) == "boolean" and result then
-            log.debug(
-                string.format(
-                    "'%s' is an empty module that returned nothing. Ignoring...",
-                    path_module
-                )
-            )
-        else
-            -- valid non empty module
-
-            -- Attach additional meta data.
-            result.origin = correct_path:match("^(%w-)%.")
-            result.type = "doom_module_single"
-            result.name = correct_path
-            result.enabled = true
-
-            utils.get_set_table_path(doom.modules, t_path, result)
-
-            -- Needs to be attached to custom table since each package is unaware
-            -- of its respective doom module.
-            if result.package_reloaders then
-                for k, v in pairs(result.package_reloaders) do
-                    doom.package_reloaders[k] = v
-                end
-            end
-        end
-    else
-        log.error(
-            string.format(
-                "There was an error loading module '%s'. Traceback:\n%s",
-                path_module,
-                result
-            )
-        )
-    end
-
-    profiler.stop(profiler_message)
-    return result
-end
-
---- Entry point to bootstrap doom-nvim.
-config.load = function()
-    -- Set vim defaults on first load. To override these, the user can just
-    -- override vim.opt in their own config, no bells or whistles attached.
-    vim.opt.hidden = true
-    vim.opt.updatetime = 200
-    vim.opt.timeoutlen = 400
-    vim.opt.background = "dark"
-    vim.opt.completeopt = {
-        "menu",
-        "menuone",
-        "preview",
-        "noinsert",
-        "noselect",
-    }
-    vim.opt.shortmess = "atsc"
-    vim.opt.inccommand = "split"
-    vim.opt.path = "**"
-    vim.opt.signcolumn = "auto:2-3"
-    vim.opt.foldcolumn = "auto:9"
-    vim.opt.formatoptions:append("j")
-    vim.opt.fillchars = {
-        vert = "▕",
-        fold = " ",
-        eob = " ",
-        diff = "─",
-        msgsep = "‾",
-        foldopen = "▾",
-        foldclose = "▸",
-        foldsep = "│",
-    }
-    vim.opt.smartindent = true
-    vim.opt.copyindent = true
-    vim.opt.preserveindent = true
-    vim.opt.cursorline = true
-    vim.opt.splitright = true
-    vim.opt.splitbelow = true
-    vim.opt.scrolloff = 4
-    vim.opt.showmode = false
-    vim.opt.mouse = "a"
-    vim.opt.wrap = false
-    vim.opt.swapfile = false
-    vim.opt.expandtab = true
-    vim.opt.conceallevel = 0
-    vim.opt.foldenable = true
-    vim.opt.foldtext = require("doom.core.functions").sugar_folds()
-
-    -------------------------------------------------------------------
-    -- Load modules | Based on their [enabled] and [tag] attributes. --
-    -------------------------------------------------------------------
-
+--- Load modules | Based on their [enabled] and [tag] attributes. --
+config.handle_enabled_modules = function()
     profiler.start("framework|import modules")
 
     local modules_ok, enabled_modules = require("doom.core.modules").enabled_modules()
@@ -257,7 +151,68 @@ config.load = function()
     end
 
     profiler.stop("framework|import modules")
+end
 
+-- Load module and attach it to the [doom] table.
+-- Currently the [node] arg is only used to check
+config.attach_module = function(t_path)
+    local path_module = table.concat(t_path, ".")
+    -- profile each module
+    local profiler_message = ("modules|import `%s`"):format(path_module)
+    profiler.start(profiler_message)
+
+    local ok, result
+    local correct_path
+    for _, path in ipairs(system.get_mod_search_paths(path_module)) do
+        ok, result = xpcall(require, debug.traceback, path)
+        if ok then
+            correct_path = path
+            break
+        end
+    end
+
+    if ok then
+        if type(result) == "boolean" and result then
+            log.debug(
+                string.format(
+                    "'%s' is an empty module that returned nothing. Ignoring...",
+                    path_module
+                )
+            )
+        else
+            -- valid non empty module
+
+            -- Attach additional meta data.
+            result.origin = correct_path:match("^(%w-)%.")
+            result.type = "doom_module_single"
+            result.name = correct_path
+            result.enabled = true
+
+            utils.get_set_table_path(doom.modules, t_path, result)
+
+            -- Needs to be attached to custom table since each package is unaware
+            -- of its respective doom module.
+            if result.package_reloaders then
+                for k, v in pairs(result.package_reloaders) do
+                    doom.package_reloaders[k] = v
+                end
+            end
+        end
+    else
+        log.error(
+            string.format(
+                "There was an error loading module '%s'. Traceback:\n%s",
+                path_module,
+                result
+            )
+        )
+    end
+
+    profiler.stop(profiler_message)
+    return result
+end
+
+config.handle_post_import_modules = function()
     profiler.start("framework|config.lua (user)")
 
     --
@@ -332,6 +287,57 @@ config.load = function()
     vim.opt.relativenumber = not doom.settings.disable_numbering and doom.settings.relative_num
 
     vim.g.mapleader = doom.settings.leader_key
+end
+
+--- Entry point to bootstrap doom-nvim.
+config.load = function()
+    -- Set vim defaults on first load. To override these, the user can just
+    -- override vim.opt in their own config, no bells or whistles attached.
+    vim.opt.hidden = true
+    vim.opt.updatetime = 200
+    vim.opt.timeoutlen = 400
+    vim.opt.background = "dark"
+    vim.opt.completeopt = {
+        "menu",
+        "menuone",
+        "preview",
+        "noinsert",
+        "noselect",
+    }
+    vim.opt.shortmess = "atsc"
+    vim.opt.inccommand = "split"
+    vim.opt.path = "**"
+    vim.opt.signcolumn = "auto:2-3"
+    vim.opt.foldcolumn = "auto:9"
+    vim.opt.formatoptions:append("j")
+    vim.opt.fillchars = {
+        vert = "▕",
+        fold = " ",
+        eob = " ",
+        diff = "─",
+        msgsep = "‾",
+        foldopen = "▾",
+        foldclose = "▸",
+        foldsep = "│",
+    }
+    vim.opt.smartindent = true
+    vim.opt.copyindent = true
+    vim.opt.preserveindent = true
+    vim.opt.cursorline = true
+    vim.opt.splitright = true
+    vim.opt.splitbelow = true
+    vim.opt.scrolloff = 4
+    vim.opt.showmode = false
+    vim.opt.mouse = "a"
+    vim.opt.wrap = false
+    vim.opt.swapfile = false
+    vim.opt.expandtab = true
+    vim.opt.conceallevel = 0
+    vim.opt.foldenable = true
+    vim.opt.foldtext = require("doom.core.functions").sugar_folds()
+
+    config.handle_enabled_modules()
+    config.handle_post_import_modules()
 end
 
 -- Path cases:

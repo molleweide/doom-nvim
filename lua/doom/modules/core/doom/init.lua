@@ -344,6 +344,8 @@ end
 required.autocmds = function()
   local autocmds = {}
 
+    -- TODO: This needs to be re-thought so that we only reload on relevant
+    -- insert leave's and not when eg jumping back with `z{f/F}<char>`
   if doom.settings.autosave then
     table.insert(autocmds, {
       { "TextChanged", "InsertLeave" },
@@ -361,7 +363,7 @@ required.autocmds = function()
 
         -- vim.notify(("Autosave: %s"):format(ev.file:match("lua/(.-)$") or ev.file))
 
-        -- if doom.modules.core.reloader.settings.reload_on_save then
+        -- if _doom_reloader.reload_on_save then
         -- doom.modules.core.reloader.reload_doom_if_necessary(ev)
         -- end
       end,

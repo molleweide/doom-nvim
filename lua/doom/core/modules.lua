@@ -163,7 +163,7 @@ modules.handle_user_config = function()
         keymaps_service.applyKeymaps(keybinds)
     end
 
-    logger.info("doom.modules -> loaded user configs (config.lua)")
+    logger.debug("doom.modules -> loaded user configs (config.lua)")
 end
 
 ---Creates a user autocmd

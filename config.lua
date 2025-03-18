@@ -187,8 +187,6 @@ vim.opt.keymap = "INSERT_COLEMAK"
 
 doom.core.treesitter.settings.show_compiler_warning_message = false
 
--- doom.core.reloader.settings.reload_on_save = true
-
 -- vim.opt.guifont = { 'Hack Nerd Font', 'h12' }
 -- Editor config
 -- doom.border_style = { "", "", "", "", "", "", "", "" }
