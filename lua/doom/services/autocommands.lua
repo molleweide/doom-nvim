@@ -87,7 +87,7 @@ local set_autocmd_implementations = {
         vim.cmd(cmd_string)
         return uid
     end,
-    ["latest"] = function(event, pattern, action, opts)
+    ["latest"] = function(event, pattern, action, opts, path_module)
         local merged_opts = vim.tbl_extend("keep", opts, {
             pattern = pattern,
             group = DOOM_AUTOCMDS_NAMESPACE,
@@ -106,11 +106,11 @@ local set_autocmd_implementations = {
         end
 
         local id = vim.api.nvim_create_autocmd(event, merged_opts)
-        local signature = ("%s %s"):format(event, pattern)
+        local signature = ("%s %s %s"):format(path_module, event, pattern)
         data.autocmd_ids[id] = true
         data.autocmd_signatures[id] = signature
         data.autocmd_signatures_to_ids[signature] = id
-        print("create autocmd:", ("%s %s"):format(event, pattern))
+        -- print("create autocmd:", signature)
         return id
     end,
 }
@@ -180,7 +180,7 @@ end
 ---@param action string|function(AutoCommandArgs)
 ---@param opts SetAutoCommandOptions|nil
 ---@return number ID of autocommand, used to delete it later on
-autocmds_service.set = function(event, pattern, action, opts)
+autocmds_service.set = function(event, pattern, action, opts, path_module)
     -- local resolved_opts = opts or {}
     opts = opts or {}
 
@@ -191,7 +191,7 @@ autocmds_service.set = function(event, pattern, action, opts)
     --     once = resolved_opts.once or false,
     --     desc = resolved_opts.descr or nil
     -- }
-    return set_autocmd_fn(event, pattern, action, opts)
+    return set_autocmd_fn(event, pattern, action, opts, path_module)
 end
 
 --- Deletes an autocommand from a given id
@@ -207,8 +207,10 @@ end
 
 --- Deletes an autocommand from it's signature string.
 ---@param id number ID of autocommand to delete
-autocmds_service.del_by_signature = function(event, pattern)
-    local id = data.autocmd_signatures_to_ids[("%s %s"):format(event, pattern)]
+autocmds_service.del_by_signature = function(path_module, event, pattern)
+    local sig_str = ("%s %s %s"):format(path_module, event, pattern)
+    local id = data.autocmd_signatures_to_ids[sig_str]
+    -- print(string.format("%s -> %s",sig_str,tostring(id)))
     autocmds_service.del(id)
 end
 

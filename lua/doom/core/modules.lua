@@ -119,7 +119,8 @@ modules.load_module = function(module, path_module)
                     autocmd_spec[1],
                     autocmd_spec[2],
                     autocmd_spec[3],
-                    autocmd_spec
+                    autocmd_spec,
+                    path_module
                 )
             end
         end

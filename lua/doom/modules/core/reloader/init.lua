@@ -212,6 +212,7 @@ reloader._reload_doom = function(opts)
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
+        local path_module = table.concat(t_path, ".")
         -- log.info("mod_path:", event_target_module, "t_path:", t_path)
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
@@ -222,10 +223,10 @@ reloader._reload_doom = function(opts)
         end
         if module.autocmds then
             for _, autocmd in ipairs(module.autocmds) do
-                require("doom.services.autocommands").del_by_signature(autocmd[1], autocmd[2])
+                require("doom.services.autocommands").del_by_signature(path_module, autocmd[1], autocmd[2])
             end
         end
-        require("doom.core.modules").load_module(module, table.concat(t_path, "."))
+        require("doom.core.modules").load_module(module, path_module)
     else
         bulk_unload_all_doom_modules()
         reloader.reload_lua_module("doom.core", false)
