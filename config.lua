@@ -129,17 +129,17 @@ doom.settings.using_ghq = true
 local ok, plenary_reload = pcall(require, "plenary.reload")
 local reloader = require
 if ok then
-  reloader = plenary_reload.reload_module
+    reloader = plenary_reload.reload_module
 end
 
 P = function(data, depth, prefix_str)
-  local pre = prefix_str or ""
-  if depth then
-    print(pre, vim.inspect(data, { depth = depth }))
-  else
-    print(pre, vim.inspect(data))
-  end
-  return data
+    local pre = prefix_str or ""
+    if depth then
+        print(pre, vim.inspect(data, { depth = depth }))
+    else
+        print(pre, vim.inspect(data))
+    end
+    return data
 end
 
 -- TODO: bind P( viw / viW )
@@ -150,27 +150,27 @@ end
 -- P("arst")
 
 GGG = function(depth)
-  local t = {}
-  depth = depth or 1
-  for k, v in pairs(_G) do
-    if k:match("^_doom") then
-      t[k] = v
+    local t = {}
+    depth = depth or 1
+    for k, v in pairs(_G) do
+        if k:match("^_doom") then
+            t[k] = v
+        end
     end
-  end
-  print("inspect `_doom`", vim.inspect(t, { depth = depth }))
+    print("inspect `_doom`", vim.inspect(t, { depth = depth }))
 end
 
 D = function(v, pre)
-  log.debug(pre or "", v)
+    log.debug(pre or "", v)
 end
 
 RELOAD = function(...)
-  return reloader(...)
+    return reloader(...)
 end
 
 R = function(name)
-  RELOAD(name)
-  return require(name)
+    RELOAD(name)
+    return require(name)
 end
 
 --------------------------
@@ -212,7 +212,7 @@ vim.opt.relativenumber = true
 vim.opt.winwidth = 95
 vim.opt.scrolloff = 16
 vim.opt.virtualedit = "block" -- allow vis block to reach EOL for all lines
-vim.opt.ignorecase = true     -- autocomplete eg `neor` -> Neorg
+vim.opt.ignorecase = true -- autocomplete eg `neor` -> Neorg
 
 -- -- test add local plugin
 -- -- ':lua vim.opt.runtimepath:append("~/code/plugins/nvim/lookup.nvim")',
@@ -263,9 +263,9 @@ doom.settings.escape_sequences = { "zm" }
 
 -- vim.lsp.set_log_level('info')
 vim.diagnostic.config({
-  float = {
-    source = "always",
-  },
+    float = {
+        source = "always",
+    },
 })
 
 --
@@ -273,20 +273,20 @@ vim.diagnostic.config({
 --
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(
-      _,
-      _,
-      diagnostics_dict,
-      _
-  )
-    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
-    local s = ""
-    for e, _ in pairs(diagnostics_dict) do
-      local sym = e == "error" and " " or (e == "warning" and " " or " ")
-      s = s .. sym
+    doom.modules.tabline.settings.options.diagnostics_indicator = function(
+        _,
+        _,
+        diagnostics_dict,
+        _
+    )
+        doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+        local s = ""
+        for e, _ in pairs(diagnostics_dict) do
+            local sym = e == "error" and " " or (e == "warning" and " " or " ")
+            s = s .. sym
+        end
+        return s
     end
-    return s
-  end
 end
 
 -------------------------------------
@@ -308,17 +308,17 @@ local funcs = {}
 -- https://github.com/kristijanhusak/neovim-config/blob/master/nvim/lua/partials/search.lua
 -- TODO: move to utils??
 funcs.get_visual_selection = function()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
-  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-  lines[1] = string.sub(lines[1], s_start[3], -1)
-  if n_lines == 1 then
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
-  else
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
-  end
-  return table.concat(lines, "\n")
+    local s_start = vim.fn.getpos("'<")
+    local s_end = vim.fn.getpos("'>")
+    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+    lines[1] = string.sub(lines[1], s_start[3], -1)
+    if n_lines == 1 then
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
+    else
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
+    end
+    return table.concat(lines, "\n")
 end
 
 -- -- open buffer and read feat req template so that one can quickly
@@ -357,15 +357,15 @@ end
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
 
 doom.settings.mappings.cmp = {
-  select_prev_item = "<C-p>",
-  select_next_item = "<C-n>",
-  scroll_docs_fwd = "<C-d>",
-  scroll_docs_bkw = "<C-f>",
-  complete = "<C-Space>",
-  close = "<C-e>",
-  confirm = "<C-l>",
-  tab = "<Tab>",
-  stab = "<S-Tab>",
+    select_prev_item = "<C-p>",
+    select_next_item = "<C-n>",
+    scroll_docs_fwd = "<C-d>",
+    scroll_docs_bkw = "<C-f>",
+    complete = "<C-Space>",
+    close = "<C-e>",
+    confirm = "<C-l>",
+    tab = "<Tab>",
+    stab = "<S-Tab>",
 }
 
 -- TODO: CUSTOMIZE SNIPPET BINDS
@@ -396,9 +396,9 @@ doom.settings.mappings.cmp = {
 -------------------------------
 
 vim.diagnostic.config({
-  float = {
-    source = "always",
-  },
+    float = {
+        source = "always",
+    },
 })
 
 ---------------------------
@@ -406,20 +406,20 @@ vim.diagnostic.config({
 ---------------------------
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(
-      _,
-      _,
-      diagnostics_dict,
-      _
-  )
-    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
-    local s = ""
-    for e, _ in pairs(diagnostics_dict) do
-      local sym = e == "error" and " " or (e == "warning" and " " or " ")
-      s = s .. sym
+    doom.modules.tabline.settings.options.diagnostics_indicator = function(
+        _,
+        _,
+        diagnostics_dict,
+        _
+    )
+        doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+        local s = ""
+        for e, _ in pairs(diagnostics_dict) do
+            local sym = e == "error" and " " or (e == "warning" and " " or " ")
+            s = s .. sym
+        end
+        return s
     end
-    return s
-  end
 end
 
 --------------------------
@@ -519,28 +519,28 @@ telescope_defaults.winblend = 10
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
 doom.use_autocmd({
-  {
-    "BufEnter",
-    "*.norg",
-    function()
-      print("[doom config]: buf enter for *.norg")
-    end,
-  },
+    {
+        "BufEnter",
+        "*.norg",
+        function()
+            print("[doom config]: buf enter for *.norg")
+        end,
+    },
 })
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
 doom.use_cmd({
-  "MyTestingCmd",
-  function(args)
-    print("[doom config]: Hi from my testing cmd")
-    P(args)
-  end,
-  {
-    nargs = 1,
-    complete = function(arg_lead, cmdline, curpos)
-      print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+    "MyTestingCmd",
+    function(args)
+        print("[doom config]: Hi from my testing cmd")
+        P(args)
     end,
-  },
+    {
+        nargs = 1,
+        complete = function(arg_lead, cmdline, curpos)
+            print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+        end,
+    },
 })
 
 --
@@ -550,26 +550,26 @@ doom.use_cmd({
 -- Test handle windows and buffers
 
 local function demo_windows_and_bufs()
-  local ns = "[ demo_windows_and_bufs ]:"
+    local ns = "[ demo_windows_and_bufs ]:"
 
-  local buf = vim.api.nvim_create_buf(true, true)
+    local buf = vim.api.nvim_create_buf(true, true)
 
-  -- print(ns, "buf num = ", buf)
+    -- print(ns, "buf num = ", buf)
 
-  local window = vim.api.nvim_open_win(buf, false, {
-    split = "right",
-    -- win = 0,
-  })
+    local window = vim.api.nvim_open_win(buf, false, {
+        split = "right",
+        -- win = 0,
+    })
 
-  vim.api.nvim_buf_set_name(buf, ns)
+    vim.api.nvim_buf_set_name(buf, ns)
 
-  -- TODO: run dorothy command tests and then print the results into this new
-  -- scratch buffer.
-  -- 1. setup an autocmd
-  -- execute_anything_tj_style
-  --
-  -- move all of this to the execute execute_anything_tj_style module
-  -- and rename it and use this test system and see what happens.
+    -- TODO: run dorothy command tests and then print the results into this new
+    -- scratch buffer.
+    -- 1. setup an autocmd
+    -- execute_anything_tj_style
+    --
+    -- move all of this to the execute execute_anything_tj_style module
+    -- and rename it and use this test system and see what happens.
 end
 
 -- FIX: Put this in `features/terminal` <<<<<<
@@ -587,113 +587,115 @@ end
 -- TEST: quite a lot can be done with the UI configs for the autocmds picker
 
 local doom_autocmds_picker = function(opts)
-  opts = opts or {}
-  local actions = require("telescope.actions")
-  local action_set = require("telescope.actions.set")
-  local action_state = require("telescope.actions.state")
-  local finders = require("telescope.finders")
-  local make_entry = require("telescope.make_entry")
-  local pickers = require("telescope.pickers")
-  local previewers = require("telescope.previewers")
+    opts = opts or {}
+    local actions = require("telescope.actions")
+    local action_set = require("telescope.actions.set")
+    local action_state = require("telescope.actions.state")
+    local finders = require("telescope.finders")
+    local make_entry = require("telescope.make_entry")
+    local pickers = require("telescope.pickers")
+    local previewers = require("telescope.previewers")
 
-  -- TODO: Only show doom autocmds.
-  -- ~ add binding to remove selection (mult)
-  -- ~ jump to definition of autocmd
-  --     >> since autocmds can also be defined through a function i have to
-  --     use lsp and treesitter to find my way back to the original declarations.
-  -- ~ bind change component of autocmd, eg. pattern, name, or description.
-  --     >> use a UI input flow with a library to ensure that all
-  --     required vars are properly set.
-  --
+    -- TODO: Only show doom autocmds.
+    -- ~ add binding to remove selection (mult)
+    -- ~ jump to definition of autocmd
+    --     >> since autocmds can also be defined through a function i have to
+    --     use lsp and treesitter to find my way back to the original declarations.
+    -- ~ bind change component of autocmd, eg. pattern, name, or description.
+    --     >> use a UI input flow with a library to ensure that all
+    --     required vars are properly set.
+    --
 
-  local doom_autocmds_namespace = require("doom.services.autocommands").namespace
 
-  local conf = require("telescope.config").values
 
-  -- local autocmds = vim.api.nvim_get_autocmds({})
+    local doom_autocmds_namespace = require("doom.services.autocommands").namespace
 
-  local all = vim.api.nvim_get_autocmds({})
-  local autocmds = {}
-  for i, v in ipairs(all) do
-    if v.group_name then
-      print(v.group_name, doom_autocmds_namespace)
-      if
-          v.group_name == doom_autocmds_namespace
-          or v.group_name == doom.features.monitoring.buffer_monitors_namespace
-      then
-        -- print(v.group_name, doom_autocmds_namespace)
-        table.insert(autocmds, v)
-      end
+    local conf = require("telescope.config").values
+
+    -- local autocmds = vim.api.nvim_get_autocmds({})
+
+    local all = vim.api.nvim_get_autocmds({})
+    local autocmds = {}
+    for i, v in ipairs(all) do
+        if v.group_name then
+            -- print(v.group_name, doom_autocmds_namespace)
+            if
+                v.group_name == doom_autocmds_namespace
+                or v.group_name == doom.features.monitoring.buffer_monitors_namespace
+            then
+                print(v.group_name, doom_autocmds_namespace, v.pattern)
+                table.insert(autocmds, v)
+            end
+        end
     end
-  end
 
-  table.sort(autocmds, function(lhs, rhs)
-    return lhs.event < rhs.event
-  end)
+    table.sort(autocmds, function(lhs, rhs)
+        return lhs.event < rhs.event
+    end)
 
-  pickers
-      .new(opts, {
-        prompt_title = "autocommands",
-        finder = finders.new_table({
-          results = autocmds,
+    pickers
+        .new(opts, {
+            prompt_title = "autocommands",
+            finder = finders.new_table({
+                results = autocmds,
 
-          -- FIX: why isnt my descriptions showing?
-          entry_maker = opts.entry_maker or make_entry.gen_from_autocommands(opts),
-        }),
+                -- FIX: why isnt my descriptions showing?
+                entry_maker = opts.entry_maker or make_entry.gen_from_autocommands(opts),
+            }),
 
-        -- I need to have a custom previewer for doom so that I can show name and
-        -- description
-        previewer = previewers.autocommands.new(opts),
+            -- I need to have a custom previewer for doom so that I can show name and
+            -- description
+            previewer = previewers.autocommands.new(opts),
 
-        sorter = conf.generic_sorter(opts),
-        attach_mappings = function(prompt_bufnr)
-          action_set.select:replace_if(function()
-            local selection = action_state.get_selected_entry()
-            if selection == nil then
-              return false
-            end
-            local val = selection.value
-            local cb = val.callback
-            if vim.is_callable(cb) then
-              if type(cb) ~= "string" then
-                local f = type(cb) == "function" and cb
-                    or rawget(getmetatable(cb), "__call")
-                local info = debug.getinfo(f, "S")
-                local file = info.source:match("^@(.+)")
-                local lnum = info.linedefined
-                if file and (lnum or 0) > 0 then
-                  selection.filename, selection.lnum, selection.col = file, lnum, 1
-                  return false
-                end
-              end
-            end
-            local group_name = val.group_name ~= "<anonymous>" and val.group_name or ""
-            local output = vim.fn.execute(
-              "verb autocmd " .. group_name .. " " .. val.event .. " " .. val.pattern,
-              "silent"
-            )
-            for line in output:gmatch("[^\r\n]+") do
-              local source_file = line:match("Last set from (.*) line %d*$")
-                  or line:match("Last set from (.*)$")
-              if source_file and source_file ~= "Lua" then
-                selection.filename = source_file
-                local source_lnum = line:match("line (%d*)$") or "1"
-                selection.lnum = tonumber(source_lnum)
-                selection.col = 1
-                return false
-              end
-            end
-            return true
-          end, function()
-            local selection = action_state.get_selected_entry()
-            actions.close(prompt_bufnr)
-            print("You selected autocmd: " .. vim.inspect(selection.value))
-          end)
+            sorter = conf.generic_sorter(opts),
+            attach_mappings = function(prompt_bufnr)
+                action_set.select:replace_if(function()
+                    local selection = action_state.get_selected_entry()
+                    if selection == nil then
+                        return false
+                    end
+                    local val = selection.value
+                    local cb = val.callback
+                    if vim.is_callable(cb) then
+                        if type(cb) ~= "string" then
+                            local f = type(cb) == "function" and cb
+                                or rawget(getmetatable(cb), "__call")
+                            local info = debug.getinfo(f, "S")
+                            local file = info.source:match("^@(.+)")
+                            local lnum = info.linedefined
+                            if file and (lnum or 0) > 0 then
+                                selection.filename, selection.lnum, selection.col = file, lnum, 1
+                                return false
+                            end
+                        end
+                    end
+                    local group_name = val.group_name ~= "<anonymous>" and val.group_name or ""
+                    local output = vim.fn.execute(
+                        "verb autocmd " .. group_name .. " " .. val.event .. " " .. val.pattern,
+                        "silent"
+                    )
+                    for line in output:gmatch("[^\r\n]+") do
+                        local source_file = line:match("Last set from (.*) line %d*$")
+                            or line:match("Last set from (.*)$")
+                        if source_file and source_file ~= "Lua" then
+                            selection.filename = source_file
+                            local source_lnum = line:match("line (%d*)$") or "1"
+                            selection.lnum = tonumber(source_lnum)
+                            selection.col = 1
+                            return false
+                        end
+                    end
+                    return true
+                end, function()
+                    local selection = action_state.get_selected_entry()
+                    actions.close(prompt_bufnr)
+                    print("You selected autocmd: " .. vim.inspect(selection.value))
+                end)
 
-          return true
-        end,
-      })
-      :find()
+                return true
+            end,
+        })
+        :find()
 end
 
 --
@@ -709,49 +711,49 @@ end
 -- fast.
 
 doom.use_keybind({
-  {
-    "<leader>n",
-    name = "+nvim",
     {
-      {
-        "t",
-        name = "+testing",
+        "<leader>n",
+        name = "+nvim",
         {
-          {
-            "w",
-            function()
-              demo_windows_and_bufs()
-            end,
-            name = "test win buf 1",
-          },
+            {
+                "t",
+                name = "+testing",
+                {
+                    {
+                        "w",
+                        function()
+                            demo_windows_and_bufs()
+                        end,
+                        name = "test win buf 1",
+                    },
+                },
+            },
+            {
+                "o",
+                ":options<CR>",
+                name = "nvim :options",
+            },
         },
-      },
-      {
-        "o",
-        ":options<CR>",
-        name = "nvim :options",
-      },
     },
-  },
 })
 
 -- TODO: telescope picker for options with a nice UI to set
 -- options.
 
 doom.use_keybind({
-  {
-    "<leader>D",
-    name = "+doom",
     {
-      {
-        "A",
-        function()
-          doom_autocmds_picker()
-        end,
-        name = "doom autocmds",
-      },
+        "<leader>D",
+        name = "+doom",
+        {
+            {
+                "A",
+                function()
+                    doom_autocmds_picker()
+                end,
+                name = "doom autocmds",
+            },
+        },
     },
-  },
 })
 
 -- vim: sw=2 sts=2 ts=2 expandtab

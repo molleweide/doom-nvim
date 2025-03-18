@@ -139,6 +139,10 @@ modules.load_module = function(module, path_module)
     profiler.stop(profile_msg)
 end
 
+modules.unload_modules = function() end
+
+modules.unload_module = function() end
+
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
     local logger = require("doom.utils.logging")

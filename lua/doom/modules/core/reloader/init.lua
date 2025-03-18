@@ -197,8 +197,12 @@ reloader._reload_doom = function(opts)
 
     -- Reset state
     if reload_type == "full" then
+        log.info("DELETE ALL AUTO")
         require("doom.services.commands").del_all()
         require("doom.services.autocommands").del_all()
+
+        -- local allc = require("doom.services.autocommands").get_all()
+        -- print("NUMBER AUTOCMDS:", #allc)
     end
 
     -- reset the profiler
@@ -208,24 +212,19 @@ reloader._reload_doom = function(opts)
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
-
-        log.info("mod_path:", event_target_module, "t_path:", t_path)
-
+        -- log.info("mod_path:", event_target_module, "t_path:", t_path)
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
-
         if module.cmds then
             for _, cmd in ipairs(module.cmds) do
                 require("doom.services.commands").del(cmd[1])
             end
         end
-
         if module.autocmds then
-            for _, cmd in ipairs(module.autocmds) do
-                -- require("doom.services.autocommands").del()
+            for _, autocmd in ipairs(module.autocmds) do
+                require("doom.services.autocommands").del_by_signature(autocmd[1], autocmd[2])
             end
         end
-
         require("doom.core.modules").load_module(module, table.concat(t_path, "."))
     else
         bulk_unload_all_doom_modules()
