@@ -63,6 +63,8 @@ doom = setmetatable({
 
     first_load = true, -- maybe put this in the _doom hidden table?
 
+    package_reloaders = {},
+
     settings = {
         -- Use the global statusline
         -- @default = true
@@ -309,8 +311,7 @@ doom = setmetatable({
         },
     },
     packages = {},
-    package_reloaders = {},
-    --- Wrapper around packer.nvim `use` function
+  --- Wrapper around packer.nvim `use` function
     ---
     --- Example:
     ---
@@ -451,7 +452,6 @@ doom = setmetatable({
 -- Use this type of pattern for the mode check.
 -- if doom.mode == {"arst"} then
 -- end
-
 
 -- Maintain backwards compatibility + provide a shorthand way to access modules
 doom.core = doom.modules.core

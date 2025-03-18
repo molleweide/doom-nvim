@@ -16,13 +16,6 @@ local system = require("doom.core.system")
 
 local reloader = {}
 
--- ??
-local function test_print_package_pattern(k, pat)
-    if string.match(k, pat) then
-        print("has pat '" .. pat .. "'", k)
-    end
-end
-
 --- Only show error reloading message once per session
 reloader.has_failed_reload = false
 
@@ -44,6 +37,32 @@ local function bulk_unload_all_doom_modules()
             -- print("unload path: ", k)
         end
     end
+end
+
+local function collect_old_state()
+    local ok, old_modules = require("doom.core.modules").enabled_modules()
+    if not ok then
+        log.warn(
+            string.format(
+                "Could not load enabled modules! Type of `old_modules`:%s",
+                type(old_modules)
+            )
+        )
+        return
+    end
+    local old_packages = vim.tbl_map(function(t)
+        return t[1]
+    end, doom.packages)
+    -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
+    return old_modules, old_packages
+end
+
+local function is_new_state_same_as_old(old_modules, old_packages)
+    local ok, modules = require("doom.core.modules").enabled_modules()
+    local packages = vim.tbl_map(function(t)
+        return t[1]
+    end, doom.packages)
+    return vim.deep_equal(modules, old_modules) and vim.deep_equal(packages, old_packages)
 end
 
 --- Converts a Lua module path into an acceptable Lua module format
@@ -118,6 +137,21 @@ reloader.reload_lua_module = function(mod_path_pre, quiet)
     end
 end
 
+-------------------------------------------------------------------------------
+-- We could optimize plugin and package comparisons, but currently, reloading,
+-- a single module still only takes
+--
+-- NOTE: PACKAGES ---------------------------------------------------------
+-- Currently, packages are all injected into the list [doom.packages]
+-- TODO: also create a table [doom.packages_by_key] that maps each spec by
+-- key so that we can quickly compare specs
+--
+-- NOTE: ENABLED MODULES --------------------------------------------------
+-- Currently, with FULL reload, we require the full enabled modules list.
+-- Would it even be faster to just obtain the modules we want to check by
+-- get_set_table_path, and then compare them individually?
+-------------------------------------------------------------------------------
+
 --- Reload all Neovim configurations
 reloader._reload_doom = function(opts)
     opts = opts or {}
@@ -126,9 +160,6 @@ reloader._reload_doom = function(opts)
     local event_target_module
 
     log.warn("opts:", vim.inspect(opts))
-
-    -- FIX: if `module` then only reload that specific module.
-    -- FIX: if `root file` then only reload that file/module.
 
     local args_table_str = vim.inspect(event)
 
@@ -170,6 +201,11 @@ reloader._reload_doom = function(opts)
     require("doom.services.profiler").reset() -- ???????????
 
     -- TODO: Move cleanup back into [core.modules]
+
+    local old_modules, old_packages = collect_old_state()
+    if not old_modules then
+        return
+    end
 
     if reload_type == "ROOT" then
         -- cleanup
@@ -226,22 +262,6 @@ reloader._reload_doom = function(opts)
         require("doom.core.modules").load_module(module, path_module)
         require("doom.core.modules"):handle_lazynvim()
     else
-        -- Collect old package state
-        local ok, old_modules = require("doom.core.modules").enabled_modules()
-        if not ok then
-            log.warn(
-                string.format(
-                    [[RELOADER: Could not load enabled modules! Type of `old_modules`:%s]],
-                    type(old_modules)
-                )
-            )
-            return
-        end
-        local old_packages = vim.tbl_map(function(t)
-            return t[1]
-        end, doom.packages)
-        -- print(string.format("old packages\n%s", vim.inspect(old_packages)))
-
         -- cleanup
         require("doom.services.commands").del_all()
         require("doom.services.autocommands").del_all()
@@ -249,37 +269,20 @@ reloader._reload_doom = function(opts)
         -- reload
         reloader.reload_lua_module("doom.core", false)
         require("doom.core.modules"):handle_lazynvim()
+    end
 
-        -- All of the below just duplicates what [doom.core] already does...
-        -- reloader.reload_lua_module("doom.core.modules", false)
-        -- reloader.reload_lua_module("doom.core.config", false)
-        -- require("doom.core.config"):load()
-        -- require("doom.core.modules"):load_modules()
-        -- require("doom.core.modules"):handle_user_config()
-
-        -- NOTE: Why did connor and ntb compare modules to each other? if the
-        -- plugin has changed somehow,
-
-        -- Post reload modules comparison
-        local ok, modules = require("doom.core.modules").enabled_modules()
-        local packages = vim.tbl_map(function(t)
-            return t[1]
-        end, doom.packages)
-
-        local needs_install = vim.deep_equal(modules, old_modules)
-            and vim.deep_equal(packages, old_packages)
-
-        if needs_install then
-            if not _G._doom_reloader._has_shown_packer_compile_message then
-                log.warn(
-                    "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
-                )
-                _G._doom_reloader._has_shown_packer_compile_message = true
-            end
-        else
-            log.warn("RELOADER: Run `:Lazy sync` to install and configure new plugins.")
+    if is_new_state_same_as_old(old_modules, old_packages) then
+        if not _G._doom_reloader._has_shown_packer_compile_message then
+            log.warn(
+                "RELOADER: You will have to run `:Lazy build` before changes to plugin configs take effect."
+            )
+            _G._doom_reloader._has_shown_packer_compile_message = true
         end
+    else
+        log.warn("RELOADER: Run `:Lazy sync` to install and configure new plugins.")
+    end
 
+    if reload_type == "FULL" then
         -- Lazy
         -- TODO: Only run lazy sync if there are packages that have been added or changed?
         -- vim.cmd("Lazy sync")

@@ -52,6 +52,14 @@ else
   ]])
 end
 
+local function make_signature(path_module, event, pattern)
+    return string.format("%s %s %s",
+        path_module,
+        type(event) == "table" and table.concat(event, "|") or event,
+        type(pattern) == "table" and table.concat(pattern, "|") or pattern
+    )
+end
+
 -- WARN: If I make changes to how the opt table can be configured then,
 -- v0.5 will have to be made compatible as well. However, now 0.5 is so
 -- old and uncommon that it is not urgent..
@@ -105,7 +113,7 @@ local set_autocmd_implementations = {
         end
 
         local id = vim.api.nvim_create_autocmd(event, merged_opts)
-        local signature = ("%s %s %s"):format(path_module, event, pattern)
+        local signature = make_signature(path_module, event, pattern)
         data.autocmd_ids[id] = true
         data.autocmd_signatures[id] = signature
         data.autocmd_signatures_to_ids[signature] = id
@@ -207,9 +215,9 @@ end
 --- Deletes an autocommand from it's signature string.
 ---@param id number ID of autocommand to delete
 autocmds_service.del_by_signature = function(path_module, event, pattern)
-    local sig_str = ("%s %s %s"):format(path_module, event, pattern)
+    local sig_str = make_signature(path_module, event, pattern)
     local id = data.autocmd_signatures_to_ids[sig_str]
-    -- print(string.format("%s -> %s",sig_str,tostring(id)))
+    print(string.format("%s -> %s", sig_str, tostring(id)))
     autocmds_service.del(id)
 end
 

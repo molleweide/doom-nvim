@@ -621,7 +621,7 @@ local doom_autocmds_picker = function(opts)
                 v.group_name == doom_autocmds_namespace
                 or v.group_name == doom.features.monitoring.buffer_monitors_namespace
             then
-                print(v.group_name, doom_autocmds_namespace, v.pattern)
+                -- print(v.group_name, doom_autocmds_namespace, v.pattern)
                 table.insert(autocmds, v)
             end
         end

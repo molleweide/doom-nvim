@@ -59,6 +59,8 @@ modules.load_modules = function()
 end
 
 --- Applies commands, autocommands, packages for a single module
+---@param module table Doom module table
+---@param path_module string The lua module path inside the doom.modules dir, eg. "features.telescope"
 modules.load_module = function(module, path_module)
     local profile_msg = ("modules|init `%s`"):format(path_module)
     profiler.start(profile_msg)
@@ -115,7 +117,7 @@ modules.load_module = function(module, path_module)
         -- Setup package autogroups
         if module.autocmds then
             local autocmds = type(module.autocmds) == "function" and module.autocmds()
-                or module.autocmds
+      or module.autocmds
             for _, autocmd_spec in ipairs(autocmds) do
                 autocmds_service.set(
                     autocmd_spec[1],
