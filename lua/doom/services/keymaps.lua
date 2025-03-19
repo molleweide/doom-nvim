@@ -21,6 +21,8 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+local log = require("doom.utils.logging")
+
 local module = {}
 
 --[[
@@ -236,8 +238,23 @@ local integration_definitions = {
             for mode in string.gmatch(node_settings.mode, ".") do
                 local sanitizedMode = mode == "_" and "" or mode
                 -- local buffer = (node_settings.buffer == true) and 0 or node_settings.buffer
-                vim.keymap.del(sanitizedMode, node.lhs)
-                log.debug(string.format("removed [%s] for mode [%s]", node.lhs, sanitizedMode))
+                print(
+                    string.format("[keymaps]: Removed [%s] for mode [%s]", node.lhs, sanitizedMode)
+                )
+                -- vim.keymap.del(sanitizedMode, node.lhs)
+                ok, result = xpcall(vim.keymap.del, debug.traceback, sanitizedMode, node.lhs)
+                if ok then
+                    log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
+                else
+                    log.error(
+                        string.format(
+                            "Failure removing keymap [%s] for mode [%s]. Traceback:\n%s",
+                            node.lhs,
+                            sanitizedMode,
+                            result
+                        )
+                    )
+                end
             end
         end,
     },

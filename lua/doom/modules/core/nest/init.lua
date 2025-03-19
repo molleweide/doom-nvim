@@ -209,9 +209,7 @@ nest.unload_all_binds = function() end
 nest.unload_binds_for_module = function() end
 
 --- On reload function
-nest.on_reload = function()
-    nest.reload_binds()
-end
+nest.post_reload = nest.reload_binds()
 
 local function try_reloading_binds()
     nest.reload_binds()

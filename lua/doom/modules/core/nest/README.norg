@@ -4,7 +4,7 @@ description:
 authors: hjalmarjakobsson
 categories:
 created: 2025-01-02T09:14:20-0500
-updated: 2025-01-02T09:17:42-0500
+updated: 2025-03-19T12:58:11-0500
 version: 1.1.1
 @end
 
@@ -14,3 +14,8 @@ The previewer should list the origin module and whatever info necessary.
 
 Add all of the data for each entry object to the previewer so that user
 can gain full knowledge of every single binding.
+
+~ This module is not necessary for core.
+~ It does not create binds - it merely caches all the binds for fast loading
+  of the picker.
+

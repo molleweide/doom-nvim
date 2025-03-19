@@ -255,8 +255,6 @@ vim.opt.ignorecase = true -- autocomplete eg `neor` -> Neorg
 vim.opt.guifont = { "Hack Nerd Font", "h12" }
 
 -- Editor config
-doom.settings.indent = 2
-
 doom.settings.escape_sequences = { "zm" }
 
 -- vim.lsp.set_log_level('info')

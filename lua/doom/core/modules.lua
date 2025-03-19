@@ -55,7 +55,7 @@ modules.load_modules = function()
             local path_module = table.concat(t_path, ".")
             modules.load_module(node, path_module)
         end
-    end, { name = "[core/modules]: loaded modules", debug = false })
+    end, { name = "[core/modules]: load modules", debug = false })
 end
 
 --- Applies commands, autocommands, packages for a single module
@@ -117,7 +117,7 @@ modules.load_module = function(module, path_module)
         -- Setup package autogroups
         if module.autocmds then
             local autocmds = type(module.autocmds) == "function" and module.autocmds()
-      or module.autocmds
+                or module.autocmds
             for _, autocmd_spec in ipairs(autocmds) do
                 autocmds_service.set(
                     autocmd_spec[1],
@@ -144,9 +144,53 @@ modules.load_module = function(module, path_module)
     profiler.stop(profile_msg)
 end
 
-modules.unload_modules = function() end
+-- Remove all configs for all modules.
+modules.unload_modules = function()
+    commands_service.del_all()
+    autocmds_service.del_all()
+    require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
+        if node.type then
+            local t_path = vim.tbl_map(function(stack_node)
+                return type(stack_node.key) == "string" and stack_node.key
+            end, stack)
+            local path_module = table.concat(t_path, ".")
+            modules.unload_module(node, path_module, true)
+        end
+    end, { name = "[core/modules]: unload modules", debug = false })
+end
 
-modules.unload_module = function() end
+--- Remove all configs pertaining to a specific module.
+modules.unload_module = function(module, path_module, ignore)
+    local profile_msg = ("modules|unload `%s`"):format(path_module)
+    profiler.start(profile_msg)
+
+    if not ignore then
+        if module.cmds then
+            for _, cmd_spec in
+                ipairs(type(module.cmds) == "function" and module.cmds() or module.cmds)
+            do
+                commands_service.del(cmd_spec[1])
+            end
+        end
+        if module.autocmds then
+            for _, autocmd_spec in
+                ipairs(type(module.autocmds) == "function" and module.autocmds() or module.autocmds)
+            do
+                autocmds_service.del_by_signature(path_module, autocmd_spec[1], autocmd_spec[2])
+            end
+        end
+    end
+
+    if module.binds then
+        keymaps_service.applyKeymaps(
+            type(module.binds) == "function" and module.binds() or module.binds,
+            nil,
+            "delete"
+        )
+    end
+
+    profiler.stop(profile_msg)
+end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
@@ -177,6 +221,22 @@ modules.handle_user_config = function()
     end
 
     logger.debug("doom.modules -> loaded user configs (config.lua)")
+end
+
+modules.unload_user_config = function()
+    for _, cmd_spec in pairs(doom.cmds) do
+        commands_service.del(cmd_spec[1])
+    end
+    for _, autocmd_spec in pairs(doom.autocmds) do
+        autocmds_service.del_by_signature(
+            "config.lua", -- maybe make these user-autocmd logic into their own api funcs
+            autocmd_spec[1],
+            autocmd_spec[2]
+        )
+    end
+    for _, keybinds in ipairs(doom.binds) do
+        keymaps_service.applyKeymaps(keybinds, nil, "delete")
+    end
 end
 
 ---Creates a user autocmd

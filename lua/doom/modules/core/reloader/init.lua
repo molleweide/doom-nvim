@@ -29,6 +29,7 @@ local function bulk_unload_all_doom_modules()
             -- this is just so you can toggle/test more easilly
             string.match(k, "^doom%.core")
             or string.match(k, "^doom%.modules")
+            or string.match(k, "^doom%.services")
             or string.match(k, "^doom%.utils")
             or string.match(k, "^user%.modules")
             or string.match(k, "^user%.utils")
@@ -207,72 +208,48 @@ reloader._reload_doom = function(opts)
         return
     end
 
+    local keymaps_service = require("doom.services.keymaps")
+    local commands_service = require("doom.services.commands")
+    local autocmds_service = require("doom.services.autocommands")
+
     if reload_type == "ROOT" then
-        -- cleanup
-        for _, cmd_spec in pairs(doom.cmds) do
-            require("doom.services.commands").del(cmd_spec[1])
-        end
-        for _, autocmd_spec in pairs(doom.autocmds) do
-            require("doom.services.autocommands").del_by_signature(
-                "config.lua", -- maybe make these user-autocmd logic into their own api funcs
-                autocmd_spec[1],
-                autocmd_spec[2]
-            )
-        end
+        require("doom.core.modules"):unload_user_config()
         -- reload
         require("doom.core.config").handle_post_import_modules()
         require("doom.core.modules"):handle_user_config()
         require("doom.core.modules"):handle_lazynvim()
     elseif reload_type == "SINGLE" then
-        -- TODO: extract func
-        --          -> core.modules:unload_modules() -- mult
-        --          -> core.modules:unload_module() -- single
-
         -- get table path from project path
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
-
         local path_module = table.concat(t_path, ".")
-
-        -- log.info("mod_path:", event_target_module, "t_path:", t_path)
-
-        -- cleanup
+    -- clean up module
+        local old_module = utils.get_set_table_path(doom.modules, t_path)
+        require("doom.core.modules").unload_module(old_module, path_module)
+        -- reload (commands, autocmds, packages spec, and binds)
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
-        if module.cmds then
-            for _, cmd_spec in
-                ipairs(type(module.cmds) == "function" and module.cmds() or module.cmds)
-            do
-                require("doom.services.commands").del(cmd_spec[1])
-            end
-        end
-        if module.autocmds then
-            for _, autocmd_spec in
-                ipairs(type(module.autocmds) == "function" and module.autocmds() or module.autocmds)
-            do
-                require("doom.services.autocommands").del_by_signature(
-                    path_module,
-                    autocmd_spec[1],
-                    autocmd_spec[2]
-                )
-            end
-        end
-        -- reload
         require("doom.core.modules").load_module(module, path_module)
         require("doom.core.modules"):handle_lazynvim()
 
-        if module.on_reload and type(module.on_reload) == "function" then
+        -- if a module has a [on_reload] function, then I could auto generate a
+        -- User:DoomStarted autocmd
+        -- OR, even more simple, we could just create a mapping of all post_reload funcs
+        -- into either a hidden table or doom.post_load = {fn1, fn2, ...} and then
+        -- just loop and run them in core.init, or
+        -- TODO: in core.modules:load_module() -> attach all [post_reload] funcs to
+        -- table, which we then loop here.
+        if module.post_reload and type(module.on_reload) == "function" then
             module.on_reload()
         end
-    else
-        -- cleanup
-        require("doom.services.commands").del_all()
-        require("doom.services.autocommands").del_all()
+    elseif reload_type == "FULL" then
+        require("doom.core.modules").unload_modules()
         bulk_unload_all_doom_modules()
-        -- reload
         reloader.reload_lua_module("doom.core", false)
         require("doom.core.modules"):handle_lazynvim()
+    else
+        log.debug(string.format("Unknown reload type: %s", reload_type))
     end
 
     if is_new_state_same_as_old(old_modules, old_packages) then
@@ -336,7 +313,7 @@ reloader.cmds = {
 function reloader.reload_doom_if_necessary(event)
     local is_config_dir = vim.fn.getcwd() == vim.fn.stdpath("config")
     if is_config_dir or system.doom_configs_root == vim.fn.stdpath("config") then
-        log.debug(event.file)
+        -- log.debug(event.file)
         -- ignore reloading when manually changing the modules declaration file
         if event.file == "modules.lua" then
             return

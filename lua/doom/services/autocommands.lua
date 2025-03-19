@@ -217,7 +217,7 @@ end
 autocmds_service.del_by_signature = function(path_module, event, pattern)
     local sig_str = make_signature(path_module, event, pattern)
     local id = data.autocmd_signatures_to_ids[sig_str]
-    print(string.format("%s -> %s", sig_str, tostring(id)))
+    -- print(string.format("%s -> %s", sig_str, tostring(id)))
     autocmds_service.del(id)
 end
 
