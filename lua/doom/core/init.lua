@@ -6,24 +6,24 @@
 --]]
 
 local ensure_vim_dirs = function()
-  local cache_dir = vim.env.HOME .. "/.cache/nvim/"
-  local data_dir = {
-    cache_dir .. "backup",
-    cache_dir .. "session",
-    cache_dir .. "swap",
-    cache_dir .. "tags",
-    cache_dir .. "undo",
-  }
-  -- There only check once that If cache_dir exists
-  -- Then I don't want to check subs dir exists
-  if vim.fn.isdirectory(cache_dir) == 0 then
-    os.execute("mkdir -p " .. cache_dir)
-    for _, v in pairs(data_dir) do
-      if vim.fn.isdirectory(v) == 0 then
-        os.execute("mkdir -p " .. v)
-      end
+    local cache_dir = vim.env.HOME .. "/.cache/nvim/"
+    local data_dir = {
+        cache_dir .. "backup",
+        cache_dir .. "session",
+        cache_dir .. "swap",
+        cache_dir .. "tags",
+        cache_dir .. "undo",
+    }
+    -- There only check once that If cache_dir exists
+    -- Then I don't want to check subs dir exists
+    if vim.fn.isdirectory(cache_dir) == 0 then
+        os.execute("mkdir -p " .. cache_dir)
+        for _, v in pairs(data_dir) do
+            if vim.fn.isdirectory(v) == 0 then
+                os.execute("mkdir -p " .. v)
+            end
+        end
     end
-  end
 end
 
 local map_file_types = function()
@@ -119,10 +119,10 @@ profiler.stop("framework|doom.core.config (setup + user)")
 --
 
 if not utils.is_module_enabled("features", "netrw") then
-  g.loaded_netrw = 1
-  g.loaded_netrwPlugin = 1
-  g.loaded_netrwSettings = 1
-  g.loaded_netrwFileHandlers = 1
+    g.loaded_netrw = 1
+    g.loaded_netrwPlugin = 1
+    g.loaded_netrwSettings = 1
+    g.loaded_netrwFileHandlers = 1
 end
 
 --
@@ -151,13 +151,12 @@ profiler.start("framework|user settings")
 modules.handle_user_config()
 profiler.stop("framework|user settings")
 
+-- modules.try_sync() -- Old and not updated..
 
-
--- WARN: This is problematic, if one uses a reduced set of modules...
--- Need to rethink this. -> Only allow syncing if running [DOOM_RUN_STATE == FULL]
-modules.try_sync()
-
-modules.handle_lazynvim()
+-- reloading lazy is not supported, unfortunately..
+if _doom_first_load then
+    modules.handle_lazynvim()
+end
 
 profiler.stop("framework|doom.core.modules")
 
@@ -177,7 +176,7 @@ profiler.stop("framework|doom.core.ui")
 
 -- Execute autocommand for user to hook custom config into
 vim.api.nvim_exec_autocmds("User", {
-  pattern = "DoomStarted",
+    pattern = "DoomStarted",
 })
 
 -- _doom_first_load = false

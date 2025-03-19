@@ -224,14 +224,16 @@ reloader._reload_doom = function(opts)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
         local path_module = table.concat(t_path, ".")
-    -- clean up module
+        -- clean up module
         local old_module = utils.get_set_table_path(doom.modules, t_path)
         require("doom.core.modules").unload_module(old_module, path_module)
         -- reload (commands, autocmds, packages spec, and binds)
         reloader.reload_lua_module(event_target_module, false)
         local module = require("doom.core.config").attach_module(t_path)
         require("doom.core.modules").load_module(module, path_module)
-        require("doom.core.modules"):handle_lazynvim()
+
+        -- reloading lazy is not supported
+        -- require("doom.core.modules"):handle_lazynvim()
 
         -- if a module has a [on_reload] function, then I could auto generate a
         -- User:DoomStarted autocmd
@@ -247,7 +249,8 @@ reloader._reload_doom = function(opts)
         require("doom.core.modules").unload_modules()
         bulk_unload_all_doom_modules()
         reloader.reload_lua_module("doom.core", false)
-        require("doom.core.modules"):handle_lazynvim()
+        -- reloading lazy is not supported
+        -- require("doom.core.modules"):handle_lazynvim()
     else
         log.debug(string.format("Unknown reload type: %s", reload_type))
     end

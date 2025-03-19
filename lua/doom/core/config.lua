@@ -122,7 +122,7 @@ config.handle_enabled_modules = function()
                 end
 
                 -- only load by env vars if it is the first time.
-                if false and _doom.first_load then
+                if false and _doom_first_load then
                     -- make lower case and trim the module name from the string
                     if
                         DOOM_LOAD_SECTIONS
