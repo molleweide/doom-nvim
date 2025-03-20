@@ -21,16 +21,15 @@ modules.source = utils.find_config(filename)
 -- Merge core modules (can't be disabled) with user enabled modules
 local core_modules = {
     core = {
-        "doom",
-        "nest",
-        "treesitter",
-        "reloader",
-        "updater",
+        { "doom", enabled = true },
+        { "nest", enabled = true },
+        { "treesitter", enabled = true },
+        { "reloader", enabled = true },
+        { "updater", enabled = true },
     },
 }
 
--- FIX: I need to ensure that the config does not break if there is a type in the modules file.
--- Prevent reloading if there is an error here.
+-- TODO: Rename to get [module declarations] or [module tree]??
 local function load_enabled_modules()
     local ok, result = xpcall(dofile, debug.traceback, modules.source)
     if ok then
@@ -38,7 +37,6 @@ local function load_enabled_modules()
     end
     return ok, result
 end
-
 modules.enabled_modules = load_enabled_modules -- vim.tbl_deep_extend("keep", core_modules, dofile(modules.source))
 
 local keymaps_service = require("doom.services.keymaps")

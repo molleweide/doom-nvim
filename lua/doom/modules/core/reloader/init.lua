@@ -252,7 +252,7 @@ reloader._reload_doom = function(opts)
         bulk_unload_all_doom_modules()
         reloader.reload_lua_module("doom.core", false)
         -- reloading lazy is not supported
-        require("doom.core.modules"):handle_lazynvim()
+        -- require("doom.core.modules"):handle_lazynvim()
     else
         log.debug(string.format("Unknown reload type: %s", reload_type))
     end

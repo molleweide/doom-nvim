@@ -86,63 +86,60 @@ config.handle_enabled_modules = function()
         -- this so that one can supply a module table instead.
 
         -- Combine enabled modules (`modules.lua`) with core modules.
-        require("doom.utils.modules").traverse_modules_declarations(enabled_modules, function(node, stack)
-            if check_is_module(node, stack) then
+        require("doom.utils.modules").traverse_modules_declarations(
+            enabled_modules,
+            function(node, stack)
+                if check_is_module(node, stack) then
+                    -- TODO: This logic is always used, maybe it should go into the
+                    -- traverser function itself..
+                    local t_path = vim.tbl_map(function(stack_node)
+                        return type(stack_node.key) == "string" and stack_node.key:lower()
+                            or type(stack_node) == "table" and stack_node.node[1]
+                    end, stack)
+                    -- print(vim.inspect(t_path))
+                    local path_module = table.concat(t_path, ".")
 
-                -- TODO: This logic is always used, maybe it should go into the
-                -- traverser function itself..
-                local t_path = vim.tbl_map(function(stack_node)
-                    -- print(string.format("[stack node]: %s", vim.inspect(stack_node)))
-                    return type(stack_node.key) == "string" and stack_node.key:lower()
-                        -- table declaration
-                        or type(stack_node) == "table" and stack_node.node[1]
-                        -- single string declaration << REMOVE This
-                        or stack_node.node
-                end, stack)
-                -- print(vim.inspect(t_path))
-                local path_module = table.concat(t_path, ".")
+                    -- print("path: ", path_module)
 
-                -- print("path: ", path_module)
+                    -- filter modules
+                    ---------------------------------------------------------
+                    --
+                    -- TODO: Later, move this into meta __eq operator on the doom table
+                    -- itself. So that it can be reused in other settigs.
 
-
-                -- filter modules
-                ---------------------------------------------------------
-                --
-                -- TODO: Later, move this into meta __eq operator on the doom table
-                -- itself. So that it can be reused in other settigs.
-
-                -- check if enabled or backwards compatible "string"
-                if not (type(node) == "string" or node.enabled) then
-                    return
-                end
-
-                -- only load by env vars if it is the first time.
-                if false and _doom_first_load then
-                    -- make lower case and trim the module name from the string
-                    if
-                        DOOM_LOAD_SECTIONS
-                        and filter_module_declaration(
-                            DOOM_LOAD_SECTIONS,
-                            path_module:lower():gsub("%.[^%.]+$", "")
-                        )
-                    then
+                    if not node.enabled then
                         return
                     end
-                    if
-                        DOOM_LOAD_TAGS
-                        and filter_module_declaration(DOOM_LOAD_TAGS, node.tags or {})
-                    then
-                        return
+
+                    -- only load by env vars if it is the first time.
+                    if false and _doom_first_load then
+                        -- make lower case and trim the module name from the string
+                        if
+                            DOOM_LOAD_SECTIONS
+                            and filter_module_declaration(
+                                DOOM_LOAD_SECTIONS,
+                                path_module:lower():gsub("%.[^%.]+$", "")
+                            )
+                        then
+                            return
+                        end
+                        if
+                            DOOM_LOAD_TAGS
+                            and filter_module_declaration(DOOM_LOAD_TAGS, node.tags or {})
+                        then
+                            return
+                        end
                     end
+
+                    ---------------------------------------------------------
+                    -- load and attach module to [doom]
+                    ---------------------------------------------------------
+
+                    config.attach_module(t_path)
                 end
-
-                ---------------------------------------------------------
-                -- load and attach module to [doom]
-                ---------------------------------------------------------
-
-                config.attach_module(t_path)
-            end
-        end, { name = "[ core/config ]: traverse enabled_modules" })
+            end,
+            { name = "[ core/config ]: traverse enabled_modules" }
+        )
     end
 
     profiler.stop("framework|import modules")
