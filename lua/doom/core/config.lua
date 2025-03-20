@@ -86,30 +86,25 @@ config.handle_enabled_modules = function()
         -- this so that one can supply a module table instead.
 
         -- Combine enabled modules (`modules.lua`) with core modules.
-        require("doom.utils.modules").traverse_enabled(enabled_modules, function(node, stack)
+        require("doom.utils.modules").traverse_modules_declarations(enabled_modules, function(node, stack)
             if check_is_module(node, stack) then
-                -- if type(node) == "table" then
-                --     return
-                -- end
 
-                -- TODO: ( ) handle both old and new way
-                -- put together path
+                -- TODO: This logic is always used, maybe it should go into the
+                -- traverser function itself..
                 local t_path = vim.tbl_map(function(stack_node)
                     -- print(string.format("[stack node]: %s", vim.inspect(stack_node)))
                     return type(stack_node.key) == "string" and stack_node.key:lower()
                         -- table declaration
                         or type(stack_node) == "table" and stack_node.node[1]
-                        -- single string declaration
+                        -- single string declaration << REMOVE This
                         or stack_node.node
                 end, stack)
-
                 -- print(vim.inspect(t_path))
-
                 local path_module = table.concat(t_path, ".")
 
                 -- print("path: ", path_module)
 
-                ---------------------------------------------------------
+
                 -- filter modules
                 ---------------------------------------------------------
                 --
@@ -128,7 +123,7 @@ config.handle_enabled_modules = function()
                         DOOM_LOAD_SECTIONS
                         and filter_module_declaration(
                             DOOM_LOAD_SECTIONS,
-                            table.concat(t_path, "."):lower():gsub("%.[^%.]+$", "")
+                            path_module:lower():gsub("%.[^%.]+$", "")
                         )
                     then
                         return
@@ -167,6 +162,7 @@ config.attach_module = function(t_path)
         ok, result = xpcall(require, debug.traceback, path)
         if ok then
             correct_path = path
+            -- log.warn("corect path:", path)
             break
         end
     end

@@ -1,7 +1,10 @@
 -- TODO: Add doom compatability for `Jump to definition` for each entry so that
 -- we can easilly jump to the exact location of the definition of a binding.
 --
--- TODO: Rename this module to something more descriptive.
+-- ISSUE: NAME `NEST`
+-- This module does not create bindings; It merely caches bindings and introduces
+-- a picker UI. Therefore it should be renamed to eg.:
+-- ~ bindings_ui
 --
 -- TODO: filter binds that dont have correct attributes in their definition,
 -- so that you as a user can easilly go through existing bindigs and document

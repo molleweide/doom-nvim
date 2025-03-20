@@ -16,7 +16,7 @@ local M = {}
 
 -- Designed to travers `modules.lua` file, ie. allows you to operate on
 -- each module `dot` path.
-M.traverse_enabled = traverser.build({
+M.traverse_modules_declarations = traverser.build({
     -- Builds the traversal function defining how we should move through the tree
     -- @param node any The node itself
     -- @param next function(node: any) Traverse into the traverse_in node, adding the node to the stack
@@ -41,25 +41,9 @@ M.traverse_enabled = traverser.build({
             end
         elseif type(node) == "string" and not parent_is_section then
             -- Old method for declaring enabled modules as simple strings
-            -- print(
-            --     string.format(
-            --         "[traverse_enabled]: index = %s, type node = %s, name = %s",
-            --         parent and parent.key,
-            --         type(node),
-            --         node
-            --     )
-            -- )
             traverse_out() -- This is a leaf, traverse back a layer.
         elseif parent and type(parent.key) == "number" and type(node) == "table" then
             -- New method, where module is declared as a table
-            -- print(
-            --     string.format(
-            --         "[traverse_enabled#NEW]: index = %s, type node = %s, name = %s",
-            --         parent and parent.key,
-            --         type(node),
-            --         node
-            --     )
-            -- )
             traverse_out() -- Travel back up when a sub table has been completed.
         else
             err(

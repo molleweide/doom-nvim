@@ -230,6 +230,7 @@ local function make_results()
     -- require("doom.utils.modules").traverse_loaded(ext_mod, function(node, stack)
     -- end)
     -- print("results:", results, type(results))
+    log.info("DUI - LIST_ALL_MODULES:", results)
 
     -- todo: rename "SINGLE_MODULE"
   elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then

@@ -721,7 +721,7 @@ mod_util.extend = function(filter)
     end
 
     m_all[("%s.%s.%s.%s"):format(org, "modules", table.concat(sec, "."), name)] = {
-      type = "doom_module_single",       -- todo: how is type used?
+      type = "doom_module_single",       -- XXX todo: how is type used?
       enabled = false,
       name = name,
       section2 = table.concat(sec, "."),
