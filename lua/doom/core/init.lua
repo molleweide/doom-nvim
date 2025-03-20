@@ -141,6 +141,8 @@ profiler.start("framework|doom.core.modules")
 
 local modules = utils.safe_require("doom.core.modules")
 
+_doom_on_loaded_callbacks = {}
+
 profiler.start("framework|init enabled modules")
 modules.load_modules()
 profiler.stop("framework|init enabled modules")
@@ -157,6 +159,8 @@ profiler.stop("framework|user settings")
 if _doom_first_load then
     modules.handle_lazynvim()
 end
+
+modules.on_loaded_callbacks()
 
 profiler.stop("framework|doom.core.modules")
 

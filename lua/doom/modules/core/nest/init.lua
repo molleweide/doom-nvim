@@ -205,30 +205,15 @@ nest.reload_binds = function()
     vim.notify("Loaded [Nest] binds")
 end
 
-nest.load_binds_for_module = function() end
-
-nest.unload_all_binds = function() end
-
-nest.unload_binds_for_module = function() end
-
---- On reload function
-nest.post_reload = nest.reload_binds()
-
-local function try_reloading_binds()
-    nest.reload_binds()
-end
+nest.on_loaded = nest.reload_binds()
 
 nest.cmds = {
     {
         "ReloadBindings",
         function()
-            try_reloading_binds()
+            nest.reload_binds()
         end,
     },
-}
-
-nest.autocmds = {
-    { "User", "DoomStarted", nest.reload_binds },
 }
 
 nest.binds = {

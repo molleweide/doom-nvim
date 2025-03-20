@@ -198,6 +198,8 @@ reloader._reload_doom = function(opts)
 
     -- TODO: If subset, then only get old state from those modules.
 
+    _doom_on_loaded_callbacks = {}
+
     -- reset the profiler
     require("doom.services.profiler").reset() -- ???????????
 
@@ -236,17 +238,8 @@ reloader._reload_doom = function(opts)
 
         -- reloading lazy is not supported
         -- require("doom.core.modules"):handle_lazynvim()
+        require("doom.core.modules").on_loaded_callbacks()
 
-        -- if a module has a [on_reload] function, then I could auto generate a
-        -- User:DoomStarted autocmd
-        -- OR, even more simple, we could just create a mapping of all post_reload funcs
-        -- into either a hidden table or doom.post_load = {fn1, fn2, ...} and then
-        -- just loop and run them in core.init, or
-        -- TODO: in core.modules:load_module() -> attach all [post_reload] funcs to
-        -- table, which we then loop here.
-        if module.post_reload and type(module.on_reload) == "function" then
-            module.on_reload()
-        end
     elseif reload_type == "FULL" then
         require("doom.core.modules").unload_modules()
         bulk_unload_all_doom_modules()

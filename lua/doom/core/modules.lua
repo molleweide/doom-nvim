@@ -138,6 +138,10 @@ modules.load_module = function(module, path_module)
                 type(module.binds) == "function" and module.binds() or module.binds
             )
         end
+
+        if module.on_loaded then
+            table.insert(_doom_on_loaded_callbacks, module.on_loaded)
+        end
     end
     profiler.stop(profile_msg)
 end
@@ -280,6 +284,14 @@ modules.handle_lazynvim = function()
             path = doom.settings.local_plugins_path,
         },
     })
+end
+
+modules.on_loaded_callbacks = function()
+    for _, fn in ipairs(_doom_on_loaded_callbacks) do
+        if type(fn) == "function" then
+            fn()
+        end
+    end
 end
 
 return modules
