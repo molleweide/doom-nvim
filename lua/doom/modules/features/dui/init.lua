@@ -417,19 +417,27 @@ local function doom_modules_picker_v2(opts)
 
     local results = {}
     local enabled_count = 0
+    local section_width = 0
 
     require("doom.utils.modules").traverse_modules_declarations(
         enabled_modules,
         function(node, stack)
             -- log.warn(node)
             if type(node[1]) == "string" then
-                local t_path = vim.tbl_map(function(stack_node)
-                    return type(stack_node.key) == "string" and stack_node.key:lower()
-                        or type(stack_node) == "table" and stack_node.node[1]
-                end, stack)
-                node.t_path = t_path
-                node.mod_path = table.concat(t_path, ".")
+                local t_section = {}
+                -- use for each instead and exclude the module name
+                for _, sn in ipairs(stack) do
+                    if type(sn.key) == "string" then
+                        table.insert(t_section, sn.key:lower())
+                    end
+                end
+
+                node.section = table.concat(t_section, ".")
+
                 table.insert(results, node)
+
+                section_width = math.max(section_width, #node.section)
+
                 if node.enabled then
                     enabled_count = enabled_count + 1
                 end
@@ -437,7 +445,29 @@ local function doom_modules_picker_v2(opts)
         end
     )
 
-    log.warn(results)
+    local displayer = entry_display.create({
+        separator = "| ",
+        items = {
+            { width = 7 },
+            { width = 2 },
+            { width = section_width + 1 },
+            { remaining = true },
+        },
+    })
+    -- { "ai_chat_gpt",
+    --     enabled = true,
+    --     mod_path = "ai.ai_chat_gpt",
+    --     t_path = { "ai", "ai_chat_gpt" }
+    --   }
+    local function make_display(entry)
+        -- return { { entry } }
+        return displayer({
+            { "MODULE", "TSConstant" },
+            { entry.value.enabled and "x" or " ", "TelescopeResultsIdentifier" },
+            { entry.value.section, "TelescopeResultsIdentifier" },
+            { entry.value[1], entry.value.enabled and "" or "ErrorMsg" },
+        })
+    end
 
     require("telescope.pickers")
         .new(opts, {
@@ -448,40 +478,11 @@ local function doom_modules_picker_v2(opts)
             -------------------------------------------------------
             finder = require("telescope.finders").new_table({
                 results = results,
-
                 entry_maker = function(entry)
-                    local displayer__ = function(entry)
-                        return {
-                            separator = "| ",
-                            items = {
-                                { width = 10 },
-                                { width = 20 },
-                                { width = 40 }, -- the section2
-                                { width = 20 },
-                                { width = 20 },
-                                { width = 20 },
-                                { width = 20 },
-                                { width = 20 },
-                                -- { width = 4 },
-                                { remaining = true },
-                            },
-                        }
-                    end
-
-                    -- -- print(vim.inspect(entry))
-                    -- local displayer = entry_display.create(
-                    --     components[entry.component_type]().displayer(entry)
-                    --         or doom_ui.settings.displayer_default
-                    -- )
-                    --
-                    -- local make_display = function(display_entry)
-                    --     -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
-                    --     return displayer(display_entry.value.items)
-                    -- end
                     return {
                         value = entry,
-                        display = entry[1],
-                        -- display = make_display,
+                        -- display = entry[1],
+                        display = make_display,
                         ordinal = entry[1],
                         -- ordinal = entry.ordinal,
                     }
@@ -695,7 +696,7 @@ doom_ui.binds = {
                         function()
                             require("doom.modules.features.dui.ui_select_browser")()
                         end,
-                        name = "mod browse",
+                        name = "Mod browse",
                     },
                     {
                         "W",
