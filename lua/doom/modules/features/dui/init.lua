@@ -406,14 +406,15 @@ local function doom_modules_picker_v2(opts)
     local entry_display = require("telescope.pickers.entry_display")
     local actions_set = require("telescope.actions.set")
 
-    -- i(results)
-    -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
-    -- print("picker -> title:", title)
+    local Path = require("pathlib")
+    local doom_config_root = require("doom.core.system").doom_configs_root
 
     local modules_ok, enabled_modules = require("doom.core.modules").enabled_modules()
     if not modules_ok then
         log.error("Could not load enabled modules!")
     end
+
+    log.info("DOOM MODULES PICKER V2")
 
     local results = {}
     local enabled_count = 0
@@ -434,6 +435,24 @@ local function doom_modules_picker_v2(opts)
 
                 node.section = table.concat(t_section, ".")
 
+                local module_init_file = Path(
+                    doom_config_root,
+                    "lua",
+                    "user",
+                    "modules",
+                    unpack(t_section),
+                    node[1],
+                    "init.lua"
+                )
+
+                if module_init_file:exists() then
+                    node.origin = "user"
+                    node.path_init_file = module_init_file
+                else
+                    node.origin = "doom"
+                    node.path_init_file = module_init_file:gsub("lua/user/", "lua/doom/")
+                end
+
                 table.insert(results, node)
 
                 section_width = math.max(section_width, #node.section)
@@ -450,20 +469,16 @@ local function doom_modules_picker_v2(opts)
         items = {
             { width = 7 },
             { width = 2 },
+            { width = 5 },
             { width = section_width + 1 },
             { remaining = true },
         },
     })
-    -- { "ai_chat_gpt",
-    --     enabled = true,
-    --     mod_path = "ai.ai_chat_gpt",
-    --     t_path = { "ai", "ai_chat_gpt" }
-    --   }
     local function make_display(entry)
-        -- return { { entry } }
         return displayer({
             { "MODULE", "TSConstant" },
             { entry.value.enabled and "x" or " ", "TelescopeResultsIdentifier" },
+            { entry.value.origin },
             { entry.value.section, "TelescopeResultsIdentifier" },
             { entry.value[1], entry.value.enabled and "" or "ErrorMsg" },
         })
