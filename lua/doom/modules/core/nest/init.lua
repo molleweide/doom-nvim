@@ -205,7 +205,7 @@ nest.reload_binds = function()
     vim.notify("Loaded [Nest] binds")
 end
 
-nest.on_loaded = nest.reload_binds()
+nest.on_loaded_each = nest.reload_binds
 
 nest.cmds = {
     {

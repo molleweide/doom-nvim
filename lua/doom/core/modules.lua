@@ -5,7 +5,7 @@
 --
 --   Later on it executes all of the enabled modules, loading their packer dependencies, autocmds and cmds.
 
-local logger = require("doom.utils.logging")
+local log = require("doom.utils.logging")
 local profiler = require("doom.services.profiler")
 local utils = require("doom.utils")
 local filename = "modules.lua"
@@ -73,7 +73,7 @@ modules.load_module = function(module, path_module)
         for _, dependent_module in ipairs(module.requires_modules) do
             if not utils.get_set_table_path(doom.modules, vim.split(dependent_module, "%.")) then
                 should_enable_module = false
-                logger.error(
+                log.error(
                     ('Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'):format(
                         path_module,
                         dependent_module,
@@ -139,8 +139,15 @@ modules.load_module = function(module, path_module)
             )
         end
 
-        if module.on_loaded then
-            table.insert(_doom_on_loaded_callbacks, module.on_loaded)
+        -- use keys here to ensure that callbacks persist across reloades.
+        if module.on_loaded_each then
+            doom._on_loaded_callbacks.each[path_module] = module.on_loaded_each
+        end
+
+        -- on single only should depend on the module itself and therefore we can
+        -- just reset the list, loop and call.
+        if module.on_loaded_single then
+            table.insert(doom._on_loaded_callbacks.single, module.on_loaded_single)
         end
     end
     profiler.stop(profile_msg)
@@ -196,7 +203,6 @@ end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
-    local logger = require("doom.utils.logging")
 
     -- TODO: pass the whole spec to the service
 
@@ -222,7 +228,7 @@ modules.handle_user_config = function()
         keymaps_service.applyKeymaps(keybinds)
     end
 
-    logger.debug("doom.modules -> loaded user configs (config.lua)")
+    log.debug("doom.modules -> loaded user configs (config.lua)")
 end
 
 modules.unload_user_config = function()
@@ -248,8 +254,8 @@ end
 --             -- should we switch this to :LazyCheck?
 --             pattern = "PackerComplete",
 --             callback = function()
---                 local logger = require("doom.utils.logging")
---                 logger.error("Doom-nvim has been installed.  Please restart doom-nvim.")
+--                 local log = require("doom.utils.logging")
+--                 log.error("Doom-nvim has been installed.  Please restart doom-nvim.")
 --             end,
 --         })
 --     end
@@ -287,9 +293,16 @@ modules.handle_lazynvim = function()
 end
 
 modules.on_loaded_callbacks = function()
-    for _, fn in ipairs(_doom_on_loaded_callbacks) do
+    for i, fn in ipairs(doom._on_loaded_callbacks.single) do
         if type(fn) == "function" then
             fn()
+            log.debug(string.format("on_loaded_single #%s was run", i))
+        end
+    end
+    for key, fn in pairs(doom._on_loaded_callbacks.each) do
+        if type(fn) == "function" then
+            fn()
+            log.debug(string.format("on_loaded_each for [%s] was run.", key))
         end
     end
 end

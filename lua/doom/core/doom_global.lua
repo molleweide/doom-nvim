@@ -65,6 +65,18 @@ doom = setmetatable({
 
     package_reloaders = {},
 
+    -- callbacks for reloading modules properly.
+    _on_loaded_callbacks = {
+        -- these only depend on themselves and should only run wen the module has been modified.
+        single = {},
+        -- these depends on other modules and need to be ran on each (re)load.
+        each = {}
+    },
+
+    --
+    -- SETTINGS
+    --
+
     settings = {
         -- Use the global statusline
         -- @default = true

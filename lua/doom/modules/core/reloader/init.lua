@@ -1,5 +1,5 @@
 -- Store state that persists between reloads here.
-_G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or { reload_on_save = false }
+_G._doom_reloader = _G._doom_reloader ~= nil and _G._doom_reloader or { reload_on_save = true }
 
 -- FIX: ( ) Need a way to reload if the reloader fails...
 
@@ -198,7 +198,7 @@ reloader._reload_doom = function(opts)
 
     -- TODO: If subset, then only get old state from those modules.
 
-    _doom_on_loaded_callbacks = {}
+    doom._on_loaded_callbacks.single = {}
 
     -- reset the profiler
     require("doom.services.profiler").reset() -- ???????????
