@@ -490,6 +490,12 @@ local function doom_modules_picker_v2(opts)
                 enabled_count,
                 #results
             ),
+            layout_config = {
+                width = 0.5,
+                center = {
+                    width = 0.8,
+                },
+            },
             -------------------------------------------------------
             finder = require("telescope.finders").new_table({
                 results = results,
@@ -505,25 +511,25 @@ local function doom_modules_picker_v2(opts)
             }),
             -------------------------------------------------------
             sorter = require("telescope.config").values.generic_sorter(opts),
-            -- attach_mappings = function(prompt_bufnr, map)
-            --     local state = require("telescope.actions.state")
-            --
-            --     -- NOTE: Notice here that we access mappings based on the selected
-            --     -- entry, but what should happen if we are showing multiple entry
-            --     -- component types.
-            --     local function call_mappings_func(key)
-            --         local entry = state.get_selected_entry(prompt_bufnr)
-            --         mappings_table["modules"][key](prompt_bufnr, entry, key)
-            --     end
-            --
-            --     -- create inseart mappings
-            --     for _, map_str in ipairs(insert_mappings) do
-            --         map("i", map_str, function()
-            --             call_mappings_func(map_str)
-            --         end)
-            --     end
-            --     return true
-            -- end,
+            attach_mappings = function(prompt_bufnr, map)
+                local state = require("telescope.actions.state")
+                local function call_mappings_func(key)
+                    local entry = state.get_selected_entry(prompt_bufnr)
+                    mappings_table["modules"][key].action(prompt_bufnr, entry, key)
+                end
+                for _, key in ipairs(insert_mappings) do
+                    if mappings_table["modules"][key] then
+                        map("i", key, function()
+                            call_mappings_func(key)
+                        end, {
+                            desc = mappings_table["modules"][key].desc
+                                    and mappings_table["modules"][key].desc
+                                or "todo...",
+                        })
+                    end
+                end
+                return true
+            end,
             initial_mode = "insert",
         })
         :find()
@@ -686,7 +692,7 @@ doom_ui.binds = {
         {
             {
                 "k",
-                ":DoomPickerModules<CR>",
+                doom_modules_picker_v2,
                 name = "Browse modules",
                 -- options = { silent = false },
             },
