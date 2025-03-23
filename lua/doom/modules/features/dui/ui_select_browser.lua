@@ -3,11 +3,16 @@ local log = require("doom.utils.logging")
 -- TODO: I need to visually make dirs vs mod become much clearer
 --
 -- TODO: Include user modules.
+-- ^ This would require using the method that is used in the doom_modules_picker_v2
 --
 -- TODO: If <CR> on `current` for dir AND no custom name string
 -- has bee provided, then prompt user for a new module name.
 --
 -- migrate this to telescope?
+
+local log = require("doom.utils.logging")
+
+
 local function __modules_browser_wrap()
     local Path = require("pathlib")
 
@@ -120,6 +125,7 @@ local function __modules_browser_wrap()
     ---@param path_in string|nil: The dir that you wish to start from or doom modules base dir.
     local function modules_browser(path_in)
         local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
+        log.info("current dir:", current_dir)
         local possible_choices = {
             current_dir,
         }
@@ -128,6 +134,7 @@ local function __modules_browser_wrap()
                 table.insert(possible_choices, path)
             end
         end
+        log.info("possible_choices", possible_choices)
         vim.ui.select(possible_choices, {
             prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
             format_item = function(item)

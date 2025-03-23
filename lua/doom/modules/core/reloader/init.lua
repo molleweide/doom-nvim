@@ -171,6 +171,10 @@ reloader._reload_doom = function(opts)
             reload_type = "ROOT"
         elseif opts.event.file:match("doom/modules") or opts.event.file:match("user/modules") then
             reload_type = "SINGLE"
+
+            -- TODO: handle module sub files -> search backwards until we find
+            -- a module_path that exists on the [doom].modules table
+
             event_target_module =
                 opts.event.file:match("lua/(.+)%.lua$"):gsub("/", "."):gsub("%.init$", "")
         else

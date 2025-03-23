@@ -30,56 +30,42 @@ local mappings = {
         ["<CR>"] = {
             desc = "Edit module",
             action = function(prompt_bufnr, entry, key)
-                -- DOOM_UI_STATE.selected_module = fuzzy.value
-                -- ax.m_edit(fuzzy.value)
-                P(entry.value)
-                -- print(("Hi from mappigs: %s"):format(key))
-                -- print(entry.value.path_init)
                 actions.close(prompt_bufnr)
-                vim.cmd(string.format("edit %s", entry.value.path_init))
+                vim.cmd(string.format("edit %s", entry.value.path_init_file))
             end,
         },
         -- INSPECT MODULE
         ["<C-a>"] = {
+            desc = "Browse [module.autocmds]",
             action = function(fuzzy, line, key)
                 print(("Hi from mappigs: %s"):format(key))
-                -- DOOM_UI_STATE.query = {
-                --     type = "SHOW_SINGLE_MODULE",
-                --     -- components = {}
-                -- }
-                -- DOOM_UI_STATE.selected_module = fuzzy.value
-                -- DOOM_UI_STATE.next()
             end,
         },
 
+        ["<C-d>"] = {
+            desc = "Browse [module.cmds]",
+            action = function(prompt_bufnr, entry, key) end,
+        },
         ["<C-b>"] = {
-            action = function(fuzzy, _)
-                -- DOOM_UI_STATE.query = {
-                --   type = "MODULE_COMPONENT",
-                --   -- components = {}
-                -- }
-                -- DOOM_UI_STATE.selected_component = fuzzy.value
-                -- DOOM_UI_STATE.next()
-            end,
+            desc = "Browse [module.bindings]",
+            action = function(fuzzy, _) end,
         },
         ["<C-e>"] = {
+            desc = "Add module to same section",
             action = function(prompt_bufnr, entry, key)
-                -- ax.m_create(sel, line)
-                print("CONTROL E:")
-                P(entry)
             end,
         },
         ["<C-r>"] = {
+            desc = "Rename module",
             action = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
-                -- ax.m_rename(fuzzy.value)
             end,
         },
         ["<C-x>"] = {
-            action = function(fuzzy, _)
-                -- ax.m_delete(fuzzy.value)
-            end,
+            desc = "Delete selected module(s)",
+            action = function(fuzzy, _) end,
         },
         ["<C-t>"] = {
+            desc = "Set status [enabled|disabled]",
             action = function(_, entry, key) -- TOGGLE MODULE(S)
                 print("CONTROL T")
 
@@ -129,24 +115,17 @@ local mappings = {
                 end)
             end,
         },
-        ["<C-y>"] = {
-            action = function(fuzzy, _)
-                -- ax.m_move(fuzzy.value)
-            end,
-        },
-        ["<C-h>"] = {
-            action = function(fuzzy, _)
-                -- ax.m_merge()
-            end,
+        ["<C-w>"] = {
+            desc = "Move module(s)",
+            action = function(fuzzy, _) end,
         },
         ["<C-q>"] = {
-            action = function(fuzzy, _)
-                -- ax.m_submit_module_to_upstream()
-            end,
+            desc = "Add new module",
+            action = function(fuzzy, _) end,
         },
 
-        ["<Tab>"] = { action = actions.toggle_selection + actions.move_selection_worse },
-        ["<S-Tab>"] = { action = actions.toggle_selection + actions.move_selection_better },
+        ["<Tab>"] = { desc = "select forward", action = actions.toggle_selection + actions.move_selection_worse },
+        ["<S-Tab>"] = { desc = "select backwards", action = actions.toggle_selection + actions.move_selection_better },
     },
 }
 
