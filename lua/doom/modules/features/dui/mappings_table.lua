@@ -173,6 +173,12 @@ local mappings = {
             desc = "Move module(s)",
             action = function(fuzzy, _) end,
         },
+        ["<C-z>"] = {
+            desc = "Copy core mod to user + edit",
+            action = function(prompt_bufnr, entry, key)
+                log.info("copy core module to user:", entry.value[1])
+            end,
+        },
         ["<Tab>"] = {
             desc = "select forward",
             action = actions.toggle_selection + actions.move_selection_worse,

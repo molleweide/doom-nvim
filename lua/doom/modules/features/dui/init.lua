@@ -140,6 +140,7 @@ doom_ui.settings = {
         "<C-i>", -- does something.... duno what.
         "<C-l>",
         "<C-m>", -- enter linked
+        "<C-q>", -- enter linked
         "<C-r>", -- tries to access registers or something and this breaks telescope?!
         "<C-s>",
         "<C-v>",
