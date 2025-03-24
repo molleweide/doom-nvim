@@ -81,9 +81,13 @@ local tree_traverser = {
 
             -- why does this have to be performed at the end, couldnt we just do
             -- this inside the `traverse_in` func??
-            for _, value in ipairs(result) do
-                handler(value.node, value.stack)
+            if handler then
+                for _, value in ipairs(result) do
+                    handler(value.node, value.stack)
+                end
             end
+
+            return result
         end
     end,
 }

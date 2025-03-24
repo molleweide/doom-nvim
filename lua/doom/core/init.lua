@@ -141,8 +141,6 @@ profiler.start("framework|doom.core.modules")
 
 local modules = utils.safe_require("doom.core.modules")
 
-_doom_on_loaded_callbacks = {}
-
 profiler.start("framework|init enabled modules")
 modules.load_modules()
 profiler.stop("framework|init enabled modules")

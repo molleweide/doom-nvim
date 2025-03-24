@@ -3,6 +3,7 @@
 -- action for an bind.
 -- This allows for keeping all bindings on one place here, and then I access
 -- the bindings with the `picker_state.entry.category`.
+local log = require("doom.utils.logging")
 local action_state = require("telescope.actions.state")
 local actions = require("telescope.actions")
 local action_utils = require("telescope.actions.utils")
@@ -26,7 +27,6 @@ local mappings = {
     -- When an entry represents a full module, then these binds will apply
     -- to that entry.
     modules = {
-        -- EDIT
         ["<CR>"] = {
             desc = "Edit module",
             action = function(prompt_bufnr, entry, key)
@@ -34,7 +34,18 @@ local mappings = {
                 vim.cmd(string.format("edit %s", entry.value.path_init_file))
             end,
         },
-        -- INSPECT MODULE
+        ["<C-s>"] = {
+            desc = "UI Menu",
+            action = function(fuzzy, line, key)
+                print(("Hi from mappigs: %s"):format(key))
+            end,
+        },
+        ["<C-l>"] = {
+            desc = "UI Menu",
+            action = function(fuzzy, line, key)
+                print(("Hi from mappigs: %s"):format(key))
+            end,
+        },
         ["<C-a>"] = {
             desc = "Browse [module.autocmds]",
             action = function(fuzzy, line, key)
@@ -50,16 +61,53 @@ local mappings = {
             desc = "Browse [module.bindings]",
             action = function(fuzzy, _) end,
         },
+
+        -- TODO: if path begins with [.] or [doom], then add module to new
+        -- section under [doom/modules]
+        -- TODO: if path begins with [user] then add new section to user.
+        -- TODO: else add new module starting from selected modules section.
+        -- TODO: handle/prevent mult select??
         ["<C-e>"] = {
-            desc = "Add module to same section",
+            desc = "Add new module",
             action = function(prompt_bufnr, entry, key)
+                local v = entry.value
+                local to_section = string.format("%s.%s.%s", v.origin, v.section, v[1])
+
+                log.info(v.origin, v.section, v[1])
+
+                actions.close(prompt_bufnr)
+                vim.ui.input({
+                    prompt = string.format(
+                        "Add module to same section [%s]; Enter new name/subpath: ",
+                        to_section
+                    ),
+                }, function(module_target_name)
+                    if not module_target_name then
+                        return
+                    end
+
+                    log.info(
+                        string.format("Add [%s] to section [%s]", module_target_name, to_section)
+                    )
+
+                    -- local split_on_whitespace = vim.split(module_target_name, " ")
+                    -- local move_to_destination
+                    -- if #split_on_whitespace > 1 then
+                    --     module_target_name = split_on_whitespace[1]
+                    --     move_to_destination = split_on_whitespace[2]
+                    -- end
+                end)
             end,
         },
+        -- TODO: prevent multi select.
+        -- ^ maybe if multiple, then queue vim.ui.inputs to change each module, collect
+        -- all changes, and perform the updates at the end.
         ["<C-r>"] = {
             desc = "Rename module",
             action = function(fuzzy, _) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
             end,
         },
+        -- TODO: are you sure?!
         ["<C-x>"] = {
             desc = "Delete selected module(s)",
             action = function(fuzzy, _) end,
@@ -108,24 +156,31 @@ local mappings = {
                         return "I'd like to choose " .. item
                     end,
                 }, function(choice)
-                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        targets = target_modules,
-                        action = choice,
-                    })
+                    log.info(string.format("Set selected module to [%s]", choice))
+
+                    -- require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                    --     targets = target_modules,
+                    --     action = choice,
+                    -- })
                 end)
             end,
         },
+        -- TODO: if single string, then simply rename
+        -- TODO: if including back slashes, then move selected module
+        -- to new section
+        -- TODO: check if path segment already exists, mkdirp for non existent dirs.
         ["<C-w>"] = {
             desc = "Move module(s)",
             action = function(fuzzy, _) end,
         },
-        ["<C-q>"] = {
-            desc = "Add new module",
-            action = function(fuzzy, _) end,
+        ["<Tab>"] = {
+            desc = "select forward",
+            action = actions.toggle_selection + actions.move_selection_worse,
         },
-
-        ["<Tab>"] = { desc = "select forward", action = actions.toggle_selection + actions.move_selection_worse },
-        ["<S-Tab>"] = { desc = "select backwards", action = actions.toggle_selection + actions.move_selection_better },
+        ["<S-Tab>"] = {
+            desc = "select backwards",
+            action = actions.toggle_selection + actions.move_selection_better,
+        },
     },
 }
 

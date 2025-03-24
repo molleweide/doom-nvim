@@ -12,7 +12,6 @@ local log = require("doom.utils.logging")
 
 local log = require("doom.utils.logging")
 
-
 local function __modules_browser_wrap()
     local Path = require("pathlib")
 
@@ -57,10 +56,12 @@ local function __modules_browser_wrap()
 
                 -- everything in manager should go into the manager file.
                 require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                    targets = { {
-                        target_module_name = module_target_name,
-                        target_module_dir = target_module_dir,
-                    } },
+                    targets = {
+                        {
+                            target_module_name = module_target_name,
+                            target_module_dir = target_module_dir,
+                        },
+                    },
                     action = action,
                 })
 
@@ -125,7 +126,7 @@ local function __modules_browser_wrap()
     ---@param path_in string|nil: The dir that you wish to start from or doom modules base dir.
     local function modules_browser(path_in)
         local current_dir = Path(path_in or require("doom.core.system").doom_modules_path())
-        log.info("current dir:", current_dir)
+        -- log.info("current dir:", current_dir)
         local possible_choices = {
             current_dir,
         }
@@ -134,45 +135,55 @@ local function __modules_browser_wrap()
                 table.insert(possible_choices, path)
             end
         end
-        log.info("possible_choices", possible_choices)
-        vim.ui.select(possible_choices, {
-            prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
-            format_item = function(item)
-                if item == current_dir then
-                    return string.format("current = %s", current_dir:basename())
-                elseif type(item) == "table" then
+        -- log.info("possible_choices", possible_choices)
+        vim.ui.select(
+            possible_choices,
+            -- options
+            {
+                prompt = string.format("[MODULES BROWSER](../%s/..)", current_dir:basename()),
+                format_item = function(item)
+                    if item == current_dir then
+                        return string.format("current = %s", current_dir:basename())
+                    elseif type(item) == "table" then
+                        local is_module = false
+                        for path in item:iterdir({ depth = 1 }) do
+                            if path:match("init.lua$") then
+                                is_module = true
+                            end
+                        end
+                        return string.format(
+                            "%s -> %s",
+                            is_module and "mod" or "dir",
+                            item:basename()
+                        )
+                    end
+                end,
+            },
+            -- on_choice actions
+            function(choice)
+                -- TODO: Can I add keybind to toggle enabled here?
+                -- Or do I need to migrate to a real picker?
+
+                if not choice then
+                    return -- eg. <esc>
+                end
+                if choice == current_dir then
+                    mod_browser_operate_on_current_dir(choice)
+                else
                     local is_module = false
-                    for path in item:iterdir({ depth = 1 }) do
+                    for path in choice:iterdir({ depth = 1 }) do
                         if path:match("init.lua$") then
                             is_module = true
                         end
                     end
-                    return string.format("%s -> %s", is_module and "mod" or "dir", item:basename())
-                end
-            end,
-        }, function(choice)
-            -- TODO: Can I add keybind to toggle enabled here?
-            -- Or do I need to migrate to a real picker?
-
-            if not choice then
-                return -- eg. <esc>
-            end
-            if choice == current_dir then
-                mod_browser_operate_on_current_dir(choice)
-            else
-                local is_module = false
-                for path in choice:iterdir({ depth = 1 }) do
-                    if path:match("init.lua$") then
-                        is_module = true
+                    if is_module then
+                        vim.cmd(string.format("edit %s", choice / "init.lua"))
+                    else
+                        modules_browser(choice)
                     end
                 end
-                if is_module then
-                    vim.cmd(string.format("edit %s", choice / "init.lua"))
-                else
-                    modules_browser(choice)
-                end
             end
-        end)
+        )
     end
 
     -- main
