@@ -220,7 +220,20 @@ local integration_definitions = {
                 local options = vim.tbl_extend("force", {
                     buffer = buffer,
                 }, node_settings.options)
-                vim.keymap.set(sanitizedMode, node.lhs, node.rhs, options)
+                -- vim.keymap.set(sanitizedMode, node.lhs, node.rhs, options)
+                ok, result = xpcall(vim.keymap.set, debug.traceback, sanitizedMode, node.lhs, node.rhs, options)
+                if ok then
+                    -- log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
+                else
+                    log.error(
+                        string.format(
+                            "Failure creating keymap [%s] for mode [%s]. Traceback:\n%s",
+                            node.lhs,
+                            sanitizedMode,
+                            result
+                        )
+                    )
+                end
             end
         end,
     },
@@ -244,7 +257,7 @@ local integration_definitions = {
                 -- vim.keymap.del(sanitizedMode, node.lhs)
                 ok, result = xpcall(vim.keymap.del, debug.traceback, sanitizedMode, node.lhs)
                 if ok then
-                    log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
+                    -- log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
                 else
                     log.error(
                         string.format(
