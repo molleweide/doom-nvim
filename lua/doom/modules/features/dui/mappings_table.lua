@@ -22,6 +22,8 @@ end
 
 local mappings = {
 
+    -- TODO: add tags to module.
+
     -- ENTRY ITEM: MODULE
     --
     -- When an entry represents a full module, then these binds will apply

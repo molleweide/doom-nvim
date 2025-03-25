@@ -1,0 +1,11 @@
+@document.meta
+title: README
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2025-03-24T13:19:55-0500
+updated: 2025-03-24T13:20:33-0500
+version: 1.1.1
+@end
+
+~ rename the [luasnippets] dir to [luasnip]

@@ -159,6 +159,7 @@ reloader._reload_doom = function(opts)
 
     local reload_type = "FULL"
     local event_target_module
+    local is_user_module
 
     log.warn("opts:", vim.inspect(opts))
 
@@ -171,7 +172,6 @@ reloader._reload_doom = function(opts)
             reload_type = "ROOT"
         elseif opts.event.file:match("doom/modules") or opts.event.file:match("user/modules") then
             reload_type = "SINGLE"
-
             -- TODO: handle module sub files -> search backwards until we find
             -- a module_path that exists on the [doom].modules table
 
@@ -231,19 +231,52 @@ reloader._reload_doom = function(opts)
         local t_path = vim.split(event_target_module, ".", true)
         table.remove(t_path, 1)
         table.remove(t_path, 1)
+        local count = 0
+        local is_mod
+        local active_module_found = false
+        local is_sub_file
+        while not active_module_found do
+            count = count + 1
+            log.info("checking:", table.concat(t_path, "."))
+            is_mod = utils.get_set_table_path(doom.modules, t_path)
+            if is_mod then
+                active_module_found = true
+                is_sub_file = count > 0 and true or false
+            else
+                table.remove(t_path)
+                if #t_path == 0 then
+                    log.debug("No active module found. Return early..")
+                    return
+                end
+                if count > 20 then
+                    log.warn("Attempt to find active module exceeded 20 loop cycles!")
+                    return
+                end
+            end
+        end
         local path_module = table.concat(t_path, ".")
+        log.info("active found:", table.concat(t_path, "."))
         -- clean up module
         local old_module = utils.get_set_table_path(doom.modules, t_path)
         require("doom.core.modules").unload_module(old_module, path_module)
         -- reload (commands, autocmds, packages spec, and binds)
         reloader.reload_lua_module(event_target_module, false)
+        if is_sub_file then
+            reloader.reload_lua_module(
+                string.format(
+                    "%s.modules.%s",
+                    event_target_module:match("^user") and "user" or "doom",
+                    path_module
+                ),
+                false
+            )
+        end
         local module = require("doom.core.config").attach_module(t_path)
         require("doom.core.modules").load_module(module, path_module)
 
         -- reloading lazy is not supported
         -- require("doom.core.modules"):handle_lazynvim()
         require("doom.core.modules").on_loaded_callbacks()
-
     elseif reload_type == "FULL" then
         require("doom.core.modules").unload_modules()
         bulk_unload_all_doom_modules()
