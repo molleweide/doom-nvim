@@ -69,7 +69,11 @@ log.new = function(config, standalone)
             if type(x) == "number" and config.decimal_places then
                 x = tostring(round(x, config.decimal_places))
             elseif type(x) == "table" then
-                x = vim.inspect(x)
+                if rawget(x, "_raw_paths") ~= nil then
+                    x = string.format("Path:%s",x:tostring()) -- Handle Pathlib paths.
+                else
+                    x = vim.inspect(x)
+                end
             else
                 x = tostring(x)
             end

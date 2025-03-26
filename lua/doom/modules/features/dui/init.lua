@@ -414,6 +414,7 @@ local function doom_picker()
 end
 
 -- TODO: if not telescope, then try use ui_select_browser.
+-- TODO: async get results
 local function doom_modules_picker_v2(opts)
     opts = opts or {}
     local entry_display = require("telescope.pickers.entry_display")
@@ -458,12 +459,15 @@ local function doom_modules_picker_v2(opts)
                     "init.lua"
                 )
 
+
                 if module_init_file:exists() then
                     node.origin = "user"
-                    node.path_init_file = module_init_file
+                    node.path_init_file = module_init_file:tostring()
                 else
                     node.origin = "doom"
+                    -- gsub returns multiple values. Path only accepts one.
                     node.path_init_file = module_init_file:gsub("lua/user/", "lua/doom/")
+
                 end
 
                 table.insert(results, node)

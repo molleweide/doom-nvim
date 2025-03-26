@@ -3,9 +3,7 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local utils = require("doom.utils")
 
-local ts = vim.treesitter
-
-local txt = ts.get_node_text
+local txt = vim.treesitter.get_node_text
 
 local pu = require("doom.modules.features.dui.templates")
 local dui_utils = require("doom.modules.features.dui.utils")
@@ -40,8 +38,12 @@ local function build_new_inject_string(ranges)
     else
         stringified = { string.sub(stringified[1], 2, -2) }
     end
+    log.debug(stringified)
+
     return stringified
 end
+
+local ts = {}
 
 -- PERF: Currently this func recursively searches the tree once for each
 -- target path. Reduce this to only one recursive call, by for each leaf,
@@ -116,12 +118,9 @@ local function ts_root_mod_tbl_try_find_target(args)
     return args
 end
 
-local function get_node_analyze(t_path_new_segment)
-    local rootfile = "modules.lua"
-    local rootbuf = dui_utils.get_buf_handle(utils.find_config(rootfile))
+local function get_node_analyze(rootbuf, t_path_new_segment)
     local parser = vim.treesitter.get_parser(rootbuf, "lua", {})
-    local tree = parser:parse()[1]
-    local root = tree:root()
+    local root = parser:parse()[1]:root()
 
     -- Get the modules table constructor
     --   under the return statement
@@ -146,6 +145,9 @@ end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
 local function transform_enabled_modules_tree(opts)
+    local rootfile = "modules.lua"
+    local modules_buf_handle = dui_utils.get_buf_handle(utils.find_config(rootfile))
+
     -- setup
     local ts_module_node_info = {}
 
@@ -156,14 +158,37 @@ local function transform_enabled_modules_tree(opts)
     -- this is goig to be a lot of fun you know and the
     -- thing is diddeli fuck sturp derperliz
 
-    vim.iter(opts.targets):each(function(elem)
+    -- For each target, analyze the modules tree and return node data about
+    -- each target to be used later.
+    local count = 0
+    vim.iter(opts.targets):each(function(target)
         -- Get table path of target module table
-        local table_path =
-            vim.split(elem.m_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
+        count = count + 1
+
+        local table_path
+        if target.selected_module then
+            table_path = vim.split(
+                target.selected_module.path_init_file:match("modules/(.-)/init.lua$"),
+                "/"
+            )
+        else
+            table_path =
+                vim.split(target.path_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
+        end
 
         print("-------------------------")
         print("-- node analyze:")
-        local args = get_node_analyze(table_path)
+        log.info(
+            string.format(
+                "\n-------------------------------\n-- Node analyze #%s: module = [%s.%s.%s] \n--\n--",
+                count,
+                target.selected_module.origin,
+                target.selected_module.section,
+                target.selected_module[1]
+            )
+        )
+
+        local args = get_node_analyze(modules_buf_handle, table_path)
 
         print(">> [res] =", vim.inspect(args))
         print(args.ret.nodes.parent:range())
@@ -174,26 +199,25 @@ local function transform_enabled_modules_tree(opts)
         table.insert(ts_module_node_info, args)
     end)
 
+    -- sort elements so that we can perform all file operations in reverse.
     table.sort(ts_module_node_info, function(a, b)
         return a.range < b.range
     end)
 
-    P(ts_module_node_info)
+    -- P(ts_module_node_info)
+    log.info("ts_module_node_info SORTED:", ts_module_node_info)
 
     if #ts_module_node_info == 0 then
+        log.debug("ts_module_node_info was empty. Aborting..")
         return
     end
-
-    -- FIX:
-    -- This is a bit ugly, but it is a quick fix for now..
-    local enabled_modules_buf = ts_module_node_info[1].buf
 
     local function enable_module_line() end
     local function disable_module_line() end
     local function remove_module_line() end
 
     if not opts.action then
-        log.error("No action supplied")
+        log.debug("No action was supplied")
         return
     end
 
@@ -227,12 +251,15 @@ local function transform_enabled_modules_tree(opts)
 
     print("<ARGS MAPPED BY RANGE>")
 
+    if true then
+        return
+    end
+
     -- Reverse loop each injection range.
     vim.iter(order):each(function(i)
         local current_range = i
         local ranges = args_by_range[i]
         print("---------------------------------------")
-        P(build_new_inject_string(ranges))
 
         -- WARN: Prevent any changes during dev.
         if true then
@@ -287,6 +314,11 @@ local function transform_enabled_modules_tree(opts)
                 end
             end
         elseif opts.action == "ENABLE" then
+            -- TODO: ts.tbl.iter
+            -- TODO: ts.types.bool.toggle
+            -- TODO: ts.args.sort
+            -- TODO: ts.args.iter
+
             if is_mult or single_new then
             -- TODO: build string to inject new modules as `enabled`
             -- >>> Call action ADD
@@ -354,7 +386,7 @@ local function transform_enabled_modules_tree(opts)
             local parent_col_start = current_range
             -- inject_lines_at_col()
             vim.api.nvim_buf_set_lines(
-                enabled_modules_buf,
+                modules_buf_handle,
                 parent_col_start + 1,
                 parent_col_start + 1,
                 true,
@@ -451,7 +483,7 @@ local function transform_enabled_modules_tree(opts)
     -- end
 
     -- format and save
-    vim.api.nvim_buf_call(enabled_modules_buf, function()
+    vim.api.nvim_buf_call(modules_buf_handle, function()
         vim.lsp.buf.format({ async = false })
         vim.cmd("write")
         log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
@@ -522,47 +554,50 @@ M.manage_modules_tree = function(opts)
     local Path = require("pathlib")
     local helpers = require("doom.modules.features.dui.operations.helpers.nio")
     if not nio or not Path then
-        log.error("Dui requires nio and pathlib for async. Enable modules [lib/pathlib] and [lib/nio]")
+        log.error(
+            "Dui requires nio and pathlib for async. Enable modules [lib/pathlib] and [lib/nio]"
+        )
         return
     end
 
-    -- TODO: maybe here, it would be safer to just make user pass the module init file
-    -- path, then we can ensure that we are working on a module for sure.
-    if
-        not vim.iter(opts.targets):all(function(k, v)
-            -- This is not bulletproof!
-            return k.target_module_dir:match("nvim/lua/doom/modules")
-                or k.target_module_dir:match("nvim/lua/user/modules")
-        end)
-    then
-        -- log.info("manage_modules_tree > Validate input: Some targets were invalid OR not doom modules.")
-        log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
-        return
+    -- Handle when we are working with [ui_select_browser]
+    if opts.targets.target_module_dir then
+        if
+            not vim.iter(opts.targets):all(function(k, v)
+                -- This is not bulletproof!
+                return k.target_module_dir:match("nvim/lua/doom/modules")
+                    or k.target_module_dir:match("nvim/lua/user/modules")
+            end)
+        then
+            -- log.info("manage_modules_tree > Validate input: Some targets were invalid OR not doom modules.")
+            log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
+            return
+        end
+
+        -- TODO: if the input already has init file then ignore
+        --
+        -- add init files
+        opts.targets = vim.iter(opts.targets)
+            :map(function(entry)
+                entry.path_init_file = entry.target_module_dir / "init.lua"
+                return entry
+            end)
+            :totable()
+
+        -- for i, v in ipairs(opts.targets) do
+        --   print(">>>", v.path_init_file)
+        -- end
+        --
     end
-
-    -- TODO: if the input already has init file then ignore
-    --
-    -- add init files
-    opts.targets = vim.iter(opts.targets)
-        :map(function(entry)
-            entry.m_init_file = entry.target_module_dir / "init.lua"
-            return entry
-        end)
-        :totable()
-
-    -- for i, v in ipairs(opts.targets) do
-    --   print(">>>", v.m_init_file)
-    -- end
-    --
 
     log.info("pre transform enabled modules tree. opts =", opts)
 
-    if true then
+    local ok = transform_enabled_modules_tree(opts)
+    -- NOTE: prevent adding files now during dev.
+    if true or not ok then
+        log.warn("Failure updating [modules.lua]. Aborting..")
         return
     end
-
-    -- Sync transform the modules.lua file
-    transform_enabled_modules_tree(opts)
 
     -- TODO: I have to allow for passing a set of multiple module paths
     -- create / remove multiple modules.
@@ -584,19 +619,14 @@ M.manage_modules_tree = function(opts)
     --     :totable()
     -- nio.gather(actions)
 
-    -- WARN: prevent adding files now during dev.
-    if true then
-        return
-    end
-
     -- Async handle dir operations
     nio.run(function()
         helpers.semaphore.with(function()
-            if opts.action == "ADD" and not m_init_file:exists() then
-                local ok = module__create_dir_await(m_init_file, opts.target_module_name) -- .wait()
+            if opts.action == "ADD" and not path_init_file:exists() then
+                local ok = module__create_dir_await(path_init_file, opts.target_module_name) -- .wait()
                 if ok then
-                    log.info(("DUI :: Success creating new module: %s"):format(m_init_file))
-                    open_file(m_init_file, "current")
+                    log.info(("DUI :: Success creating new module: %s"):format(path_init_file))
+                    open_file(path_init_file, "current")
                 end
             elseif opts.action == "TOGGLE" then
             -- toggle doesnt require any fs operations

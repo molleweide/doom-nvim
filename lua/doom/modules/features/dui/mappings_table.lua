@@ -1,4 +1,4 @@
--- NOTE: The idea is to keep all mappings in this table for all categories
+-- The idea is to keep all mappings in this table for all categories
 -- of dui pickers and then use this look up upon trying to run a specific
 -- action for an bind.
 -- This allows for keeping all bindings on one place here, and then I access
@@ -28,13 +28,13 @@ local function validate_chars() end
 
 local mappings = {
 
-    -- TODO: add tags to module.
-    -- TODO: move all selected modules to section X
+    -- TODO: Prevent modifying core modules.
 
     -- ENTRY ITEM: MODULE
     --
     -- When an entry represents a full module, then these binds will apply
     -- to that entry.
+    --
     modules = {
         ["<CR>"] = {
             -- TODO: if mult select load all into buffer.
@@ -155,7 +155,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                 local targets = {}
 
                 local function move_multiple()
-                    local v = selection[#targets+1].value
+                    local v = selection[#targets + 1].value
                     local selected_section_str =
                         string.format("%s.%s.%s", v.origin, v.section, v[1])
 
@@ -170,7 +170,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 * If you ommit doom/user prefix, then modules are moved under same origin as selection.
                         ]],
                             selected_section_str,
-                            #targets+1,
+                            #targets + 1,
                             #selection
                         ),
                     }, function(user_input)
@@ -248,7 +248,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     log.info(string.format("Set selected module to [%s]", choice))
 
                     require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        targets = target_modules,
+                        targets = targets,
                         action = "REMOVE",
                     })
                 end)
@@ -256,7 +256,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
         },
         -- TODO: ui.input -> prefill with current tags if exists.
         -- TODO: if make no tags, then remove tags table.
-        ["<C-w>"] = {
+        ["<C-q>"] = {
             desc = "Edit module tags",
             action = function(prompt_bufnr, entry, key)
                 local selection = current_picker__get_selected_entries()
