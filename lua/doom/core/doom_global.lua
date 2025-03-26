@@ -58,413 +58,438 @@
 -- shouldn't mess with.
 _G._doom = _G._doom ~= nil and _G._doom or {}
 
---- Global object
-doom = setmetatable({
+-- TODO: Add a new reload mode COMPLETE that also reloads all these global
+-- tables.
+if not _G.doom then
+    --- Global object
+    doom = setmetatable({
 
-    first_load = true, -- maybe put this in the _doom hidden table?
+        first_load = true, -- maybe put this in the _doom hidden table?
 
-    package_reloaders = {},
+        package_reloaders = {},
 
-    -- callbacks for reloading modules properly.
-    _on_loaded_callbacks = {
-        -- these only depend on themselves and should only run wen the module has been modified.
-        single = {},
-        -- these depends on other modules and need to be ran on each (re)load.
-        each = {}
-    },
-
-    --
-    -- SETTINGS
-    --
-
-    settings = {
-        -- Use the global statusline
-        -- @default = true
-        global_statusline = true,
-
-        -- Leader key for keybinds
-        -- @default = ' '
-        leader_key = " ",
-
-        -- Enables impatent.nvim caching to speed up start time.
-        -- Can cause more issues so disabled by default
-        -- @default false
-        impatient_enabled = true,
-
-        -- Pins plugins to a commit sha to prevent breaking changes
-        -- @default = true
-        freeze_dependencies = true,
-
-        -- Autosave
-        -- false : Disable autosave
-        -- true  : Enable autosave
-        -- @default = false
-        autosave = true,
-
-        -- Local plugins path
-        -- @default
-        local_plugins_path = "~/projects",
-
-        -- GHQ - If user is using ghq for managing repos
-        -- @default = false
-        using_ghq = false,
-
-        -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
-        -- @default true
-        rooter_or_project = true,
-
-        -- Disable Vim macros
-        -- false : Enable
-        -- true  : Disable
-        -- @default = false
-        disable_macros = false,
-
-        -- Disable ex mode
-        -- false : Enable
-        -- true  : Disable
-        -- @default = false
-        disable_ex = true,
-
-        -- Disable suspension
-        -- false : Enable
-        -- true  : Disable
-        -- @default = false
-        disable_suspension = false,
-
-        -- Set numbering
-        -- false : Enable  number lines
-        -- true  : Disable number lines
-        -- @default = false
-        disable_numbering = false,
-
-        -- Set numbering style
-        -- false : Shows absolute number lines
-        -- true  : Shows relative number lines
-        -- @default = true
-        relative_num = true,
-
-        -- h,l, wrap lines
-        movement_wrap = true,
-
-        -- Undo directory (set to nil to disable)
-        -- @default = vim.fn.stdpath("data") .. "/undodir/"
-        undo_dir = vim.fn.stdpath("data") .. "/undodir/",
-
-        -- Set preferred border style across UI
-        border_style = "single",
-
-        -- Preserve last editing position
-        -- false : Disable preservation of last editing position
-        -- true  : Enable preservation of last editing position
-        -- @default = false
-        preserve_edit_pos = false,
-
-        -- horizontal split on creating a new file (<Leader>fn)
-        -- false : doesn't split the window when creating a new file
-        -- true  : horizontal split on creating a new file
-        -- @default = true
-        new_file_split = "vertical",
-
-        -- Enable auto comment (current line must be commented)
-        -- false : disables auto comment
-        -- true  : enables auto comment
-        -- @default = false
-        auto_comment = false,
-
-        -- Ignore case in a search pattern
-        -- false : search is sensitive
-        -- true  : search is insensitive
-        -- @default = false
-        ignorecase = false,
-
-        -- Override the 'ignorecase' option if the search pattern contains upper case
-        -- characters. Only used when the search pattern is typed and 'ignorecase'
-        -- option is on.
-        -- false : don't override the 'ignorecase' option
-        -- true  : override the 'ignorecase' option is upper case characters is in search pattern
-        -- @default = false
-        smartcase = false,
-
-        -- Enable Highlight on yank
-        -- false : disables highligh on yank
-        -- true  : enables highlight on yank
-        -- @default = true
-        highlight_yank = true,
-
-        -- Use clipboard outside of vim
-        -- false : won't use third party clipboard
-        -- true  : enables third part clipboard
-        -- @default = true
-        clipboard = true,
-
-        -- Enable guicolors
-        -- Enables gui colors on GUI versions of Neovim
-        -- @default = true
-        guicolors = true,
-
-        -- Show hidden files
-        -- @default = true
-        show_hidden = true,
-
-        -- Hide files listed in .gitignore from file browsers
-        -- @default = true
-        hide_gitignore = true,
-
-        -- Checkupdates on start
-        -- @default = false
-        check_updates = false,
-
-        -- sequences used for escaping insert mode
-        -- @default = { 'jk', 'kj' }
-        escape_sequences = { "zm" },
-
-        -- If you require a specific command to be run when initiating the terminal
-        -- @default = ""
-        term_exec_cmd = "zsh -il",
-
-        -- Use floating windows for plugins manager (packer) operations
-        -- @default = false
-        use_floating_win_packer = false,
-
-        -- Set max cols
-        -- Defines the column to show a vertical marker
-        -- Set to false to disable
-        -- @default = 80
-        max_columns = 80,
-
-        -- Default indent size
-        -- @default = 4
-        indent = 4,
-
-        -- Logging level
-        -- Set Doom logging level
-        -- @default = "info"
-        --- @type "trace"|"debug"|"info"|"warn"|"error"|"fatal"
-        logging = "trace",
-
-        -- Default colorscheme
-        -- @default = doom-one
-        colorscheme = "tokyonight",
-
-        -- Doom One colorscheme settings
-        doom_one = {
-            -- If the cursor color should be blue
-            -- @default = false
-            cursor_coloring = false,
-            -- If TreeSitter highlighting should be enabled
-            -- @default = true
-            enable_treesitter = true,
-            -- If the comments should be italic
-            -- @default = false
-            italic_comments = false,
-            -- If the telescope plugin window should be colored
-            -- @default = true
-            telescope_highlights = true,
-            -- If the built-in Neovim terminal should use the doom-one
-            -- colorscheme palette
-            -- @default = false
-            terminal_colors = true,
-            -- If the Neovim instance should be transparent
-            -- @default = false
-            transparent_background = false,
+        -- callbacks for reloading modules properly.
+        _on_loaded_callbacks = {
+            -- these only depend on themselves and should only run wen the module has been modified.
+            single = {},
+            -- these depends on other modules and need to be ran on each (re)load.
+            each = {},
         },
 
-        -- defaults to false of course..
-        -- so that we can add binds tha easilly modify and refactor core
-        -- with eg. Treesitter..
-        core_dev_binds_enabled = false,
-
-        -- Completion bindings
         --
-        -- cmp defaults:
-        --    select_prev_item  = "<C-p>",
-        --    select_next_item  = "<C-n>",
-        --    scroll_docs_fwd   = "<C-d>",
-        --    scroll_docs_bkw   = "<C-f>",
-        --    complete          = "<C-Space>",
-        --    close             = "<C-e>",
-        --    confirm           = "<CR>",
-        --    tab               = "<Tab>",
-        --    stab              = "<S-Tab>",
+        -- SETTINGS
         --
-        -- luasnip defaults:
-        --    ...
-        mappings = {
-            cmp = {
-                select_prev_item = "<C-p>",
-                select_next_item = "<C-n>",
-                scroll_docs_fwd = "<C-d>",
-                scroll_docs_bkw = "<C-f>",
-                complete = "<C-Space>",
-                close = "<C-e>",
-                confirm = "<CR>",
-                tab = "<Tab>",
-                stab = "<S-Tab>",
+
+        settings = {
+            -- Use the global statusline
+            -- @default = true
+            global_statusline = true,
+
+            -- Leader key for keybinds
+            -- @default = ' '
+            leader_key = " ",
+
+            -- Enables impatent.nvim caching to speed up start time.
+            -- Can cause more issues so disabled by default
+            -- @default false
+            impatient_enabled = true,
+
+            -- Pins plugins to a commit sha to prevent breaking changes
+            -- @default = true
+            freeze_dependencies = true,
+
+            -- Autosave
+            -- false : Disable autosave
+            -- true  : Enable autosave
+            -- @default = false
+            autosave = true,
+
+            -- Local plugins path
+            -- @default
+            local_plugins_path = "~/projects",
+
+            -- GHQ - If user is using ghq for managing repos
+            -- @default = false
+            using_ghq = false,
+
+            -- true | nvim-rooter - false | for project.nvim, if you want None : Then turn to True for nvim -- rooter as that has
+            -- @default true
+            rooter_or_project = true,
+
+            -- Disable Vim macros
+            -- false : Enable
+            -- true  : Disable
+            -- @default = false
+            disable_macros = false,
+
+            -- Disable ex mode
+            -- false : Enable
+            -- true  : Disable
+            -- @default = false
+            disable_ex = true,
+
+            -- Disable suspension
+            -- false : Enable
+            -- true  : Disable
+            -- @default = false
+            disable_suspension = false,
+
+            -- Set numbering
+            -- false : Enable  number lines
+            -- true  : Disable number lines
+            -- @default = false
+            disable_numbering = false,
+
+            -- Set numbering style
+            -- false : Shows absolute number lines
+            -- true  : Shows relative number lines
+            -- @default = true
+            relative_num = true,
+
+            -- h,l, wrap lines
+            movement_wrap = true,
+
+            -- Undo directory (set to nil to disable)
+            -- @default = vim.fn.stdpath("data") .. "/undodir/"
+            undo_dir = vim.fn.stdpath("data") .. "/undodir/",
+
+            -- Set preferred border style across UI
+            border_style = "single",
+
+            -- Preserve last editing position
+            -- false : Disable preservation of last editing position
+            -- true  : Enable preservation of last editing position
+            -- @default = false
+            preserve_edit_pos = false,
+
+            -- horizontal split on creating a new file (<Leader>fn)
+            -- false : doesn't split the window when creating a new file
+            -- true  : horizontal split on creating a new file
+            -- @default = true
+            new_file_split = "vertical",
+
+            -- Enable auto comment (current line must be commented)
+            -- false : disables auto comment
+            -- true  : enables auto comment
+            -- @default = false
+            auto_comment = false,
+
+            -- Ignore case in a search pattern
+            -- false : search is sensitive
+            -- true  : search is insensitive
+            -- @default = false
+            ignorecase = false,
+
+            -- Override the 'ignorecase' option if the search pattern contains upper case
+            -- characters. Only used when the search pattern is typed and 'ignorecase'
+            -- option is on.
+            -- false : don't override the 'ignorecase' option
+            -- true  : override the 'ignorecase' option is upper case characters is in search pattern
+            -- @default = false
+            smartcase = false,
+
+            -- Enable Highlight on yank
+            -- false : disables highligh on yank
+            -- true  : enables highlight on yank
+            -- @default = true
+            highlight_yank = true,
+
+            -- Use clipboard outside of vim
+            -- false : won't use third party clipboard
+            -- true  : enables third part clipboard
+            -- @default = true
+            clipboard = true,
+
+            -- Enable guicolors
+            -- Enables gui colors on GUI versions of Neovim
+            -- @default = true
+            guicolors = true,
+
+            -- Show hidden files
+            -- @default = true
+            show_hidden = true,
+
+            -- Hide files listed in .gitignore from file browsers
+            -- @default = true
+            hide_gitignore = true,
+
+            -- Checkupdates on start
+            -- @default = false
+            check_updates = false,
+
+            -- sequences used for escaping insert mode
+            -- @default = { 'jk', 'kj' }
+            escape_sequences = { "zm" },
+
+            -- If you require a specific command to be run when initiating the terminal
+            -- @default = ""
+            term_exec_cmd = "zsh -il",
+
+            -- Use floating windows for plugins manager (packer) operations
+            -- @default = false
+            use_floating_win_packer = false,
+
+            -- Set max cols
+            -- Defines the column to show a vertical marker
+            -- Set to false to disable
+            -- @default = 80
+            max_columns = 80,
+
+            -- Default indent size
+            -- @default = 4
+            indent = 4,
+
+            -- Logging level
+            -- Set Doom logging level
+            -- @default = "info"
+            --- @type "trace"|"debug"|"info"|"warn"|"error"|"fatal"
+            logging = "trace",
+
+            -- Default colorscheme
+            -- @default = doom-one
+            colorscheme = "tokyonight",
+
+            -- Doom One colorscheme settings
+            doom_one = {
+                -- If the cursor color should be blue
+                -- @default = false
+                cursor_coloring = false,
+                -- If TreeSitter highlighting should be enabled
+                -- @default = true
+                enable_treesitter = true,
+                -- If the comments should be italic
+                -- @default = false
+                italic_comments = false,
+                -- If the telescope plugin window should be colored
+                -- @default = true
+                telescope_highlights = true,
+                -- If the built-in Neovim terminal should use the doom-one
+                -- colorscheme palette
+                -- @default = false
+                terminal_colors = true,
+                -- If the Neovim instance should be transparent
+                -- @default = false
+                transparent_background = false,
             },
-            luasnip = {
-                next_choice = "<C-k>",
-                prev_choice = "<C-j>",
+
+            -- defaults to false of course..
+            -- so that we can add binds tha easilly modify and refactor core
+            -- with eg. Treesitter..
+            core_dev_binds_enabled = false,
+
+            -- Completion bindings
+            --
+            -- cmp defaults:
+            --    select_prev_item  = "<C-p>",
+            --    select_next_item  = "<C-n>",
+            --    scroll_docs_fwd   = "<C-d>",
+            --    scroll_docs_bkw   = "<C-f>",
+            --    complete          = "<C-Space>",
+            --    close             = "<C-e>",
+            --    confirm           = "<CR>",
+            --    tab               = "<Tab>",
+            --    stab              = "<S-Tab>",
+            --
+            -- luasnip defaults:
+            --    ...
+            mappings = {
+                cmp = {
+                    select_prev_item = "<C-p>",
+                    select_next_item = "<C-n>",
+                    scroll_docs_fwd = "<C-d>",
+                    scroll_docs_bkw = "<C-f>",
+                    complete = "<C-Space>",
+                    close = "<C-e>",
+                    confirm = "<CR>",
+                    tab = "<Tab>",
+                    stab = "<S-Tab>",
+                },
+                luasnip = {
+                    next_choice = "<C-k>",
+                    prev_choice = "<C-j>",
+                },
+            },
+
+            cmp_cycle_entries_with_tab = false,
+
+            -- Automatically reload local plugins during development
+            reload_doom = true,
+            reload_local_plugins = true,
+
+            fork_package_cmd = "",
+
+            doom_ui = {
+                -- if false only moves cursor to file setting/data.
+                use = "move_cursor",
+                -- prefer updating text via Nui popups rather than entering text in the targeted file.
+                prefer_nui = false,
             },
         },
+        packages = {},
+        --- Wrapper around packer.nvim `use` function
+        ---
+        --- Example:
+        ---
+        --- Can use the entire packer API
+        --- doom.use_package({
+        ---   'EdenEast/nightfox.nvim',
+        ---   config = function()
+        ---     require('nightfox').setup({
+        ---       options = {
+        ---         dim_inactive = false,
+        ---       }
+        ---     })
+        ---   end
+        --- })
+        ---
+        --- Shorthand
+        --- doom.use_package(
+        ---   'rafcamlet/nvim-luapad',
+        ---   'nvim-treesitter/playground',
+        ---   'tpope/vim-surround',
+        ---   'dstein64/vim-startuptime'
+        --- )
+        ---@vararg DoomPackage|string|DoomPackage[] Packages to install
+        use_package = function(...)
+            local arg = { ... }
+            -- Get table of packages via git repository name
+            local packages_to_add = vim.tbl_map(function(t)
+                return type(t) == "string" and t or t[1]
+            end, arg)
 
-        cmp_cycle_entries_with_tab = false,
+            -- Predicate returns false if the package needs to be overriden
+            local package_override_predicate = function(t)
+                return not vim.tbl_contains(packages_to_add, t[1])
+            end
 
-        -- Automatically reload local plugins during development
-        reload_doom = true,
-        reload_local_plugins = true,
+            -- Iterate over existing packages, removing all packages that are about to be overriden
+            doom.packages = vim.tbl_filter(package_override_predicate, doom.packages)
 
-        fork_package_cmd = "",
+            for _, packer_spec in ipairs(arg) do
+                table.insert(
+                    doom.packages,
+                    type(packer_spec) == "string" and { packer_spec } or packer_spec
+                )
+            end
+        end,
 
-        doom_ui = {
-            -- if false only moves cursor to file setting/data.
-            use = "move_cursor",
-            -- prefer updating text via Nui popups rather than entering text in the targeted file.
-            prefer_nui = false,
+        autocmds = {},
+
+        --- Bind autocommands, takes either multiple arguments or a nested table.
+        ---
+        --- Example:
+        ---
+        --- doom.use_autocmd(
+        ---   { "FileType", "lua", function() print("Just opened a lua file.") end },
+        ---   {
+        ---     { "FileType", "rust", function() print("Just opened a rust file") end }
+        ---   }
+        --- )
+        ---
+        --- @vararg DoomAutocmd|DoomAutocmd[] Autocommands to setup
+        use_autocmd = function(...)
+            local arg = { ... }
+            for _, autocmd in ipairs(arg) do
+                if type(autocmd[1]) == "string" and type(autocmd[2]) == "string" then
+                    local key = string.format("%s-%s", autocmd[1], autocmd[2])
+                    doom.autocmds[key] = autocmd
+                elseif autocmd ~= nil then
+                    doom.use_autocmd(unpack(autocmd))
+                end
+            end
+        end,
+
+        cmds = {},
+
+        --- Bind commands, takes either multiple arguments or a nested table
+        ---
+        --- Example:
+        ---
+        --- Use bind single
+        --- doom.use_cmd( { 'Test', function() print('test') end } )
+        ---
+        --- Bind multiple
+        --- doom.use_cmd({
+        ---   { 'Test1', function() print('test1') end },
+        ---   { 'Test2', function() print('test2') end },
+        --- })
+        ---@vararg DoomCmd|DoomCmd[] Commands to bind
+        use_cmd = function(...)
+            local arg = { ... }
+            for _, cmd in ipairs(arg) do
+                if type(cmd[1]) == "string" then
+                    doom.cmds[cmd[1]] = cmd
+                elseif cmd ~= nil then
+                    doom.use_cmd(unpack(cmd))
+                end
+            end
+        end,
+
+        binds = {},
+        --- Binds keybinds using a modified nest.nvim syntax.
+        ---
+        --- Example:
+        ---
+        --- doom.use_keybind({
+        ---   { '<leader>f', name = '+files', {
+        ---     { 'f', ':Telescope find_files', name = 'Find files' },
+        --      { 'g', ':Telescope grep_string', name = 'Grep files' }
+        ---   } },
+        ---   { '<leader>o', name = '+open', {
+        --      { 'f', ':!open .<CR>', name = 'Working directory'}
+        ---   }}
+        --- })
+        ---@vararg DoomKeybind|DoomKeybind[]
+        use_keybind = function(...)
+            local arg = { ... }
+            for _, bind in ipairs(arg) do
+                table.insert(doom.binds, bind)
+            end
+        end,
+
+        -- NOTE: When "assign_short_hand" has been implemented, then this can be
+        -- removed.
+        -- -------
+        -- This is where modules are stored.
+        -- The entire data structure will be stored in modules[module_name] = {}
+        -- The key (`user` vs `modules` vs `langs`) cooresponds with the section in
+        -- the user's modules.lua.
+        modules = {
+            core = {},
+            features = {},
+            langs = {},
+            themes = {},
         },
-    },
-    packages = {},
-  --- Wrapper around packer.nvim `use` function
-    ---
-    --- Example:
-    ---
-    --- Can use the entire packer API
-    --- doom.use_package({
-    ---   'EdenEast/nightfox.nvim',
-    ---   config = function()
-    ---     require('nightfox').setup({
-    ---       options = {
-    ---         dim_inactive = false,
-    ---       }
-    ---     })
-    ---   end
-    --- })
-    ---
-    --- Shorthand
-    --- doom.use_package(
-    ---   'rafcamlet/nvim-luapad',
-    ---   'nvim-treesitter/playground',
-    ---   'tpope/vim-surround',
-    ---   'dstein64/vim-startuptime'
-    --- )
-    ---@vararg DoomPackage|string|DoomPackage[] Packages to install
-    use_package = function(...)
-        local arg = { ... }
-        -- Get table of packages via git repository name
-        local packages_to_add = vim.tbl_map(function(t)
-            return type(t) == "string" and t or t[1]
-        end, arg)
 
-        -- Predicate returns false if the package needs to be overriden
-        local package_override_predicate = function(t)
-            return not vim.tbl_contains(packages_to_add, t[1])
-        end
+        -- os.getenv("DOOM_STARTUP_MODE")
+        is_mode = function() end,
+        -- https://www.lua.org/manual/5.1/manual.html#2.8
+        --     -- https://gist.github.com/oatmealine/655c9e64599d0f0dd47687c1186de99f
 
-        -- Iterate over existing packages, removing all packages that are about to be overriden
-        doom.packages = vim.tbl_filter(package_override_predicate, doom.packages)
-
-        for _, packer_spec in ipairs(arg) do
-            table.insert(
-                doom.packages,
-                type(packer_spec) == "string" and { packer_spec } or packer_spec
-            )
-        end
-    end,
-
-    autocmds = {},
-
-    --- Bind autocommands, takes either multiple arguments or a nested table.
-    ---
-    --- Example:
-    ---
-    --- doom.use_autocmd(
-    ---   { "FileType", "lua", function() print("Just opened a lua file.") end },
-    ---   {
-    ---     { "FileType", "rust", function() print("Just opened a rust file") end }
-    ---   }
-    --- )
-    ---
-    --- @vararg DoomAutocmd|DoomAutocmd[] Autocommands to setup
-    use_autocmd = function(...)
-        local arg = { ... }
-        for _, autocmd in ipairs(arg) do
-            if type(autocmd[1]) == "string" and type(autocmd[2]) == "string" then
-                local key = string.format("%s-%s", autocmd[1], autocmd[2])
-                doom.autocmds[key] = autocmd
-            elseif autocmd ~= nil then
-                doom.use_autocmd(unpack(autocmd))
-            end
-        end
-    end,
-
-    cmds = {},
-
-    --- Bind commands, takes either multiple arguments or a nested table
-    ---
-    --- Example:
-    ---
-    --- Use bind single
-    --- doom.use_cmd( { 'Test', function() print('test') end } )
-    ---
-    --- Bind multiple
-    --- doom.use_cmd({
-    ---   { 'Test1', function() print('test1') end },
-    ---   { 'Test2', function() print('test2') end },
-    --- })
-    ---@vararg DoomCmd|DoomCmd[] Commands to bind
-    use_cmd = function(...)
-        local arg = { ... }
-        for _, cmd in ipairs(arg) do
-            if type(cmd[1]) == "string" then
-                doom.cmds[cmd[1]] = cmd
-            elseif cmd ~= nil then
-                doom.use_cmd(unpack(cmd))
-            end
-        end
-    end,
-
-    binds = {},
-    --- Binds keybinds using a modified nest.nvim syntax.
-    ---
-    --- Example:
-    ---
-    --- doom.use_keybind({
-    ---   { '<leader>f', name = '+files', {
-    ---     { 'f', ':Telescope find_files', name = 'Find files' },
-    --      { 'g', ':Telescope grep_string', name = 'Grep files' }
-    ---   } },
-    ---   { '<leader>o', name = '+open', {
-    --      { 'f', ':!open .<CR>', name = 'Working directory'}
-    ---   }}
-    --- })
-    ---@vararg DoomKeybind|DoomKeybind[]
-    use_keybind = function(...)
-        local arg = { ... }
-        for _, bind in ipairs(arg) do
-            table.insert(doom.binds, bind)
-        end
-    end,
-
-    -- This is where modules are stored.
-    -- The entire data structure will be stored in modules[module_name] = {}
-    -- The key (`user` vs `modules` vs `langs`) cooresponds with the section in
-    -- the user's modules.lua.
-    modules = {
-        core = {},
-        features = {},
-        langs = {},
-        themes = {},
-    },
-
-    -- os.getenv("DOOM_STARTUP_MODE")
-    is_mode = function() end,
-    -- https://www.lua.org/manual/5.1/manual.html#2.8
-    --     -- https://gist.github.com/oatmealine/655c9e64599d0f0dd47687c1186de99f
-}, {})
+        ---Assigns each module to the top level of the table.
+        assign_short_hand = function(module_path)
+            -- NOTE: move existing funcs and special tables to special subtables.
+            -- that makes room and avoids collisions when attaching all modules
+            -- back to top level.
+            -- NOTE: The goal would be to be able to traverse the [doom] table
+            -- instead of [doom.modules] table.
+            -- TODO: ensure no important keys are overwritten
+            -- TODO: assign module_path to [doom]
+        end,
+    }, {})
+end
 
 -- Use this type of pattern for the mode check.
 -- if doom.mode == {"arst"} then
 -- end
 
+-- TODO: it would be nice to systematically ensure that all modules are added
+-- to the core doom table. and then ensure that user never overwrites any of
+-- the important keys.
+
+-- NOTE: When "assign_short_hand" has been implemented, then this can be
+-- removed.
+-- -------
 -- Maintain backwards compatibility + provide a shorthand way to access modules
 doom.core = doom.modules.core
 doom.features = doom.modules.features

@@ -94,6 +94,24 @@ end
 commands_service.del = function(name)
     commands_service.stored_names[name] = nil
     del_command_fn(name)
+
+    -- TODO: catch errors, and print error.
+
+                -- ok, result = xpcall(vim.keymap.del, debug.traceback, sanitizedMode, node.lhs)
+                -- if ok then
+                --     -- log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
+                -- else
+                --     log.error(
+                --         string.format(
+                --             "Failure removing keymap [%s] for mode [%s]. Traceback:\n%s",
+                --             node.lhs,
+                --             sanitizedMode,
+                --             result
+                --         )
+                --     )
+                -- end
+
+
 end
 
 commands_service.del_all = function()

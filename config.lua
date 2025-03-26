@@ -198,7 +198,7 @@ doom.core.treesitter.settings.show_compiler_warning_message = false
 --   · warn
 --   · error
 --   · fatal
-doom.settings.logging = "info"
+-- doom.settings.logging = "info"
 
 ---------------------------
 ---       OPTIONS       ---

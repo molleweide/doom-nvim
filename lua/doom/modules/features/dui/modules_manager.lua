@@ -553,13 +553,16 @@ M.manage_modules_tree = function(opts)
     -- for i, v in ipairs(opts.targets) do
     --   print(">>>", v.m_init_file)
     -- end
+    --
 
-    -- Sync transform the modules.lua file
-    transform_enabled_modules_tree(opts)
+    log.info("pre transform enabled modules tree. opts =", opts)
 
     if true then
         return
     end
+
+    -- Sync transform the modules.lua file
+    transform_enabled_modules_tree(opts)
 
     -- TODO: I have to allow for passing a set of multiple module paths
     -- create / remove multiple modules.

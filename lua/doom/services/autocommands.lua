@@ -53,7 +53,8 @@ else
 end
 
 local function make_signature(path_module, event, pattern)
-    return string.format("%s %s %s",
+    return string.format(
+        "%s %s %s",
         path_module,
         type(event) == "table" and table.concat(event, "|") or event,
         type(pattern) == "table" and table.concat(pattern, "|") or pattern
@@ -219,6 +220,24 @@ autocmds_service.del_by_signature = function(path_module, event, pattern)
     local id = data.autocmd_signatures_to_ids[sig_str]
     -- print(string.format("%s -> %s", sig_str, tostring(id)))
     autocmds_service.del(id)
+
+    -- TODO: handle errors gracefully
+
+    --         ok, result = xpcall(vim.keymap.del, debug.traceback, sanitizedMode, node.lhs)
+    --         if ok then
+    --             -- log.debug(string.format("Removed keymap [%s] for mode [%s]", node.lhs, sanitizedMode))
+    --         else
+    --             log.error(
+    --                 string.format(
+    --                     "Failure removing keymap [%s] for mode [%s]. Traceback:\n%s",
+    --                     node.lhs,
+    --                     sanitizedMode,
+    --                     result
+    --                 )
+    --             )
+    --         end
+    --     end
+    -- end
 end
 
 autocmds_service.del_all = function()

@@ -15,17 +15,28 @@ local insert_mappings = {
     "<S-Tab>",
     "<C-;>",
     "<C-a>",
+    "<C-b>",
+    -- "<C-c>",
     "<C-d>",
     "<C-e>",
     "<C-f>",
+    "<C-g>",
     "<C-h>",
     "<C-i>", -- does something.... duno what.
+    "<C-j>", -- does something.... duno what.
+    "<C-k>", -- does something.... duno what.
     "<C-l>",
     "<C-m>", -- enter linked
+    -- "<C-n>", -- enter linked
+    "<C-o>", -- enter linked
+    -- "<C-p>", -- enter linked
+    "<C-q>", -- enter linked
     "<C-r>", -- tries to access registers or something and this breaks telescope?!
     "<C-s>",
     "<C-t>",
+    "<C-u>",
     "<C-v>",
+    "<C-w>",
     "<C-x>",
     "<C-y>",
     "<C-z>", -- closes prompt??
@@ -402,7 +413,6 @@ local function doom_picker()
         :find()
 end
 
-
 -- TODO: if not telescope, then try use ui_select_browser.
 local function doom_modules_picker_v2(opts)
     opts = opts or {}
@@ -443,7 +453,7 @@ local function doom_modules_picker_v2(opts)
                     "lua",
                     "user",
                     "modules",
-                    unpack(t_section),
+                    table.concat(t_section, "/"),
                     node[1],
                     "init.lua"
                 )

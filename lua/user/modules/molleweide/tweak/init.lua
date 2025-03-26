@@ -1,16 +1,32 @@
+
+local log = require("doom.utils.logging")
+
 local binds = {
     "<leader>",
     name = "+prefix",
     {
-      {
-        "t",
-        name = "+tweak",
         {
-          { "w", require("doom.core.functions").toggle_wrap, name = "Toggle wrap" },
+            "t",
+            name = "+tweak",
+            {
+                { "w", require("doom.core.functions").toggle_wrap, name = "Toggle wrap" },
+
+                {
+                    "l",
+                    function()
+                        vim.ui.select({ "trace", "debug", "info", "warn", "error", "fatal" }, {
+                            prompt = "Set doom log level (doom.logging)",
+                        }, function(choice)
+                            log.info("Set log level:", choice)
+                            doom.settings.logging = choice
+                        end)
+                    end,
+                    name = "Set doom log level",
+                },
+            },
         },
-      },
     },
-  }
+}
 
 -- -- leader
 -- if require("doom.utils").is_module_enabled("whichkey") then
