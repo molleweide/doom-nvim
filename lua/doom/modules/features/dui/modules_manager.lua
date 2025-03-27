@@ -3,8 +3,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local utils = require("doom.utils")
 
-local txt = vim.treesitter.get_node_text
-
 local pu = require("doom.modules.features.dui.templates")
 local dui_utils = require("doom.modules.features.dui.utils")
 
@@ -43,17 +41,88 @@ local function build_new_inject_string(ranges)
     return stringified
 end
 
-local ts = {}
+local ts = {
+
+    text = function(buf, node)
+        return vim.treesitter.get_node_text(node, buf)
+    end,
+
+    content = {
+        match = function(buf, node, pattern)
+            return vim.treesitter.get_node_text(node, buf):match(pattern)
+        end,
+    },
+
+    tbl = {
+        -- TODO: count all indexed fields and pass the index to callbacks.
+        fields = function(buf, tbl_node, opts)
+            for child_node in tbl_node:iter_children() do
+                -- handle indexed fields
+                if child_node:named() and child_node:named_child_count() == 1 then
+                    -- checking leaf comments is unnecessary now with leaf.enabled = bool
+                    if
+                        child_node:type() == "comment" and opts.on_comment
+                        -- and txt(child_node:named_child(), buf):match('-- "([%w_]-)",')
+                        --     == t_path[1]
+                    then
+                        opts.on_comment(buf, child_node, child_node:named_child())
+
+                        -- print("leaf: ", txt(child_node:named_child(), buf):match('-- "(%w-)",'))
+                        -- args.ret.nodes.module = child_node
+                        -- args.ret.leaf_is_comment = true
+                    elseif
+                        child_node:type() == "field"
+                        and child_node:named_child():type() == "string"
+                        and opts.on_string
+                    then
+                        local ts_string = child_node():named_child()
+                        local ts_string_content = ts_string:named_child()
+
+                        opts.on_string(buf, ts_string, ts_string_content)
+
+                        -- print("leaf: ", txt(child_node:named_child():named_child(), buf))
+                        -- args.ret.nodes.module = child_node
+                    elseif
+                        child_node:type() == "field"
+                        and child_node:named_child():type() == "table_constructor"
+                        and opts.on_table
+                    then
+                        -- pass table constructor to calback
+                        opts.on_table(buf, child_node)
+                    end
+                end
+
+                -- TODO: handle when keys are wrapped in [] and also keys that
+                -- handle key value pair fields
+                if
+                    child_node:named()
+                    and child_node:named_child_count() == 2
+                    and opts.on_key
+                    -- and txt(c:named_child(0), buf) == t_path[1]
+                then
+                    local key_identifier = child_node:named_child(0)
+                    local value = child_node:named_child(1)
+
+                    opts.on_key(buf, key_identifier, value)
+
+                    -- print("branch:", txt(c:named_child(0), buf))
+                    -- branch = true
+                    -- ts_tbl_child = c:named_child(1)
+                    -- table.remove(t_path, 1)
+                end
+            end
+        end,
+    },
+}
 
 -- PERF: Currently this func recursively searches the tree once for each
 -- target path. Reduce this to only one recursive call, by for each leaf,
 -- check against the list of target modules every time.
+-- TODO: Ensure that ts_tbl_in:type() == "table_constructor"??
 --
 ---Recurse down to the target module leaf in ./modules.lua tree.
 ---The target segment is availble on args.mod_path_table.
 ---@param args table Takes the form of
----         node = return_table_constructor, -- usually the returned table is passed as first input.
----         buf = rootbuf,
 ---         parts = t_path_new_segment,
 ---         is_comment?
 ---         ret = {
@@ -64,83 +133,69 @@ local ts = {}
 ---           }
 ---         }
 ---@return table The same table as <args>
-local function ts_root_mod_tbl_try_find_target(args)
-    print("## enter recursive:", vim.inspect(args))
+function ts_get_table_key_values(buf, ts_node_table, t_path, args)
+    -- wrap in a nested function so that we can access opt vars from the parent scope, eg. buf
+    local function ts_root_mod_tbl_try_find_target(ts_tbl_in, args)
+        print("## enter recursive:", vim.inspect(args))
 
-    -- FIX: Ensure that args.node:type() == "table_constructor"
+        -- if not args.ret then
+        --     args.ret = {
+        --         nodes = {},
+        --     }
+        -- end
 
-    if not args.ret then
-        args.ret = {
-            nodes = {},
-        }
-    end
-    args.ret.nodes.parent = args.node
-    if #args.parts > 1 then
-        local branch
-        for c in args.node:iter_children() do
-            if
-                c:type() == "field"
-                and c:named_child_count() == 2
-                and txt(c:named_child(0), args.buf) == args.parts[1]
-            then
-                print("branch:", txt(c:named_child(0), args.buf))
-                branch = true
-                args.node = c:named_child(1)
-                table.remove(args.parts, 1)
+        args.ts_node_tbl_parent = ts_tbl_in
+
+        -- check branches
+        if #t_path > 1 then
+            local branch, ts_tbl_child
+            -- handle key value pairs
+            ts.tbl.fields(buf, ts_tbl_in, {
+                -- TODO: on_key_equals
+                on_key = function(buf, key, value)
+                    if ts.text(buf, key) == t_path[1] then
+                        print("branch:", ts.text(buf, key))
+                        branch = true
+                        ts_tbl_child = value
+                        table.remove(t_path, 1)
+                    end
+                end,
+            })
+            if not branch then
+                log.debug("t_parts is greater than one but field was not identified as branch.")
+                return args
             end
-        end
-        if not branch then
-            return args
-        end
-        args = ts_root_mod_tbl_try_find_target(args)
-    elseif #args.parts == 1 then
-        for child_node in args.node:iter_children() do
-            if child_node:named() and child_node:named_child_count() == 1 then
-                if
-                    child_node:type() == "comment"
-                    and txt(child_node:named_child(), args.buf):match('-- "([%w_]-)",')
-                        == args.parts[1]
-                then
-                    print("leaf: ", txt(child_node:named_child(), args.buf):match('-- "(%w-)",'))
-                    args.ret.nodes.module = child_node
-                    args.ret.leaf_is_comment = true
-                elseif
-                    child_node:type() == "field"
-                    and txt(child_node:named_child():named_child(), args.buf) == args.parts[1]
-                then
-                    print("leaf: ", txt(child_node:named_child():named_child(), args.buf))
-                    args.ret.nodes.module = child_node
-                end
-            end
-        end
-        -- table.remove(args.parts, 1)
-    end
-    return args
-end
+            -- args = ts_root_mod_tbl_try_find_target(ts_tbl_child)
+            return ts_root_mod_tbl_try_find_target(ts_tbl_child)
+        elseif #t_path == 1 then
+            -- handle indexed fields
+            ts.tbl.fields(buf, ts_tbl_in, {
+                -- NOTE: handle comments is unnecessary with v2
+                -- ^ Both of the below are v1
+                on_comment = function(buf, comment, content)
+                    local name = ts.content.match(buf, content, '-- "([%w_]-)",')
+                    if name == t_path[1] then
+                        print("on_comment leaf: ", name)
+                        args.module = comment
+                        args.leaf_is_comment = true
+                    end
+                end,
+                on_string = function(buf, str, content)
+                    if ts.text(buf, content) == t_path[1] then
+                        print("on_string leaf: ", ts.text(buf, content))
+                        args.module = str
+                    end
+                end,
 
-local function get_node_analyze(rootbuf, t_path_new_segment)
-    local parser = vim.treesitter.get_parser(rootbuf, "lua", {})
-    local root = parser:parse()[1]:root()
-
-    -- Get the modules table constructor
-    --   under the return statement
-
-    local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
-    local return_table_constructor
-    for _, capture_node, _ in return_query:iter_captures(root, rootbuf) do
-        return_table_constructor = capture_node:named_child():named_child()
+                -- TODO: handle v2
+                on_table = function(buf, tbl) end,
+            })
+            table.remove(args.parts, 1)
+        end
+        return args
     end
 
-    local arg = {
-        node = return_table_constructor,
-        buf = rootbuf,
-        parts = t_path_new_segment,
-        original_table_path = vim.deepcopy(t_path_new_segment),
-    }
-
-    -- print("ARG =", vim.inspect(arg))
-
-    return ts_root_mod_tbl_try_find_target(arg)
+    return ts_root_mod_tbl_try_find_target(ts_node_table, args)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
@@ -157,6 +212,15 @@ local function transform_enabled_modules_tree(opts)
     -- to figure out how to handle the other way  and so
     -- this is goig to be a lot of fun you know and the
     -- thing is diddeli fuck sturp derperliz
+
+    -- Get the [modules.lua] modules table ts table constructor.
+    local parser = vim.treesitter.get_parser(modules_buf_handle, "lua", {})
+    local root = parser:parse()[1]:root()
+    local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
+    local ts_node_tbl
+    for _, capture_node, _ in return_query:iter_captures(root, modules_buf_handle) do
+        ts_node_tbl = capture_node:named_child():named_child()
+    end
 
     -- For each target, analyze the modules tree and return node data about
     -- each target to be used later.
@@ -176,9 +240,7 @@ local function transform_enabled_modules_tree(opts)
                 vim.split(target.path_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
         end
 
-        print("-------------------------")
-        print("-- node analyze:")
-        log.info(
+        print(
             string.format(
                 "\n-------------------------------\n-- Node analyze #%s: module = [%s.%s.%s] \n--\n--",
                 count,
@@ -188,13 +250,17 @@ local function transform_enabled_modules_tree(opts)
             )
         )
 
-        local args = get_node_analyze(modules_buf_handle, table_path)
+        local args = ts_get_table_key_values(modules_buf_handle, ts_node_tbl, table_path, {
+            original_table_path = vim.deepcopy(t_path_new_segment),
+        })
+
+        -- print("ARG =", vim.inspect(arg))
 
         print(">> [res] =", vim.inspect(args))
-        print(args.ret.nodes.parent:range())
+        print(args.ts_node_tbl_parent:range())
 
-        args.range = args.ret.nodes.module and args.ret.nodes.module:range()
-            or args.ret.nodes.parent:range()
+        args.range = args.module and args.module:range()
+            or args.ts_node_tbl_parent:range()
 
         table.insert(ts_module_node_info, args)
     end)
