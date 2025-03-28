@@ -29,8 +29,8 @@ local function build_new_inject_string(ranges)
         end
     end
     local stringified = vim.split(vim.inspect(result_table), "\n")
-    -- trim surrounding braces {...}
     if #stringified > 2 then
+        -- trim surrounding braces {...}
         table.remove(stringified, 1)
         table.remove(stringified)
     else
@@ -41,78 +41,152 @@ local function build_new_inject_string(ranges)
     return stringified
 end
 
-local ts = {
+-- -- Metatable for the Path constructor
+-- Path_mt = {
+--   __call = function(tbl, path_string)
+--     local new_path = {
+--       path = path_string,
+--       -- Add any other properties or methods you need for a Path object
+--     }
+--     setmetatable(new_path, { __index = Path })
+--     return new_path
+--   end
+-- }
 
-    text = function(buf, node)
-        return vim.treesitter.get_node_text(node, buf)
+-- -- Set the metatable for the Path constructor
+-- setmetatable(Path, Path_mt)
+
+-- TODO: Refactor this into a TSLuaTable
+--
+---Load ts helper with buf so that you dont have to pass it later.
+---local ts = TSHelper(buf)
+local TSHelper = setmetatable({
+
+    -- replace node text/contents
+    replace = function(self, node, replacement)
+        -- local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+        local range = node:range()
+        vim.api.nvim_buf_set_text(
+            self.buf,
+            range[1],
+            range[2],
+            range[3],
+            range[4],
+            type(replacement) == "string" and { replacement } or replacement
+        )
+    end,
+
+    -- get node text
+    text = function(self, node)
+        return vim.treesitter.get_node_text(node, self.buf)
     end,
 
     content = {
-        match = function(buf, node, pattern)
-            return vim.treesitter.get_node_text(node, buf):match(pattern)
+        match = function(self, node, pattern)
+            return vim.treesitter.get_node_text(node, self.buf):match(pattern)
         end,
     },
 
-    tbl = {
-        -- TODO: wrap in metatable and replicate regular lua table behavior.
-        fields = function(buf, tbl_node, opts)
-            local index = 1
-            for child_node in tbl_node:iter_children() do
-                -- handle indexed fields
+    -- TODO: wrap in metatable and replicate regular lua table behavior.
+    tbl_fields = function(self, tbl_node, opts)
+        local index = 0
+
+        local function debug(...)
+            if opts.debug then
+                print(...)
+            end
+        end
+
+        debug("---------------------------------")
+
+        -- debug(vim.inspect(opts))
+
+        -- print("tbl_fields", vim.inspect(opts))
+
+        for child_node in tbl_node:iter_children() do
+            -- handle indexed fields
+            if opts.on_index then
                 if child_node:named() and child_node:named_child_count() == 1 then
-                    -- checking leaf comments is unnecessary now with leaf.enabled = bool
-                    if child_node:type() == "comment" and opts.on_comment then
-                        opts.on_comment(buf, child_node, index, child_node:named_child())
-                    elseif
-                        child_node:type() == "field"
-                        and child_node:named_child(0):type() == "string"
-                        and opts.on_string
-                    then
-                        local ts_string = child_node:named_child()
-                        local ts_string_content = ts_string:named_child()
-
-                        -- print("string...")
-                        opts.on_string(buf, index, ts_string, ts_string_content)
-
-                        -- print("leaf: ", txt(child_node:named_child():named_child(), buf))
-                        -- args.ret.nodes.module = child_node
-                    elseif
-                        child_node:type() == "field"
-                        and child_node:named_child():type() == "table_constructor"
-                        and opts.on_table
-                    then
-                        -- pass table constructor to calback
-                        -- print("table...", child_node:range())
-                        opts.on_table(buf, index, child_node:named_child())
-                    else
-                        -- print(string.format("??? unhandled | type = %s, ", child_node:type()))
-                    end
-
                     index = index + 1
-                end
 
+                    if
+                        not opts.on_index.index
+                        -- if index, then only enter if it is an index match.
+                        or (opts.on_index.index and index == opts.on_index.index)
+                    then
+                        if opts.on_index.type == "comment" and child_node:type() == "comment" then
+                            opts.on_comment(self.buf, child_node, index, child_node:named_child())
+                        elseif
+                            opts.on_index.type == "string"
+                            and child_node:type() == "field"
+                            and child_node:named_child(0):type() == "string"
+                        then
+                            local ts_string = child_node:named_child()
+                            local ts_string_content = ts_string:named_child()
+                            local text_content = self:text(ts_string_content)
+                            if
+                                opts.on_index.equals and text_content == opts.on_index.equals
+                                or opts.on_index.match
+                                    and text_content:match(opts.on_index.match)
+                            then
+                                opts.on_index.action(self.buf, ts_string, ts_string_content)
+                            end
+
+                            if not (opts.on_index.equals or opts.on_index.match) then
+                                -- do each indexed string
+                                opts.on_index.action(self.buf, ts_string, ts_string_content)
+                            end
+                        elseif
+                            opts.on_index.type == "table"
+                            and child_node:type() == "field"
+                            and child_node:named_child():type() == "table_constructor"
+                        then
+                            local table_constructor = child_node:named_child()
+                            -- print("table: ", self:text(table_constructor))
+                            opts.on_index.action(self.buf, table_constructor)
+                        else
+                            -- print(string.format("??? unhandled | type = %s, ", child_node:type()))
+                        end
+                    end
+                end
+            end
+            -- handle key value pairs
+            if opts.on_key then
                 -- TODO: handle when keys are wrapped in [] and also keys that
                 -- handle key value pair fields
-                if
-                    child_node:named()
-                    and child_node:named_child_count() == 2
-                    and opts.on_key
-                    -- and txt(c:named_child(0), buf) == t_path[1]
-                then
+                if child_node:named() and child_node:named_child_count() == 2 then
                     local key_identifier = child_node:named_child(0)
                     local value = child_node:named_child(1)
 
-                    opts.on_key(buf, key_identifier, value)
-
-                    -- print("branch:", txt(c:named_child(0), buf))
-                    -- branch = true
-                    -- ts_tbl_child = c:named_child(1)
-                    -- table.remove(t_path, 1)
+                    if type(opts.on_key) == "table" then
+                        -- do only keys that match pattern regex
+                        local text = self:text(key_identifier)
+                        local match = opts.on_key[3] and text:match(opts.on_key[1])
+                            or text == opts.on_key[1]
+                        if match then
+                            opts.on_key[2](self.buf, key_identifier, value)
+                        end
+                    else
+                        -- do each named key
+                        opts.on_key(self.buf, key_identifier, value)
+                    end
                 end
             end
-        end,
-    },
-}
+        end
+    end,
+    tbl_add_field_last = function(self, tbl_node, opts) end,
+}, {
+    __call = function(self, buf_handle)
+        return setmetatable({ buf = buf_handle }, { __index = self })
+    end,
+})
+
+-- Should inherit all of the TSHelper methods.
+local TSLuaTable = setmetatable({}, {
+    __call = function(self, buf_handle)
+        return setmetatable({ buf = buf_handle }, { __index = self })
+    end,
+})
 
 -- PERF: Currently this func recursively searches the tree once for each
 -- target path. Reduce this to only one recursive call, by for each leaf,
@@ -139,125 +213,97 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
     end
 
     local depth = 0
-    local ret = {}
+    local ret = { t_path_left = vim.deepcopy(t_path) }
+
+    -- NOTE: This is it, now i should no have to pass the buffer below.
+    -- Now we can rename the ts obj to the name of the buf that it is loaded
+    -- with so that we always know exactly what we are operating on.
+    local ts = TSHelper(buf)
 
     -- wrap in a nested function so that we can access opt vars from the parent scope, eg. buf
-    local function ts_root_mod_tbl_try_find_target(ts_tbl_in, ret)
+    local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         print("## enter recursive:", vim.inspect(ret))
         depth = depth + 1
 
+        -- TODO: something like this
+        -- local TS_Modules_Table = TSLuaTable(buf, ts_tbl_in)
+        -- then, do:
+
         ret.ts_node_tbl_parent = ts_tbl_in
+        ret.parent_range = { ts_tbl_in:range() }
+
+        print("type [ts_tbl_in]:", ts_tbl_in:type())
 
         print("---------------", depth)
-
         print("ret pre:", vim.inspect(ret))
         print("range parent:", ts_tbl_in:range())
 
         -- check branches
-        if #t_path > 1 then
-            local branch, ts_tbl_child
-            print("> 1")
+        if #ret.t_path_left > 1 then
             -- handle key value pairs
-            ts.tbl.fields(buf, ts_tbl_in, {
-                -- TODO: on_key_equals
-                on_key = function(buf, key, value)
-                    print(
-                        string.format(
-                            "%s|? %s == on_key: %s",
-                            string.rep("-", depth),
-                            t_path[1],
-                            ts.text(buf, key)
-                        )
-                    )
-                    if ts.text(buf, key) == t_path[1]:upper() then
+            local branch, ts_tbl_child
+            ts:tbl_fields(ts_tbl_in, {
+                on_key = {
+                    ret.t_path_left[1]:upper(),
+                    function(buf, key, value)
+                        print("???????")
                         branch = true
                         ts_tbl_child = value
-                        table.remove(t_path, 1)
-                    end
-                end,
+                        table.remove(ret.t_path_left, 1)
+                    end,
+                },
             })
             if not branch then
-                log.debug("t_parts is greater than one but field was not identified as branch.")
+                -- log.debug("t_parts is greater than one but field was not identified as branch.")
                 return ret
             end
-            -- args = ts_root_mod_tbl_try_find_target(ts_tbl_child)
-            return ts_root_mod_tbl_try_find_target(ts_tbl_child, ret)
-        elseif #t_path == 1 then
-            print("== 1")
+            return ts_root_mod_tbl_try_find_target(ts_tbl_child)
+        elseif #ret.t_path_left == 1 then
+            print(" == 1")
             -- handle indexed fields
-            ts.tbl.fields(buf, ts_tbl_in, {
-                -- NOTE: handle comments is unnecessary with v2
-                -- ^ Both of the below are v1
-                -- on_comment = function(buf, _, comment, content)
-                --     print("<never> comment")
-                --     local name = ts.content.match(buf, content, '-- "([%w_]-)",')
-                --     if name == t_path[1] then
-                --         print("on_comment leaf: ", name)
-                --         ret.module = comment
-                --         ret.leaf_is_comment = true
-                --     end
-                -- end,
-                -- on_string = function(buf, _, str, content)
-                --     print("<never> string")
-                --     if ts.text(buf, content) == t_path[1] then
-                --         print("on_string leaf: ", ts.text(buf, content))
-                --         ret.module = str
-                --     end
-                -- end,
-
-                -- TODO: handle v2
-                on_table = function(buf, index, value_table)
-                    ts.tbl.fields(buf, value_table, {
-                        on_string = function(buf, index2, str, content)
-                            -- print("!!!")
-
-                            -- print(
-                            --     string.format(
-                            --         "%s|on_string ? index2 = %s, content = %s == t_path[1] = %s",
-                            --         string.rep("-", depth),
-                            --         index2,
-                            --         ts.text(buf, content),
-                            --         t_path[1]
-                            --     )
-                            -- )
-
-                            if index2 == 1 and ts.text(buf, content) == t_path[1] then
-                                print("leaf module found:", t_path[1])
-                                ret.module_table_constructor = value_table
-                                ret.module_name_string = str
-                            end
-                        end,
-                    })
-
-                    if not ret.module_name_string then
-                        print("on_table is NOT is_module")
-                        return
-                    end
-
-                    ts.tbl.fields(buf, value_table, {
-                        on_key = function(buf, key, value)
-
-                            -- print(
-                            --     string.format(
-                            --         "%s|ok_key ? key = %s",
-                            --         string.rep("-", depth),
-                            --         ts.text(buf, key)
-                            --     )
-                            -- )
-
-                            if ts.text(buf, key) == "enabled" then
-                                ret.ts_key_enabled_value = value
-                            end
-                        end,
-                    })
-                end,
+            ts:tbl_fields(ts_tbl_in, {
+                on_index = {
+                    type = "table",
+                    action = function(buf, value_table)
+                        -- for each table check if it is a module.
+                        ts:tbl_fields(value_table, {
+                            debug = true,
+                            on_index = {
+                                index = 1,
+                                type = "string",
+                                equals = ret.t_path_left[1],
+                                action = function(buf, str, content)
+                                    -- print("action string:", ret.t_path_left[1])
+                                    ret.module_table_constructor = value_table
+                                    ret.module = true
+                                    ret.module_name_string = str
+                                    ret.module_range = { value_table:range() }
+                                end,
+                            },
+                        })
+                        if not ret.module then
+                            -- print("on_table is NOT is_module")
+                            ret.parent = true
+                            return ret
+                        end
+                        ts:tbl_fields(value_table, {
+                            on_key = {
+                                "enabled",
+                                function(buf, key, value)
+                                    ret.ts_enabled_value = value
+                                    ret.module_enabled = ts:text(value) == "true" and true or false
+                                end,
+                            },
+                        })
+                    end,
+                },
             })
-            table.remove(t_path, 1)
+            table.remove(ret.t_path_left, 1)
         end
         return ret
     end
 
-    return ts_root_mod_tbl_try_find_target(ts_node_table, ret)
+    return ts_root_mod_tbl_try_find_target(ts_node_table)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
@@ -284,10 +330,12 @@ local function transform_enabled_modules_tree(opts)
         ts_node_tbl = capture_node:named_child():named_child()
     end
 
+    local it = vim.iter(opts.targets)
+
     -- For each target, analyze the modules tree and return node data about
     -- each target to be used later.
     local count = 0
-    vim.iter(opts.targets):each(function(target)
+    it:each(function(target)
         -- Get table path of target module table
         count = count + 1
 
@@ -304,7 +352,7 @@ local function transform_enabled_modules_tree(opts)
 
         print(
             string.format(
-                "\n-------------------------------\n-- Node analyze #%s: module = [%s.%s.%s] \n--\n--",
+                "\n-------------------------------\n-- NODE ANALYZE #%s: module = [%s.%s.%s] \n--\n--",
                 count,
                 target.selected_module.origin,
                 target.selected_module.section,
@@ -314,28 +362,54 @@ local function transform_enabled_modules_tree(opts)
 
         local args = ts_get_set_table_path(modules_buf_handle, ts_node_tbl, t_path)
 
+        target.nodes = args
+
+        -- print(string.format("ARGS: %s", vim.inspect(args)))
+
         -- print("ARG =", vim.inspect(arg))
+        -- print(">> [res] =", vim.inspect(args))
 
-        print(">> [res] =", vim.inspect(args))
-        print(args.ts_node_tbl_parent:range())
+        -- remove this and just use nodes.
+        target.nodes.line_start = args.module and args.module_table_constructor:range()
+            or args.ts_node_tbl_parent:range()
 
-        args.range = args.module and args.module:range() or args.ts_node_tbl_parent:range()
+        print("count =", count)
+        print(string.format("TARGET: %s", vim.inspect(target)))
+        -- if args.module then
+        --     print(
+        --         string.format(
+        --             "final module found: %s",
+        --             ts:text(modules_buf_handle, args.module_table_constructor)
+        --         )
+        --     )
+        --     -- args.line_start = args.module_table_constructor:range()
+        -- else
+        --     print("final modulue not found. using parent range")
+        --     -- args.ts_node_tbl_parent:range()
+        -- end
 
         table.insert(ts_module_node_info, args)
     end)
 
-    -- sort elements so that we can perform all file operations in reverse.
-    table.sort(ts_module_node_info, function(a, b)
-        return a.range < b.range
+    -- Sort elements so that we can perform all file operations in reverse.
+    -- This should work with both modules found and parent branch table nodes
+    -- together.
+    table.sort(opts.targets, function(a, b)
+        return a.nodes.line_start < b.nodes.line_start
     end)
 
-    -- P(ts_module_node_info)
-    log.info("ts_module_node_info SORTED:", ts_module_node_info)
+    -- table.sort(ts_module_node_info, function(a, b)
+    --     return a.range < b.range
+    -- end)
 
-    if #ts_module_node_info == 0 then
-        log.debug("ts_module_node_info was empty. Aborting..")
-        return
-    end
+    -- P(ts_module_node_info)
+    log.info("ts_module_node_info SORTED:", opts.targets)
+
+    -- NOTE: dont think this is necessary??
+    -- if #ts_module_node_info == 0 then
+    --     log.debug("ts_module_node_info was empty. Aborting..")
+    --     return
+    -- end
 
     local function enable_module_line() end
     local function disable_module_line() end
@@ -348,7 +422,7 @@ local function transform_enabled_modules_tree(opts)
 
     -- local parent_range = { args.ret.nodes.parent:range() }
     -- local parent_last_line = (vim.api.nvim_buf_get_lines(
-    --   args.buf,
+    --   modules_buf_handle,
     --   parent_range[3] - 1,
     --   parent_range[3],
     --   true
@@ -364,8 +438,73 @@ local function transform_enabled_modules_tree(opts)
 
     -- act
 
+    -- local is_mult = #ranges > 1
+    -- local single_new = not ranges[1].ret.nodes.module
+
+    local edits = {}
+
+    -- vim.iter(ts_module_node_info):rev():each(function(el) end)
+
+    -- When building new module sections for insertion, index each new section
+    -- by the parent table's node id, which allows for simply looping over the
+    -- nodes by starting_line, and then injecting key at the end.
+    local id_2_new_section = {}
+
+    -- TODO: only handle single case first.
+    -- mult case later.
+
+    if true then
+        return
+    end
+
+    for i = #opts.targets, 1, -1 do
+        local t = opts.targets[i]
+        local tn = t.nodes
+
+        -- Toggling modules implies there existence, which means that we can directly
+        -- just replace the modules values.
+        if opts.action == "TOGGLE" then
+            ts:replace(tn.ts_enabled_value, tostring(not tn.module_enabled))
+        end
+        if opts.action == "ENABLE" then
+            ts:replace(tn.ts_enabled_value, tostring(true))
+        end
+        if opts.action == "DISABLE" then
+            ts:replace(tn.ts_enabled_value, tostring(false))
+        end
+        if opts.action == "REMOVE" then
+            ts.tbl.field.remove(tn.module_table_constructor)
+        end
+
+        -- this should be enough to build proper injection strings.
+        if opts.action == "ADD" then
+            local t_path_new_segment = get_new_table_path_from_parent
+            table.insert(t_path_new_segment, 1, tn.ts_node_tbl_parent:id())
+            utils.get_set_table_path(
+                id_2_new_section,
+                t_path_new_segment,
+                { new_name, enabled = true }
+            )
+        end
+
+        if opts.action == "MOVE" then
+            -- 1. collect all old deletion edits.
+        end
+    end
+
+    if true then
+        return
+    end
+
+    -- might need to put all IDs in order in an array so that we can loop over the
+    -- IDs in order with ipair
+    if #id_2_new_section > 0 then
+        -- revers loop paren not id start lines and inject in correct order.
+    end
+
     local args_by_range = {}
     local order = {}
+
     vim.iter(ts_module_node_info):rev():each(function(el)
         if not args_by_range[el.range] then
             args_by_range[el.range] = {}
@@ -375,10 +514,6 @@ local function transform_enabled_modules_tree(opts)
     end)
 
     print("<ARGS MAPPED BY RANGE>")
-
-    if true then
-        return
-    end
 
     -- Reverse loop each injection range.
     vim.iter(order):each(function(i)
@@ -406,7 +541,7 @@ local function transform_enabled_modules_tree(opts)
                 local args = ranges[1]
                 local module_range = { args.ret.nodes.module:range() }
                 local module_line = (vim.api.nvim_buf_get_lines(
-                    args.buf,
+                    modules_buf_handle,
                     module_range[1],
                     module_range[1] + 1,
                     true
@@ -418,7 +553,7 @@ local function transform_enabled_modules_tree(opts)
                     -- enable_module_line() -- from comment..
                     local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
                     vim.api.nvim_buf_set_text(
-                        args.buf,
+                        modules_buf_handle,
                         module_range[1],
                         start_col - 1,
                         module_range[1],
@@ -429,7 +564,7 @@ local function transform_enabled_modules_tree(opts)
                     -- disable_module_line() -- from regular module name string.
                     local start_col, end_col = module_line:find('"') -- find first double quote
                     vim.api.nvim_buf_set_text(
-                        args.buf,
+                        modules_buf_handle,
                         module_range[1],
                         start_col - 1,
                         module_range[1],
@@ -453,7 +588,7 @@ local function transform_enabled_modules_tree(opts)
                 -- local args = ranges[1]
                 -- local module_range = { args.ret.nodes.module:range() }
                 -- local module_line = (vim.api.nvim_buf_get_lines(
-                --   args.buf,
+                --   modules_buf_handle,
                 --   module_range[1],
                 --   module_range[1] + 1,
                 --   true
@@ -461,7 +596,7 @@ local function transform_enabled_modules_tree(opts)
                 -- if args.ret.leaf_is_comment then
                 --   local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
                 --   vim.api.nvim_buf_set_text(
-                --     args.buf,
+                --     modules_buf_handle,
                 --     module_range[1],
                 --     start_col - 1,
                 --     module_range[1],
@@ -471,7 +606,7 @@ local function transform_enabled_modules_tree(opts)
                 -- else
                 --   local start_col, end_col = module_line:find('"') -- find first double quote
                 --   vim.api.nvim_buf_set_text(
-                --     args.buf,
+                --     modules_buf_handle,
                 --     module_range[1],
                 --     start_col - 1,
                 --     module_range[1],
@@ -521,7 +656,13 @@ local function transform_enabled_modules_tree(opts)
             -- Only remove module if it exists as a node.
             if args.ret.nodes.module then
                 local module_range = { args.ret.nodes.module:range() }
-                vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+                vim.api.nvim_buf_set_lines(
+                    modules_buf_handle,
+                    module_range[1],
+                    module_range[1] + 1,
+                    true,
+                    {}
+                )
             end
         else
             log.error("dui @ mod browser :: No valid action for root mod CRUD")
@@ -543,7 +684,7 @@ local function transform_enabled_modules_tree(opts)
     --   if opts.action == "TOGGLE" then
     --     local module_range = { args.ret.nodes.module:range() }
     --     local module_line = (vim.api.nvim_buf_get_lines(
-    --       args.buf,
+    --       modules_buf_handle,
     --       module_range[1],
     --       module_range[1] + 1,
     --       true
@@ -552,7 +693,7 @@ local function transform_enabled_modules_tree(opts)
     --     if args.ret.leaf_is_comment then
     --       local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
     --       vim.api.nvim_buf_set_text(
-    --         args.buf,
+    --         modules_buf_handle,
     --         module_range[1],
     --         start_col - 1,
     --         module_range[1],
@@ -562,7 +703,7 @@ local function transform_enabled_modules_tree(opts)
     --     else
     --       local start_col, end_col = module_line:find('"') -- find first double quote
     --       vim.api.nvim_buf_set_text(
-    --         args.buf,
+    --         modules_buf_handle,
     --         module_range[1],
     --         start_col - 1,
     --         module_range[1],
@@ -589,7 +730,7 @@ local function transform_enabled_modules_tree(opts)
     --     local parent_range = { args.ret.nodes.parent:range() }
     --
     --     vim.api.nvim_buf_set_lines(
-    --       args.buf,
+    --       modules_buf_handle,
     --       parent_range[1] + 1,
     --       parent_range[1] + 1,
     --       true,
@@ -600,7 +741,7 @@ local function transform_enabled_modules_tree(opts)
     --       return false
     --     end
     --     local module_range = { args.ret.nodes.module:range() }
-    --     vim.api.nvim_buf_set_lines(args.buf, module_range[1], module_range[1] + 1, true, {})
+    --     vim.api.nvim_buf_set_lines(modules_buf_handle, module_range[1], module_range[1] + 1, true, {})
     --   else
     --     log.error("dui @ mod browser :: No valid action for root mod CRUD")
     --     return

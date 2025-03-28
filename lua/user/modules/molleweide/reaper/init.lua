@@ -6,6 +6,13 @@ local rk = {}
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/GetReaScriptAPI
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/MakeEELSnippets
 -- -- https://github.com/NlGHT/vim-eel
+--
+-- TODO: neovim reaper keys UI interface.
+-----------------------------------------------------------------------------
+-- Add a new tag [nvim_popup_ui] to modules that allows only loading what is
+-- necessary for using neovim as a UI, opening it and instantly eg. loading
+-- telescope or similar to perform some changes to the code.
+-----------------------------------------------------------------------------
 
 -- NOTE:
 
