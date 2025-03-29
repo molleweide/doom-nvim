@@ -60,7 +60,7 @@ end
 --
 ---Load ts helper with buf so that you dont have to pass it later.
 ---local ts = TSHelper(buf)
-local TSHelper = setmetatable({
+local TSLua = setmetatable({
 
     -- replace node text/contents
     replace = function(self, node, replacement)
@@ -97,7 +97,14 @@ local TSHelper = setmetatable({
     _field_table = function(self, node)
         return node:type() == "field" and node:named_child():type() == "table_constructor"
     end,
+}, {
+    __call = function(self, buf_handle)
+        return setmetatable({ buf = buf_handle }, { __index = self })
+    end,
+})
 
+-- Should inherit all of the TSHelper methods.
+local TSLuaTable = setmetatable({
     -- TODO: wrap in metatable and replicate regular lua table behavior.
     --
     -- loop all (pairs) | indexes (ipair) | keys (pairs and key ~= number)
@@ -135,7 +142,30 @@ local TSHelper = setmetatable({
     --      get_replace = if you want to replace multiple fields, then get the edit object for each edit.
     -- }
     --
-    tbl_fields = function(self, tbl_node, opts)
+    -- NOTE: another brainstorm on the api
+    --
+    -- index/key, action
+    --
+    -- key, value, action
+    -- _, {}, function
+    --
+    -- index = bool | number | function, eg index < N
+    -- key = { string, is_pattern }
+    -- value = { type = string, equals|match}
+    --
+    -- TSModTbl:fields({
+    --     index = 1,
+    --     value = { "string", ret.t_path_left[1] },
+    --     action = function(buf, str, content)
+    --         ret.module_table_constructor = value_table
+    --         ret.module = true
+    --         ret.module_real_name = ts:text(content)
+    --         ret.module_name_string = str
+    --         ret.module_range = { value_table:range() }
+    --     end,
+    -- })
+
+    fields = function(self, opts)
         local index = 0
 
         -- WARN: if both index and key
@@ -146,7 +176,7 @@ local TSHelper = setmetatable({
             end
         end
 
-        for child_node in tbl_node:iter_children() do
+        for child_node in self.ts_table_constructor:iter_children() do
             -- handle indexed fields
 
             -- if opts.index == true or type(index) == "number" or opts.type == "comment"
@@ -220,20 +250,16 @@ local TSHelper = setmetatable({
             end
         end
     end,
-    tbl_add_field_last = function(self, tbl_node, opts) end,
+    tbl_add_field_last = function(self, opts) end,
 }, {
-    __call = function(self, buf_handle)
-        return setmetatable({ buf = buf_handle }, { __index = self })
-    end,
-})
-
--- Should inherit all of the TSHelper methods.
-local TSLuaTable = setmetatable({}, {
-    -- This should make fallback to the master TSLua class
+    -- Make TSLuaTable fallback to TSLua
     __index = TSLua,
 
-    __call = function(self, buf_handle)
-        return setmetatable({ buf = buf_handle }, { __index = self })
+    __call = function(self, buf_handle, ts_table_constructor)
+        return setmetatable(
+            { buf = buf_handle, ts_table_constructor = ts_table_constructor },
+            { __index = self }
+        )
     end,
 })
 
@@ -267,16 +293,13 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
     -- NOTE: This is it, now i should no have to pass the buffer below.
     -- Now we can rename the ts obj to the name of the buf that it is loaded
     -- with so that we always know exactly what we are operating on.
-    local ts = TSHelper(buf)
+    local ts = TSLua(buf)
 
     -- wrap in a nested function so that we can access opt vars from the parent scope, eg. buf
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
 
-        -- TODO: something like this
-        -- local TS_Modules_Table = TSLuaTable(buf, ts_tbl_in)
-        -- then, do:
-        -- TS_Modules_Table:fields({ })
+        local TSModSection = TSLuaTable(buf, ts_tbl_in)
 
         ret.ts_node_tbl_parent = ts_tbl_in
         ret.parent_range = { ts_tbl_in:range() }
@@ -289,7 +312,7 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
         if #ret.t_path_left > 1 then
             -- handle key value pairs
             local branch, ts_tbl_child
-            ts:tbl_fields(ts_tbl_in, {
+            TSModSection:fields({
                 on_key = {
                     ret.t_path_left[1]:upper(),
                     function(buf, key, value)
@@ -302,20 +325,13 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then
             -- handle indexed fields | for each table
-            ts:tbl_fields(ts_tbl_in, {
+            TSModSection:fields({
                 on_index = {
                     type = "table",
                     action = function(buf, value_table)
-                        -- check table[1] == string
-                        ts:tbl_fields(value_table, {
-
-                            -- index = bool | number | function, eg index < N
-                            -- key = { string, is_pattern }
-                            -- value = { type = string, equals|match}
-                            --
-                            --
+                        local TSModTbl = TSLuaTable(buf, value_table)
+                        TSModTbl:fields({
                             on_index = {
-                                -- key = number | string | true(both)
                                 index = 1,
                                 type = "string",
                                 equals = ret.t_path_left[1],
@@ -333,10 +349,8 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                             ret.parent = true
                             return ret
                         end
-                        ts:tbl_fields(value_table, {
+                        TSModTbl:fields({
                             on_key = {
-                                -- follow the same api as for on_index.
-                                --
                                 "enabled",
                                 function(buf, key, value)
                                     ret.ts_enabled_value = value
