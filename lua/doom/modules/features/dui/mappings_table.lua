@@ -192,6 +192,8 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 
                         table.insert(targets, {
                             selected_module = v,
+                            -- TODO:
+                            -- move_to = {}
                             user_input = user_input,
                         })
 
