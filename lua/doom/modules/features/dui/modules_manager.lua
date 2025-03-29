@@ -81,15 +81,64 @@ local TSHelper = setmetatable({
         return vim.treesitter.get_node_text(node, self.buf)
     end,
 
-    content = {
-        match = function(self, node, pattern)
-            return vim.treesitter.get_node_text(node, self.buf):match(pattern)
-        end,
-    },
+    content_match = function(self, node, pattern)
+        return vim.treesitter.get_node_text(node, self.buf):match(pattern)
+    end,
+
+    _field_indexed = function(self, node)
+        return node:named() and node:named_child_count() == 1
+    end,
+    _field_key = function(self, node)
+        return node:named() and node:named_child_count() == 2
+    end,
+    _field_string = function(self, node)
+        return node:type() == "field" and node:named_child(0):type() == "string"
+    end,
+    _field_table = function(self, node)
+        return node:type() == "field" and node:named_child():type() == "table_constructor"
+    end,
 
     -- TODO: wrap in metatable and replicate regular lua table behavior.
+    --
+    -- loop all (pairs) | indexes (ipair) | keys (pairs and key ~= number)
+    --
+    -- match specific { index | value type.}
+    --
+    -- TSTable:fields({
+    --      action = function
+    -- })
+    --
+    -- TSTable:fields({
+    --      key = 2,
+    --      action = <function>
+    -- },
+    -- {
+    --   key = <string>,
+    --   action
+    -- },
+    -- {
+    --   key = { <string>, <bool> },
+    --   value = <type>,
+    --   action
+    -- })
+    --
+    --
+    -- pass in an array of tables that represent actions to perform for certain
+    -- index/key/value specifications.
+    --
+    -- NOTE: Something like this should make this flexible enough.
+    -- opts = {
+    --      index = bool | number | function, eg index < N
+    --      key = bool | <table>{ string, is_pattern } | function
+    --      value = { type = string, equals|match} -- custom
+    --      action =
+    --      get_replace = if you want to replace multiple fields, then get the edit object for each edit.
+    -- }
+    --
     tbl_fields = function(self, tbl_node, opts)
         local index = 0
+
+        -- WARN: if both index and key
 
         local function debug(...)
             if opts.debug then
@@ -97,64 +146,61 @@ local TSHelper = setmetatable({
             end
         end
 
-        debug("---------------------------------")
-
-        -- debug(vim.inspect(opts))
-
-        -- print("tbl_fields", vim.inspect(opts))
-
         for child_node in tbl_node:iter_children() do
             -- handle indexed fields
-            if opts.on_index then
-                if child_node:named() and child_node:named_child_count() == 1 then
-                    index = index + 1
 
-                    if
-                        not opts.on_index.index
-                        -- if index, then only enter if it is an index match.
-                        or (opts.on_index.index and index == opts.on_index.index)
-                    then
-                        if opts.on_index.type == "comment" and child_node:type() == "comment" then
-                            opts.on_comment(self.buf, child_node, index, child_node:named_child())
-                        elseif
-                            opts.on_index.type == "string"
-                            and child_node:type() == "field"
-                            and child_node:named_child(0):type() == "string"
-                        then
+            -- if opts.index == true or type(index) == "number" or opts.type == "comment"
+
+            if self:_field_indexed(child_node) then
+                if opts.comment and child_node:type() == "comment" then
+                    opts.on_comment(self.buf, child_node, index, child_node:named_child())
+                end
+
+                -- if key == true or type(key) == "number"
+
+                if opts.on_index then
+                    index = index + 1
+                    local _type = opts.on_index.type
+                    local index_target = opts.on_index.index
+                    local equals = opts.on_index.equals
+                    local match = opts.on_index.match
+
+                    if not index_target or (index_target and index_target == index) then
+                        -- if (all or type string)
+                        if _type == "string" and self:_field_string(child_node) then
                             local ts_string = child_node:named_child()
                             local ts_string_content = ts_string:named_child()
-                            local text_content = self:text(ts_string_content)
-                            if
-                                opts.on_index.equals and text_content == opts.on_index.equals
-                                or opts.on_index.match
-                                    and text_content:match(opts.on_index.match)
-                            then
+                            local text = self:text(ts_string_content)
+                            -- if handle compare value
+                            if equals and equals == text or match and text:match(match) then
+                                opts.on_index.action(self.buf, ts_string, ts_string_content)
+                            end
+                            -- if do each indexed string
+                            if not (opts.on_index.equals or opts.on_index.match) then
                                 opts.on_index.action(self.buf, ts_string, ts_string_content)
                             end
 
-                            if not (opts.on_index.equals or opts.on_index.match) then
-                                -- do each indexed string
-                                opts.on_index.action(self.buf, ts_string, ts_string_content)
-                            end
-                        elseif
-                            opts.on_index.type == "table"
-                            and child_node:type() == "field"
-                            and child_node:named_child():type() == "table_constructor"
-                        then
+                            -- if (all or type table)
+                        elseif _type == "table" and self:_field_table(child_node) then
                             local table_constructor = child_node:named_child()
-                            -- print("table: ", self:text(table_constructor))
                             opts.on_index.action(self.buf, table_constructor)
                         else
-                            -- print(string.format("??? unhandled | type = %s, ", child_node:type()))
+                            -- TODO: Handle all other types that can exist in a
+                            -- table:
+                            -- boolean, expression, function,
                         end
                     end
                 end
             end
             -- handle key value pairs
+            -- TODO: handle when keys are wrapped in [] and also keys that
+            -- handle key value pair fields
+            --
+            --
+            -- if key == true or type(key) == "string"
+            --
             if opts.on_key then
-                -- TODO: handle when keys are wrapped in [] and also keys that
-                -- handle key value pair fields
-                if child_node:named() and child_node:named_child_count() == 2 then
+                if self:_field_key(child_node) then
                     local key_identifier = child_node:named_child(0)
                     local value = child_node:named_child(1)
 
@@ -183,6 +229,9 @@ local TSHelper = setmetatable({
 
 -- Should inherit all of the TSHelper methods.
 local TSLuaTable = setmetatable({}, {
+    -- This should make fallback to the master TSLua class
+    __index = TSLua,
+
     __call = function(self, buf_handle)
         return setmetatable({ buf = buf_handle }, { __index = self })
     end,
@@ -222,17 +271,15 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
 
     -- wrap in a nested function so that we can access opt vars from the parent scope, eg. buf
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
-        print("## enter recursive:", vim.inspect(ret))
         depth = depth + 1
 
         -- TODO: something like this
         -- local TS_Modules_Table = TSLuaTable(buf, ts_tbl_in)
         -- then, do:
+        -- TS_Modules_Table:fields({ })
 
         ret.ts_node_tbl_parent = ts_tbl_in
         ret.parent_range = { ts_tbl_in:range() }
-
-        print("type [ts_tbl_in]:", ts_tbl_in:type())
 
         print("---------------", depth)
         print("ret pre:", vim.inspect(ret))
@@ -246,36 +293,36 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                 on_key = {
                     ret.t_path_left[1]:upper(),
                     function(buf, key, value)
-                        print("???????")
                         branch = true
                         ts_tbl_child = value
                         table.remove(ret.t_path_left, 1)
                     end,
                 },
             })
-            if not branch then
-                -- log.debug("t_parts is greater than one but field was not identified as branch.")
-                return ret
-            end
-            return ts_root_mod_tbl_try_find_target(ts_tbl_child)
+            return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then
-            print(" == 1")
-            -- handle indexed fields
+            -- handle indexed fields | for each table
             ts:tbl_fields(ts_tbl_in, {
                 on_index = {
                     type = "table",
                     action = function(buf, value_table)
-                        -- for each table check if it is a module.
+                        -- check table[1] == string
                         ts:tbl_fields(value_table, {
-                            debug = true,
+
+                            -- index = bool | number | function, eg index < N
+                            -- key = { string, is_pattern }
+                            -- value = { type = string, equals|match}
+                            --
+                            --
                             on_index = {
+                                -- key = number | string | true(both)
                                 index = 1,
                                 type = "string",
                                 equals = ret.t_path_left[1],
                                 action = function(buf, str, content)
-                                    -- print("action string:", ret.t_path_left[1])
                                     ret.module_table_constructor = value_table
                                     ret.module = true
+                                    ret.module_real_name = ts:text(content)
                                     ret.module_name_string = str
                                     ret.module_range = { value_table:range() }
                                 end,
@@ -288,6 +335,8 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                         end
                         ts:tbl_fields(value_table, {
                             on_key = {
+                                -- follow the same api as for on_index.
+                                --
                                 "enabled",
                                 function(buf, key, value)
                                     ret.ts_enabled_value = value
@@ -461,29 +510,39 @@ local function transform_enabled_modules_tree(opts)
         local t = opts.targets[i]
         local tn = t.nodes
 
-        -- Toggling modules implies there existence, which means that we can directly
-        -- just replace the modules values.
-        if opts.action == "TOGGLE" then
-            ts:replace(tn.ts_enabled_value, tostring(not tn.module_enabled))
-        end
-        if opts.action == "ENABLE" then
-            ts:replace(tn.ts_enabled_value, tostring(true))
-        end
-        if opts.action == "DISABLE" then
-            ts:replace(tn.ts_enabled_value, tostring(false))
-        end
-        if opts.action == "REMOVE" then
-            ts.tbl.field.remove(tn.module_table_constructor)
-        end
+        -- -- Toggling modules implies there existence, which means that we can directly
+        -- -- just replace the modules values.
+        -- if opts.action == "TOGGLE" then
+        --     ts:replace(tn.ts_enabled_value, tostring(not tn.module_enabled))
+        -- end
+        -- if opts.action == "ENABLE" then
+        --     ts:replace(tn.ts_enabled_value, tostring(true))
+        -- end
+        -- if opts.action == "DISABLE" then
+        --     ts:replace(tn.ts_enabled_value, tostring(false))
+        -- end
+        -- if opts.action == "REMOVE" then
+        --     ts.tbl.field.remove(tn.module_table_constructor)
+        -- end
 
         -- this should be enough to build proper injection strings.
         if opts.action == "ADD" then
-            local t_path_new_segment = get_new_table_path_from_parent
+            local t_path_new_segment = tn.t_path_left
+
+            -- TODO:
+            -- 1. rename selected_module to target_module.
+            --      Now when we do ts_get_set_table_path() each return
+            --      will represent the parent table to which we should inject
+            --      the new table.
+            -- 2.
+
             table.insert(t_path_new_segment, 1, tn.ts_node_tbl_parent:id())
+            table.remove(ts_get_set_table_path) -- remove last item, ie. the module name
+
             utils.get_set_table_path(
                 id_2_new_section,
                 t_path_new_segment,
-                { new_name, enabled = true }
+                { tn.t_path_left[#t_path_left], enabled = true }
             )
         end
 
@@ -491,6 +550,8 @@ local function transform_enabled_modules_tree(opts)
             -- 1. collect all old deletion edits.
         end
     end
+
+    log.info("id_2_new_section", id_2_new_section)
 
     if true then
         return

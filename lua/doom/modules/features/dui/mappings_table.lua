@@ -120,6 +120,10 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         return
                     end
 
+                    -- TODO: if doom/
+                    -- TODO: if user/
+                    -- TODO: if create new module from selected section.
+
                     log.info(
                         string.format("Add [%s] to section [%s]", user_input, selected_section_str)
                     )
