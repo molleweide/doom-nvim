@@ -235,6 +235,17 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 
                 local targets = {}
 
+                -- manage_modules_tree({
+                --      {
+                --           action = REMOVE,
+                --           {},{},{},...
+                --      },
+                --      {
+                --          action = ADD,
+                --          {},{},{}, ...
+                --      }
+                -- })
+
                 for i, sel in ipairs(selection) do
                     local s = sel.value
                     -- confirm_prompt = confirm_prompt

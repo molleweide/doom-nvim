@@ -1,3 +1,26 @@
+-- TODO:
+-- First one creates the TS object with buf, and then you wrap a table with
+-- local TSBuf = TS(buf)
+-- --------
+-- Pass node to TS and return helper for that specific type.
+-- local TSTable = TSBuf(table_constructor)
+-- local TSFunction = TSBuf(function_object)
+-- local TSConditional = TSBuf(conditional)
+
+-- NOTE:
+--
+-- TSLua
+--      base class with all funcs that just needs access to a buffer.
+--      ? Maybe we should add a query to the object so that you can reparse the
+--      tree on each replacement??
+--
+-- TSLuaTable
+--      Helper for managing and transforming tables.
+--
+-- TSLuaFunction
+--      Helper for managing function, args, etc.
+--
+-- TSLuaConditional
 
 -- -- Metatable for the Path constructor
 -- Path_mt = {
@@ -57,7 +80,12 @@ local TSLua = setmetatable({
     end,
 }, {
     __call = function(self, buf_handle)
-        return setmetatable({ buf = buf_handle }, { __index = self })
+        return setmetatable({ buf = buf_handle }, {
+            __index = self,
+
+            -- TODO: when calling TS() with a ts node, return wrapped object with helpers.
+            -- __call = function
+        })
     end,
 })
 
@@ -107,9 +135,11 @@ local TSLuaTable = setmetatable({
     -- key, value, action
     -- _, {}, function
     --
-    -- index = bool | number | function, eg index < N
-    -- key = { string, is_pattern }
-    -- value = { type = string, equals|match}
+    -- >> IF MULT ARGS
+    --      index = bool | number | function, eg index < N
+    --      key = { string, is_pattern }
+    --      value = { type = string, equals|match}
+    -- >> OR PASS TABLE
     --
     -- TSModTbl:fields({
     --     index = 1,
@@ -123,6 +153,7 @@ local TSLuaTable = setmetatable({
     --     end,
     -- })
 
+    -- :iter
     fields = function(self, opts)
         local index = 0
 
@@ -208,10 +239,18 @@ local TSLuaTable = setmetatable({
             end
         end
     end,
+
+    -- :insert()
     tbl_add_field_last = function(self, opts) end,
+
+    -- :remove
+
+    -- :sort
+
+
 }, {
-    -- Make TSLuaTable fallback to TSLua
-    __index = TSLua,
+
+    __index = TSLua, -- Make TSLuaTable fallback to TSLua
 
     __call = function(self, buf_handle, ts_table_constructor)
         return setmetatable(
@@ -223,5 +262,5 @@ local TSLuaTable = setmetatable({
 
 return {
     TSLua = TSLua,
-    TSLuaTable = TSLuaTable
+    TSLuaTable = TSLuaTable,
 }

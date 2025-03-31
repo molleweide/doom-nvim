@@ -43,6 +43,7 @@ local function build_new_inject_string(ranges)
     return stringified
 end
 
+-- NOTE: This should also go into [doom.utils.ts]
 -- TODO: document
 function ts_get_set_table_path(buf, ts_node_table, t_path)
     if ts_node_table:type() ~= "table_constructor" then
