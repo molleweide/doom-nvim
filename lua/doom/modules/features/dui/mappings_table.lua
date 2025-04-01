@@ -40,19 +40,21 @@ local function validate_user_input(user_input)
     return true
 end
 
-local function make_new_target(user_input)
+local function make_new_target(user_input, selection)
     local t_path_user_input = vim.split(user_input, "/")
+
+    print("t_path_user_input:", vim.inspect(t_path_user_input))
     local new = {}
     -- handle origin
-    if t_path_user_input[1]:match("^(doom|user)") then
+    if t_path_user_input[1]:match("^(doom|user)$") then
         new.origin = table.remove(t_path_user_input, 1)
         table.insert(table.remove(t_path_user_input)) -- new name
         new.t_section = t_path_user_input
     else
-        new.origin = v.origin
-        table.insert(table.remove(t_path_user_input)) -- rename old name
+        new.origin = selection.origin
+        table.insert(new, table.remove(t_path_user_input)) -- rename old name
         -- create table path by combining current selection with the new segment
-        local t_path_sel = vim.deepcopy(v.t_path)
+        local t_path_sel = vim.deepcopy(selection.t_path)
         table.remove(t_path_sel)
         new.t_section = utils.list_merge(t_path_sel, t_path_user_input)
     end
@@ -149,7 +151,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                     require("doom.modules.features.dui.modules_manager").manage_modules_tree({
                         action = "ADD",
                         {
-                            mu.DoomModuleEnabled(make_new_target(user_input)),
+                            mu.DoomModuleEnabled(make_new_target(user_input, v)),
                         },
                     })
                 end)
@@ -183,6 +185,12 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
 
                     -- apply actions
                     if sel_idx > #selection then
+                        if #selection > 0 then
+                            require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                                action_old,
+                                action_new,
+                            })
+                        end
                         return
                     end
 
@@ -191,7 +199,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                     local selected_section_str =
                         string.format("%s.%s.%s", v.origin, v.section, v[1])
 
-                    log.info(v.origin, v.section, v[1])
+                    log.info("selecteion:", v.origin, v.section, v[1])
 
                     vim.ui.input({
                         prompt = string.format(
@@ -210,18 +218,16 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                             return
                         end
                         table.insert(action_old, v)
-                        table.insert(action_new, mu.DoomModuleEnabled(make_new_target(user_input)))
+                        table.insert(
+                            action_new,
+                            mu.DoomModuleEnabled(make_new_target(user_input, v))
+                        )
+
+                        move_multiple()
                     end)
                 end
 
                 move_multiple()
-
-                if #selection > 0 then
-                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        action_old,
-                        action_new,
-                    })
-                end
             end,
         },
         -- TODO: confirm: are you sure?!

@@ -50,31 +50,18 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
         log.error("Only accepts table_constructor nodes!")
         return
     end
-
-    local depth = 0
     local ret = { t_path_left = vim.deepcopy(t_path) }
-
-    -- NOTE: This is it, now i should no have to pass the buffer below.
-    -- Now we can rename the ts obj to the name of the buf that it is loaded
-    -- with so that we always know exactly what we are operating on.
     local TSLua = ts.TSLua(buf)
+    local depth = 0
 
-    -- wrap in a nested function so that we can access opt vars from the parent scope, eg. buf
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
-        depth = depth + 1
-
         local TSModSection = ts.TSLuaTable(buf, ts_tbl_in)
-
+        depth = depth + 1
         ret.ts_node_tbl_parent = ts_tbl_in
-        ret.parent_range = { ts_tbl_in:range() }
+        ret.deepest = ts_tbl_in
 
-        print("---------------", depth)
-        print("ret pre:", vim.inspect(ret))
-        print("range parent:", ts_tbl_in:range())
-
-        -- check branches
-        if #ret.t_path_left > 1 then
-            -- handle key value pairs
+        print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
+        if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
             TSModSection:fields({
                 on_key = {
@@ -87,8 +74,7 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                 },
             })
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
-        elseif #ret.t_path_left == 1 then
-            -- handle indexed fields | for each table
+        elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
             TSModSection:fields({
                 on_index = {
                     type = "table",
@@ -101,8 +87,10 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                                 equals = ret.t_path_left[1],
                                 action = function(buf, str, content)
                                     ret.module_table_constructor = value_table
+                                    ret.deepest = value_table
                                     ret.module = true
                                     ret.module_real_name = TSLua:text(content)
+                                    ret.deepest_name = TSLua:text(content)
                                     ret.module_name_string = str
                                     ret.module_range = { value_table:range() }
                                 end,
@@ -130,7 +118,6 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
         end
         return ret
     end
-
     return ts_root_mod_tbl_try_find_target(ts_node_table)
 end
 
@@ -139,9 +126,6 @@ local function transform_enabled_modules_tree(action)
     action = vim.deepcopy(action)
     local rootfile = "modules.lua"
     local modules_buf_handle = dui_utils.get_buf_handle(utils.find_config(rootfile))
-
-    -- setup
-    local ts_module_node_info = {}
 
     -- TODO: this should go into the TS base class.
     -- Get the [modules.lua] modules table ts table constructor.
@@ -167,14 +151,13 @@ local function transform_enabled_modules_tree(action)
         target.nodes = args
         target.nodes.line_start = args.module and args.module_table_constructor:range()
             or args.ts_node_tbl_parent:range() -- remove this and just use the nodes directly instead.
-
-        -- TODO: remove ts_module_node_info and just use the actions table for everything
-        table.insert(ts_module_node_info, args)
     end
 
     table.sort(action, function(a, b)
         return a.nodes.line_start < b.nodes.line_start
     end)
+
+    print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
     local function enable_module_line() end
     local function disable_module_line() end
@@ -187,6 +170,8 @@ local function transform_enabled_modules_tree(action)
 
     -- local is_mult = #ranges > 1
     -- local single_new = not ranges[1].ret.nodes.module
+
+    -- TODO: collect all edits.
 
     local edits = {}
 
@@ -587,11 +572,8 @@ M.manage_modules_tree = function(opts)
 
     -- TODO: rename `opts` to `actions`
 
-    log.info("pre transform enabled modules tree. opts =", opts)
-
-    -- each action
     for i, action in ipairs(opts) do
-        print(i, "action:", vim.inspect(action))
+        print(i, "Action:", vim.inspect(action))
         local ok = transform_enabled_modules_tree(action)
         if not ok then
             log.warn(
