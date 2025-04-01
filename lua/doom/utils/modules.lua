@@ -1,3 +1,5 @@
+local system = require("doom.core.system")
+
 local traverser = require("doom.services.traverser")
 
 -- TODO: move this file to doom/modules/utils.lua
@@ -10,9 +12,122 @@ local traverser = require("doom.services.traverser")
 
 local M = {}
 
+local doom_config_root = require("doom.core.system").doom_configs_root
+
+-----------------------------------------------------------------------------
+-- NOTE: I could put this on the module itself so iff you M.__call to generate
+-- the object.
+local DoomModuleEnabled = {}
+
+M.DoomModuleEnabled = DoomModuleEnabled
+
+-- DoomModuleEnabled.t_path = function()
+--     local t_path = { self }
+--     return {
+--         self[1],
+--     }
+-- end
+
+DoomModuleEnabled.path = function()
+    return table.concat({
+        doom_config_root,
+        "lua",
+        self.origin,
+        "modules",
+        table.concat(self, system.sep),
+        "init.lua",
+    }, system.sep)
+end
+
+local mt = {}
+
+setmetatable(DoomModuleEnabled, mt)
+
+mt.__call = function(self, node, stack)
+    -- if type node == table -> then we are working with node/stack
+    -- if type == string, then we make it from a path segment.
+
+    local o = node
+
+    local t_section = {}
+
+    if stack ~= nil then
+        -- then, we assum that we are only being passed [origin], and [t_path]
+        -- in the node table.
+        -- set default enabled = true.
+        -- use for each instead and exclude the module name
+        for _, sn in ipairs(stack) do
+            if type(sn.key) == "string" then
+                table.insert(t_section, sn.key:lower())
+            end
+        end
+    end
+
+    o.section = table.concat(t_section, ".")
+
+    -- TODO: Use this later if i remove dependency on path
+    -- o.path_init_file = table.concat({
+    --     doom_config_root,
+    --     "lua",
+    --     "user",
+    --     "modules",
+    --     table.concat(decl.t_section, "/"),
+    --     node[1],
+    --     "init.lua",
+    -- }, system.sep)
+
+    local Path = require("pathlib")
+    local module_init_file = Path(
+        doom_config_root,
+        "lua",
+        "user",
+        "modules",
+        table.concat(t_section, "/"),
+        o[1],
+        "init.lua"
+    )
+
+    if module_init_file:exists() then
+        o.origin = "user"
+        o.path_init_file = module_init_file:tostring()
+    else
+
+        local doom_path_str = module_init_file:gsub("lua/user/", "lua/doom/")
+        local doom_path = Path(doom_path_str)
+
+        if doom_path:exists() then
+            o.origin = "doom"
+            -- gsub returns multiple values. Path only accepts one.
+            o.path_init_file = module_init_file:gsub("lua/user/", "lua/doom/")
+        else
+            o.missing = true
+        end
+    end
+
+    -- make t_path
+    table.insert(t_section, node[1])
+    o.t_path = t_section
+
+    return setmetatable(o, { __index = self })
+end
+
+-- :origin
+-- :section
+-- :name
+-- :path_init
+-- :path_lua
+-- DoomModuleEnabled.
+
+-----------------------------------------------------------------------------
+
+M.get_module_t_path_from_init_path = function(s)
+    return vim.split(s:match("modules/(.-)/init.lua$"), "/")
+end
+
 -- NOTE: The traverser function is designed so that you define how to loop
 -- each branch AND you also traverse into each leaf, check if it is a leaf, and
 -- then call the traverse_out func.
+--
 
 -- Designed to travers `modules.lua` file, ie. allows you to operate on
 -- each module `dot` path.
@@ -37,7 +152,7 @@ M.traverse_modules_declarations = traverser.build({
                 for key, value in pairs(node) do
                     traverse_in(key, value) -- Traverse into next layer.
                 end
-                traverse_out()              -- Travel back up when a sub table has been completed.
+                traverse_out() -- Travel back up when a sub table has been completed.
             end
         elseif type(node) == "string" and not parent_is_section then
             -- Old method for declaring enabled modules as simple strings
@@ -55,6 +170,46 @@ M.traverse_modules_declarations = traverser.build({
     end,
 })
 
+-- FIX: remove dependency on Path
+M.get_module_init_path_from_module_decl = function(decl)
+    local doom_config_root = require("doom.core.system").doom_configs_root
+    local Path = require("pathlib")
+    return Path(
+        doom_config_root,
+        "lua",
+        "user",
+        "modules",
+        table.concat(decl.t_section, "/"),
+        decl[1],
+        "init.lua"
+    )
+end
+
+-- allow pass a callback and accumulator so I can add custom actions to
+-- perform on each iteration.
+-- eg get the max with of all sections etc computed from the DoomModuleEnabled object
+M.get_modules_list_with_origins = function(enabled_modules, cb)
+    local mods = {}
+
+    require("doom.utils.modules").traverse_modules_declarations(
+        enabled_modules,
+        function(node, stack)
+            -- TODO: pass the stack and node into
+
+            -- log.warn(node)
+            if type(node[1]) == "string" then
+                local mod = DoomModuleEnabled(node, stack)
+                table.insert(mods, mod)
+                if cb and type(cb) == "function" then
+                    cb(mod)
+                end
+            end
+        end
+    )
+
+    return mods
+end
+
 ---Recurse through the tree of loaded modules, ie `doom.<path.to.some.module>`
 ---Allows user to perform actions based on the contents of each module.
 M.traverse_loaded = traverser.build({
@@ -65,7 +220,7 @@ M.traverse_loaded = traverser.build({
             for key, value in pairs(node) do
                 traverse_in(key, value) -- Traverse into next layer.
             end
-            traverse_out()              -- Travel back up when a sub table has been completed.
+            traverse_out() -- Travel back up when a sub table has been completed.
         end
         -- else
         --   err(

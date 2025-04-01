@@ -9,6 +9,11 @@
 
 -- NOTE:
 --
+-- TS
+--  Base class that takes buf.
+--
+--  TS(buf, lang)
+--
 -- TSLua
 --      base class with all funcs that just needs access to a buffer.
 --      ? Maybe we should add a query to the object so that you can reparse the

@@ -341,4 +341,28 @@ utils.new_message_builder = function(message_target_table)
     end
 end
 
+utils.list_merge = function(base, ...)
+    local new_list = vim.deepcopy(base)
+    for arg_i = 1, select("#", ...) do
+        print(arg_i, select(arg_i, ...))  -- Access each argument using select
+        for _, item in ipairs(select(arg_i, ...)) do
+            table.insert(new_list, item)
+        end
+    end
+    return new_list
+end
+
+utils.list_head = function(list)
+    local head = vim.deepcopy(list)
+    local tail = table.remove(head)
+    return head, tail
+end
+
+utils.list_tail = function(list)
+    local tail = vim.deepcopy(list)
+    local head = table.remove(tail, 1)
+    return head, tail
+end
+
+
 return utils

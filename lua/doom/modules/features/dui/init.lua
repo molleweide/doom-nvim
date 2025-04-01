@@ -3,6 +3,8 @@ local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 local crawl = require("doom.utils.tree").traverse_table
 
+local mu = require("doom.utils.modules")
+
 -- -- dui
 local mappings_table = require("doom.modules.features.dui.mappings_table")
 local components = require("doom.modules.features.dui.results")
@@ -434,49 +436,13 @@ local function doom_modules_picker_v2(opts)
     local enabled_count = 0
     local section_width = 0
 
-    require("doom.utils.modules").traverse_modules_declarations(
+    local results = require("doom.utils.modules").get_modules_list_with_origins(
         enabled_modules,
-        function(node, stack)
-            -- log.warn(node)
-            if type(node[1]) == "string" then
-                local t_section = {}
-                -- use for each instead and exclude the module name
-                for _, sn in ipairs(stack) do
-                    if type(sn.key) == "string" then
-                        table.insert(t_section, sn.key:lower())
-                    end
-                end
+        function(mod)
+            section_width = math.max(section_width, #mod.section)
 
-                node.section = table.concat(t_section, ".")
-
-                local module_init_file = Path(
-                    doom_config_root,
-                    "lua",
-                    "user",
-                    "modules",
-                    table.concat(t_section, "/"),
-                    node[1],
-                    "init.lua"
-                )
-
-
-                if module_init_file:exists() then
-                    node.origin = "user"
-                    node.path_init_file = module_init_file:tostring()
-                else
-                    node.origin = "doom"
-                    -- gsub returns multiple values. Path only accepts one.
-                    node.path_init_file = module_init_file:gsub("lua/user/", "lua/doom/")
-
-                end
-
-                table.insert(results, node)
-
-                section_width = math.max(section_width, #node.section)
-
-                if node.enabled then
-                    enabled_count = enabled_count + 1
-                end
+            if mod.enabled then
+                enabled_count = enabled_count + 1
             end
         end
     )
@@ -495,9 +461,9 @@ local function doom_modules_picker_v2(opts)
         return displayer({
             { "MODULE", "TSConstant" },
             { entry.value.enabled and "x" or " ", "TelescopeResultsIdentifier" },
-            { entry.value.origin },
+            { entry.value.missing and "NULL" or entry.value.origin },
             { entry.value.section, "TelescopeResultsIdentifier" },
-            { entry.value[1], entry.value.enabled and "" or "ErrorMsg" },
+            { entry.value[1] .. (entry.value.missing and " (module file missing)" or ""), entry.value.enabled and "" or "ErrorMsg" },
         })
     end
 

@@ -5,6 +5,9 @@
 -- the bindings with the `picker_state.entry.category`.
 local log = require("doom.utils.logging")
 
+local utils = require("doom.utils")
+local mu = require("doom.utils.modules")
+
 local function current_picker__get_selected_entries()
     local action_state = require("telescope.actions.state")
     local action_utils = require("telescope.actions.utils")
@@ -25,6 +28,36 @@ local function current_picker__get_selected_entries()
 end
 
 local function validate_chars() end
+
+local function validate_user_input(user_input)
+    if not user_input then
+        return
+    end
+    if user_input:match("[^%w_/]") then
+        log.warn("user input contains invalid characters")
+        return
+    end
+    return true
+end
+
+local function make_new_target(user_input)
+    local t_path_user_input = vim.split(user_input, "/")
+    local new = {}
+    -- handle origin
+    if t_path_user_input[1]:match("^(doom|user)") then
+        new.origin = table.remove(t_path_user_input, 1)
+        table.insert(table.remove(t_path_user_input)) -- new name
+        new.t_section = t_path_user_input
+    else
+        new.origin = v.origin
+        table.insert(table.remove(t_path_user_input)) -- rename old name
+        -- create table path by combining current selection with the new segment
+        local t_path_sel = vim.deepcopy(v.t_path)
+        table.remove(t_path_sel)
+        new.t_section = utils.list_merge(t_path_sel, t_path_user_input)
+    end
+    return new
+end
 
 local mappings = {
 
@@ -110,33 +143,14 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         selected_section_str
                     ),
                 }, function(user_input)
-                    if not user_input then
+                    if not validate_user_input(user_input) then
                         return
                     end
-
-                    -- validat chars. i believe this includes whitespace.
-                    if user_input:match("[^%w_/]") then
-                        log.warn("user input contains invalid characters")
-                        return
-                    end
-
-                    -- TODO: if doom/
-                    -- TODO: if user/
-                    -- TODO: if create new module from selected section.
-
-                    log.info(
-                        string.format("Add [%s] to section [%s]", user_input, selected_section_str)
-                    )
-
-                    -- everything in manager should go into the manager file.
                     require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        targets = {
-                            {
-                                selected_module = v,
-                                user_input = user_input,
-                            },
-                        },
                         action = "ADD",
+                        {
+                            mu.DoomModuleEnabled(make_new_target(user_input)),
+                        },
                     })
                 end)
             end,
@@ -147,6 +161,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
         ["<C-s>"] = {
             desc = "Prompt: Move/rename module",
             action = function(prompt_bufnr, entry, key) -- note: atm it seems that ^r closes the window or does something wierd. registers?!
+                local Path = require("pathlib")
                 local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
                 -- if #selection > 1 then
@@ -156,10 +171,23 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
 
                 actions.close(prompt_bufnr)
 
-                local targets = {}
+                local action_old = {
+                    action = "REMOVE",
+                }
+                local action_new = {
+                    action = "ADD",
+                }
 
                 local function move_multiple()
-                    local v = selection[#targets + 1].value
+                    local sel_idx = #action_old + 1
+
+                    -- apply actions
+                    if sel_idx > #selection then
+                        return
+                    end
+
+                    local v = selection[#action_old + 1].value
+
                     local selected_section_str =
                         string.format("%s.%s.%s", v.origin, v.section, v[1])
 
@@ -174,42 +202,26 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 * If you ommit doom/user prefix, then modules are moved under same origin as selection.
                         ]],
                             selected_section_str,
-                            #targets + 1,
+                            #action_old + 1,
                             #selection
                         ),
                     }, function(user_input)
-                        if not user_input then
+                        if not validate_user_input(user_input) then
                             return
                         end
-
-                        -- validat chars. i believe this includes whitespace.
-                        if user_input:match("[^%w_/]") then
-                            log.warn("user input contains invalid characters")
-                            return
-                        end
-
-                        log.info(string.format(" [%s]", user_input, selected_section_str))
-
-                        table.insert(targets, {
-                            selected_module = v,
-                            -- TODO:
-                            -- move_to = {}
-                            user_input = user_input,
-                        })
-
-                        if #selection > 0 then
-                            move_multiple()
-                        else
-                            -- everything in manager should go into the manager file.
-                            require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                                targets = targets,
-                                action = "MOVE",
-                            })
-                        end
+                        table.insert(action_old, v)
+                        table.insert(action_new, mu.DoomModuleEnabled(make_new_target(user_input)))
                     end)
                 end
 
                 move_multiple()
+
+                if #selection > 0 then
+                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                        action_old,
+                        action_new,
+                    })
+                end
             end,
         },
         -- TODO: confirm: are you sure?!
@@ -233,7 +245,9 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 
                 local confirm_prompt = string.format("Confirm: Delete #%s modules", #selection)
 
-                local targets = {}
+                local action = {
+                    action = "REMOVE",
+                }
 
                 -- manage_modules_tree({
                 --      {
@@ -253,7 +267,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     --     .. i
                     --     .. ": "
                     --     .. string.format("%s.%s.%s", s.origin, s.section, s[1])
-                    table.insert(targets, { selected_module = s })
+                    table.insert(action, s)
                 end
 
                 vim.ui.select({ "yes", "no" }, {
@@ -265,8 +279,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     log.info(string.format("Set selected module to [%s]", choice))
 
                     require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        targets = targets,
-                        action = "REMOVE",
+                        action,
                     })
                 end)
             end,
@@ -289,42 +302,15 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
             end,
         },
 
-        -- TODO: this code is from previous implementation.
         ["<C-t>"] = {
             desc = "Set status [enabled|disabled]",
             action = function(prompt_bufnr, entry, key) -- TOGGLE MODULE(S)
                 local selection = current_picker__get_selected_entries()
-                if #selection > 1 then
-                    log.warn("Mult selection is not supported yet!")
-                    return
-                end
 
-                -- P(selection)
-
-                print(
-                    ("entry.value.enabled: %s -> %s"):format(
-                        entry.value.enabled,
-                        not entry.value.enabled
-                    )
-                )
-                entry.value.enabled = not entry.value.enabled
-
-                -- Doesnt work for modifying entries internal values. it does
-                -- not trigger a refresh. telescope does not have this feature
-                -- yet.
-                -- action_state.get_current_picker(prompt_bufnr):refresh()
-
-                local Path = require("pathlib")
-                local target_modules = vim.iter(selection)
-                    :map(function(entry)
-                        return {
-                            target_module_name = entry.value.name,
-                            target_module_dir = Path(entry.value.path),
-                        }
-                    end)
-                    :totable()
-
-                print("????")
+                local action_set = {}
+                vim.iter(selection):each(function(entry)
+                    table.insert(action_set, entry)
+                end)
 
                 vim.ui.select({ "ENABLE", "DISABLE" }, {
                     prompt = "Select enable or disable:",
@@ -333,10 +319,9 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     end,
                 }, function(choice)
                     log.info(string.format("Set selected module to [%s]", choice))
-
+                    action_set.action = choice
                     require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        targets = target_modules,
-                        action = "TOGGLE",
+                        action_set,
                     })
                 end)
             end,

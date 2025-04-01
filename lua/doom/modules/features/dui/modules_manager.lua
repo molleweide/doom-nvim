@@ -118,7 +118,8 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
                                 "enabled",
                                 function(buf, key, value)
                                     ret.ts_enabled_value = value
-                                    ret.module_enabled = TSLua:text(value) == "true" and true or false
+                                    ret.module_enabled = TSLua:text(value) == "true" and true
+                                        or false
                                 end,
                             },
                         })
@@ -134,136 +135,55 @@ function ts_get_set_table_path(buf, ts_node_table, t_path)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
-local function transform_enabled_modules_tree(opts)
+local function transform_enabled_modules_tree(action)
+    action = vim.deepcopy(action)
     local rootfile = "modules.lua"
     local modules_buf_handle = dui_utils.get_buf_handle(utils.find_config(rootfile))
 
     -- setup
     local ts_module_node_info = {}
 
-    -- print("transform enabled modules ???")
-
-    -- NOTE: if a full node is not found then that is not a problemi i just need
-    -- to figure out how to handle the other way  and so
-    -- this is goig to be a lot of fun you know and the
-    -- thing is diddeli fuck sturp derperliz
-
+    -- TODO: this should go into the TS base class.
     -- Get the [modules.lua] modules table ts table constructor.
+    --
+    -- Add the filetype and query.
+    -- Add method to get first node found from query.
+    --
+    -- :query([[(table_constructor)]])
+    --
     local parser = vim.treesitter.get_parser(modules_buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
-    local return_query = vim.treesitter.query.parse("lua", "(return_statement) @return")
+    local return_query = vim.treesitter.query.parse("lua", [[(return_statement) @return]])
     local ts_node_tbl
     for _, capture_node, _ in return_query:iter_captures(root, modules_buf_handle) do
         ts_node_tbl = capture_node:named_child():named_child()
     end
 
-    local it = vim.iter(opts.targets)
-
-    -- For each target, analyze the modules tree and return node data about
-    -- each target to be used later.
     local count = 0
-    it:each(function(target)
-        -- Get table path of target module table
+    for _, target in ipairs(action) do
         count = count + 1
-
-        local t_path
-        if target.selected_module then
-            t_path = vim.split(
-                target.selected_module.path_init_file:match("modules/(.-)/init.lua$"),
-                "/"
-            )
-        else
-            t_path =
-                vim.split(target.path_init_file:tostring():match("modules/(.-)/init.lua$"), "/")
-        end
-
-        print(
-            string.format(
-                "\n-------------------------------\n-- NODE ANALYZE #%s: module = [%s.%s.%s] \n--\n--",
-                count,
-                target.selected_module.origin,
-                target.selected_module.section,
-                target.selected_module[1]
-            )
-        )
-
-        local args = ts_get_set_table_path(modules_buf_handle, ts_node_tbl, t_path)
-
+        -- TODO: add [deepest_found] prop so that we can sort by this for insertion.
+        local args = ts_get_set_table_path(modules_buf_handle, ts_node_tbl, target.t_path)
         target.nodes = args
-
-        -- print(string.format("ARGS: %s", vim.inspect(args)))
-
-        -- print("ARG =", vim.inspect(arg))
-        -- print(">> [res] =", vim.inspect(args))
-
-        -- remove this and just use nodes.
         target.nodes.line_start = args.module and args.module_table_constructor:range()
-            or args.ts_node_tbl_parent:range()
+            or args.ts_node_tbl_parent:range() -- remove this and just use the nodes directly instead.
 
-        print("count =", count)
-        print(string.format("TARGET: %s", vim.inspect(target)))
-        -- if args.module then
-        --     print(
-        --         string.format(
-        --             "final module found: %s",
-        --             ts:text(modules_buf_handle, args.module_table_constructor)
-        --         )
-        --     )
-        --     -- args.line_start = args.module_table_constructor:range()
-        -- else
-        --     print("final modulue not found. using parent range")
-        --     -- args.ts_node_tbl_parent:range()
-        -- end
-
+        -- TODO: remove ts_module_node_info and just use the actions table for everything
         table.insert(ts_module_node_info, args)
-    end)
+    end
 
-    -- Sort elements so that we can perform all file operations in reverse.
-    -- This should work with both modules found and parent branch table nodes
-    -- together.
-    table.sort(opts.targets, function(a, b)
+    table.sort(action, function(a, b)
         return a.nodes.line_start < b.nodes.line_start
     end)
-
-    -- table.sort(ts_module_node_info, function(a, b)
-    --     return a.range < b.range
-    -- end)
-
-    -- P(ts_module_node_info)
-    log.info("ts_module_node_info SORTED:", opts.targets)
-
-    -- NOTE: dont think this is necessary??
-    -- if #ts_module_node_info == 0 then
-    --     log.debug("ts_module_node_info was empty. Aborting..")
-    --     return
-    -- end
 
     local function enable_module_line() end
     local function disable_module_line() end
     local function remove_module_line() end
 
-    if not opts.action then
+    if not action.action then
         log.debug("No action was supplied")
         return
     end
-
-    -- local parent_range = { args.ret.nodes.parent:range() }
-    -- local parent_last_line = (vim.api.nvim_buf_get_lines(
-    --   modules_buf_handle,
-    --   parent_range[3] - 1,
-    --   parent_range[3],
-    --   true
-    -- ))[1]
-    -- -- local ensure_is_table_end = parent_last_line:match("^%s*},")
-    -- print(
-    --   ("action = %s | last lines = `%s`, match = %s"):format(
-    --     opts.action,
-    --     vim.inspect(parent_last_line),
-    --     parent_last_line:match("^%s*},")
-    --   )
-    -- )
-
-    -- act
 
     -- local is_mult = #ranges > 1
     -- local single_new = not ranges[1].ret.nodes.module
@@ -284,27 +204,27 @@ local function transform_enabled_modules_tree(opts)
         return
     end
 
-    for i = #opts.targets, 1, -1 do
-        local t = opts.targets[i]
+    for i = #action, 1, -1 do
+        local t = action[i]
         local tn = t.nodes
 
         -- -- Toggling modules implies there existence, which means that we can directly
         -- -- just replace the modules values.
-        -- if opts.action == "TOGGLE" then
+        -- if action.action == "TOGGLE" then
         --     ts:replace(tn.ts_enabled_value, tostring(not tn.module_enabled))
         -- end
-        -- if opts.action == "ENABLE" then
+        -- if action.action == "ENABLE" then
         --     ts:replace(tn.ts_enabled_value, tostring(true))
         -- end
-        -- if opts.action == "DISABLE" then
+        -- if action.action == "DISABLE" then
         --     ts:replace(tn.ts_enabled_value, tostring(false))
         -- end
-        -- if opts.action == "REMOVE" then
+        -- if action.action == "REMOVE" then
         --     ts.tbl.field.remove(tn.module_table_constructor)
         -- end
 
         -- this should be enough to build proper injection strings.
-        if opts.action == "ADD" then
+        if action.action == "ADD" then
             local t_path_new_segment = tn.t_path_left
 
             -- TODO:
@@ -324,7 +244,7 @@ local function transform_enabled_modules_tree(opts)
             )
         end
 
-        if opts.action == "MOVE" then
+        if action.action == "MOVE" then
             -- 1. collect all old deletion edits.
         end
     end
@@ -665,42 +585,28 @@ M.manage_modules_tree = function(opts)
         return
     end
 
-    -- Handle when we are working with [ui_select_browser]
-    if opts.targets.target_module_dir then
-        if
-            not vim.iter(opts.targets):all(function(k, v)
-                -- This is not bulletproof!
-                return k.target_module_dir:match("nvim/lua/doom/modules")
-                    or k.target_module_dir:match("nvim/lua/user/modules")
-            end)
-        then
-            -- log.info("manage_modules_tree > Validate input: Some targets were invalid OR not doom modules.")
-            log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
-            return
-        end
-
-        -- TODO: if the input already has init file then ignore
-        --
-        -- add init files
-        opts.targets = vim.iter(opts.targets)
-            :map(function(entry)
-                entry.path_init_file = entry.target_module_dir / "init.lua"
-                return entry
-            end)
-            :totable()
-
-        -- for i, v in ipairs(opts.targets) do
-        --   print(">>>", v.path_init_file)
-        -- end
-        --
-    end
+    -- TODO: rename `opts` to `actions`
 
     log.info("pre transform enabled modules tree. opts =", opts)
 
-    local ok = transform_enabled_modules_tree(opts)
-    -- NOTE: prevent adding files now during dev.
-    if true or not ok then
-        log.warn("Failure updating [modules.lua]. Aborting..")
+    -- each action
+    for i, action in ipairs(opts) do
+        print(i, "action:", vim.inspect(action))
+        local ok = transform_enabled_modules_tree(action)
+        if not ok then
+            log.warn(
+                string.format(
+                    "Failure updating [modules.lua] in action #%s:[%s]. Aborting..",
+                    i,
+                    action.action
+                )
+            )
+            -- restore original state of file..
+            return
+        end
+    end
+
+    if true then
         return
     end
 

@@ -24,6 +24,13 @@ local function __modules_browser_wrap()
                 if not module_target_name then
                     return
                 end
+                local mu = require("doom.utils.modules")
+
+                -- Validate | Do both src and dest?
+                if module_target_name:match("[^%a_]") then
+                    log.error("!! INVALID MODULE TARGET STRING !!")
+                    return
+                end
 
                 local split_on_whitespace = vim.split(module_target_name, " ")
                 local move_to_destination
@@ -32,92 +39,97 @@ local function __modules_browser_wrap()
                     move_to_destination = split_on_whitespace[2]
                 end
 
-                -- Check action remove
+                local t_action_sets = {}
+
+                -- delete
                 local action = module_target_name:match("^%-") and "REMOVE"
                 if action == "REMOVE" then
                     module_target_name = module_target_name:sub(2)
+                    t_action_sets.insert(t_action_sets, {
+                        action = "REMOVE",
+                        {
+                            target_module_name = target_module_name,
+                            target_module_dir = path_to / module_target_name,
+                        },
+                    })
                 end
 
+                -- move/rename
                 if move_to_destination then
                     action = "MOVE"
-                end
-
-                if not action then
-                    action = "ADD"
-                end
-
-                -- Validate | Do both src and dest?
-                if module_target_name:match("[^%a_]") then
-                    log.error("!! INVALID MODULE TARGET STRING !!")
-                    return
-                end
-
-                local target_module_dir = path_to / module_target_name
-
-                -- everything in manager should go into the manager file.
-                require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                    targets = {
+                    t_action_sets.insert(t_action_sets, {
                         {
-                            target_module_name = module_target_name,
-                            target_module_dir = target_module_dir,
+                            action = "REMOVE",
+                            {
+                                target_module_name = target_module_name,
+                                target_module_dir = path_to / module_target_name,
+                            },
                         },
-                    },
-                    action = action,
-                })
+                        {
+                            action = "ADD",
+                            {
+                                -- module_spec...
+                            },
+                        },
+                    })
+                end
 
-                -- if
-                --     not (
-                --         target_module_dir:match("nvim/lua/doom/modules")
-                --         or target_module_dir:match("nvim/lua/user/modules")
-                --     )
-                -- then
-                --     log.error("ABORT: Dui module browser: target file is not a doom-nvim lua file")
-                --     return
-                -- end
-                --
-                -- -- Handle modules.lua
-                -- transform_enabled_modules_tree(target_module_init_file, action)
-                --
-                -- -- Create new module/init file
-                -- if not target_module_init_file:exists() then
-                --     local ok = target_module_init_file:touch(Path.permission("rw-r--r--"), true)
-                --     if ok then
-                --         -- add contents template
-                --         local pu = require("doom.modules.features.dui.templates")
-                --
-                --         -- sync method
-                --         local file = io.open(target_module_init_file:tostring(), "w+")
-                --         if file then
-                --             file:write(pu.gen_temp_from_mod_name(module_target_name))
-                --             file:close()
-                --             vim.cmd(string.format("edit %s", target_module_init_file))
-                --         end
-                --
-                --         -- -- async method
-                --         -- local nio = require("nio")
-                --         -- local future = nio.control.future()
-                --         -- fs.write_file(
-                --         --     target_module_init_file:tostring(),
-                --         --     pu.gen_temp_from_mod_name(module_target_name),
-                --         --     "w+",
-                --         --     function()
-                --         --         future.set(true)
-                --         --     end
-                --         -- )
-                --         -- future.wait()
-                --         -- vim.cmd(string.format("edit %s", target_module_init_file))
-                --
-                --     end
-                --     log.info(("DUI :: Created new module: %s"):format(target_module_init_file))
-                -- elseif action == "REMOVE" then
-                --     log.info("DUI: Removing dir:", target_module_dir)
-                --     fs.rm_dir(target_module_dir:tostring())
-                -- end
-                --
-                -- -- Reload
-                -- if false then
-                --     doom.modules.core.reloader.reload()
-                -- end
+                -- new
+                if not action then
+                    t_action_sets.insert(t_action_sets, {
+                        action = "ACTION",
+                        {
+                            target_module_name = target_module_name,
+                            target_module_dir = path_to / module_target_name,
+                        },
+                    })
+                end
+
+                -- Handle when we are working with [ui_select_browser]
+
+                log.warn("t_action_sets before vim.iter:", t_action_sets)
+
+                for i, action in ipairs(t_action_sets) do
+                    if
+                        not vim.iter(action):all(function(k, v)
+                            -- This is not bulletproof!
+                            return v.target_module_dir:match("nvim/lua/doom/modules")
+                                or v.target_module_dir:match("nvim/lua/user/modules")
+                        end)
+                    then
+                        -- log.info("manage_modules_tree > Validate input: Some action were invalid OR not doom modules.")
+                        log.error(
+                            "ABORT: Dui module browser: target file is not a doom-nvim lua file"
+                        )
+                        return
+                    end
+                    -- TODO: if the input already has init file then ignore
+                    --
+                    -- add init files
+                    vim.iter(action)
+                        :map(function(entry)
+                            -- TODO:
+                            -- entry.enabled ?? i dont think this is necessary.
+
+                            -- TODO: need to check this in the path tree.
+                            -- entry.origin = ???
+
+                            entry.path_init_file = (entry.target_module_dir / "init.lua"):tostring()
+                            entry.t_path = mu.get_module_t_path_from_init_path(node.path_init_file)
+                            entry.section =
+                                table.concat(table.remove(vim.deepcopy(entry.t_path)), ".") -- remove the name..
+                            return entry
+                        end)
+                        :totable()
+
+                    -- for i, v in ipairs(t_action_sets[i]) do
+                    --   print(">>>", v[1].)
+                    -- end
+                end
+
+                log.warn("t_action_sets after vim.iter:", t_action_sets)
+
+                -- require("doom.modules.features.dui.modules_manager").manage_modules_tree(t_action_sets)
             end
         )
     end
