@@ -17,18 +17,18 @@ local doom_config_root = require("doom.core.system").doom_configs_root
 -----------------------------------------------------------------------------
 -- NOTE: I could put this on the module itself so iff you M.__call to generate
 -- the object.
-local DoomModuleEnabled = {}
+local ModSpec = {}
 
-M.DoomModuleEnabled = DoomModuleEnabled
+M.ModSpec = ModSpec
 
--- DoomModuleEnabled.t_path = function()
+-- ModSpec.t_path = function()
 --     local t_path = { self }
 --     return {
 --         self[1],
 --     }
 -- end
 
-DoomModuleEnabled.path = function()
+ModSpec.path = function()
     return table.concat({
         doom_config_root,
         "lua",
@@ -41,7 +41,7 @@ end
 
 local mt = {}
 
-setmetatable(DoomModuleEnabled, mt)
+setmetatable(ModSpec, mt)
 
 mt.__call = function(self, node, stack)
     -- if type node == table -> then we are working with node/stack
@@ -116,7 +116,7 @@ end
 -- :name
 -- :path_init
 -- :path_lua
--- DoomModuleEnabled.
+-- ModSpec.
 
 -----------------------------------------------------------------------------
 
@@ -187,7 +187,7 @@ end
 
 -- allow pass a callback and accumulator so I can add custom actions to
 -- perform on each iteration.
--- eg get the max with of all sections etc computed from the DoomModuleEnabled object
+-- eg get the max with of all sections etc computed from the ModSpec object
 M.get_modules_list_with_origins = function(enabled_modules, cb)
     local mods = {}
 
@@ -198,7 +198,7 @@ M.get_modules_list_with_origins = function(enabled_modules, cb)
 
             -- log.warn(node)
             if type(node[1]) == "string" then
-                local mod = DoomModuleEnabled(node, stack)
+                local mod = ModSpec(node, stack)
                 table.insert(mods, mod)
                 if cb and type(cb) == "function" then
                     cb(mod)

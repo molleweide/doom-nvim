@@ -182,9 +182,6 @@ local function transform_enabled_modules_tree(action)
     -- nodes by starting_line, and then injecting key at the end.
     local id_2_new_section = {}
 
-    -- TODO: only handle single case first.
-    -- mult case later.
-
     if true then
         return
     end

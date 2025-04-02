@@ -8,6 +8,8 @@ local log = require("doom.utils.logging")
 local utils = require("doom.utils")
 local mu = require("doom.utils.modules")
 
+local mm = require("doom.modules.features.dui.modules_manager")
+
 local function current_picker__get_selected_entries()
     local action_state = require("telescope.actions.state")
     local action_utils = require("telescope.actions.utils")
@@ -40,7 +42,7 @@ local function validate_user_input(user_input)
     return true
 end
 
-local function make_new_target(user_input, selection)
+local function make_target(user_input, selection)
     local t_path_user_input = vim.split(user_input, "/")
 
     print("t_path_user_input:", vim.inspect(t_path_user_input))
@@ -121,12 +123,7 @@ local mappings = {
                     log.warn("Mult selection is not supported for [ADD]!")
                     return
                 end
-
                 local v = selection[1].value
-                local selected_section_str = string.format("%s.%s.%s", v.origin, v.section, v[1])
-
-                log.info(v.origin, v.section, v[1])
-
                 actions.close(prompt_bufnr)
 
                 vim.ui.input({
@@ -145,15 +142,12 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         selected_section_str
                     ),
                 }, function(user_input)
-                    if not validate_user_input(user_input) then
-                        return
+                    if validate_user_input(user_input) then
+                        mm.manage_modules_tree({
+                            action = "ADD",
+                            { mu.ModSpec(make_target(user_input, v)) },
+                        })
                     end
-                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        action = "ADD",
-                        {
-                            mu.DoomModuleEnabled(make_new_target(user_input, v)),
-                        },
-                    })
                 end)
             end,
         },
@@ -166,65 +160,37 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                 local Path = require("pathlib")
                 local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
-                -- if #selection > 1 then
-                --     log.warn("Mult selection is not supported yet!")
-                --     return
-                -- end
-
+                local action_old = { action = "REMOVE" }
+                local action_new = { action = "ADD" }
                 actions.close(prompt_bufnr)
-
-                local action_old = {
-                    action = "REMOVE",
-                }
-                local action_new = {
-                    action = "ADD",
-                }
-
                 local function move_multiple()
                     local sel_idx = #action_old + 1
-
                     -- apply actions
                     if sel_idx > #selection then
-                        if #selection > 0 then
-                            require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                                action_old,
-                                action_new,
-                            })
-                        end
-                        return
-                    end
-
-                    local v = selection[#action_old + 1].value
-
-                    local selected_section_str =
-                        string.format("%s.%s.%s", v.origin, v.section, v[1])
-
-                    log.info("selecteion:", v.origin, v.section, v[1])
-
-                    vim.ui.input({
-                        prompt = string.format(
-                            [[:: Move/rename module(s); selection = (%s) | Num %s of %s ::
+                        mm.manage_modules_tree({ action_old, action_new })
+                    else
+                        local v = selection[#action_old + 1].value
+                        vim.ui.input({
+                            prompt = string.format(
+                                [[:: Move/rename module(s); selection = (%s) | Num %s of %s ::
 A. Input single string (without "."!!) to rename the module.
 B. Input a lua dot path to move module to new section.
 C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modules/..]
 * If you ommit doom/user prefix, then modules are moved under same origin as selection.
                         ]],
-                            selected_section_str,
-                            #action_old + 1,
-                            #selection
-                        ),
-                    }, function(user_input)
-                        if not validate_user_input(user_input) then
-                            return
-                        end
-                        table.insert(action_old, v)
-                        table.insert(
-                            action_new,
-                            mu.DoomModuleEnabled(make_new_target(user_input, v))
-                        )
-
-                        move_multiple()
-                    end)
+                                selected_section_str,
+                                #action_old + 1,
+                                #selection
+                            ),
+                        }, function(user_input)
+                            if not validate_user_input(user_input) then
+                                return
+                            end
+                            table.insert(action_old, v)
+                            table.insert(action_new, mu.ModSpec(make_target(user_input, v)))
+                            move_multiple()
+                        end)
+                    end
                 end
 
                 move_multiple()
