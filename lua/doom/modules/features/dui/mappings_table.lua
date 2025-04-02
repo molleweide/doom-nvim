@@ -144,8 +144,10 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                 }, function(user_input)
                     if validate_user_input(user_input) then
                         mm.manage_modules_tree({
-                            action = "ADD",
-                            { mu.ModSpec(make_target(user_input, v)) },
+                            {
+                                action = "ADD",
+                                mu.ModSpec(make_target(user_input, v)),
+                            },
                         })
                     end
                 end)
@@ -170,6 +172,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         mm.manage_modules_tree({ action_old, action_new })
                     else
                         local v = selection[#action_old + 1].value
+
                         vim.ui.input({
                             prompt = string.format(
                                 [[:: Move/rename module(s); selection = (%s) | Num %s of %s ::

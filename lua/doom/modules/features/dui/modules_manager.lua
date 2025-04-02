@@ -45,7 +45,9 @@ end
 
 -- NOTE: This should also go into [doom.utils.ts]
 -- TODO: document
-function ts_get_set_table_path(buf, ts_node_table, t_path)
+--
+--- TS get set table path
+function tsgst(buf, ts_node_table, t_path)
     if ts_node_table:type() ~= "table_constructor" then
         log.error("Only accepts table_constructor nodes!")
         return
@@ -125,7 +127,7 @@ end
 local function transform_enabled_modules_tree(action)
     action = vim.deepcopy(action)
     local rootfile = "modules.lua"
-    local modules_buf_handle = dui_utils.get_buf_handle(utils.find_config(rootfile))
+    local buf = dui_utils.get_buf_handle(utils.find_config(rootfile))
 
     -- TODO: this should go into the TS base class.
     -- Get the [modules.lua] modules table ts table constructor.
@@ -135,26 +137,20 @@ local function transform_enabled_modules_tree(action)
     --
     -- :query([[(table_constructor)]])
     --
-    local parser = vim.treesitter.get_parser(modules_buf_handle, "lua", {})
+    local parser = vim.treesitter.get_parser(buf, "lua", {})
     local root = parser:parse()[1]:root()
     local return_query = vim.treesitter.query.parse("lua", [[(return_statement) @return]])
-    local ts_node_tbl
-    for _, capture_node, _ in return_query:iter_captures(root, modules_buf_handle) do
-        ts_node_tbl = capture_node:named_child():named_child()
+    local ts_tbl
+    for _, capture_node, _ in return_query:iter_captures(root, buf) do
+        ts_tbl = capture_node:named_child():named_child()
     end
 
-    local count = 0
-    for _, target in ipairs(action) do
-        count = count + 1
-        -- TODO: add [deepest_found] prop so that we can sort by this for insertion.
-        local args = ts_get_set_table_path(modules_buf_handle, ts_node_tbl, target.t_path)
-        target.nodes = args
-        target.nodes.line_start = args.module and args.module_table_constructor:range()
-            or args.ts_node_tbl_parent:range() -- remove this and just use the nodes directly instead.
-    end
+    local action_iter = vim.iter(ipairs(action)):map(function(_, t)
+        t.nodes = tsgst(buf, ts_tbl, t.t_path)
+    end):totable()
 
     table.sort(action, function(a, b)
-        return a.nodes.line_start < b.nodes.line_start
+        return a.nodes.deepest:range() < b.nodes.deepest:range()
     end)
 
     print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
@@ -168,27 +164,21 @@ local function transform_enabled_modules_tree(action)
         return
     end
 
-    -- local is_mult = #ranges > 1
-    -- local single_new = not ranges[1].ret.nodes.module
-
-    -- TODO: collect all edits.
-
     local edits = {}
-
-    -- vim.iter(ts_module_node_info):rev():each(function(el) end)
 
     -- When building new module sections for insertion, index each new section
     -- by the parent table's node id, which allows for simply looping over the
     -- nodes by starting_line, and then injecting key at the end.
     local id_2_new_section = {}
 
-    if true then
-        return
-    end
+    -- TEST: Because the table is sorted. Now i could just iter it again, and
+    -- hopefully the iter order will probably be correct.
 
     for i = #action, 1, -1 do
         local t = action[i]
         local tn = t.nodes
+
+        print(string.rep("?", i))
 
         -- -- Toggling modules implies there existence, which means that we can directly
         -- -- just replace the modules values.
@@ -211,13 +201,13 @@ local function transform_enabled_modules_tree(action)
 
             -- TODO:
             -- 1. rename selected_module to target_module.
-            --      Now when we do ts_get_set_table_path() each return
+            --      Now when we do tsgst() each return
             --      will represent the parent table to which we should inject
             --      the new table.
             -- 2.
 
             table.insert(t_path_new_segment, 1, tn.ts_node_tbl_parent:id())
-            table.remove(ts_get_set_table_path) -- remove last item, ie. the module name
+            table.remove(tsgst) -- remove last item, ie. the module name
 
             utils.get_set_table_path(
                 id_2_new_section,
@@ -282,7 +272,7 @@ local function transform_enabled_modules_tree(action)
                 local args = ranges[1]
                 local module_range = { args.ret.nodes.module:range() }
                 local module_line = (vim.api.nvim_buf_get_lines(
-                    modules_buf_handle,
+                    buf,
                     module_range[1],
                     module_range[1] + 1,
                     true
@@ -294,7 +284,7 @@ local function transform_enabled_modules_tree(action)
                     -- enable_module_line() -- from comment..
                     local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
                     vim.api.nvim_buf_set_text(
-                        modules_buf_handle,
+                        buf,
                         module_range[1],
                         start_col - 1,
                         module_range[1],
@@ -305,7 +295,7 @@ local function transform_enabled_modules_tree(action)
                     -- disable_module_line() -- from regular module name string.
                     local start_col, end_col = module_line:find('"') -- find first double quote
                     vim.api.nvim_buf_set_text(
-                        modules_buf_handle,
+                        buf,
                         module_range[1],
                         start_col - 1,
                         module_range[1],
@@ -329,7 +319,7 @@ local function transform_enabled_modules_tree(action)
                 -- local args = ranges[1]
                 -- local module_range = { args.ret.nodes.module:range() }
                 -- local module_line = (vim.api.nvim_buf_get_lines(
-                --   modules_buf_handle,
+                --   buf,
                 --   module_range[1],
                 --   module_range[1] + 1,
                 --   true
@@ -337,7 +327,7 @@ local function transform_enabled_modules_tree(action)
                 -- if args.ret.leaf_is_comment then
                 --   local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
                 --   vim.api.nvim_buf_set_text(
-                --     modules_buf_handle,
+                --     buf,
                 --     module_range[1],
                 --     start_col - 1,
                 --     module_range[1],
@@ -347,7 +337,7 @@ local function transform_enabled_modules_tree(action)
                 -- else
                 --   local start_col, end_col = module_line:find('"') -- find first double quote
                 --   vim.api.nvim_buf_set_text(
-                --     modules_buf_handle,
+                --     buf,
                 --     module_range[1],
                 --     start_col - 1,
                 --     module_range[1],
@@ -387,7 +377,7 @@ local function transform_enabled_modules_tree(action)
             local parent_col_start = current_range
             -- inject_lines_at_col()
             vim.api.nvim_buf_set_lines(
-                modules_buf_handle,
+                buf,
                 parent_col_start + 1,
                 parent_col_start + 1,
                 true,
@@ -397,13 +387,7 @@ local function transform_enabled_modules_tree(action)
             -- Only remove module if it exists as a node.
             if args.ret.nodes.module then
                 local module_range = { args.ret.nodes.module:range() }
-                vim.api.nvim_buf_set_lines(
-                    modules_buf_handle,
-                    module_range[1],
-                    module_range[1] + 1,
-                    true,
-                    {}
-                )
+                vim.api.nvim_buf_set_lines(buf, module_range[1], module_range[1] + 1, true, {})
             end
         else
             log.error("dui @ mod browser :: No valid action for root mod CRUD")
@@ -425,7 +409,7 @@ local function transform_enabled_modules_tree(action)
     --   if opts.action == "TOGGLE" then
     --     local module_range = { args.ret.nodes.module:range() }
     --     local module_line = (vim.api.nvim_buf_get_lines(
-    --       modules_buf_handle,
+    --       buf,
     --       module_range[1],
     --       module_range[1] + 1,
     --       true
@@ -434,7 +418,7 @@ local function transform_enabled_modules_tree(action)
     --     if args.ret.leaf_is_comment then
     --       local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
     --       vim.api.nvim_buf_set_text(
-    --         modules_buf_handle,
+    --         buf,
     --         module_range[1],
     --         start_col - 1,
     --         module_range[1],
@@ -444,7 +428,7 @@ local function transform_enabled_modules_tree(action)
     --     else
     --       local start_col, end_col = module_line:find('"') -- find first double quote
     --       vim.api.nvim_buf_set_text(
-    --         modules_buf_handle,
+    --         buf,
     --         module_range[1],
     --         start_col - 1,
     --         module_range[1],
@@ -471,7 +455,7 @@ local function transform_enabled_modules_tree(action)
     --     local parent_range = { args.ret.nodes.parent:range() }
     --
     --     vim.api.nvim_buf_set_lines(
-    --       modules_buf_handle,
+    --       buf,
     --       parent_range[1] + 1,
     --       parent_range[1] + 1,
     --       true,
@@ -482,7 +466,7 @@ local function transform_enabled_modules_tree(action)
     --       return false
     --     end
     --     local module_range = { args.ret.nodes.module:range() }
-    --     vim.api.nvim_buf_set_lines(modules_buf_handle, module_range[1], module_range[1] + 1, true, {})
+    --     vim.api.nvim_buf_set_lines(buf, module_range[1], module_range[1] + 1, true, {})
     --   else
     --     log.error("dui @ mod browser :: No valid action for root mod CRUD")
     --     return
@@ -490,7 +474,7 @@ local function transform_enabled_modules_tree(action)
     -- end
 
     -- format and save
-    vim.api.nvim_buf_call(modules_buf_handle, function()
+    vim.api.nvim_buf_call(buf, function()
         vim.lsp.buf.format({ async = false })
         vim.cmd("write")
         log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
