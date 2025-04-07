@@ -61,9 +61,11 @@ mt.__call = function(self, node, stack)
                 table.insert(t_section, sn.key:lower())
             end
         end
+        o.section = table.concat(t_section, ".")
+    else
+        t_section = node.t_section
+        o.section = table.concat(t_section, ".")
     end
-
-    o.section = table.concat(t_section, ".")
 
     -- TODO: Use this later if i remove dependency on path
     -- o.path_init_file = table.concat({
@@ -91,7 +93,6 @@ mt.__call = function(self, node, stack)
         o.origin = "user"
         o.path_init_file = module_init_file:tostring()
     else
-
         local doom_path_str = module_init_file:gsub("lua/user/", "lua/doom/")
         local doom_path = Path(doom_path_str)
 
@@ -107,6 +108,8 @@ mt.__call = function(self, node, stack)
     -- make t_path
     table.insert(t_section, node[1])
     o.t_path = t_section
+
+    print("o.t_path:", vim.inspect(o.t_path))
 
     return setmetatable(o, { __index = self })
 end

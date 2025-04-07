@@ -14,6 +14,12 @@ local search_and_replace = {}
 -- TODO: Improved spectre UI with NuiComponents
 --   https://www.reddit.com/r/neovim/comments/1b5ri9g/developing_search_replace_similar_to_vs_code_with/
 
+-- TODO: grug-far.nvim is supposed to be just a great plugin, and sort of a
+-- successor to spectre.
+
+-- TODO: split spectre and grug-far and also nvim-search-and-replace(?) into their
+-- own modules.
+
 search_and_replace.packages = {
   ["nvim-search-and-replace"] = { "s1n7ax/nvim-search-and-replace" },
   ["nvim-spectre"] = { "nvim-pack/nvim-spectre" },
@@ -78,6 +84,8 @@ search_and_replace.binds = {
 
 
 -- TODO: use captures to prefix/postfix a word / word under cursor
+--
+-- checking for whichkey here seems copletely unnecessary.
 
 if require("doom.utils").is_module_enabled({ "features", "whichkey" }) then
   table.insert(search_and_replace.binds, {

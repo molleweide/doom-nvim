@@ -42,24 +42,24 @@ local function validate_user_input(user_input)
     return true
 end
 
+-- 1. if first name is [doom|user] then we create the new path from scratch,
+-- 2. else, add the new path to the selected entry.
 local function make_target(user_input, selection)
     local t_path_user_input = vim.split(user_input, "/")
-
-    print("t_path_user_input:", vim.inspect(t_path_user_input))
     local new = {}
     -- handle origin
-    if t_path_user_input[1]:match("^(doom|user)$") then
+    if t_path_user_input[1] == "doom" or t_path_user_input[1] == "user" then
         new.origin = table.remove(t_path_user_input, 1)
-        table.insert(table.remove(t_path_user_input)) -- new name
+        table.insert(new, table.remove(t_path_user_input)) -- new name
         new.t_section = t_path_user_input
     else
         new.origin = selection.origin
         table.insert(new, table.remove(t_path_user_input)) -- rename old name
-        -- create table path by combining current selection with the new segment
         local t_path_sel = vim.deepcopy(selection.t_path)
         table.remove(t_path_sel)
         new.t_section = utils.list_merge(t_path_sel, t_path_user_input)
     end
+    print("new:", vim.inspect(new))
     return new
 end
 
@@ -126,6 +126,8 @@ local mappings = {
                 local v = selection[1].value
                 actions.close(prompt_bufnr)
 
+                local selected_section_str = string.format("%s.%s.%s", v.origin, v.section, v[1])
+
                 vim.ui.input({
                     prompt = string.format(
                         [[:: ADD NEW MODULE; selection = (%s) ::
@@ -139,7 +141,7 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         ]],
                         selected_section_str,
                         selected_section_str,
-                        selected_section_str
+                        v.section
                     ),
                 }, function(user_input)
                     if validate_user_input(user_input) then
@@ -172,6 +174,9 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         mm.manage_modules_tree({ action_old, action_new })
                     else
                         local v = selection[#action_old + 1].value
+
+                        local selected_section_str =
+                            string.format("%s.%s.%s", v.origin, v.section, v[1])
 
                         vim.ui.input({
                             prompt = string.format(

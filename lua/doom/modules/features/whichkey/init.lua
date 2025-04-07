@@ -4,6 +4,12 @@ local whichkey = {}
 -- TODO: concat clashing branch nodes like so `"+ doom | debug | docs"`. This
 -- would indicate that the contained bindings are some how related to one
 -- of the three above.
+--
+-- TODO: settings.leader_branch_node_prefix = "+" -> test with "..."
+--
+-- TODO: wrap multi name nodes with [ <name> | <name> ]
+-- settings.multi_name_nodes_spacing_between = " "
+-- settings.multi_name_nodes_wrapper = {"[", "]"}
 
 -- FIX: add root config binds in whichkey!!
 

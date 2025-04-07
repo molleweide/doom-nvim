@@ -48,6 +48,24 @@
 ---local ts = TSHelper(buf)
 local TSLua = setmetatable({
 
+    buf = function(self)
+        return self.buf
+    end,
+
+    -- should [filetype/lang = lua] be a class attr?
+    --
+    ---Currently: Returns the first node of query capture
+    query = function(self, query_str)
+        local parser = vim.treesitter.get_parser(self.buf, "lua", {})
+        local root = parser:parse()[1]:root()
+        local return_query = vim.treesitter.query.parse("lua", query_str)
+        local ts_tbl
+        for _, capture_node, _ in return_query:iter_captures(root, self.buf) do
+            ts_tbl = capture_node:named_child():named_child()
+        end
+        return ts_tbl
+    end,
+
     -- replace node text/contents
     replace = function(self, node, replacement)
         -- local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
@@ -251,8 +269,6 @@ local TSLuaTable = setmetatable({
     -- :remove
 
     -- :sort
-
-
 }, {
 
     __index = TSLua, -- Make TSLuaTable fallback to TSLua
