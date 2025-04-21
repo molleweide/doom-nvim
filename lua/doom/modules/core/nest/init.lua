@@ -29,6 +29,7 @@
 --
 --  TEST: Would it be possible to only trigger reload_binds() if i can check with
 --  TS that a binding has been changed?
+--
 
 local log = require("doom.utils.logging")
 
@@ -206,6 +207,20 @@ nest.reload_binds = function()
 end
 
 nest.on_loaded_each = nest.reload_binds
+
+-- TODO: Add mapping to toggle caching of bindings on and off, (for the picker quick access..)
+nest.set_caching = function(arg)
+    if arg == nil or arg then
+        -- Enable caching
+        -- ensure that the service is hooked up on each reload and loads properly
+    else
+        -- Clean up and remove cached data
+        -- ensure that the service is removed from the logic that is run when
+        -- loading/reloading.
+        -- run the service on each trigger of the picker.
+    end
+
+end
 
 nest.cmds = {
     {

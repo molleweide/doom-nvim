@@ -2,6 +2,8 @@ local rk_definitions = "~/reaper/packages/reaper-keys/definitions/"
 
 local rk = {}
 
+-- TEST: which would be better [osc.nvim] or using RPC
+
 -- OLD NOTES/RESOURCES
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/GetReaScriptAPI
 -- -- https://github.com/NlGHT/Night-REAPER-Scripts/blob/master/Scripting%20Tools/MakeEELSnippets

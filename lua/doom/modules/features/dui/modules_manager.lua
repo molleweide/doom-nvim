@@ -43,6 +43,18 @@ local function build_new_inject_string(input)
     return stringified
 end
 
+local function build_new_inject_string2(tree)
+    local ret = vim.split(vim.inspect(tree), "\n")
+    if #ret > 2 then
+        -- trim surrounding braces {...}
+        table.remove(ret, 1)
+        table.remove(ret)
+    else
+        ret = { string.sub(ret[1], 2, -2) }
+    end
+    return ret
+end
+
 -- NOTE: This should also go into [doom.utils.ts]
 -- TODO: document
 --
@@ -133,7 +145,7 @@ local function transform_enabled_modules_tree(action)
 
     -- FIX: the classes are setup in a bit stupid way so i should get the buf
     -- from
-    local buf = dui_utils.get_buf_handle(utils.find_config("modules.lua"))
+    local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local TSModFile = ts.TSLua(buf)
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
@@ -195,10 +207,8 @@ local function transform_enabled_modules_tree(action)
                 new_name = tn.t_path_left[#tn.t_path_left]
                 new_branch = utils.get_set_table_path(t_inject.tree, t_path_new_segment)
                 if not new_branch then
-                    print("not new_branch")
                     new_branch = {}
                     utils.get_set_table_path(t_inject.tree, t_path_new_segment, new_branch)
-                    print("?? -> new_branch:", vim.inspect(new_branch))
                 end
             else
                 new_name = t.t_path[#t.t_path]
@@ -220,19 +230,17 @@ local function transform_enabled_modules_tree(action)
     for i, v in ipairs(injection_nodes) do
         print(i, "sorted range:", v.node:range())
         print("tree:", vim.inspect(v.tree))
-        local stringified = vim.split(vim.inspect(v.tree), "\n")
-        if #stringified > 2 then
-            -- trim surrounding braces {...}
-            table.remove(stringified, 1)
-            table.remove(stringified)
-        else
-            stringified = { string.sub(stringified[1], 2, -2) }
-        end
-        print("TREE STRINGIFIED:", vim.inspect(stringified))
+        local t_stringified = build_new_inject_string2(v.tree)
+        print("ret -> TREE STRINGIFIED:", vim.inspect(t_stringified))
+
+        -- TODO:
+        --  ~ print lines before/after (around) insertion point so that i can evaluate
+        --      what it would look like.
+        --  ~ how to prepare the output string properly.
     end
 
     if true then
-        return true
+        return trun
     end
 
     -- Is formatting async?!

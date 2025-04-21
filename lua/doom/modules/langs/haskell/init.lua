@@ -41,13 +41,9 @@ haskell.settings = {
   formatting_config = nil,
 }
 
--- -- https://github.com/neovimhaskell/nvim-hs
 -- lua.packages = {
---   ["lua-dev.nvim"] = {
---     "folke/lua-dev.nvim",
---     commit = "fda3d256001b79c5659fb4d624b47ae712cee261",
---     ft = "lua",
---   },
+-- -- https://github.com/neovimhaskell/nvim-hs
+-- -- https://github.com/saep/nvim-hs-ghcid
 -- }
 
 local langs_utils = require("doom.modules.langs.utils")

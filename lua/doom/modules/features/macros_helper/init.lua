@@ -1,0 +1,3 @@
+-- >> save and load persistent macros.
+-- https://github.com/desdic/macrothis.nvim
+-- https://github.com/kr40/nvim-macros

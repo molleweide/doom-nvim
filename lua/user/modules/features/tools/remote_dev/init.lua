@@ -1,3 +1,4 @@
 -- https://github.com/chipsenkbeil/distant.nvim
 -- https://github.com/jamestthompson3/nvim-remote-containers
 -- https://github.com/esensar/nvim-dev-container
+-- https://github.com/amitds1997/remote-nvim.nvim

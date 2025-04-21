@@ -1,3 +1,7 @@
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 -- TODO:
 -- First one creates the TS object with buf, and then you wrap a table with
 -- local TSBuf = TS(buf)
@@ -39,11 +43,28 @@
 --   end
 -- }
 
--- -- Set the metatable for the Path constructor
--- setmetatable(Path, Path_mt)
-
--- TODO: Refactor this into a TSLuaTable
 --
+-- TSBase
+--
+
+local mt = {}
+local ts = {
+    -- NOTE: This func should actually go into the base TS class, since it is
+    -- about general nodes, rather than language specific.
+    --
+    ---Problem pattern: if you intend to remove a node and it is a leaf node of eg.
+    ---a table or tree, then opt-in remove all ancestors until we reach an ancestry
+    ---level where there are multiple leaves, or until reaches X or any of XYZ type nodes.
+    ---so that we can basically remove [leaf + branch segment] if condition is met.
+    ---and determine the lengh of the branch to remove based on setting/cb func.
+    delete_node_until_ancestor = function(self, node) end,
+}
+local TSBase = setmetatable(ts, mt)
+
+--
+-- TSLua
+--
+
 ---Load ts helper with buf so that you dont have to pass it later.
 ---local ts = TSHelper(buf)
 local TSLua = setmetatable({
@@ -111,6 +132,10 @@ local TSLua = setmetatable({
         })
     end,
 })
+
+--
+-- TSLuaTable
+--
 
 -- Should inherit all of the TSHelper methods.
 local TSLuaTable = setmetatable({
@@ -282,6 +307,7 @@ local TSLuaTable = setmetatable({
 })
 
 return {
+    TSBase = TSBase,
     TSLua = TSLua,
     TSLuaTable = TSLuaTable,
 }
