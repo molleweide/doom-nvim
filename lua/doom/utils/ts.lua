@@ -288,6 +288,18 @@ local TSLuaTable = setmetatable({
         end
     end,
 
+    -- each of these should take similar options...
+
+    -- TODO:
+    -- pos = first / last / after Nth node / after Nth indexed / after Nth key
+    add = function() end,
+
+    -- TODO:
+    -- should handle [until] option so we can bubble up to eg first sibling
+    remove = function() end,
+
+    sort = function() end,
+
     -- :insert()
     tbl_add_field_last = function(self, opts) end,
 

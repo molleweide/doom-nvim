@@ -45,12 +45,15 @@ end
 
 local function build_new_inject_string2(tree)
     local ret = vim.split(vim.inspect(tree), "\n")
+    print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
     if #ret > 2 then
         -- trim surrounding braces {...}
-        table.remove(ret, 1)
-        table.remove(ret)
-    else
-        ret = { string.sub(ret[1], 2, -2) }
+        -- table.remove(ret, 1)
+        -- table.remove(ret)
+        ret[1] = string.sub(ret[1], 2)
+        ret[#ret] = string.sub(ret[#ret], 1, -2)
+        -- else
+        --     ret = { string.sub(ret[1], 2, -2) }
     end
     return ret
 end
@@ -72,7 +75,7 @@ function ts_tbl_path(buf, ts_node_table, t_path)
         local TSModSection = ts.TSLuaTable(buf, ts_tbl_in)
         depth = depth + 1
         ret.ts_node_tbl_parent = ts_tbl_in
-        ret.deepest = ts_tbl_in
+        ret.deepest_matched_table = ts_tbl_in
 
         print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
         if #ret.t_path_left > 1 then -- check branches
@@ -100,8 +103,8 @@ function ts_tbl_path(buf, ts_node_table, t_path)
                                 type = "string",
                                 equals = ret.t_path_left[1],
                                 action = function(buf, str, content)
-                                    ret.module_table_constructor = value_table
-                                    ret.deepest = value_table
+                                    ret.ts_module_found = value_table
+                                    ret.deepest_matched_table = value_table
                                     ret.module = true
                                     ret.module_real_name = TSLua:text(content)
                                     ret.deepest_name = TSLua:text(content)
@@ -120,7 +123,8 @@ function ts_tbl_path(buf, ts_node_table, t_path)
                                 "enabled",
                                 function(buf, key, value)
                                     ret.ts_enabled_value = value
-                                    ret.module_enabled = TSLua:text(value) == "true" and true
+                                    ret.ts_module_enabled_value = TSLua:text(value) == "true"
+                                            and true
                                         or false
                                 end,
                             },
@@ -153,7 +157,7 @@ local function transform_enabled_modules_tree(action)
         end)
         :totable()
     table.sort(action, function(a, b)
-        return a.nodes.deepest:range() < b.nodes.deepest:range()
+        return a.nodes.deepest_matched_table:range() < b.nodes.deepest_matched_table:range()
     end)
 
     print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
@@ -161,30 +165,41 @@ local function transform_enabled_modules_tree(action)
     -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
 
+    -- NOTE: toggling + ableing: only changes existing tables.
+    -- NOTE: removing + adding: requires new trees
+
     for i = #action, 1, -1 do
         local t = action[i]
         local tn = t.nodes
 
-        -- -- Toggling modules implies there existence, which means that we can directly
-        -- -- just replace the modules values.
-        -- if action.action == "TOGGLE" then
-        --     ts:replace(tn.ts_enabled_value, tostring(not tn.module_enabled))
-        -- end
-        -- if action.action == "ENABLE" then
-        --     ts:replace(tn.ts_enabled_value, tostring(true))
-        -- end
-        -- if action.action == "DISABLE" then
-        --     ts:replace(tn.ts_enabled_value, tostring(false))
-        -- end
-        -- if action.action == "REMOVE" then
-        --     ts.tbl.field.remove(tn.module_table_constructor)
-        -- end
+        --
+        -- Handle simple actions, ie. that only requires updating table values
+        -- of existing module tables.
+        --
 
-        -- For each new target, build the insertion tree from the ancestor that
-        -- exists.
+        if action.action == "TOGGLE" then
+            ts:replace(tn.ts_enabled_value, tostring(not tn.ts_module_enabled_value))
+        end
+        if action.action == "ENABLE" then
+            ts:replace(tn.ts_enabled_value, tostring(true))
+        end
+        if action.action == "DISABLE" then
+            ts:replace(tn.ts_enabled_value, tostring(false))
+        end
+        if action.action == "REMOVE" then
+            ts.tbl.field.remove(tn.ts_module_found)
+            -- FIX: wrap in TSLuaTable and use field.remove.
+            -- local TSModuleFound = ts.TSLuaTable(buf, tn.ts_module_found)
+            -- TSModuleFound:remove({ until = "first_sibling"})
+        end
+
+        --
+        -- Handle case which requires injecting a new tree, ie. for each new
+        -- target, build the insertion tree from the ancestor that exists.
+        --
+
         if action.action == "ADD" then
             local id = tn.ts_node_tbl_parent:id()
-
             local t_inject
             for i, v in ipairs(injection_nodes) do
                 if v.node:id() == id then
@@ -198,9 +213,14 @@ local function transform_enabled_modules_tree(action)
                 }
                 table.insert(injection_nodes, t_inject)
             end
-
             local t_path_new_segment = vim.deepcopy(tn.t_path_left)
             table.remove(t_path_new_segment) -- remove last item, ie. the module name
+
+            t_path_new_segment = vim.iter(t_path_new_segment)
+                :map(function(v)
+                    return v:upper()
+                end)
+                :totable()
 
             local new_name, new_branch
             if #t_path_new_segment > 0 then
@@ -219,278 +239,35 @@ local function transform_enabled_modules_tree(action)
         end
     end
 
-    -- if #injection_nodes == 0 then
-    --     return
-    -- end
+    -- inject new trees.
+    if #injection_nodes > 0 then
+        table.sort(injection_nodes, function(a, b)
+            return a.node:range() > b.node:range()
+        end)
 
-    table.sort(injection_nodes, function(a, b)
-        return a.node:range() > b.node:range()
-    end)
+        for i, v in ipairs(injection_nodes) do
+            print(i, "sorted range:", v.node:range())
+            print("tree:", vim.inspect(v.tree))
+            local t_stringified = build_new_inject_string2(v.tree)
+            print("ret -> TREE STRINGIFIED:", vim.inspect(t_stringified))
+            local parent_range = { v.node:range() }
+            local row, col = parent_range[1], parent_range[2] + 1
+            vim.api.nvim_buf_set_text(buf, row, col, row, col, t_stringified)
 
-    for i, v in ipairs(injection_nodes) do
-        print(i, "sorted range:", v.node:range())
-        print("tree:", vim.inspect(v.tree))
-        local t_stringified = build_new_inject_string2(v.tree)
-        print("ret -> TREE STRINGIFIED:", vim.inspect(t_stringified))
-
-        -- TODO:
-        --  ~ print lines before/after (around) insertion point so that i can evaluate
-        --      what it would look like.
-        --  ~ how to prepare the output string properly.
+            -- TODO: move this into the table class.
+            -- local TSModTableInsert = ts.TSLuaTable(buf, v.node)
+            -- TSModTableInsert:add_field_from_text({ data = t_stringified, pos = "first" })
+        end
     end
 
-    if true then
-        return trun
-    end
-
-    -- Is formatting async?!
     -- format and save
+    -- Is formatting async?!
     vim.api.nvim_buf_call(buf, function()
         vim.lsp.buf.format({ async = false })
         vim.cmd("write")
         log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
     end)
     log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
-
-    -- local args_by_range = {}
-    -- local order = {}
-    --
-    -- vim.iter(ts_module_node_info):rev():each(function(el)
-    --     if not args_by_range[el.range] then
-    --         args_by_range[el.range] = {}
-    --         table.insert(order, el.range)
-    --     end
-    --     table.insert(args_by_range[el.range], el)
-    -- end)
-    --
-    -- print("<ARGS MAPPED BY RANGE>")
-    --
-    -- -- Reverse loop each injection range.
-    -- vim.iter(order):each(function(i)
-    --     local current_range = i
-    --     local ranges = args_by_range[i]
-    --     print("---------------------------------------")
-    --
-    --     -- WARN: Prevent any changes during dev.
-    --     if true then
-    --         return
-    --     end
-    --
-    --     local is_mult = #ranges > 1
-    --     local single_new = not ranges[1].ret.nodes.module
-    --
-    --     if opts.action == "TOGGLE" then
-    --         if is_mult or single_new then
-    --         -- TODO: build string to inject new modules as `enabled`
-    --         -- >>> Call action ADD
-    --         --      Just add new (*)
-    --         --      Remember: mult or single -> new means that we are only
-    --         --      adding modules, ie. no commenting/toggling.
-    --         else
-    --             -- Toggle single lines / modules, ie one module line per range
-    --             local args = ranges[1]
-    --             local module_range = { args.ret.nodes.module:range() }
-    --             local module_line = (vim.api.nvim_buf_get_lines(
-    --                 buf,
-    --                 module_range[1],
-    --                 module_range[1] + 1,
-    --                 true
-    --             ))[1]
-    --
-    --             -- TODO: refator these into enable_module_line() and disable_module_line()
-    --
-    --             if args.ret.leaf_is_comment then
-    --                 -- enable_module_line() -- from comment..
-    --                 local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-    --                 vim.api.nvim_buf_set_text(
-    --                     buf,
-    --                     module_range[1],
-    --                     start_col - 1,
-    --                     module_range[1],
-    --                     end_col,
-    --                     {}
-    --                 )
-    --             else
-    --                 -- disable_module_line() -- from regular module name string.
-    --                 local start_col, end_col = module_line:find('"') -- find first double quote
-    --                 vim.api.nvim_buf_set_text(
-    --                     buf,
-    --                     module_range[1],
-    --                     start_col - 1,
-    --                     module_range[1],
-    --                     end_col - 1,
-    --                     { "-- " }
-    --                 )
-    --             end
-    --         end
-    --     elseif opts.action == "ENABLE" then
-    --         -- TODO: ts.tbl.iter
-    --         -- TODO: ts.types.bool.toggle
-    --         -- TODO: ts.args.sort
-    --         -- TODO: ts.args.iter
-    --
-    --         if is_mult or single_new then
-    --         -- TODO: build string to inject new modules as `enabled`
-    --         -- >>> Call action ADD
-    --         --      Just add new (*)
-    --         else
-    --             -- -- Toggle existing single module
-    --             -- local args = ranges[1]
-    --             -- local module_range = { args.ret.nodes.module:range() }
-    --             -- local module_line = (vim.api.nvim_buf_get_lines(
-    --             --   buf,
-    --             --   module_range[1],
-    --             --   module_range[1] + 1,
-    --             --   true
-    --             -- ))[1]
-    --             -- if args.ret.leaf_is_comment then
-    --             --   local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-    --             --   vim.api.nvim_buf_set_text(
-    --             --     buf,
-    --             --     module_range[1],
-    --             --     start_col - 1,
-    --             --     module_range[1],
-    --             --     end_col,
-    --             --     {}
-    --             --   )
-    --             -- else
-    --             --   local start_col, end_col = module_line:find('"') -- find first double quote
-    --             --   vim.api.nvim_buf_set_text(
-    --             --     buf,
-    --             --     module_range[1],
-    --             --     start_col - 1,
-    --             --     module_range[1],
-    --             --     end_col - 1,
-    --             --     { "-- " }
-    --             --   )
-    --             -- end
-    --         end
-    --     elseif opts.action == "DISABLE" then
-    --         if is_mult or single_new then
-    --             -- TODO: build string to inject new modules as `enabled`
-    --             -- >>> Call action ADD as disabled
-    --             --      Get the inject string BUT apply a comment prefix to each
-    --             --      module entry.
-    --             print("!!")
-    --         else
-    --             -- single add comment prefix
-    --             print("!!")
-    --             -- TODO: If not disabled, then disable_module_line,
-    --             -- else enable_module_line
-    --         end
-    --     elseif opts.action == "ADD" then
-    --         local t_inject_new_lines = build_new_inject_string(ranges)
-    --
-    --         -- local pre = ""
-    --         -- local post = ""
-    --         -- local str
-    --         -- for i, v in ipairs(args.parts) do
-    --         --   if i < #args.parts then
-    --         --     pre = pre .. v .. " = {"
-    --         --     post = post .. "},"
-    --         --   else
-    --         --     str = ([[%s "%s", %s]]):format(pre, v, post)
-    --         --   end
-    --         -- end
-    --
-    --         local parent_col_start = current_range
-    --         -- inject_lines_at_col()
-    --         vim.api.nvim_buf_set_lines(
-    --             buf,
-    --             parent_col_start + 1,
-    --             parent_col_start + 1,
-    --             true,
-    --             t_inject_new_lines
-    --         )
-    --     elseif opts.action == "REMOVE" then
-    --         -- Only remove module if it exists as a node.
-    --         if args.ret.nodes.module then
-    --             local module_range = { args.ret.nodes.module:range() }
-    --             vim.api.nvim_buf_set_lines(buf, module_range[1], module_range[1] + 1, true, {})
-    --         end
-    --     else
-    --         log.error("dui @ mod browser :: No valid action for root mod CRUD")
-    --         return
-    --     end
-    -- end)
-
-    -- for i, el in pairs(args_by_range) do
-    --   print(i)
-    -- end
-
-    -- if true then
-    --   return
-    -- end
-    --
-    -- for i = 1, #reversed, 1 do
-    --   local args = reversed[i]
-    --
-    --   if opts.action == "TOGGLE" then
-    --     local module_range = { args.ret.nodes.module:range() }
-    --     local module_line = (vim.api.nvim_buf_get_lines(
-    --       buf,
-    --       module_range[1],
-    --       module_range[1] + 1,
-    --       true
-    --     ))[1]
-    --
-    --     if args.ret.leaf_is_comment then
-    --       local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-    --       vim.api.nvim_buf_set_text(
-    --         buf,
-    --         module_range[1],
-    --         start_col - 1,
-    --         module_range[1],
-    --         end_col,
-    --         {}
-    --       )
-    --     else
-    --       local start_col, end_col = module_line:find('"') -- find first double quote
-    --       vim.api.nvim_buf_set_text(
-    --         buf,
-    --         module_range[1],
-    --         start_col - 1,
-    --         module_range[1],
-    --         end_col - 1,
-    --         { "-- " }
-    --       )
-    --     end
-    --   elseif opts.action == "ENABLE" then
-    --   elseif opts.action == "DISABLE" then
-    --   elseif opts.action == "ADD" then
-    --     local pre = ""
-    --     local post = ""
-    --     local str
-    --
-    --     for i, v in ipairs(args.parts) do
-    --       if i < #args.parts then
-    --         pre = pre .. v .. " = {"
-    --         post = post .. "},"
-    --       else
-    --         str = ([[%s "%s", %s]]):format(pre, v, post)
-    --       end
-    --     end
-    --
-    --     local parent_range = { args.ret.nodes.parent:range() }
-    --
-    --     vim.api.nvim_buf_set_lines(
-    --       buf,
-    --       parent_range[1] + 1,
-    --       parent_range[1] + 1,
-    --       true,
-    --       { str }
-    --     )
-    --   elseif opts.action == "REMOVE" then
-    --     if not args.ret.nodes.module then
-    --       return false
-    --     end
-    --     local module_range = { args.ret.nodes.module:range() }
-    --     vim.api.nvim_buf_set_lines(buf, module_range[1], module_range[1] + 1, true, {})
-    --   else
-    --     log.error("dui @ mod browser :: No valid action for root mod CRUD")
-    --     return
-    --   end
-    -- end
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?

@@ -109,7 +109,7 @@ mt.__call = function(self, node, stack)
     table.insert(t_section, node[1])
     o.t_path = t_section
 
-    print("o.t_path:", vim.inspect(o.t_path))
+    -- print("o.t_path:", vim.inspect(o.t_path))
 
     return setmetatable(o, { __index = self })
 end
