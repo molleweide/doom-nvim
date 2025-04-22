@@ -3,8 +3,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 local utils = require("doom.utils")
 
-local ts = require("doom.utils.ts")
-
 local pu = require("doom.modules.features.dui.templates")
 local dui_utils = require("doom.modules.features.dui.utils")
 
@@ -58,21 +56,28 @@ local function build_new_inject_string2(tree)
     return ret
 end
 
--- NOTE: This should also go into [doom.utils.ts]
+-- NOTE: This should also go into [doom.utils.ts.lua]
 -- TODO: document
 --
 --- TS get set table path
+--- TODO: now since the buf is attached to the ts_node_table. and we are only
+--- working with the new ts_lua obj and its children, I can just pass the ts_lua
+--- obj directly.
 function ts_tbl_path(buf, ts_node_table, t_path)
     if ts_node_table:type() ~= "table_constructor" then
         log.error("Only accepts table_constructor nodes!")
         return
     end
     local ret = { t_path_left = vim.deepcopy(t_path) }
-    local TSLua = ts.TSLua(buf)
+    local TSLua = require("doom.utils.ts.lua"):new(buf)
     local depth = 0
 
+    print("???????")
+
+    -- TODO: we are only operating on the table wrapper, therefore we can
+    -- just pass the table wrapper directly
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
-        local TSModSection = ts.TSLuaTable(buf, ts_tbl_in)
+        local TSModSection = TSLua(ts_tbl_in)
         depth = depth + 1
         ret.ts_node_tbl_parent = ts_tbl_in
         ret.deepest_matched_table = ts_tbl_in
@@ -96,7 +101,7 @@ function ts_tbl_path(buf, ts_node_table, t_path)
                 on_index = {
                     type = "table",
                     action = function(buf, value_table)
-                        local TSModTbl = ts.TSLuaTable(buf, value_table)
+                        local TSModTbl = TSLua(value_table)
                         TSModTbl:fields({
                             on_index = {
                                 index = 1,
@@ -150,10 +155,15 @@ local function transform_enabled_modules_tree(action)
     -- FIX: the classes are setup in a bit stupid way so i should get the buf
     -- from
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
-    local TSModFile = ts.TSLua(buf)
+    local ts_buf = require("doom.utils.ts.lua"):new(buf)
+
+    print("ts_buf:", vim.inspect(ts_buf))
+
+
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
-            t.nodes = ts_tbl_path(buf, TSModFile:query([[(return_statement) @return]]), t.t_path)
+            -- should pass the first ts_table_constructer obj directly, instead of passing the buf and query.
+            t.nodes = ts_tbl_path(buf, ts_buf:query([[(return_statement) @return]]), t.t_path)
         end)
         :totable()
     table.sort(action, function(a, b)

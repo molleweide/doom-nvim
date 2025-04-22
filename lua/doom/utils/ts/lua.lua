@@ -1,144 +1,101 @@
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-
--- TODO:
--- First one creates the TS object with buf, and then you wrap a table with
--- local TSBuf = TS(buf)
--- --------
--- Pass node to TS and return helper for that specific type.
--- local TSTable = TSBuf(table_constructor)
--- local TSFunction = TSBuf(function_object)
--- local TSConditional = TSBuf(conditional)
-
--- NOTE:
 --
--- TS
---  Base class that takes buf.
---
---  TS(buf, lang)
---
--- TSLua
---      base class with all funcs that just needs access to a buffer.
---      ? Maybe we should add a query to the object so that you can reparse the
---      tree on each replacement??
---
--- TSLuaTable
---      Helper for managing and transforming tables.
---
--- TSLuaFunction
---      Helper for managing function, args, etc.
---
--- TSLuaConditional
-
--- -- Metatable for the Path constructor
--- Path_mt = {
---   __call = function(tbl, path_string)
---     local new_path = {
---       path = path_string,
---       -- Add any other properties or methods you need for a Path object
---     }
---     setmetatable(new_path, { __index = Path })
---     return new_path
---   end
--- }
-
---
--- TSBase
---
-
-local mt = {}
-local ts = {
-    -- NOTE: This func should actually go into the base TS class, since it is
-    -- about general nodes, rather than language specific.
-    --
-    ---Problem pattern: if you intend to remove a node and it is a leaf node of eg.
-    ---a table or tree, then opt-in remove all ancestors until we reach an ancestry
-    ---level where there are multiple leaves, or until reaches X or any of XYZ type nodes.
-    ---so that we can basically remove [leaf + branch segment] if condition is met.
-    ---and determine the lengh of the branch to remove based on setting/cb func.
-    delete_node_until_ancestor = function(self, node) end,
-}
-local TSBase = setmetatable(ts, mt)
-
---
--- TSLua
+-- LUA BUFFER CLASS
 --
 
 ---Load ts helper with buf so that you dont have to pass it later.
 ---local ts = TSHelper(buf)
-local TSLua = setmetatable({
 
-    buf = function(self)
-        return self.buf
-    end,
+TSLua = {
+    subclasses = {},
+}
+TSLua.__index = TSLua
 
-    -- should [filetype/lang = lua] be a class attr?
-    --
-    ---Currently: Returns the first node of query capture
-    query = function(self, query_str)
-        local parser = vim.treesitter.get_parser(self.buf, "lua", {})
-        local root = parser:parse()[1]:root()
-        local return_query = vim.treesitter.query.parse("lua", query_str)
-        local ts_tbl
-        for _, capture_node, _ in return_query:iter_captures(root, self.buf) do
-            ts_tbl = capture_node:named_child():named_child()
-        end
-        return ts_tbl
-    end,
+-- TEST: Now since calling self wraps a node, then we could also return wrappers
+-- for the nodes in eg :fields(...) callbacks. Basically, always work with these
+-- new TS objects instead of returning regular ts nodes.
 
-    -- replace node text/contents
-    replace = function(self, node, replacement)
-        -- local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
-        local range = node:range()
-        vim.api.nvim_buf_set_text(
-            self.buf,
-            range[1],
-            range[2],
-            range[3],
-            range[4],
-            type(replacement) == "string" and { replacement } or replacement
-        )
-    end,
+-- create a new now wrapper
+local function make_wrapped_node(self, node)
+    if not type(node:type()) == "function" then
+        return
+    end
 
-    -- get node text
-    text = function(self, node)
-        return vim.treesitter.get_node_text(node, self.buf)
-    end,
+    local wrapper = self.subclasses[node:type()]
 
-    content_match = function(self, node, pattern)
-        return vim.treesitter.get_node_text(node, self.buf):match(pattern)
-    end,
+    if not wrapper then
+        return
+    end
 
-    _field_indexed = function(self, node)
-        return node:named() and node:named_child_count() == 1
-    end,
-    _field_key = function(self, node)
-        return node:named() and node:named_child_count() == 2
-    end,
-    _field_string = function(self, node)
-        return node:type() == "field" and node:named_child(0):type() == "string"
-    end,
-    _field_table = function(self, node)
-        return node:type() == "field" and node:named_child():type() == "table_constructor"
-    end,
-}, {
-    __call = function(self, buf_handle)
-        return setmetatable({ buf = buf_handle }, {
-            __index = self,
+    wrapper.__index = wrapper
 
-            -- TODO: when calling TS() with a ts node, return wrapped object with helpers.
-            -- __call = function
-        })
-    end,
-})
+    -- Fallback from wrapper to the specific ts_buf instance
+    setmetatable(wrapper, { __index = self })
+
+    return setmetatable({ node = node }, wrapper)
+end
+
+function TSLua:new(buf)
+    local obj = setmetatable({ buf_handle = buf }, self)
+    return setmetatable(obj, {
+        __index = self,
+        __call = make_wrapped_node, -- Make the instance callable (not the class)
+    })
+end
+
+setmetatable(TSLua, TSLua)
+
+-- get buf handle
+function TSLua:buf(self)
+    return self.buf_handle
+end
+
+-- should [filetype/lang = lua] be a class attr?
+--
+---Currently: Returns the first node of query capture
+function TSLua:query(query_str)
+    local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
+    local root = parser:parse()[1]:root()
+    local return_query = vim.treesitter.query.parse("lua", query_str)
+    local ts_tbl
+    for _, capture_node, _ in return_query:iter_captures(root, self.buf_handle) do
+        ts_tbl = capture_node:named_child():named_child()
+    end
+    return ts_tbl
+end
+
+-- replace node text/contents
+function TSLua:replace(self, node, replacement)
+    -- local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
+    local range = node:range()
+    vim.api.nvim_buf_set_text(
+        self.buf_handle,
+        range[1],
+        range[2],
+        range[3],
+        range[4],
+        type(replacement) == "string" and { replacement } or replacement
+    )
+end
+
+-- get node text
+function TSLua:text(self, node)
+    return vim.treesitter.get_node_text(node, self.buf_handle)
+end
+
+function TSLua:content_match(self, node, pattern)
+    return vim.treesitter.get_node_text(node, self.buf_handle):match(pattern)
+end
+
+-------------------------------------------------------------------------------
 
 --
--- TSLuaTable
+-- LUA NODE TYPE SPECIFIC SUB CLASSES
 --
+
+local subclasses = TSLua.subclasses
 
 -- Should inherit all of the TSHelper methods.
-local TSLuaTable = setmetatable({
+subclasses.table_constructor = {
     -- TODO: wrap in metatable and replicate regular lua table behavior.
     --
     -- loop all (pairs) | indexes (ipair) | keys (pairs and key ~= number)
@@ -200,6 +157,18 @@ local TSLuaTable = setmetatable({
     --         ret.module_range = { value_table:range() }
     --     end,
     -- })
+    _field_indexed = function(self, node)
+        return node:named() and node:named_child_count() == 1
+    end,
+    _field_key = function(self, node)
+        return node:named() and node:named_child_count() == 2
+    end,
+    _field_string = function(self, node)
+        return node:type() == "field" and node:named_child(0):type() == "string"
+    end,
+    _field_table = function(self, node)
+        return node:type() == "field" and node:named_child():type() == "table_constructor"
+    end,
 
     -- :iter
     fields = function(self, opts)
@@ -213,14 +182,14 @@ local TSLuaTable = setmetatable({
             end
         end
 
-        for child_node in self.ts_table_constructor:iter_children() do
+        for child_node in self.node:iter_children() do
             -- handle indexed fields
 
             -- if opts.index == true or type(index) == "number" or opts.type == "comment"
 
             if self:_field_indexed(child_node) then
                 if opts.comment and child_node:type() == "comment" then
-                    opts.on_comment(self.buf, child_node, index, child_node:named_child())
+                    opts.on_comment(self.buf_handle, child_node, index, child_node:named_child())
                 end
 
                 -- if key == true or type(key) == "number"
@@ -240,17 +209,17 @@ local TSLuaTable = setmetatable({
                             local text = self:text(ts_string_content)
                             -- if handle compare value
                             if equals and equals == text or match and text:match(match) then
-                                opts.on_index.action(self.buf, ts_string, ts_string_content)
+                                opts.on_index.action(self.buf_handle, ts_string, ts_string_content)
                             end
                             -- if do each indexed string
                             if not (opts.on_index.equals or opts.on_index.match) then
-                                opts.on_index.action(self.buf, ts_string, ts_string_content)
+                                opts.on_index.action(self.buf_handle, ts_string, ts_string_content)
                             end
 
                             -- if (all or type table)
                         elseif _type == "table" and self:_field_table(child_node) then
                             local table_constructor = child_node:named_child()
-                            opts.on_index.action(self.buf, table_constructor)
+                            opts.on_index.action(self.buf_handle, table_constructor)
                         else
                             -- TODO: Handle all other types that can exist in a
                             -- table:
@@ -277,11 +246,11 @@ local TSLuaTable = setmetatable({
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]
                         if match then
-                            opts.on_key[2](self.buf, key_identifier, value)
+                            opts.on_key[2](self.buf_handle, key_identifier, value)
                         end
                     else
                         -- do each named key
-                        opts.on_key(self.buf, key_identifier, value)
+                        opts.on_key(self.buf_handle, key_identifier, value)
                     end
                 end
             end
@@ -306,20 +275,6 @@ local TSLuaTable = setmetatable({
     -- :remove
 
     -- :sort
-}, {
-
-    __index = TSLua, -- Make TSLuaTable fallback to TSLua
-
-    __call = function(self, buf_handle, ts_table_constructor)
-        return setmetatable(
-            { buf = buf_handle, ts_table_constructor = ts_table_constructor },
-            { __index = self }
-        )
-    end,
-})
-
-return {
-    TSBase = TSBase,
-    TSLua = TSLua,
-    TSLuaTable = TSLuaTable,
 }
+
+return TSLua
