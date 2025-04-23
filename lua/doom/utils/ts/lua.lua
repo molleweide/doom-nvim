@@ -17,13 +17,15 @@ function BaseWrapper:get_node()
     return self.node
 end
 
-function BaseWrapper:get_buf()
-    return self.__tslua and self.__tslua.buf_handle
+function BaseWrapper:get_text()
+    return vim.treesitter.get_node_text(self.node, self.buf_handle)
 end
 
 -- Callable wrapper function
 local function make_wrapped_node(self, node)
-    -- Check for valid TS node
+
+    print(self, node)
+
     if type(node.type) ~= "function" then
         return nil
     end
@@ -37,10 +39,7 @@ local function make_wrapped_node(self, node)
         error("No TSLua instance found for wrapped object")
     end
 
-    local wrapper = tslua.subclasses[node:type()]
-    if not wrapper then
-        return
-    end
+    local wrapper = tslua.subclasses[node:type()] or {}
 
     -- Set up wrapper inheritance
     wrapper.__index = wrapper
@@ -55,6 +54,10 @@ local function make_wrapped_node(self, node)
     -- Create new instance with wrapper
     local instance = setmetatable({ node = node }, wrapper)
 
+    -- NOTE: using the __tslua directly on instance prevent having to recursively
+    -- always walk up the meta chain to find the methods in the TSLua object.
+    -- So if there are performance issues then you could just use self.__tslua
+    -- in all subclasses to directly access methodds in TSLua faster.
     -- Preserve reference to original TSLua instance
     if rawget(instance, "__tslua") == nil then
         rawset(instance, "__tslua", tslua)
@@ -68,7 +71,7 @@ local function make_wrapped_node(self, node)
 end
 
 function TSLua:new(buf)
-    local obj = setmetatable({ buf_handle = buf }, self)
+    local obj = setmetatable({ type = "TS_OBJ", buf_handle = buf }, self)
 
     -- Make instance callable (wraps nodes)
     return setmetatable(obj, {
@@ -257,18 +260,18 @@ subclasses.table_constructor = {
                             local text = self:text(ts_string_content)
                             -- if handle compare value
                             if equals and equals == text or match and text:match(match) then
-                                opts.on_index.action(self.buf_handle, ts_string, ts_string_content)
+                                opts.on_index.action(self(ts_string), self(ts_string_content))
                             end
                             -- if do each indexed string
                             if not (opts.on_index.equals or opts.on_index.match) then
-                                opts.on_index.action(self.buf_handle, ts_string, ts_string_content)
+                                opts.on_index.action(self(ts_string), self(ts_string_content))
                             end
 
                             -- if (all or type table)
                         elseif _type == "table" and self:_field_table(child_node) then
                             local table_constructor = child_node:named_child()
                             -- print("??? gettable", vim.inspect(self))
-                            opts.on_index.action(self.buf_handle, table_constructor)
+                            opts.on_index.action(self(table_constructor))
                         else
                             -- TODO: Handle all other types that can exist in a
                             -- table:
@@ -297,7 +300,8 @@ subclasses.table_constructor = {
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]
                         if match then
-                            opts.on_key[2](self.buf_handle, key_identifier, value)
+                            print("<<< on_key >>>")
+                            opts.on_key[2](self(key_identifier), self(value))
                         end
                     else
                         -- do each named key

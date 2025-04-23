@@ -58,81 +58,68 @@ end
 
 -- NOTE: This should also go into [doom.utils.ts.lua]
 -- TODO: document
---
---- TS get set table path
---- TODO: now since the buf is attached to the ts_table_constr. and we are only
---- working with the new ts_lua obj and its children, I can just pass the ts_lua
---- obj directly.
-function ts_tbl_path(ts_table_constr, t_path)
 
+--- TS get set table path
+---@param Takes TS object we are working on.
+---@param Table of path components to check for
+function ts_tbl_path(ts_table_constr, t_path)
     -- print("INPUT -> ts_table_constr:", vim.inspect(ts_table_constr))
 
     local ret = { t_path_left = vim.deepcopy(t_path) }
-    -- local TSLua = require("doom.utils.ts.lua"):new(buf)
     local TSLua = ts_table_constr
     local depth = 0
 
-    -- TODO: we are only operating on the table wrapper, therefore we can
-    -- just pass the table wrapper directly
+    ---Taker TS object
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
-        -- local TSModSection = TSLua(ts_tbl_in)
-        local TSModSection = ts_tbl_in
         depth = depth + 1
-        -- print("???", vim.inspect(ts_tbl_in:get_node()))
-        print("TSModSection", vim.inspect(TSModSection))
-
         ret.ts_node_tbl_parent = ts_tbl_in:get_node()
-        ret.deepest_matched_table = ts_tbl_in:get_node()
-
-        print("ts_node_tbl_parent range ->", ts_tbl_in:get_node():range())
+        ret.deepest_matched_table = ts_tbl_in:get_node() -- this is only used for the initial sorting, which feels a bit unnecessary.
 
         print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
-            TSModSection:fields({
+            ts_tbl_in:fields({
                 on_key = {
                     ret.t_path_left[1]:upper(),
-                    function(buf, key, value)
+                    function(_, ts_value)
                         branch = true
-                        ts_tbl_child = value
+                        ts_tbl_child = ts_value
                         table.remove(ret.t_path_left, 1)
                     end,
                 },
             })
-            return not branch and ret or ts_root_mod_tbl_try_find_target(TSModSection(ts_tbl_child))
+            return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            TSModSection:fields({
+            ts_tbl_in:fields({
                 on_index = {
                     type = "table",
-                    action = function(buf, value_table)
-                        local TSModTbl = TSLua(value_table)
-                        TSModTbl:fields({
+                    action = function(table_leaf)
+                        table_leaf:fields({
                             on_index = {
                                 index = 1,
                                 type = "string",
                                 equals = ret.t_path_left[1],
-                                action = function(buf, str, content)
-                                    ret.ts_module_found = value_table
-                                    ret.deepest_matched_table = value_table
+                                action = function(str, content)
+                                    ret.ts_module_found = table_leaf:get_node()
+                                    ret.deepest_matched_table = table_leaf:get_node()
                                     ret.module = true
-                                    ret.module_real_name = TSLua:text(content)
-                                    ret.deepest_name = TSLua:text(content)
-                                    ret.module_name_string = str
-                                    ret.module_range = { value_table:range() }
+                                    ret.module_real_name = content:get_text()
+                                    ret.deepest_name = content:get_text()
+                                    ret.module_name_string = str:get_node()
+                                    ret.module_range = { table_leaf:get_node():range() }
                                 end,
                             },
                         })
                         if not ret.module then
-                            -- print("on_table is NOT is_module")
                             ret.parent = true
                             return ret
                         end
-                        TSModTbl:fields({
+                        table_leaf:fields({
                             on_key = {
                                 "enabled",
-                                function(buf, key, value)
-                                    ret.ts_enabled_value = value
-                                    ret.ts_module_enabled_value = TSLua:text(value) == "true"
+                                function(_, ts_value)
+                                    ret.ts_enabled_value = ts_value:get_text()
+                                    ret.ts_module_enabled_value = ts_value:get_text() == "true"
                                             and true
                                         or false
                                 end,
@@ -156,24 +143,17 @@ local function transform_enabled_modules_tree(action)
     end
     action = vim.deepcopy(action)
 
-    -- FIX: the classes are setup in a bit stupid way so i should get the buf
-    -- from
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
-
+    local query = "(return_statement (expression_list (table_constructor) @table_constructor))"
     print("ts_buf:", vim.inspect(ts_buf))
-
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
-            -- should pass the first ts_table_constructer obj directly, instead of passing the buf and query.
-            -- TODO: ts_buf:query_wrap(..)
-            -- >>>> see if we can call self inside the method to return a new wrapped table instance
-            local ts_tbl = ts_buf:query_wrap([[(return_statement (expression_list (table_constructor) @table_constructor))]])
-
-            -- print("ts_tbl:", vim.inspect(ts_tbl))
-            t.nodes = ts_tbl_path(ts_tbl, t.t_path)
+            t.nodes = ts_tbl_path(ts_buf:query_wrap(query), t.t_path)
         end)
         :totable()
+
+    -- i should probably do this conditionally based on if the entry has a module_found or not.
     table.sort(action, function(a, b)
         return a.nodes.deepest_matched_table:range() < b.nodes.deepest_matched_table:range()
     end)
