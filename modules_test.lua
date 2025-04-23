@@ -16,10 +16,13 @@
 -- 2. use tables for each module
 
 return {
+    AI = { { "arst", enabled = true } },
 }
 
 -- return {
---     AI = {
+--     AI = { { "aaa",
+--     enabled = true
+--   }
 --         { "ai_chat_gpt", enabled = true },
 --     },
 --     LIB = {
@@ -357,7 +360,13 @@ return {
 --             { "zephyrium", enabled = false },
 --         },
 --         -- Themes designed for original Vim
---         VIM = {
+--         VIM = { { "aaaa",
+--     enabled = true
+--   }  { "aaaaa",
+--     enabled = true
+--   }  { "aaaa",
+--     enabled = true
+--   }
 --             { "ariake", enabled = false },
 --             { "iceberg", enabled = false },
 --             { "tender", enabled = false },

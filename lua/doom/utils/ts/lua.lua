@@ -10,29 +10,75 @@ TSLua = {
 }
 TSLua.__index = TSLua
 
--- TEST: Now since calling self wraps a node, then we could also return wrappers
--- for the nodes in eg :fields(...) callbacks. Basically, always work with these
--- new TS objects instead of returning regular ts nodes.
+-- Base wrapper shared by all subclasses
+local BaseWrapper = {}
 
--- create a new now wrapper
+function BaseWrapper:get_node()
+    return self.node
+end
+
+function BaseWrapper:get_buf()
+    return self.__tslua and self.__tslua.buf_handle
+end
+
+-- Callable wrapper function
 local function make_wrapped_node(self, node)
-    if not type(node:type()) == "function" then
-        return
+    -- Check for valid TS node
+    if type(node.type) ~= "function" then
+        return nil
     end
 
-    local wrapper = self.subclasses[node:type()]
+    local is_first_call = rawget(self, "__tslua") == nil
+    local tslua = is_first_call and self or rawget(self, "__tslua")
 
+    -- print("is_first_call", is_first_call)
+
+    if not tslua then
+        error("No TSLua instance found for wrapped object")
+    end
+
+    local wrapper = tslua.subclasses[node:type()]
     if not wrapper then
         return
     end
 
+    -- Set up wrapper inheritance
     wrapper.__index = wrapper
 
-    -- Fallback from wrapper to the specific ts_buf instance
-    setmetatable(wrapper, { __index = self })
+    -- BaseWrapper → tslua fallback
+    setmetatable(wrapper, {
+        __index = setmetatable(BaseWrapper, {
+            __index = tslua,
+        }),
+    })
 
-    return setmetatable({ node = node }, wrapper)
+    -- Create new instance with wrapper
+    local instance = setmetatable({ node = node }, wrapper)
+
+    -- Preserve reference to original TSLua instance
+    if rawget(instance, "__tslua") == nil then
+        rawset(instance, "__tslua", tslua)
+    end
+
+    -- Make the wrapped instance itself callable
+    local mt = getmetatable(instance)
+    mt.__call = make_wrapped_node
+
+    return instance
 end
+
+function TSLua:new(buf)
+    local obj = setmetatable({ buf_handle = buf }, self)
+
+    -- Make instance callable (wraps nodes)
+    return setmetatable(obj, {
+        __index = self,
+        __call = make_wrapped_node,
+    })
+end
+
+-- Allow TSLua() to be called as constructor
+setmetatable(TSLua, TSLua)
 
 function TSLua:new(buf)
     local obj = setmetatable({ buf_handle = buf }, self)
@@ -42,8 +88,6 @@ function TSLua:new(buf)
     })
 end
 
-setmetatable(TSLua, TSLua)
-
 -- get buf handle
 function TSLua:buf(self)
     return self.buf_handle
@@ -52,19 +96,21 @@ end
 -- should [filetype/lang = lua] be a class attr?
 --
 ---Currently: Returns the first node of query capture
-function TSLua:query(query_str)
+function TSLua:query_wrap(query_str)
     local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
     local return_query = vim.treesitter.query.parse("lua", query_str)
     local ts_tbl
     for _, capture_node, _ in return_query:iter_captures(root, self.buf_handle) do
-        ts_tbl = capture_node:named_child():named_child()
+        ts_tbl = capture_node
+        print("type:", ts_tbl:type())
     end
-    return ts_tbl
+    -- print("query_wrap self >>>>", vim.inspect(self))
+    return self(ts_tbl)
 end
 
 -- replace node text/contents
-function TSLua:replace(self, node, replacement)
+function TSLua:replace(node, replacement)
     -- local start_col, end_col = module_line:find("%-%-%s") -- find first comment prefix
     local range = node:range()
     vim.api.nvim_buf_set_text(
@@ -78,7 +124,9 @@ function TSLua:replace(self, node, replacement)
 end
 
 -- get node text
-function TSLua:text(self, node)
+function TSLua:text(node)
+    -- print("XXXX", tostring(node), self.buf_handle)
+    -- print(vim.inspect(self))
     return vim.treesitter.get_node_text(node, self.buf_handle)
 end
 
@@ -219,6 +267,7 @@ subclasses.table_constructor = {
                             -- if (all or type table)
                         elseif _type == "table" and self:_field_table(child_node) then
                             local table_constructor = child_node:named_child()
+                            -- print("??? gettable", vim.inspect(self))
                             opts.on_index.action(self.buf_handle, table_constructor)
                         else
                             -- TODO: Handle all other types that can exist in a
@@ -242,6 +291,8 @@ subclasses.table_constructor = {
 
                     if type(opts.on_key) == "table" then
                         -- do only keys that match pattern regex
+                        -- print("??? field.self:", vim.inspect(self))
+                        -- print("getmetatable:", vim.inspect(getmetatable(self)))
                         local text = self:text(key_identifier)
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]

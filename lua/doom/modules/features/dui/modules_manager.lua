@@ -60,27 +60,31 @@ end
 -- TODO: document
 --
 --- TS get set table path
---- TODO: now since the buf is attached to the ts_node_table. and we are only
+--- TODO: now since the buf is attached to the ts_table_constr. and we are only
 --- working with the new ts_lua obj and its children, I can just pass the ts_lua
 --- obj directly.
-function ts_tbl_path(buf, ts_node_table, t_path)
-    if ts_node_table:type() ~= "table_constructor" then
-        log.error("Only accepts table_constructor nodes!")
-        return
-    end
-    local ret = { t_path_left = vim.deepcopy(t_path) }
-    local TSLua = require("doom.utils.ts.lua"):new(buf)
-    local depth = 0
+function ts_tbl_path(ts_table_constr, t_path)
 
-    print("???????")
+    -- print("INPUT -> ts_table_constr:", vim.inspect(ts_table_constr))
+
+    local ret = { t_path_left = vim.deepcopy(t_path) }
+    -- local TSLua = require("doom.utils.ts.lua"):new(buf)
+    local TSLua = ts_table_constr
+    local depth = 0
 
     -- TODO: we are only operating on the table wrapper, therefore we can
     -- just pass the table wrapper directly
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
-        local TSModSection = TSLua(ts_tbl_in)
+        -- local TSModSection = TSLua(ts_tbl_in)
+        local TSModSection = ts_tbl_in
         depth = depth + 1
-        ret.ts_node_tbl_parent = ts_tbl_in
-        ret.deepest_matched_table = ts_tbl_in
+        -- print("???", vim.inspect(ts_tbl_in:get_node()))
+        print("TSModSection", vim.inspect(TSModSection))
+
+        ret.ts_node_tbl_parent = ts_tbl_in:get_node()
+        ret.deepest_matched_table = ts_tbl_in:get_node()
+
+        print("ts_node_tbl_parent range ->", ts_tbl_in:get_node():range())
 
         print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
         if #ret.t_path_left > 1 then -- check branches
@@ -95,7 +99,7 @@ function ts_tbl_path(buf, ts_node_table, t_path)
                     end,
                 },
             })
-            return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
+            return not branch and ret or ts_root_mod_tbl_try_find_target(TSModSection(ts_tbl_child))
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
             TSModSection:fields({
                 on_index = {
@@ -141,7 +145,7 @@ function ts_tbl_path(buf, ts_node_table, t_path)
         end
         return ret
     end
-    return ts_root_mod_tbl_try_find_target(ts_node_table)
+    return ts_root_mod_tbl_try_find_target(ts_table_constr)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
@@ -159,11 +163,15 @@ local function transform_enabled_modules_tree(action)
 
     print("ts_buf:", vim.inspect(ts_buf))
 
-
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
             -- should pass the first ts_table_constructer obj directly, instead of passing the buf and query.
-            t.nodes = ts_tbl_path(buf, ts_buf:query([[(return_statement) @return]]), t.t_path)
+            -- TODO: ts_buf:query_wrap(..)
+            -- >>>> see if we can call self inside the method to return a new wrapped table instance
+            local ts_tbl = ts_buf:query_wrap([[(return_statement (expression_list (table_constructor) @table_constructor))]])
+
+            -- print("ts_tbl:", vim.inspect(ts_tbl))
+            t.nodes = ts_tbl_path(ts_tbl, t.t_path)
         end)
         :totable()
     table.sort(action, function(a, b)
@@ -171,6 +179,8 @@ local function transform_enabled_modules_tree(action)
     end)
 
     print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
+
+    -- if true then return end
 
     -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
@@ -270,14 +280,14 @@ local function transform_enabled_modules_tree(action)
         end
     end
 
-    -- format and save
-    -- Is formatting async?!
-    vim.api.nvim_buf_call(buf, function()
-        vim.lsp.buf.format({ async = false })
-        vim.cmd("write")
-        log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
-    end)
-    log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
+    -- -- format and save
+    -- -- Is formatting async?!
+    -- vim.api.nvim_buf_call(buf, function()
+    --     vim.lsp.buf.format({ async = false })
+    --     vim.cmd("write")
+    --     log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
+    -- end)
+    -- log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?
