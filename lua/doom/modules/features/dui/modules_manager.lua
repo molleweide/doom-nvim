@@ -56,9 +56,9 @@ local function build_new_inject_string2(tree)
     return ret
 end
 
--- NOTE: This should also go into [doom.utils.ts.lua]
--- TODO: document
-
+-- TODO: ts_tbl_path needs to be extracted in its generalized form so that
+-- one can use it on any table, eg add_branch_table_under_cursor
+--
 --- TS get set table path
 ---@param Takes TS object we are working on.
 ---@param Table of path components to check for
@@ -189,7 +189,7 @@ local function transform_enabled_modules_tree(action)
         if action.action == "REMOVE" then
             ts.tbl.field.remove(tn.ts_module_found)
             -- FIX: wrap in TSLuaTable and use field.remove.
-            -- local TSModuleFound = ts.TSLuaTable(buf, tn.ts_module_found)
+            local ts_module_found = ts_buf(tn.ts_module_found)
             -- TSModuleFound:remove({ until = "first_sibling"})
         end
 

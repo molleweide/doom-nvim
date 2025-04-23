@@ -14,6 +14,8 @@ function BaseWrapper:is(check_type)
     return self.node:type() == check_type
 end
 
+-- TODO: rename to node() -> returns the raw node, so that one can do iter methods.
+-- Which might be a bit trickier to play nicely with the wrapper.
 function BaseWrapper:get_node()
     return self.node
 end
@@ -38,13 +40,15 @@ function BaseWrapper:print_context(opts)
     -- ~ is field??
 end
 
+---If a subclass does not have dedicated remove method, then we fallback to
+---this default remover
+function BaseWrapper:remove()
+end
+
 -------------------------------------------------------------------------------
 --
 -- CLASS: TS BUF
 --
-
--- NOTE: Some TSLua methods should probably go into the more generalized TSBuf.
--- TODO: this!!
 
 -------------------------------------------------------------------------------
 --
@@ -72,6 +76,8 @@ local function make_wrapped_node(self, node)
         error("No TSLua instance found for wrapped object")
     end
 
+    -- get wrapper
+
     local wrapper = tslua.subclasses[node:type()]
     if wrapper then
         wrapper.__name = "wrapper:" .. node:type()
@@ -81,9 +87,6 @@ local function make_wrapped_node(self, node)
     end
     -- Set up wrapper inheritance
     wrapper.__index = wrapper
-
-    -- print(string.format("# wrapper (%s): %s", node:type(), #wrapper))
-
     -- BaseWrapper → tslua fallback
     setmetatable(wrapper, {
         __index = setmetatable(BaseWrapper, {
@@ -91,14 +94,18 @@ local function make_wrapped_node(self, node)
         }),
     })
 
-    -- Create new instance with wrapper
-    local instance = setmetatable({ __name = "ts_proxy:" .. node:type(), node = node }, wrapper)
+    -- new instance
 
-    -- NOTE: I believe that we can assign directly without nil check since, we
-    -- are ensuring tslua's existence above with [is_first_call]
-    if rawget(instance, "__tslua") == nil then
-        rawset(instance, "__tslua", tslua) -- give direct access to tslua without recurse through metatables...
-    end
+    -- TODO: rename [node] to [node_handle] so that I can use the [node] keyword
+    local instance = setmetatable({
+        __name = "ts_proxy:" .. node:type(),
+        __tslua = tslua,
+        node = node,
+    }, wrapper)
+    -- this
+    -- if rawget(instance, "__tslua") == nil then
+    --     rawset(instance, "__tslua", tslua) -- give direct access to tslua without recurse through metatables...
+    -- end
 
     -- Make the wrapped instance itself callable
     local mt = getmetatable(instance)
@@ -150,7 +157,9 @@ function TSLua:new(buf)
 end
 
 -- Allow TSLua() to be called as constructor
-setmetatable(TSLua, TSLua)
+setmetatable(TSLua, {
+    __index = require("doom.utils.ts.__base")
+})
 
 --
 -- TS LUA METHODS

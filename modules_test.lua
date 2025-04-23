@@ -16,27 +16,6 @@
 -- 2. use tables for each module
 
 return {
-    BOOKS = { { "music", enabled = true } },
-
-    FEATURES = {
-        EDITOR = {
-            { "arst", enabled = true },
-            { "wfp", enabled = true },
-            NN = { { "eee", enabled = true } },
-        },
-    },
-
-    THEMES = {
-        VIM = {
-            { "xxxxx", enabled = true },
-            A = {
-                BB = { { "cc", enabled = true } },
-            },
-            { "xyz", enabled = true },
-        },
-    },
-
-    AI = { { "arst", enabled = true } },
 }
 
 -- return {
