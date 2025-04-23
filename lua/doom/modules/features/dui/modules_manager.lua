@@ -146,7 +146,7 @@ local function transform_enabled_modules_tree(action)
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
     local query = "(return_statement (expression_list (table_constructor) @table_constructor))"
-    print("ts_buf:", vim.inspect(ts_buf))
+    -- print("ts_buf:", vim.inspect(ts_buf))
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
             t.nodes = ts_tbl_path(ts_buf:query_wrap(query), t.t_path)

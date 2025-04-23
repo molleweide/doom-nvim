@@ -8,6 +8,10 @@
 -- Base wrapper shared by all subclasses
 local BaseWrapper = { __name = "base_wrapper" }
 
+function BaseWrapper:test(msg)
+    print("test from BaseWrapper:", msg)
+end
+
 ---Check if a ts proxy is of a certain type [check_type]
 ---@param check_type String The type we want to compare against
 function BaseWrapper:is(check_type)
@@ -48,6 +52,20 @@ function BaseWrapper:remove() end
 --
 -- CLASS: TS LUA
 --
+
+----
+---
+
+-- -- TODO: now this is the only code that is required in here.
+-- local LuaTS = setmetatable({}, require("ts.__base"))
+-- LuaTS.__index = LuaTS
+
+---
+---
+---
+
+
+
 
 ---Load ts helper with buf so that you dont have to pass it later.
 ---local ts = TSHelper(buf)
@@ -138,7 +156,7 @@ local function make_wrapped_node(self, node)
     --     __call = make_wrapped_node,
     -- })
 
-    print(vim.inspect(instance))
+    -- print(vim.inspect(instance))
     return instance
 end
 
@@ -151,6 +169,10 @@ function TSLua:new(buf)
         __index = self,
         __call = make_wrapped_node,
     })
+end
+
+function TSLua:test(msg)
+    print("test from TSLua", msg)
 end
 
 -- Allow TSLua() to be called as constructor
@@ -168,7 +190,7 @@ function TSLua:new(buf)
         __index = self,
         __call = make_wrapped_node, -- Make the instance callable (not the class)
     })
-    print(vim.inspect(instance))
+    -- print(vim.inspect(instance))
     return instance
 end
 
@@ -229,6 +251,11 @@ local subclasses = TSLua.subclasses
 
 ---Table
 subclasses.table_constructor = {
+
+    test = function(self,msg)
+        print("test from subclasses.table_constructor", msg)
+    end,
+
     -- TODO: wrap in metatable and replicate regular lua table behavior.
     --
     -- loop all (pairs) | indexes (ipair) | keys (pairs and key ~= number)
@@ -382,7 +409,6 @@ subclasses.table_constructor = {
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]
                         if match then
-                            print("<<< on_key >>>")
                             opts.on_key[2](self(key_identifier), self(value))
                         end
                     else
