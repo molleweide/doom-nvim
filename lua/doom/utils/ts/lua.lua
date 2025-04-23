@@ -42,13 +42,7 @@ end
 
 ---If a subclass does not have dedicated remove method, then we fallback to
 ---this default remover
-function BaseWrapper:remove()
-end
-
--------------------------------------------------------------------------------
---
--- CLASS: TS BUF
---
+function BaseWrapper:remove() end
 
 -------------------------------------------------------------------------------
 --
@@ -111,35 +105,38 @@ local function make_wrapped_node(self, node)
     local mt = getmetatable(instance)
     mt.__call = make_wrapped_node
 
-    -- TODO: Use this to make ts proxies first look for methods on the TSNode
-    -- itself
-    --
-    --     local instance = { node = node, __tslua = tslua }
+    -- TODO: Use the below instead as __index for the instance
+
+    -- local instance = { node = node, __tslua = tslua }
     -- -- Use a function for __index to dynamically fallback to TSNode
-    --     setmetatable(instance, {
-    --         __index = function(tbl, key)
-    --             local val
-    --
-    --             -- 1. Look in wrapper
-    --             val = wrapper[key]
-    --             if val ~= nil then return val end
-    --
-    --             -- 2. Look in TSLua/base methods
-    --             val = tslua[key]
-    --             if val ~= nil then return val end
-    --
-    --             -- 3. Finally, fallback to TSNode methods
-    --             local node_obj = rawget(tbl, "node")
-    --             if node_obj and type(node_obj[key]) == "function" then
-    --                 return function(_, ...)
-    --                     return node_obj[key](node_obj, ...)
-    --                 end
+    -- setmetatable(instance, {
+    --     __index = function(tbl, key)
+    --         local val
+    --         -- Prevent working on out-of-sync nodes.
+    --         if tbl.__tslua:is_out_of_sync() then
+    --             error("This node is outdated. Buffer has changed.")
+    --         end
+    --         -- 1. Look in wrapper
+    --         val = wrapper[key]
+    --         if val ~= nil then
+    --             return val
+    --         end
+    --         -- 2. Look in TSLua/base methods
+    --         val = tslua[key]
+    --         if val ~= nil then
+    --             return val
+    --         end
+    --         -- 3. Finally, fallback to TSNode methods
+    --         local node_obj = rawget(tbl, "node")
+    --         if node_obj and type(node_obj[key]) == "function" then
+    --             return function(_, ...)
+    --                 return node_obj[key](node_obj, ...)
     --             end
-    --         end,
-    --
-    --         -- Make instance callable
-    --         __call = make_wrapped_node,
-    --     })
+    --         end
+    --     end,
+    --     -- Make instance callable
+    --     __call = make_wrapped_node,
+    -- })
 
     print(vim.inspect(instance))
     return instance
@@ -158,7 +155,7 @@ end
 
 -- Allow TSLua() to be called as constructor
 setmetatable(TSLua, {
-    __index = require("doom.utils.ts.__base")
+    __index = require("doom.utils.ts.__base"),
 })
 
 --
