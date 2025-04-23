@@ -8,6 +8,11 @@ local TSNodeWrapper = require("doom.utils.ts.__wrapper")
 -- TS<lang> class, BUT
 --
 
+-- -- TODO:
+-- -- ~ Add flag/index check that first ensures that the buf has not been refreshed
+-- --      since the instance was created. So that we can throw an error to user/dev
+-- --      if we are trying to operate on a node that is out of sync.
+
 local TSBufWrapper = { __name = "TSBufWrapperClass", subclasses = {} }
 TSBufWrapper.__index = TSBufWrapper
 
@@ -35,24 +40,3 @@ function TSBufWrapper:new(buf)
 end
 
 return TSBufWrapper
-
--- -- TODO:
--- -- ~ Add flag/index check that first ensures that the buf has not been refreshed
--- --      since the instance was created. So that we can throw an error to user/dev
--- --      if we are trying to operate on a node that is out of sync.
---
--- local TSBufWrapper = {
---     subclasses = {},
--- }
--- TSBufWrapper.__index = TSBufWrapper
---
--- function TSBufWrapper:new(buf)
---     local obj = setmetatable({ buf_handle = buf }, self)
---     return setmetatable(obj, {
---         __index = self,
---         __call = TSNodeWrapper.make_wrapped_node,
---     })
--- end
---
--- return TSBufWrapper
---
