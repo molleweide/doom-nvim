@@ -113,7 +113,7 @@ tsp.binds = {
         "t",
         name = "+ts",
         {
-          { "p", "<cmd>TSPlaygroundToggle<CR>", name = "togl playgr" },
+          { "i", "<cmd>InspectTree<CR>", name = "Inspect Tree" },
           { "h", "<cmd>TSHighlightCapturesUnderCursor<CR>", name = "highl capt curs" },
           { "u", "<cmd>TSNodeUnderCursor<CR>", name = "node under curs" },
         },

@@ -16,7 +16,6 @@
 -- 2. use tables for each module
 
 return {
-    AAA = { { "ccc", enabled = true }, { "bbb", enabled = true } },
 }
 
 -- return {

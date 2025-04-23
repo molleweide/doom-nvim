@@ -1,5 +1,5 @@
-local LuaTS = setmetatable({ __name = "TSLuaClass" }, require("doom.utils.ts.__base"))
-LuaTS.__index = LuaTS
+local TSLua = setmetatable({ __name = "TSLuaClass" }, require("doom.utils.ts.__base"))
+TSLua.__index = TSLua
 
 function TSLua:test(msg)
     print("test from TSLua", msg)
@@ -28,7 +28,7 @@ local subclasses = TSLua.subclasses
 
 subclasses.table_constructor = {
 
-    test = function(self,msg)
+    test = function(self, msg)
         print("test from subclasses.table_constructor", msg)
     end,
 
@@ -209,10 +209,29 @@ subclasses.table_constructor = {
 
     -- each of these should take similar options...
 
-    -- TODO:
     -- pos = first / last / after Nth node / after Nth indexed / after Nth key
     -- Default -> add element new field last.
-    add_field = function() end,
+    add_field = function(self, opts)
+        opts = opts or {}
+
+        if not opts.data then
+            return
+        end
+
+        local data = opts.data
+
+        local range = { self.node:range() }
+
+        local row, col
+        if not opts.pos or opts.pos == "last" then
+            row, col = range[3], range[4] - 1
+        elseif opts.pos == "first" then
+            row, col = range[1], range[2] + 1
+            data[#data] = data[#data] .. ","
+        end
+
+        vim.api.nvim_buf_set_text(self.buf_handle, row, col, row, col, opts.data)
+    end,
 
     -- TODO:
     -- should handle [until] option so we can bubble up to eg first sibling

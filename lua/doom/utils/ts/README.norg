@@ -4,7 +4,7 @@ description:
 authors: hjalmarjakobsson
 categories:
 created: 2025-04-23T09:41:33-0500
-updated: 2025-04-23T11:41:06-0500
+updated: 2025-04-23T16:03:03-0500
 version: 1.1.1
 @end
 
@@ -12,6 +12,6 @@ TODO: explain how the ts util classes work together.
 
 
 ~ Improve the whole TS class system.
-~ Put it into a neovim plugin [ts-extender.nvim]
+~ Put it into a neovim plugin [extender.ts.nvim]
 ~ Include it via a [modules.lib.ts_extender]
 ~ Make it play nicely with the new lux rockspec.

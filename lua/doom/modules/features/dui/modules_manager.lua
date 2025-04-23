@@ -66,8 +66,9 @@ function ts_tbl_path(ts_table_constr, t_path)
     -- print("INPUT -> ts_table_constr:", vim.inspect(ts_table_constr))
 
     local ret = { t_path_left = vim.deepcopy(t_path) }
-    local TSLua = ts_table_constr
     local depth = 0
+
+    print("ts_table_constr:range()", ts_table_constr:range())
 
     ---Taker TS object
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
@@ -103,8 +104,8 @@ function ts_tbl_path(ts_table_constr, t_path)
                                     ret.ts_module_found = table_leaf:get_node()
                                     ret.deepest_matched_table = table_leaf:get_node()
                                     ret.module = true
-                                    ret.module_real_name = content:get_text()
-                                    ret.deepest_name = content:get_text()
+                                    ret.module_real_name = content:text()
+                                    ret.deepest_name = content:text()
                                     ret.module_name_string = str:get_node()
                                     ret.module_range = { table_leaf:get_node():range() }
                                 end,
@@ -118,8 +119,8 @@ function ts_tbl_path(ts_table_constr, t_path)
                             on_key = {
                                 "enabled",
                                 function(_, ts_value)
-                                    ret.ts_enabled_value = ts_value:get_text()
-                                    ret.ts_module_enabled_value = ts_value:get_text() == "true"
+                                    ret.ts_enabled_value = ts_value:text()
+                                    ret.ts_module_enabled_value = ts_value:text() == "true"
                                             and true
                                         or false
                                 end,
@@ -244,19 +245,9 @@ local function transform_enabled_modules_tree(action)
         table.sort(injection_nodes, function(a, b)
             return a.node:range() > b.node:range()
         end)
-
         for i, v in ipairs(injection_nodes) do
-            print(i, "sorted range:", v.node:range())
-            print("tree:", vim.inspect(v.tree))
-            local t_stringified = build_new_inject_string2(v.tree)
-            print("ret -> TREE STRINGIFIED:", vim.inspect(t_stringified))
-            local parent_range = { v.node:range() }
-            local row, col = parent_range[1], parent_range[2] + 1
-            vim.api.nvim_buf_set_text(buf, row, col, row, col, t_stringified)
-
-            -- TODO: move this into the table class.
-            -- local TSModTableInsert = ts.TSLuaTable(buf, v.node)
-            -- TSModTableInsert:add_field_from_text({ data = t_stringified, pos = "first" })
+            -- !! work with node wrapper directly
+            ts_buf(v.node):add_field({ pos = "first", data = build_new_inject_string2(v.tree) })
         end
     end
 

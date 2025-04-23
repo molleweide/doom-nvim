@@ -9,7 +9,6 @@ function M.make_wrapped_node(self, node)
     if type(node.type) ~= "function" then
         return
     end
-
     local tslua = self.__tslua or self
     -- local is_first_call = rawget(self, "__tslua") == nil
     -- local tslua = is_first_call and self or rawget(self, "__tslua")
@@ -24,56 +23,40 @@ function M.make_wrapped_node(self, node)
         wrapper = {}
         wrapper.__name = string.format("wrapper:%s (undefined)", node:type())
     end
+
     -- Set up wrapper inheritance
     wrapper.__index = wrapper
-    -- BaseWrapper → tslua fallback
     setmetatable(wrapper, {
+        -- BaseWrapper → tslua fallback
         __index = setmetatable(M.TSNodeWrapper, {
             __index = tslua,
         }),
     })
 
-    local instance =
-        setmetatable({ _name = "TSNodeInstance", __tslua = tslua, node = node }, wrapper)
-
-    -- Make instance callable
-    local mt = getmetatable(instance)
-    mt.__call = M.make_wrapped_node
-
-    -- TODO: Use the below instead as __index for the instance
-
-    -- local instance = { node = node, __tslua = tslua }
-    -- -- Use a function for __index to dynamically fallback to TSNode
-    -- setmetatable(instance, {
-    --     __index = function(tbl, key)
-    --         local val
-    --         -- Prevent working on out-of-sync nodes.
-    --         if tbl.__tslua:is_out_of_sync() then
-    --             error("This node is outdated. Buffer has changed.")
-    --         end
-    --         -- 1. Look in wrapper
-    --         val = wrapper[key]
-    --         if val ~= nil then
-    --             return val
-    --         end
-    --         -- 2. Look in TSLua/base methods
-    --         val = tslua[key]
-    --         if val ~= nil then
-    --             return val
-    --         end
-    --         -- 3. Finally, fallback to TSNode methods
-    --         local node_obj = rawget(tbl, "node")
-    --         if node_obj and type(node_obj[key]) == "function" then
-    --             return function(_, ...)
-    --                 return node_obj[key](node_obj, ...)
-    --             end
-    --         end
-    --     end,
-    --     -- Make instance callable
-    --     __call = make_wrapped_node,
-    -- })
-
-    return instance
+    local instance = { __name = "TSNodeInstance", __tslua = tslua, node = node }
+    return setmetatable(instance, {
+        -- Lookup chain instance -> wrapper -> TSNodeWrapper -> TSLua -> TSNode
+        __index = function(tbl, key)
+            if wrapper[key] then
+                return wrapper[key]
+            end
+            if M.TSNodeWrapper[key] then
+                return M.TSNodeWrapper[key]
+            end
+            if tslua[key] then
+                return tslua[key]
+            end
+            if tbl.node and type(tbl.node[key]) == "function" then
+                local node_obj = tbl.node
+                -- This ensures that the TSNode is called with its proper "self".
+                return function(_, ...)
+                    return node_obj[key](node_obj, ...)
+                end
+            end
+        end,
+        -- Make instance callable
+        __call = M.make_wrapped_node,
+    })
 end
 
 -------------------------------------------------------------------------------
@@ -109,7 +92,7 @@ function TSNodeWrapper:get_node()
     return self.node
 end
 
-function TSNodeWrapper:get_text()
+function TSNodeWrapper:text()
     return vim.treesitter.get_node_text(self.node, self.buf_handle)
 end
 
