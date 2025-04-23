@@ -1,17 +1,18 @@
+-------------------------------------------------------------------------------
 --
--- LUA BUFFER CLASS
+-- CLASS: NODE BASE WRAPPER
 --
 
----Load ts helper with buf so that you dont have to pass it later.
----local ts = TSHelper(buf)
-
-TSLua = {
-    subclasses = {},
-}
-TSLua.__index = TSLua
+-- NOTE: BaseWrapper should go into __base.lua
 
 -- Base wrapper shared by all subclasses
-local BaseWrapper = {}
+local BaseWrapper = { __name = "base_wrapper" }
+
+---Check if a ts proxy is of a certain type [check_type]
+---@param check_type String The type we want to compare against
+function BaseWrapper:is(check_type)
+    return self.node:type() == check_type
+end
 
 function BaseWrapper:get_node()
     return self.node
@@ -21,28 +22,67 @@ function BaseWrapper:get_text()
     return vim.treesitter.get_node_text(self.node, self.buf_handle)
 end
 
+---Make it easy to move a node to another location after/before node X.
+function BaseWrapper:move_to(opts) end
+
+---Helper that prints context about node
+function BaseWrapper:print_context(opts)
+    -- ~ node type.
+    -- ~ node text truncated if necessary
+    -- ~ node range
+    -- ~ node text first line
+    -- ~ node text last line
+    -- ~ node text full
+    -- ~ preceeding line
+    -- ~ line after.
+    -- ~ is field??
+end
+
+-------------------------------------------------------------------------------
+--
+-- CLASS: TS BUF
+--
+
+-- NOTE: Some TSLua methods should probably go into the more generalized TSBuf.
+-- TODO: this!!
+
+-------------------------------------------------------------------------------
+--
+-- CLASS: TS LUA
+--
+
+---Load ts helper with buf so that you dont have to pass it later.
+---local ts = TSHelper(buf)
+
+TSLua = {
+    __name = "ts_lua",
+    subclasses = {},
+}
+TSLua.__index = TSLua
+
 -- Callable wrapper function
 local function make_wrapped_node(self, node)
-
-    print(self, node)
-
     if type(node.type) ~= "function" then
-        return nil
+        return
     end
-
     local is_first_call = rawget(self, "__tslua") == nil
     local tslua = is_first_call and self or rawget(self, "__tslua")
-
-    -- print("is_first_call", is_first_call)
 
     if not tslua then
         error("No TSLua instance found for wrapped object")
     end
 
-    local wrapper = tslua.subclasses[node:type()] or {}
-
+    local wrapper = tslua.subclasses[node:type()]
+    if wrapper then
+        wrapper.__name = "wrapper:" .. node:type()
+    else
+        wrapper = {}
+        wrapper.__name = string.format("wrapper:%s (undefined)", node:type())
+    end
     -- Set up wrapper inheritance
     wrapper.__index = wrapper
+
+    -- print(string.format("# wrapper (%s): %s", node:type(), #wrapper))
 
     -- BaseWrapper → tslua fallback
     setmetatable(wrapper, {
@@ -52,26 +92,55 @@ local function make_wrapped_node(self, node)
     })
 
     -- Create new instance with wrapper
-    local instance = setmetatable({ node = node }, wrapper)
+    local instance = setmetatable({ __name = "ts_proxy:" .. node:type(), node = node }, wrapper)
 
-    -- NOTE: using the __tslua directly on instance prevent having to recursively
-    -- always walk up the meta chain to find the methods in the TSLua object.
-    -- So if there are performance issues then you could just use self.__tslua
-    -- in all subclasses to directly access methodds in TSLua faster.
-    -- Preserve reference to original TSLua instance
+    -- NOTE: I believe that we can assign directly without nil check since, we
+    -- are ensuring tslua's existence above with [is_first_call]
     if rawget(instance, "__tslua") == nil then
-        rawset(instance, "__tslua", tslua)
+        rawset(instance, "__tslua", tslua) -- give direct access to tslua without recurse through metatables...
     end
 
     -- Make the wrapped instance itself callable
     local mt = getmetatable(instance)
     mt.__call = make_wrapped_node
 
+    -- TODO: Use this to make ts proxies first look for methods on the TSNode
+    -- itself
+    --
+    --     local instance = { node = node, __tslua = tslua }
+    -- -- Use a function for __index to dynamically fallback to TSNode
+    --     setmetatable(instance, {
+    --         __index = function(tbl, key)
+    --             local val
+    --
+    --             -- 1. Look in wrapper
+    --             val = wrapper[key]
+    --             if val ~= nil then return val end
+    --
+    --             -- 2. Look in TSLua/base methods
+    --             val = tslua[key]
+    --             if val ~= nil then return val end
+    --
+    --             -- 3. Finally, fallback to TSNode methods
+    --             local node_obj = rawget(tbl, "node")
+    --             if node_obj and type(node_obj[key]) == "function" then
+    --                 return function(_, ...)
+    --                     return node_obj[key](node_obj, ...)
+    --                 end
+    --             end
+    --         end,
+    --
+    --         -- Make instance callable
+    --         __call = make_wrapped_node,
+    --     })
+
+    print(vim.inspect(instance))
     return instance
 end
 
+-- <lang> buf class constructor.
 function TSLua:new(buf)
-    local obj = setmetatable({ type = "TS_OBJ", buf_handle = buf }, self)
+    local obj = setmetatable({ __name = "ts_lua:instance", buf_handle = buf }, self)
 
     -- Make instance callable (wraps nodes)
     return setmetatable(obj, {
@@ -83,12 +152,18 @@ end
 -- Allow TSLua() to be called as constructor
 setmetatable(TSLua, TSLua)
 
+--
+-- TS LUA METHODS
+--
+
 function TSLua:new(buf)
     local obj = setmetatable({ buf_handle = buf }, self)
-    return setmetatable(obj, {
+    local instance = setmetatable(obj, {
         __index = self,
         __call = make_wrapped_node, -- Make the instance callable (not the class)
     })
+    print(vim.inspect(instance))
+    return instance
 end
 
 -- get buf handle
@@ -96,9 +171,7 @@ function TSLua:buf(self)
     return self.buf_handle
 end
 
--- should [filetype/lang = lua] be a class attr?
---
----Currently: Returns the first node of query capture
+---Currently: Returns a wrapped instance of the last captured node.
 function TSLua:query_wrap(query_str)
     local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
@@ -138,14 +211,17 @@ function TSLua:content_match(self, node, pattern)
 end
 
 -------------------------------------------------------------------------------
-
 --
--- LUA NODE TYPE SPECIFIC SUB CLASSES
+-- LUA NODE _type SPECIFIC SUB CLASSES
 --
 
 local subclasses = TSLua.subclasses
 
--- Should inherit all of the TSHelper methods.
+--
+-- lua table
+--
+
+---Table
 subclasses.table_constructor = {
     -- TODO: wrap in metatable and replicate regular lua table behavior.
     --
@@ -312,17 +388,30 @@ subclasses.table_constructor = {
         end
     end,
 
+    ---Handle removal of the table itself.
+    ---Figure out (with opt in capabilities) if we should bubble up to an ancestor
+    ---table or what should be done depending on the context.
+    remove = function(self) end,
+
+    -- put all indexed fields / keyed fields together
+    rearrange = function(self) end,
+
+    -- sort table keys. (and put the after / before any existing indexed fields)
+    sort = function() end,
+
     -- each of these should take similar options...
 
     -- TODO:
     -- pos = first / last / after Nth node / after Nth indexed / after Nth key
-    add = function() end,
+    -- Default -> add element new field last.
+    add_field = function() end,
 
     -- TODO:
     -- should handle [until] option so we can bubble up to eg first sibling
-    remove = function() end,
+    remove_field = function() end,
 
-    sort = function() end,
+    -- move field to after/before indexed/keyed valued N
+    move_field = function() end,
 
     -- :insert()
     tbl_add_field_last = function(self, opts) end,
@@ -330,6 +419,16 @@ subclasses.table_constructor = {
     -- :remove
 
     -- :sort
+}
+
+--
+-- lua boolean
+--
+
+---Booleans
+subclasses.boolean = {
+    toggle = function(self) end,
+    set = function(self, new_value) end,
 }
 
 return TSLua
