@@ -16,7 +16,13 @@
 -- 2. use tables for each module
 
 return {
-    A = { { "wfppp", enabled = true } },
+    A = {
+        Q = {
+            W = { { "f", enabled = true } },
+        },
+        B = { { "c", enabled = true } },
+        { "test", enabled = true },
+    },
 }
 
 -- return {

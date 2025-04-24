@@ -5,9 +5,9 @@ function M.make_wrapped_node(self, input_node)
     if type(input_node.type) ~= "function" then
         return
     end
+
     local tslua = self.__tslua or self
-    -- local is_first_call = rawget(self, "__tslua") == nil
-    -- local tslua = is_first_call and self or rawget(self, "__tslua")
+
     if not tslua then
         error("No TSLua instance found for wrapped object")
     end
@@ -29,19 +29,17 @@ function M.make_wrapped_node(self, input_node)
         }),
     })
 
-    local instance = { __name = "TSNodeInstance", __tslua = tslua, node_handle = input_node }
-    return setmetatable(instance, {
-        -- Lookup chain instance -> wrapper -> TSNodeWrapper -> TSLua -> TSNode
+    -- Initialize wrapper instance
+    return setmetatable({
+        __name = "TSNodeInstance",
+        __tslua = tslua,
+        node_handle = input_node,
+    }, {
+            -- Lookup chain instance -> wrapper -> TSNodeWrapper -> TSLua -> TSNode
         __index = function(tbl, key)
-            if wrapper[key] then
-                return wrapper[key]
-            end
-            if M.TSNodeWrapper[key] then
-                return M.TSNodeWrapper[key]
-            end
-            if tslua[key] then
-                return tslua[key]
-            end
+            _ = wrapper[key] and wrapper[key]
+            _ = M.TSNodeWrapper[key] and M.TSNodeWrapper[key]
+            _ = tslua[key] and tslua[key]
             if tbl.node_handle and type(tbl.node_handle[key]) == "function" then
                 print("<Accessing TSNode method>")
                 local node_obj = tbl.node_handle
@@ -51,8 +49,16 @@ function M.make_wrapped_node(self, input_node)
                 end
             end
         end,
-        -- Make instance callable
+
+        -- Make instance callable, ie. allow making new node wrappers from
+        -- previous ones so that we can always keep the ball rolling once
+        -- we have created the first node wrapper.
         __call = M.make_wrapped_node,
+
+        -- Make wrapped TSNode's printable.
+        __tostring = function(tbl)
+            return tbl:text()
+        end,
     })
 end
 

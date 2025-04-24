@@ -63,21 +63,17 @@ end
 ---@param Takes TS object we are working on.
 ---@param Table of path components to check for
 function ts_tbl_path(ts_table_constr, t_path)
-    -- print("INPUT -> ts_table_constr:", vim.inspect(ts_table_constr))
-
     local ret = { t_path_left = vim.deepcopy(t_path) }
     local depth = 0
-
-    -- print("ts_table_constr:range()", ts_table_constr:range(), ts_table_constr:text())
 
     ---Taker TS object
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
+        print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
         ret.ts_node_tbl_parent = ts_tbl_in:node()
         ret.deepest_matched_table = ts_tbl_in:node() -- this is only used for the initial sorting, which feels a bit unnecessary.
 
-        print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
-        print("ts_root.. -> ts_tbl_in:range()", ts_tbl_in:range(), ts_tbl_in:text())
+        print(">>>", ts_tbl_in)
 
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
@@ -85,7 +81,6 @@ function ts_tbl_path(ts_table_constr, t_path)
                 on_key = {
                     ret.t_path_left[1]:upper(),
                     function(_, ts_value)
-                        print("!!!!!!!")
                         branch = true
                         ts_tbl_child = ts_value
                         table.remove(ret.t_path_left, 1)
@@ -180,20 +175,25 @@ local function transform_enabled_modules_tree(action)
         -- of existing module tables.
         --
 
+        -- TODO: Use new NodeWrapper objects for all cases
+
+        -- _ = action.action == "TOGGLE" and tn.ts_module_enabled_value:toggle()
+
         if action.action == "TOGGLE" then
             ts:replace(tn.ts_enabled_value, tostring(not tn.ts_module_enabled_value))
+            -- tn.ts_module_enabled_value:toggle()
         end
         if action.action == "ENABLE" then
             ts:replace(tn.ts_enabled_value, tostring(true))
+            -- tn.ts_enabled_value:set(true)
         end
         if action.action == "DISABLE" then
             ts:replace(tn.ts_enabled_value, tostring(false))
+            -- tn.ts_enabled_value:set(false)
         end
         if action.action == "REMOVE" then
             ts.tbl.field.remove(tn.ts_module_found)
-            -- FIX: wrap in TSLuaTable and use field.remove.
-            local ts_module_found = ts_buf(tn.ts_module_found)
-            -- TSModuleFound:remove({ until = "first_sibling"})
+            -- tn.ts_module_found:remove({ up_to = "first_sibling"})
         end
 
         --

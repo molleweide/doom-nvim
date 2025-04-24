@@ -121,8 +121,6 @@ subclasses.table_constructor = {
         for child_node in self.node_handle:iter_children() do
             -- handle indexed fields
 
-            print("iter works")
-
             -- if opts.index == true or type(index) == "number" or opts.type == "comment"
 
             if self:_field_indexed(child_node) then
@@ -157,7 +155,6 @@ subclasses.table_constructor = {
                             -- if (all or type table)
                         elseif _type == "table" and self:_field_table(child_node) then
                             local table_constructor = child_node:named_child()
-                            -- print("??? gettable", vim.inspect(self))
                             opts.on_index.action(self(table_constructor))
                         else
                             -- TODO: Handle all other types that can exist in a
@@ -179,22 +176,12 @@ subclasses.table_constructor = {
                     local key_identifier = child_node:named_child(0)
                     local value = child_node:named_child(1)
 
-                    print("enter opts.on_key", type(opts.on_key))
-
                     if type(opts.on_key) == "table" then
                         -- do only keys that match pattern regex
-                        -- print("??? field.self:", vim.inspect(self))
-                        -- print("getmetatable:", vim.inspect(getmetatable(self)))
-
-                        print("pre text")
                         local text = self:get_text(key_identifier)
-                        print("post text")
-
 
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]
-
-                        print(string.format("text: | compare: %s -> match:%s", text, opts.on_key[1], match))
 
                         if match then
                             opts.on_key[2](self(key_identifier), self(value))
