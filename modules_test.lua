@@ -16,7 +16,7 @@
 -- 2. use tables for each module
 
 return {
-    MOLLEWEIDE = { { "binds_personal", enabled = true }, },
+    MOLLEWEIDE = { { "binds_personal", enabled = true, a,r,s,t,s,r },  },
     G = {
         { "alpha", enabled = true },
         Y = { { "r", enabled = true } },

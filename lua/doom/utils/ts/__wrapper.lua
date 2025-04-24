@@ -2,7 +2,9 @@ local M = {}
 M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 
 function M.make_wrapped_node(self, input_node)
-    if type(input_node.type) ~= "function" then
+
+
+    if not input_node or type(input_node.type) ~= "function" then
         return
     end
 
@@ -150,5 +152,7 @@ function TSNodeWrapper:is_followed_by(check)
     end
     return false
 end
+
+function TSNodeWrapper:is_followed_by_any_of(check) end
 
 return M

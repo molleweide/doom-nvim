@@ -213,17 +213,46 @@ subclasses.table_constructor = {
 
     ---@return 1) numerical index OR wrapped key node; 2) wrapped value node
     iter_fields = function(self)
+        local first_child = self:named_child()
+        if not first_child then
+            return
+        end
+        local next_node
+        local prev_node
+        local index_total = 0
+        local index_indexed = 0 -- count each indexed field
 
-        -- function count_to(n)
-        --     local function iterator(state, current)
-        --         if current < state then
-        --             return current + 1
-        --         end
-        --     end
-        --     return iterator, n, 0  -- invariant_state = n, control_variable = 0
-        -- end
+        return function()
+            if index_total == 0 then
+                next_node = self(first_child)
+            else
+                next_node = self(prev_node:next_named_sibling())
+            end
+            if not next_node then
+                return
+            end
+            index_total = index_total + 1
+            prev_node = next_node
+
+            -- compute return values
+            local the_index, the_value
+            if next_node:is_index() then
+                index_indexed = index_indexed + 1
+                the_index = index_indexed
+                the_value = self(next_node:named_child())
+            else
+                the_index = self(next_node:named_child(0))
+                the_value = self(next_node:named_child(1))
+            end
+            return index_total, the_index, the_value, next_node
+        end
     end,
 
+    -- TODO:
+    --      ~ remove field?
+    --      ~ bubble up until sibling and remove?
+    --      ~ max remove up until last ancestor.
+    --
     ---Handle removal of the table itself.
     ---Figure out (with opt in capabilities) if we should bubble up to an ancestor
     ---table or what should be done depending on the context.
@@ -231,7 +260,7 @@ subclasses.table_constructor = {
     ---     ok,
     ---     message
     remove = function(self)
-        local parent = self(self:parent())
+        local parent_field = self(self:parent())
 
         -- TEST: function: remove_nodes_up_until(fn)
         -- where fn eg.:
@@ -239,7 +268,11 @@ subclasses.table_constructor = {
         --      -- check if current is of type X
         -- end
 
-        if parent:type() == "field" then
+        for count, key, value, field in self:iter_fields() do
+            print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
+        end
+
+        if parent_field:type() == "field" then
             -- wierd: here, unpacking the {range()} throws err, but not above in :replace()
             local a, b, c, d = self:range()
             vim.api.nvim_buf_set_text(
@@ -247,20 +280,12 @@ subclasses.table_constructor = {
                 a,
                 b,
                 c,
-                d + (parent:is_followed_by(",") and 1 or 0),
+                d + (parent_field:is_followed_by(",") and 1 or 0),
                 {}
             )
         else
             return false, string.format("Error: Removing %s will break the code!", self:type())
         end
-
-        -- ! HANDLE IF IS FIELD VALUE
-        --      ~ remove field?
-        --      ~ bubble up until sibling and remove?
-        --      ~ max remove up until last ancestor.
-        --
-        -- ! IF NOT A FIELD, THEN THIS WILL BREAK THE CODE
-        --      ~ return false, message: why we cant remove
     end,
 
     -- put all indexed fields / keyed fields together
