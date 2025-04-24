@@ -17,14 +17,12 @@
 
 return {
   A = {
-    B = {
-      V = { { "c",
-          enabled = true
-        } }
-    }
+    V = { { "c",
+        enabled = true
+      } }
   }
 ,
-    MOLLEWEIDE = { { "binds_personal", enabled = true, a, r, s, t, s, r } },
+    MOLLEWEIDE = { { "binds_personal", enabled = false, a, r, s, t, s, r } },
 }
 
 -- return {

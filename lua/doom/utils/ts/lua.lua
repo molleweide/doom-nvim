@@ -25,6 +25,14 @@ end
 --
 
 local subclasses = TSLua.subclasses
+-- handle lookup for keyword clashes
+subclasses.__index = function(t, k)
+    if k == "true" or k == "false" then
+        return rawget(t, "boolean")
+    end
+    return rawget(t, k)
+end
+
 
 subclasses.field = {
     field_type = function(self)
@@ -332,8 +340,20 @@ subclasses.table_constructor = {
 }
 
 subclasses.boolean = {
-    toggle = function(self) end,
-    set = function(self, new_value) end,
+    toggle = function(self)
+
+        -- get text
+        --
+        -- if true then flip
+    end,
+
+    set = function(self, new_value)
+        if new_value then
+        -- self:replace("true")
+        else
+            -- self:replace("false")
+        end
+    end,
 }
 
 return TSLua

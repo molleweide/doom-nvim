@@ -139,42 +139,28 @@ local function transform_enabled_modules_tree(action)
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
     local query = "(return_statement (expression_list (table_constructor) @table_constructor))"
-    -- print("ts_buf:", vim.inspect(ts_buf))
+    print("ts_buf:", vim.inspect(ts_buf))
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
             t.nodes = ts_tbl_path(ts_buf:query_wrap(query), t.t_path)
         end)
         :totable()
 
-    -- i should probably do this conditionally based on if the entry has a module_found or not.
     table.sort(action, function(a, b)
         -- TODO: Maybe instead do
         -- if module_node then sort based on it, or else sort based on parent_node
-
         return a.nodes.deepest_matched_table_node:range()
             < b.nodes.deepest_matched_table_node:range()
     end)
 
     -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
-    -- if true then return end
-
     -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
-
-    -- NOTE: toggling + ableing: only changes existing tables.
-    -- NOTE: removing + adding: requires new trees
 
     for i = #action, 1, -1 do
         local t = action[i]
         local tn = t.nodes
-
-        --
-        -- Handle simple actions, ie. that only requires updating table values
-        -- of existing module tables.
-        --
-
-        -- _ = action.action == "TOGGLE" and tn.ts_module_enabled_value:toggle()
 
         if action.action == "TOGGLE" then
             tn.module_field_enabled_value_node:toggle()
@@ -210,7 +196,7 @@ local function transform_enabled_modules_tree(action)
 
                 table.insert(injection_nodes, t_injectable)
             end
-            setmeatable(t_injectable, {
+            setmetatable(t_injectable, {
                 -- makes TSNode methods available directly
                 __index = tn.parent_table_node,
             })
@@ -254,7 +240,7 @@ local function transform_enabled_modules_tree(action)
         for _, injectable in ipairs(injection_nodes) do
             injectable:add_field({
                 pos = "first",
-                data = build_new_inject_string2(v.injection_table),
+                data = build_new_inject_string2(injectable.injection_table),
             })
         end
     end

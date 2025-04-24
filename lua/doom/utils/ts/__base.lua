@@ -13,7 +13,12 @@ local TSNodeWrapper = require("doom.utils.ts.__wrapper")
 -- --      since the instance was created. So that we can throw an error to user/dev
 -- --      if we are trying to operate on a node that is out of sync.
 
-local TSBufWrapper = { __name = "TSBufWrapperClass", subclasses = {} }
+local TSBufWrapper = {
+    __name = "TSBufWrapperClass",
+    -- instantiate an empty mt so that it can be easilly overridden later
+    subclasses = setmetatable({}, { __index = function() end }),
+}
+
 TSBufWrapper.__index = TSBufWrapper
 
 -------------------------------------------------------------------------------
