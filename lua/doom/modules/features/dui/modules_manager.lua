@@ -70,19 +70,12 @@ function ts_tbl_path(ts_table_constr, t_path)
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
         print(string.format("--------------- %s ---------------", depth))
-        ret.ts_node_tbl_parent = ts_tbl_in
+        ret.parent_table_node = ts_tbl_in
         ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
 
-        -- NOTE: Now with the improved node wrapper, maybe it is simpler to just
-        --  iterate fields,
-        --      rather than
-        --          having a custom :fields func that does the
-        --          iterator internally and exposes a callback
-        --  Using an iterator, similar to pairs(), vlb ts_pairs(), where
-        --  the index OR the key node, is returned as the first value, and
-        --  the field value as the second one. always.
-        --  This would remove need for callback, and still allow for true
-        --  checking of index/key AND value in the same run.
+        for count, key, value, field in ts_tbl_in:iter_fields() do
+            print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
+        end
 
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
@@ -158,7 +151,8 @@ local function transform_enabled_modules_tree(action)
         -- TODO: Maybe instead do
         -- if module_node then sort based on it, or else sort based on parent_node
 
-        return a.nodes.deepest_matched_table_node:range() < b.nodes.deepest_matched_table_node:range()
+        return a.nodes.deepest_matched_table_node:range()
+            < b.nodes.deepest_matched_table_node:range()
     end)
 
     -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
@@ -180,27 +174,19 @@ local function transform_enabled_modules_tree(action)
         -- of existing module tables.
         --
 
-        -- TODO: Use new NodeWrapper objects for all cases
-
         -- _ = action.action == "TOGGLE" and tn.ts_module_enabled_value:toggle()
 
         if action.action == "TOGGLE" then
-            -- ts:replace(tn.mod_enabled_value_text, tostring(not tn.ts_module_enabled_value))
-            -- tn.ts_module_enabled_value:toggle()
+            tn.module_field_enabled_value_node:toggle()
         end
         if action.action == "ENABLE" then
-            -- ts:replace(tn.mod_enabled_value_text, tostring(true))
-            -- tn.mod_enabled_value_text:set(true)
+            tn.module_field_enabled_value_node:set(true)
         end
         if action.action == "DISABLE" then
-            -- ts:replace(tn.mod_enabled_value_text, tostring(false))
-            -- tn.mod_enabled_value_text:set(false)
+            tn.module_field_enabled_value_node:set(false)
         end
         if action.action == "REMOVE" then
-
-            -- NOTE: currently this should fallback to the shared NodeWrapper:remove
-
-            tn.module_found_node:remove({ up_to = "first_sibling"})
+            tn.module_found_node:remove({ up_to = "first_sibling" })
         end
 
         --
@@ -209,20 +195,26 @@ local function transform_enabled_modules_tree(action)
         --
 
         if action.action == "ADD" then
-            local id = tn.ts_node_tbl_parent:id()
-            local t_inject
+            local id = tn.parent_table_node:id()
+            local t_injectable
             for i, v in ipairs(injection_nodes) do
                 if v.node:id() == id then
-                    t_inject = v
+                    t_injectable = v
                 end
             end
-            if not t_inject then
-                t_inject = {
-                    node = tn.ts_node_tbl_parent,
-                    tree = {},
+            if not t_injectable then
+                t_injectable = {
+                    parent_table_node = tn.parent_table_node,
+                    injection_table = {},
                 }
-                table.insert(injection_nodes, t_inject)
+
+                table.insert(injection_nodes, t_injectable)
             end
+            setmeatable(t_injectable, {
+                -- makes TSNode methods available directly
+                __index = tn.parent_table_node,
+            })
+
             local t_path_new_segment = vim.deepcopy(tn.t_path_left)
             table.remove(t_path_new_segment) -- remove last item, ie. the module name
 
@@ -235,28 +227,35 @@ local function transform_enabled_modules_tree(action)
             local new_name, new_branch
             if #t_path_new_segment > 0 then
                 new_name = tn.t_path_left[#tn.t_path_left]
-                new_branch = utils.get_set_table_path(t_inject.tree, t_path_new_segment)
+                new_branch =
+                    utils.get_set_table_path(t_injectable.injection_table, t_path_new_segment)
                 if not new_branch then
                     new_branch = {}
-                    utils.get_set_table_path(t_inject.tree, t_path_new_segment, new_branch)
+                    utils.get_set_table_path(
+                        t_injectable.injection_table,
+                        t_path_new_segment,
+                        new_branch
+                    )
                 end
             else
                 new_name = t.t_path[#t.t_path]
-                new_branch = t_inject.tree
+                new_branch = t_injectable.injection_table
             end
 
             table.insert(new_branch, { new_name, enabled = true })
         end
     end
 
-    -- inject new trees.
+    -- inject new data
     if #injection_nodes > 0 then
         table.sort(injection_nodes, function(a, b)
-            return a.node:range() > b.node:range()
+            return a:range() > b:range()
         end)
-        for i, v in ipairs(injection_nodes) do
-            -- !! work with node wrapper directly
-            ts_buf(v.node):add_field({ pos = "first", data = build_new_inject_string2(v.tree) })
+        for _, injectable in ipairs(injection_nodes) do
+            injectable:add_field({
+                pos = "first",
+                data = build_new_inject_string2(v.injection_table),
+            })
         end
     end
 

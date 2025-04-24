@@ -211,7 +211,6 @@ subclasses.table_constructor = {
         end
     end,
 
-    ---@return 1) numerical index OR wrapped key node; 2) wrapped value node
     iter_fields = function(self)
         local first_child = self:named_child()
         if not first_child then
@@ -267,10 +266,6 @@ subclasses.table_constructor = {
         -- function()
         --      -- check if current is of type X
         -- end
-
-        for count, key, value, field in self:iter_fields() do
-            print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
-        end
 
         if parent_field:type() == "field" then
             -- wierd: here, unpacking the {range()} throws err, but not above in :replace()
