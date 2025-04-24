@@ -106,6 +106,14 @@ function TSNodeWrapper:text()
     return vim.treesitter.get_node_text(self.node_handle, self.buf_handle)
 end
 
+function TSNodeWrapper:replace(replacement)
+    vim.api.nvim_buf_set_text(
+        self.buf_handle,
+        unpack({ self:range() }),
+        type(replacement) == "string" and { replacement } or replacement
+    )
+end
+
 ---Make it easy to move a node to another location after/before node X.
 function TSNodeWrapper:move_to(opts) end
 
