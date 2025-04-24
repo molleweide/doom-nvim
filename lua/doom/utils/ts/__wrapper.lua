@@ -47,7 +47,6 @@ function M.make_wrapped_node(self, input_node)
                 return tslua[key]
             end
             if tbl.node_handle and type(tbl.node_handle[key]) == "function" then
-                print("<Accessing TSNode method>")
                 local node_obj = tbl.node_handle
                 -- This ensures that the TSNode is called with its proper "self".
                 return function(_, ...)
@@ -132,10 +131,24 @@ end
 
 ---If a subclass does not have dedicated remove method, then we fallback to
 ---this default remover
-function TSNodeWrapper:remove() end
+function TSNodeWrapper:remove()
+    print("TSNodeWrapper:remove()")
+    -- print("self ->", self.buf_handle, self, self:range(), vim.inspect(self))
+    local a, b, c, d = self:range()
+    -- wierd: here, unpacking the {range()} throws err, but not above in :replace()
+    vim.api.nvim_buf_set_text(self.buf_handle, a, b, c, d, {})
+end
 
 -- function TSNodeWrapper:remove()
 --   error("remove() not implemented for this node type: " .. self.node:type())
 -- end
+
+function TSNodeWrapper:is_followed_by(check)
+    local ns = self:next_sibling()
+    if ns then
+        return ns:type() == check
+    end
+    return false
+end
 
 return M

@@ -26,6 +26,22 @@ end
 
 local subclasses = TSLua.subclasses
 
+subclasses.field = {
+    field_type = function(self)
+        if self:is_index() then
+            return "index"
+        elseif self:is_key() then
+            return "key"
+        end
+    end,
+    is_index = function(self)
+        return self:named_child_count() == 1
+    end,
+    is_key = function(self)
+        return self:named_child_count() == 2
+    end,
+}
+
 subclasses.table_constructor = {
 
     test = function(self, msg)
@@ -195,13 +211,48 @@ subclasses.table_constructor = {
         end
     end,
 
+    ---@return 1) numerical index OR wrapped key node; 2) wrapped value node
+    iter_fields = function(self)
+
+        -- function count_to(n)
+        --     local function iterator(state, current)
+        --         if current < state then
+        --             return current + 1
+        --         end
+        --     end
+        --     return iterator, n, 0  -- invariant_state = n, control_variable = 0
+        -- end
+    end,
+
     ---Handle removal of the table itself.
     ---Figure out (with opt in capabilities) if we should bubble up to an ancestor
     ---table or what should be done depending on the context.
+    ---@return
+    ---     ok,
+    ---     message
     remove = function(self)
+        local parent = self(self:parent())
 
-        -- NOTE: in most cases you cant just remove a table, because it breaks the code.
-        -- if it is a field then we can remove, but if it is any other kind of assignment.
+        -- TEST: function: remove_nodes_up_until(fn)
+        -- where fn eg.:
+        -- function()
+        --      -- check if current is of type X
+        -- end
+
+        if parent:type() == "field" then
+            -- wierd: here, unpacking the {range()} throws err, but not above in :replace()
+            local a, b, c, d = self:range()
+            vim.api.nvim_buf_set_text(
+                self.buf_handle,
+                a,
+                b,
+                c,
+                d + (parent:is_followed_by(",") and 1 or 0),
+                {}
+            )
+        else
+            return false, string.format("Error: Removing %s will break the code!", self:type())
+        end
 
         -- ! HANDLE IF IS FIELD VALUE
         --      ~ remove field?
@@ -210,13 +261,6 @@ subclasses.table_constructor = {
         --
         -- ! IF NOT A FIELD, THEN THIS WILL BREAK THE CODE
         --      ~ return false, message: why we cant remove
-
-        -- TODO: check if parent is field or not
-        --
-        -- if field then go ahead an remove
-        -- else
-        --      false , errormsg
-
     end,
 
     -- put all indexed fields / keyed fields together

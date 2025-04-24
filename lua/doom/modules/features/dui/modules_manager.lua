@@ -66,14 +66,23 @@ function ts_tbl_path(ts_table_constr, t_path)
     local ret = { t_path_left = vim.deepcopy(t_path) }
     local depth = 0
 
-    ---Taker TS object
+    ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
-        print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
-        ret.ts_node_tbl_parent = ts_tbl_in:node()
-        ret.deepest_matched_table = ts_tbl_in:node() -- this is only used for the initial sorting, which feels a bit unnecessary.
+        print(string.format("--------------- %s ---------------", depth))
+        ret.ts_node_tbl_parent = ts_tbl_in
+        ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
 
-        print(">>>", ts_tbl_in)
+        -- NOTE: Now with the improved node wrapper, maybe it is simpler to just
+        --  iterate fields,
+        --      rather than
+        --          having a custom :fields func that does the
+        --          iterator internally and exposes a callback
+        --  Using an iterator, similar to pairs(), vlb ts_pairs(), where
+        --  the index OR the key node, is returned as the first value, and
+        --  the field value as the second one. always.
+        --  This would remove need for callback, and still allow for true
+        --  checking of index/key AND value in the same run.
 
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
@@ -98,28 +107,21 @@ function ts_tbl_path(ts_table_constr, t_path)
                                 index = 1,
                                 type = "string",
                                 equals = ret.t_path_left[1],
-                                action = function(str, content)
-                                    ret.ts_module_found = table_leaf:node()
-                                    ret.deepest_matched_table = table_leaf:node()
-                                    ret.module = true
-                                    ret.module_real_name = content:text()
-                                    ret.deepest_name = content:text()
-                                    ret.module_name_string = str:node()
-                                    ret.module_range = { table_leaf:node():range() }
+                                action = function(str)
+                                    ret.module_found_node = table_leaf
+                                    ret.deepest_matched_table_node = table_leaf
+                                    ret.module_name_node = str
                                 end,
                             },
                         })
-                        if not ret.module then
-                            ret.parent = true
+                        if not ret.module_found_node then
                             return ret
                         end
                         table_leaf:fields({
                             on_key = {
                                 "enabled",
                                 function(_, ts_value)
-                                    ret.ts_enabled_value = ts_value:text()
-                                    ret.ts_module_enabled_value = ts_value:text() == "true" and true
-                                        or false
+                                    ret.module_field_enabled_value_node = ts_value
                                 end,
                             },
                         })
@@ -153,10 +155,13 @@ local function transform_enabled_modules_tree(action)
 
     -- i should probably do this conditionally based on if the entry has a module_found or not.
     table.sort(action, function(a, b)
-        return a.nodes.deepest_matched_table:range() < b.nodes.deepest_matched_table:range()
+        -- TODO: Maybe instead do
+        -- if module_node then sort based on it, or else sort based on parent_node
+
+        return a.nodes.deepest_matched_table_node:range() < b.nodes.deepest_matched_table_node:range()
     end)
 
-    print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
+    -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
     -- if true then return end
 
@@ -180,20 +185,22 @@ local function transform_enabled_modules_tree(action)
         -- _ = action.action == "TOGGLE" and tn.ts_module_enabled_value:toggle()
 
         if action.action == "TOGGLE" then
-            ts:replace(tn.ts_enabled_value, tostring(not tn.ts_module_enabled_value))
+            -- ts:replace(tn.mod_enabled_value_text, tostring(not tn.ts_module_enabled_value))
             -- tn.ts_module_enabled_value:toggle()
         end
         if action.action == "ENABLE" then
-            ts:replace(tn.ts_enabled_value, tostring(true))
-            -- tn.ts_enabled_value:set(true)
+            -- ts:replace(tn.mod_enabled_value_text, tostring(true))
+            -- tn.mod_enabled_value_text:set(true)
         end
         if action.action == "DISABLE" then
-            ts:replace(tn.ts_enabled_value, tostring(false))
-            -- tn.ts_enabled_value:set(false)
+            -- ts:replace(tn.mod_enabled_value_text, tostring(false))
+            -- tn.mod_enabled_value_text:set(false)
         end
         if action.action == "REMOVE" then
-            ts.tbl.field.remove(tn.ts_module_found)
-            -- tn.ts_module_found:remove({ up_to = "first_sibling"})
+
+            -- NOTE: currently this should fallback to the shared NodeWrapper:remove
+
+            tn.module_found_node:remove({ up_to = "first_sibling"})
         end
 
         --

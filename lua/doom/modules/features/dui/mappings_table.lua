@@ -258,9 +258,11 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                 }, function(choice)
                     log.info(string.format("Set selected module to [%s]", choice))
 
-                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        action,
-                    })
+                    if choice == "yes" then
+                        require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                            action,
+                        })
+                    end
                 end)
             end,
         },
