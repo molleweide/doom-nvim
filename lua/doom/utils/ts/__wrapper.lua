@@ -1,12 +1,8 @@
---
--- WRAPPER CLASS
---
-
 local M = {}
 M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 
-function M.make_wrapped_node(self, node)
-    if type(node.type) ~= "function" then
+function M.make_wrapped_node(self, input_node)
+    if type(input_node.type) ~= "function" then
         return
     end
     local tslua = self.__tslua or self
@@ -16,12 +12,12 @@ function M.make_wrapped_node(self, node)
         error("No TSLua instance found for wrapped object")
     end
 
-    local wrapper = tslua.subclasses[node:type()]
+    local wrapper = tslua.subclasses[input_node:type()]
     if wrapper then
-        wrapper.__name = "wrapper:" .. node:type()
+        wrapper.__name = "wrapper:" .. input_node:type()
     else
         wrapper = {}
-        wrapper.__name = string.format("wrapper:%s (undefined)", node:type())
+        wrapper.__name = string.format("wrapper:%s (undefined)", input_node:type())
     end
 
     -- Set up wrapper inheritance
@@ -33,7 +29,7 @@ function M.make_wrapped_node(self, node)
         }),
     })
 
-    local instance = { __name = "TSNodeInstance", __tslua = tslua, node = node }
+    local instance = { __name = "TSNodeInstance", __tslua = tslua, node_handle = input_node }
     return setmetatable(instance, {
         -- Lookup chain instance -> wrapper -> TSNodeWrapper -> TSLua -> TSNode
         __index = function(tbl, key)
@@ -46,8 +42,9 @@ function M.make_wrapped_node(self, node)
             if tslua[key] then
                 return tslua[key]
             end
-            if tbl.node and type(tbl.node[key]) == "function" then
-                local node_obj = tbl.node
+            if tbl.node_handle and type(tbl.node_handle[key]) == "function" then
+                print("<Accessing TSNode method>")
+                local node_obj = tbl.node_handle
                 -- This ensures that the TSNode is called with its proper "self".
                 return function(_, ...)
                     return node_obj[key](node_obj, ...)
@@ -70,12 +67,6 @@ end
 
 local TSNodeWrapper = M.TSNodeWrapper
 
--- TODO: rename the node to node_handler, and then use :node() to get the
--- raw node, or maybe use :raw() to get the node, and keep using [self.node]
-function TSNodeWrapper:get_node()
-    return self.node
-end
-
 function TSNodeWrapper:test(msg)
     print("test from TSNodeWrapper:", msg)
 end
@@ -83,17 +74,24 @@ end
 ---Check if a ts proxy is of a certain type [check_type]
 ---@param check_type String The type we want to compare against
 function TSNodeWrapper:is(check_type)
-    return self.node:type() == check_type
+    -- doing [self:type()] here should also fallback to the TSNode:type()...
+    return self.node_handle:type() == check_type
 end
 
--- TODO: rename to node() -> returns the raw node, so that one can do iter methods.
--- Which might be a bit trickier to play nicely with the wrapper.
-function TSNodeWrapper:get_node()
-    return self.node
+--Get wrapped node handle.
+function TSNodeWrapper:node()
+    return self.node_handle
 end
 
+---Get text from node
+---Maybe this should be hidden with _get_text()
+function TSNodeWrapper:get_text(node)
+    return vim.treesitter.get_node_text(node, self.buf_handle)
+end
+
+---Get text from wrapped node_handle
 function TSNodeWrapper:text()
-    return vim.treesitter.get_node_text(self.node, self.buf_handle)
+    return vim.treesitter.get_node_text(self.node_handle, self.buf_handle)
 end
 
 ---Make it easy to move a node to another location after/before node X.

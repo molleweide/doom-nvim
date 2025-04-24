@@ -13,7 +13,7 @@ function TSLua:query_wrap(query_str)
     local ts_tbl
     for _, capture_node, _ in return_query:iter_captures(root, self.buf_handle) do
         ts_tbl = capture_node
-        print("type:", ts_tbl:type())
+        -- print("type:", ts_tbl:type())
     end
     -- print("query_wrap self >>>>", vim.inspect(self))
     return self(ts_tbl)
@@ -118,8 +118,10 @@ subclasses.table_constructor = {
             end
         end
 
-        for child_node in self.node:iter_children() do
+        for child_node in self.node_handle:iter_children() do
             -- handle indexed fields
+
+            print("iter works")
 
             -- if opts.index == true or type(index) == "number" or opts.type == "comment"
 
@@ -142,7 +144,7 @@ subclasses.table_constructor = {
                         if _type == "string" and self:_field_string(child_node) then
                             local ts_string = child_node:named_child()
                             local ts_string_content = ts_string:named_child()
-                            local text = self:text(ts_string_content)
+                            local text = self:get_text(ts_string_content)
                             -- if handle compare value
                             if equals and equals == text or match and text:match(match) then
                                 opts.on_index.action(self(ts_string), self(ts_string_content))
@@ -177,19 +179,29 @@ subclasses.table_constructor = {
                     local key_identifier = child_node:named_child(0)
                     local value = child_node:named_child(1)
 
+                    print("enter opts.on_key", type(opts.on_key))
+
                     if type(opts.on_key) == "table" then
                         -- do only keys that match pattern regex
                         -- print("??? field.self:", vim.inspect(self))
                         -- print("getmetatable:", vim.inspect(getmetatable(self)))
-                        local text = self:text(key_identifier)
+
+                        print("pre text")
+                        local text = self:get_text(key_identifier)
+                        print("post text")
+
+
                         local match = opts.on_key[3] and text:match(opts.on_key[1])
                             or text == opts.on_key[1]
+
+                        print(string.format("text: | compare: %s -> match:%s", text, opts.on_key[1], match))
+
                         if match then
                             opts.on_key[2](self(key_identifier), self(value))
                         end
                     else
                         -- do each named key
-                        opts.on_key(self.buf_handle, key_identifier, value)
+                        opts.on_key(self(key_identifier), self(value))
                     end
                 end
             end
@@ -199,7 +211,26 @@ subclasses.table_constructor = {
     ---Handle removal of the table itself.
     ---Figure out (with opt in capabilities) if we should bubble up to an ancestor
     ---table or what should be done depending on the context.
-    remove = function(self) end,
+    remove = function(self)
+
+        -- NOTE: in most cases you cant just remove a table, because it breaks the code.
+        -- if it is a field then we can remove, but if it is any other kind of assignment.
+
+        -- ! HANDLE IF IS FIELD VALUE
+        --      ~ remove field?
+        --      ~ bubble up until sibling and remove?
+        --      ~ max remove up until last ancestor.
+        --
+        -- ! IF NOT A FIELD, THEN THIS WILL BREAK THE CODE
+        --      ~ return false, message: why we cant remove
+
+        -- TODO: check if parent is field or not
+        --
+        -- if field then go ahead an remove
+        -- else
+        --      false , errormsg
+
+    end,
 
     -- put all indexed fields / keyed fields together
     rearrange = function(self) end,
@@ -220,7 +251,7 @@ subclasses.table_constructor = {
 
         local data = opts.data
 
-        local range = { self.node:range() }
+        local range = { self.node_handle:range() }
 
         local row, col
         if not opts.pos or opts.pos == "last" then
@@ -230,7 +261,8 @@ subclasses.table_constructor = {
             data[#data] = data[#data] .. ","
         end
 
-        vim.api.nvim_buf_set_text(self.buf_handle, row, col, row, col, opts.data)
+        print("ts_tbl:add_field(): data before inserting", vim.inspect(data))
+        vim.api.nvim_buf_set_text(self.buf_handle, row, col, row, col, data)
     end,
 
     -- TODO:

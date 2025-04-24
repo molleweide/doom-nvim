@@ -68,21 +68,24 @@ function ts_tbl_path(ts_table_constr, t_path)
     local ret = { t_path_left = vim.deepcopy(t_path) }
     local depth = 0
 
-    print("ts_table_constr:range()", ts_table_constr:range())
+    -- print("ts_table_constr:range()", ts_table_constr:range(), ts_table_constr:text())
 
     ---Taker TS object
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
-        ret.ts_node_tbl_parent = ts_tbl_in:get_node()
-        ret.deepest_matched_table = ts_tbl_in:get_node() -- this is only used for the initial sorting, which feels a bit unnecessary.
+        ret.ts_node_tbl_parent = ts_tbl_in:node()
+        ret.deepest_matched_table = ts_tbl_in:node() -- this is only used for the initial sorting, which feels a bit unnecessary.
 
         print(string.format("--------------- %s\n ret: %s", depth, vim.inspect(ret)))
+        print("ts_root.. -> ts_tbl_in:range()", ts_tbl_in:range(), ts_tbl_in:text())
+
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
             ts_tbl_in:fields({
                 on_key = {
                     ret.t_path_left[1]:upper(),
                     function(_, ts_value)
+                        print("!!!!!!!")
                         branch = true
                         ts_tbl_child = ts_value
                         table.remove(ret.t_path_left, 1)
@@ -101,13 +104,13 @@ function ts_tbl_path(ts_table_constr, t_path)
                                 type = "string",
                                 equals = ret.t_path_left[1],
                                 action = function(str, content)
-                                    ret.ts_module_found = table_leaf:get_node()
-                                    ret.deepest_matched_table = table_leaf:get_node()
+                                    ret.ts_module_found = table_leaf:node()
+                                    ret.deepest_matched_table = table_leaf:node()
                                     ret.module = true
                                     ret.module_real_name = content:text()
                                     ret.deepest_name = content:text()
-                                    ret.module_name_string = str:get_node()
-                                    ret.module_range = { table_leaf:get_node():range() }
+                                    ret.module_name_string = str:node()
+                                    ret.module_range = { table_leaf:node():range() }
                                 end,
                             },
                         })
@@ -120,8 +123,7 @@ function ts_tbl_path(ts_table_constr, t_path)
                                 "enabled",
                                 function(_, ts_value)
                                     ret.ts_enabled_value = ts_value:text()
-                                    ret.ts_module_enabled_value = ts_value:text() == "true"
-                                            and true
+                                    ret.ts_module_enabled_value = ts_value:text() == "true" and true
                                         or false
                                 end,
                             },

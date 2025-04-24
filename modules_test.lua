@@ -16,6 +16,7 @@
 -- 2. use tables for each module
 
 return {
+    A = { { "wfppp", enabled = true } },
 }
 
 -- return {
