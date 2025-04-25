@@ -26,12 +26,15 @@ end
 
 local subclasses = TSLua.subclasses
 -- handle lookup for keyword clashes
-subclasses.__index = function(t, k)
-    if k == "true" or k == "false" then
-        return rawget(t, "boolean")
-    end
-    return rawget(t, k)
-end
+setmetatable(subclasses, {
+    __index = function(t, k)
+        print("subclass __index key:", k)
+        if k == "true" or k == "false" then
+            return rawget(t, "boolean")
+        end
+        return rawget(t, k)
+    end,
+})
 
 
 subclasses.field = {
@@ -208,6 +211,7 @@ subclasses.table_constructor = {
                             or text == opts.on_key[1]
 
                         if match then
+                            -- print("value:type():", value:type())
                             opts.on_key[2](self(key_identifier), self(value))
                         end
                     else
@@ -341,6 +345,7 @@ subclasses.table_constructor = {
 
 subclasses.boolean = {
     toggle = function(self)
+        print("hello from boolean:", self)
 
         -- get text
         --

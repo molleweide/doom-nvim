@@ -2,8 +2,6 @@ local M = {}
 M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 
 function M.make_wrapped_node(self, input_node)
-
-
     if not input_node or type(input_node.type) ~= "function" then
         return
     end
@@ -15,6 +13,7 @@ function M.make_wrapped_node(self, input_node)
     end
 
     local wrapper = tslua.subclasses[input_node:type()]
+
     if wrapper then
         wrapper.__name = "wrapper:" .. input_node:type()
     else
@@ -65,6 +64,21 @@ function M.make_wrapped_node(self, input_node)
         -- Make wrapped TSNode's printable.
         __tostring = function(tbl)
             return tbl:text()
+        end,
+
+        __eq = function(self, other)
+                print("__eq")
+                return false
+            -- if type(other) == "string" then
+            --     -- remember, the instance has __tostring above.
+            --     return self:tostring() == other
+            --     end
+            --
+            -- if other.__name == "TSNodeInstance" then
+            --     return self:tostring() == other:tostring()
+            -- end
+            --
+            -- return false
         end,
     })
 end
