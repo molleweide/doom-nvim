@@ -119,108 +119,97 @@ subclasses.table_constructor = {
     --         ret.module_range = { value_table:range() }
     --     end,
     -- })
-    _field_indexed = function(self, node)
-        return node:named() and node:named_child_count() == 1
-    end,
-    _field_key = function(self, node)
-        return node:named() and node:named_child_count() == 2
-    end,
-    _field_string = function(self, node)
-        return node:type() == "field" and node:named_child(0):type() == "string"
-    end,
-    _field_table = function(self, node)
-        return node:type() == "field" and node:named_child():type() == "table_constructor"
-    end,
 
-    -- :iter
-    fields = function(self, opts)
-        local index = 0
+    -- WARN: DEPRECATED
+    -- _field_indexed = function(self, node)
+    --     return node:named() and node:named_child_count() == 1
+    -- end,
+    -- _field_key = function(self, node)
+    --     return node:named() and node:named_child_count() == 2
+    -- end,
+    -- _field_string = function(self, node)
+    --     return node:type() == "field" and node:named_child(0):type() == "string"
+    -- end,
+    -- _field_table = function(self, node)
+    --     return node:type() == "field" and node:named_child():type() == "table_constructor"
+    -- end,
 
-        -- WARN: if both index and key
-
-        local function debug(...)
-            if opts.debug then
-                print(...)
-            end
-        end
-
-        for child_node in self.node_handle:iter_children() do
-            -- handle indexed fields
-
-            -- if opts.index == true or type(index) == "number" or opts.type == "comment"
-
-            if self:_field_indexed(child_node) then
-                if opts.comment and child_node:type() == "comment" then
-                    opts.on_comment(self.buf_handle, child_node, index, child_node:named_child())
-                end
-
-                -- if key == true or type(key) == "number"
-
-                if opts.on_index then
-                    index = index + 1
-                    local _type = opts.on_index.type
-                    local index_target = opts.on_index.index
-                    local equals = opts.on_index.equals
-                    local match = opts.on_index.match
-
-                    if not index_target or (index_target and index_target == index) then
-                        -- if (all or type string)
-                        if _type == "string" and self:_field_string(child_node) then
-                            local ts_string = child_node:named_child()
-                            local ts_string_content = ts_string:named_child()
-                            local text = self:get_text(ts_string_content)
-                            -- if handle compare value
-                            if equals and equals == text or match and text:match(match) then
-                                opts.on_index.action(self(ts_string), self(ts_string_content))
-                            end
-                            -- if do each indexed string
-                            if not (opts.on_index.equals or opts.on_index.match) then
-                                opts.on_index.action(self(ts_string), self(ts_string_content))
-                            end
-
-                            -- if (all or type table)
-                        elseif _type == "table" and self:_field_table(child_node) then
-                            local table_constructor = child_node:named_child()
-                            opts.on_index.action(self(table_constructor))
-                        else
-                            -- TODO: Handle all other types that can exist in a
-                            -- table:
-                            -- boolean, expression, function,
-                        end
-                    end
-                end
-            end
-            -- handle key value pairs
-            -- TODO: handle when keys are wrapped in [] and also keys that
-            -- handle key value pair fields
-            --
-            --
-            -- if key == true or type(key) == "string"
-            --
-            if opts.on_key then
-                if self:_field_key(child_node) then
-                    local key_identifier = child_node:named_child(0)
-                    local value = child_node:named_child(1)
-
-                    if type(opts.on_key) == "table" then
-                        -- do only keys that match pattern regex
-                        local text = self:get_text(key_identifier)
-
-                        local match = opts.on_key[3] and text:match(opts.on_key[1])
-                            or text == opts.on_key[1]
-
-                        if match then
-                            -- print("value:type():", value:type())
-                            opts.on_key[2](self(key_identifier), self(value))
-                        end
-                    else
-                        -- do each named key
-                        opts.on_key(self(key_identifier), self(value))
-                    end
-                end
-            end
-        end
-    end,
+    -- WARN: DEPRECATED
+    -- fields = function(self, opts)
+    --     local index = 0
+    --     local function debug(...)
+    --         if opts.debug then
+    --             print(...)
+    --         end
+    --     end
+    --     for child_node in self.node_handle:iter_children() do
+    --         -- handle indexed fields
+    --         -- if opts.index == true or type(index) == "number" or opts.type == "comment"
+    --         if self:_field_indexed(child_node) then
+    --             if opts.comment and child_node:type() == "comment" then
+    --                 opts.on_comment(self.buf_handle, child_node, index, child_node:named_child())
+    --             end
+    --             -- if key == true or type(key) == "number"
+    --             if opts.on_index then
+    --                 index = index + 1
+    --                 local _type = opts.on_index.type
+    --                 local index_target = opts.on_index.index
+    --                 local equals = opts.on_index.equals
+    --                 local match = opts.on_index.match
+    --                 if not index_target or (index_target and index_target == index) then
+    --                     -- if (all or type string)
+    --                     if _type == "string" and self:_field_string(child_node) then
+    --                         local ts_string = child_node:named_child()
+    --                         local ts_string_content = ts_string:named_child()
+    --                         local text = self:get_text(ts_string_content)
+    --                         -- if handle compare value
+    --                         if equals and equals == text or match and text:match(match) then
+    --                             opts.on_index.action(self(ts_string), self(ts_string_content))
+    --                         end
+    --                         -- if do each indexed string
+    --                         if not (opts.on_index.equals or opts.on_index.match) then
+    --                             opts.on_index.action(self(ts_string), self(ts_string_content))
+    --                         end
+    --                         -- if (all or type table)
+    --                     elseif _type == "table" and self:_field_table(child_node) then
+    --                         local table_constructor = child_node:named_child()
+    --                         opts.on_index.action(self(table_constructor))
+    --                     else
+    --                         -- todo: Handle all other types that can exist in a
+    --                         -- table:
+    --                         -- boolean, expression, function,
+    --                     end
+    --                 end
+    --             end
+    --         end
+    --         -- handle key value pairs
+    --         -- todo: handle when keys are wrapped in [] and also keys that
+    --         -- handle key value pair fields
+    --         --
+    --         --
+    --         -- if key == true or type(key) == "string"
+    --         --
+    --         if opts.on_key then
+    --             if self:_field_key(child_node) then
+    --                 local key_identifier = child_node:named_child(0)
+    --                 local value = child_node:named_child(1)
+    --                 if type(opts.on_key) == "table" then
+    --                     -- do only keys that match pattern regex
+    --                     local text = self:get_text(key_identifier)
+    --                     local match = opts.on_key[3] and text:match(opts.on_key[1])
+    --                         or text == opts.on_key[1]
+    --                     if match then
+    --                         -- print("value:type():", value:type())
+    --                         opts.on_key[2](self(key_identifier), self(value))
+    --                     end
+    --                 else
+    --                     -- do each named key
+    --                     opts.on_key(self(key_identifier), self(value))
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end,
 
     -- Example usage:
     -- for count, key, value, field in ts_tbl_in:iter_fields() do
@@ -231,23 +220,50 @@ subclasses.table_constructor = {
         if not first_child then
             return
         end
-        local next_node
         local prev_node
         local index_total = 0
         local index_indexed = 0 -- count each indexed field
 
+        print(":::::::::::::::::::::::::")
+
         return function()
+            local next_node
             if index_total == 0 then
+                print("> first...")
                 next_node = self(first_child)
             else
-                -- TODO: while loop until next is NOT comment
-                next_node = self(prev_node:next_named_sibling())
+                local found_code_sib
+                local c = 0
+                while not found_code_sib do
+
+                    print(">", type(next_node), next_node)
+
+                    if not next_node then
+                        next_node = self(prev_node:next_named_sibling())
+                    else
+                        next_node = self(next_node:next_named_sibling())
+                    end
+
+                    if next_node == nil then
+                        return
+                    elseif next_node:type() ~= "comment" then
+                        found_code_sib = true -- ensure we dont include comment nodes
+                    end
+
+                    print("> (while after)", type(next_node), next_node)
+                    -- c = c + 1
+                    -- if c > 10 then
+                    --     return
+                    -- end
+                end
             end
+            index_total = index_total + 1
             if not next_node then
                 return
             end
-            index_total = index_total + 1
             prev_node = next_node
+
+            print("NEXT NODE:", next_node:type())
 
             -- compute return values
             local the_index, the_value
@@ -259,6 +275,8 @@ subclasses.table_constructor = {
                 the_index = self(next_node:named_child(0))
                 the_value = self(next_node:named_child(1))
             end
+
+            -- TODO: return index_total last
             return index_total, the_index, the_value, next_node
         end
     end,
@@ -315,9 +333,12 @@ subclasses.table_constructor = {
         if not opts.data then
             return
         end
+
         local data = opts.data
+
         local range = { self.node_handle:range() }
         local row, col
+
         if not opts.pos or opts.pos == "last" then
             row, col = range[3], range[4] - 1
         elseif opts.pos == "first" then
@@ -328,19 +349,31 @@ subclasses.table_constructor = {
         vim.api.nvim_buf_set_text(self.buf_handle, row, col, row, col, data)
     end,
 
-    -- TODO:
-    -- should handle [until] option so we can bubble up to eg first sibling
-    remove_field = function() end,
+    ---Remove a field from the table.
+    remove_field = function(opts)
+        -- TODO: iter_fields and check predicates.
 
-    -- move field to after/before indexed/keyed valued N
+        -- try using the switch pattern here?/
+
+        if not opts then
+            -- try remove last indexed node.
+        end
+
+        -- if number -> try remove indexed key
+        --      if arg2 then remove node index N
+        --      else remove is_index N
+
+        -- if string -> remove by string comparison
+        --      if arg2 then do pattern,
+        --      else do exact match
+
+        -- if func -> call func to determine if field should be removed
+
+        -- if table ?? is it necessary
+    end,
+
+    ---Move field to after/before indexed/keyed valued N in self
     move_field = function() end,
-
-    -- :insert()
-    tbl_add_field_last = function(self, opts) end,
-
-    -- :remove
-
-    -- :sort
 }
 
 subclasses.boolean = {
@@ -368,5 +401,24 @@ subclasses.boolean = {
         return true
     end,
 }
+
+subclasses.number = {
+    increment = function(self) end,
+    decrement = function(self) end,
+    add = function(self) end,
+    subtract = function(self) end,
+    evaluate = function(self) end,
+}
+
+subclasses.comment = {}
+subclasses.return_statement = {}
+subclasses.expression_list = {}
+subclasses.assignment_statement = {}
+subclasses.variable_declaration = {}
+subclasses.dot_index_expression = {}
+subclasses.identifier = {}
+subclasses.function_call = {}
+subclasses.function_declaratOn = {}
+subclasses.arguments = {}
 
 return TSLua

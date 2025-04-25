@@ -204,6 +204,9 @@ local function transform_enabled_modules_tree(action, no_formatting)
         end
     end
 
+    -- WARN: If multiple actions, then formatting has to be done last!!!
+    -- Ie. the ts_buf handle has to be PASSED TO transform_enabled_modules_tree
+
     -- Default to formatting the [modules.lua] file.
     if not no_formatting then
         vim.api.nvim_buf_call(ts_buf:buf(), function()
@@ -296,7 +299,7 @@ M.manage_modules_tree = function(opts)
 
     for i, action in ipairs(opts) do
         print(i, "Action:", vim.inspect(action))
-        local ok = transform_enabled_modules_tree(action)
+        local ok = transform_enabled_modules_tree(action, true)
         if not ok then
             log.warn(
                 string.format(

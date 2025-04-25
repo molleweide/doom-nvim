@@ -1,3 +1,9 @@
+
+--
+-- NOTE: There are some node types that exist in all languages i believe,
+-- such as [chunk] - maybe those should be defined here??
+
+
 local M = {}
 M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 
