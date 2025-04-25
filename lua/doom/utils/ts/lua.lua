@@ -211,6 +211,16 @@ subclasses.table_constructor = {
     --     end
     -- end,
 
+    -- try get indexed child node of index N
+    index = function(self, i)
+        -- use iter_fields under the hood
+    end,
+
+    -- try get a child node where key == string
+    key = function(self, key_string)
+        -- use iter_fields under the hood
+    end,
+
     -- Example usage:
     -- for count, key, value, field in ts_tbl_in:iter_fields() do
     --     print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
@@ -219,7 +229,7 @@ subclasses.table_constructor = {
     -- TODO: if filter type == ["index"|"key"]
     --      then return
     --
-    iter_fields = function(self, include_comments, filter_type)
+    iter_fields = function(self, filter_type, include_comments)
         local first_child = self:named_child()
         if not first_child then
             return
@@ -239,7 +249,6 @@ subclasses.table_constructor = {
                 local found_next
                 local c = 0
                 while not found_next do
-
                     -- print(">", type(next_node), next_node)
 
                     if not next_node then
@@ -417,7 +426,7 @@ subclasses.number = {
 subclasses.string = {
     content = function(self)
         return self(self:named_child()) -- a string always has a string_content child!
-    end
+    end,
 }
 
 subclasses.comment = {}

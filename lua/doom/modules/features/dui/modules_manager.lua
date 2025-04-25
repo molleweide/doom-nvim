@@ -40,6 +40,7 @@ function ts_tbl_path(ts_table_constr, t_path)
     local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
         depth = depth + 1
         print(string.format("--------------- %s ---------------", depth))
+        print(vim.inspect(ret.t_path_left))
         ret.parent_table_node = ts_tbl_in
         ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
 
@@ -47,9 +48,9 @@ function ts_tbl_path(ts_table_constr, t_path)
         -- then i can use the iterator as pairs()/ipairs()/kpairs()
 
         if #ret.t_path_left > 1 then -- check branches
-            local branch, ts_tbl_child
-            for _, key, value, field in ts_tbl_in:iter_fields() do
+            for _, key, value in ts_tbl_in:iter_fields() do -- _, "keys"
                 if tostring(key) == ret.t_path_left[1]:upper() then
+                    print("BRANCH KEY:", key)
                     branch = true
                     ts_tbl_child = value
                     table.remove(ret.t_path_left, 1)
@@ -57,25 +58,33 @@ function ts_tbl_path(ts_table_constr, t_path)
             end
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            for _, key, table_leaf, field in ts_tbl_in:iter_fields() do
+            -- iterate table fields. each indexed table is a module candidate.
+            for _, branch_index, branch_value, field in ts_tbl_in:iter_fields() do -- _, "indexed"
                 if field:is_index() then
-                    for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        if leaf_key == 1 and tostring(leaf_value:content()) == ret.t_path_left[1] then
-                            ret.module_found_node = table_leaf
-                            ret.deepest_matched_table_node = table_leaf
-                            ret.module_name_node = leaf_value
+                    -- print("MODULE FIELD:", branch_index, branch_value)
+
+                    -- TODO: use table:index(N) AND table:key("check_key")
+
+                    for _, mod_key, mod_value in branch_value:iter_fields() do
+                        if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
+                                -- print("MODULE FOUND:", branch_value)
+                                ret.module_found_node = branch_value
+                                ret.deepest_matched_table_node = branch_value
+                                ret.module_name_node = mod_value
                         end
                     end
-                    if not ret.module_found_node then
-                        return ret
-                    end
-                    for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        if tostring(leaf_key) == "enabled" then
-                            ret.module_field_enabled_value_node = leaf_value
+                    for _, mod_key, mod_value in branch_value:iter_fields() do -- _, "keys"
+                        if tostring(mod_key) == "enabled" then
+                            ret.module_field_enabled_value_node = mod_value
                         end
                     end
                 end
             end
+            if not ret.module_found_node then
+                print("<return>")
+                return ret
+            end
+
             table.remove(ret.t_path_left, 1)
         end
         return ret
@@ -96,7 +105,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
     -- print("ts_buf:", vim.inspect(ts_buf))
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
-            print("t.t_path:", t.t_path)
+            print("t.t_path:", vim.inspect(t.t_path))
             t.nodes = ts_tbl_path(ts_buf:query_wrap(query_return_table), t.t_path)
         end)
         :totable()
@@ -110,7 +119,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
             < b.nodes.deepest_matched_table_node:range()
     end)
 
-    print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
+    -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
     -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
