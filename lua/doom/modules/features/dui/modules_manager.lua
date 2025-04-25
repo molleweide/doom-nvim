@@ -75,8 +75,7 @@ function ts_tbl_path(ts_table_constr, t_path)
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
             for _, key, value, field in ts_tbl_in:iter_fields() do
-                -- NOTE: Could i remove the is_index/is_key check?? since the comparison should be enough!
-                if field:is_key() and tostring(key) == ret.t_path_left[1]:upper() then
+                if tostring(key) == ret.t_path_left[1]:upper() then
                     branch = true
                     ts_tbl_child = value
                     table.remove(ret.t_path_left, 1)
@@ -84,11 +83,10 @@ function ts_tbl_path(ts_table_constr, t_path)
             end
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            for _, key, value, field in ts_tbl_in:iter_fields() do
-                if field:is_index() and value:type() == "table_constructor" then
-                    local table_leaf = value
+            for _, key, table_leaf, field in ts_tbl_in:iter_fields() do
+                if field:is_index() then
                     for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        if field:is_index() and leaf_key == 1 then
+                        if leaf_key == 1 then
                             ret.module_found_node = table_leaf
                             ret.deepest_matched_table_node = table_leaf
                             ret.module_name_node = leaf_value
@@ -98,7 +96,7 @@ function ts_tbl_path(ts_table_constr, t_path)
                         return ret
                     end
                     for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        if field:is_key() and tostring(leaf_key) == "enabled" then
+                        if tostring(leaf_key) == "enabled" then
                             ret.module_field_enabled_value_node = ts_value
                         end
                     end
