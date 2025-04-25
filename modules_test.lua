@@ -15,7 +15,12 @@
 -- }
 
 return {
-    AI = { { "aaaaa", enabled = true }, { "ai_chat_gpt", enabled = true } },
+    AI = {
+        { "qwfp", enabled = true },
+        { "kkkk", enabled = true },
+        { "aaaaa", enabled = true },
+        { "ai_chat_gpt", enabled = true },
+    },
     LIB = {
         { "nio", enabled = true }, -- asynch IO
     },

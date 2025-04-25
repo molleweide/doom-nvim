@@ -215,7 +215,7 @@ subclasses.table_constructor = {
     -- for count, key, value, field in ts_tbl_in:iter_fields() do
     --     print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
     -- end
-    iter_fields = function(self)
+    iter_fields = function(self, include_comments)
         local first_child = self:named_child()
         if not first_child then
             return
@@ -232,9 +232,9 @@ subclasses.table_constructor = {
                 print("> first...")
                 next_node = self(first_child)
             else
-                local found_code_sib
+                local found_next
                 local c = 0
-                while not found_code_sib do
+                while not found_next do
 
                     print(">", type(next_node), next_node)
 
@@ -246,8 +246,8 @@ subclasses.table_constructor = {
 
                     if next_node == nil then
                         return
-                    elseif next_node:type() ~= "comment" then
-                        found_code_sib = true -- ensure we dont include comment nodes
+                    elseif include_comments or next_node:type() ~= "comment" then
+                        found_next = true -- ensure we dont include comment nodes
                     end
 
                     print("> (while after)", type(next_node), next_node)

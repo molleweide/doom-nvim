@@ -216,7 +216,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
         end)
     end
 
-    log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
+    log.info(("dui :: transformed modules.lua / action: %s"):format(action.action))
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?
@@ -312,6 +312,8 @@ M.manage_modules_tree = function(opts)
             return
         end
     end
+
+    -- TODO: apply formatting here..
 
     if true then
         return
