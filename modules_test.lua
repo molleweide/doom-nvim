@@ -16,9 +16,6 @@
 
 return {
     AI = {
-        { "qwfp", enabled = true },
-        { "kkkk", enabled = true },
-        { "aaaaa", enabled = true },
         { "ai_chat_gpt", enabled = true },
     },
     LIB = {
@@ -150,15 +147,13 @@ return {
         { "neogit", enabled = true }, -- A git client for neovim
         { "netrw", enabled = false },
         { "neorg", enabled = true }, -- Organise your life
-        { "superman", enabled = true }, -- Read unix man pages in neovim
-        { "suda", enabled = true }, -- Save using sudo when necessary
-        { "telescope", enabled = true }, -- Fuzzy searcher to find files, grep code and more
-        { "telescope_extensions_various", enabled = false },
-        { "whichkey", enabled = true, tags = { "reduced", "firenvim" } }, -- An interactive sheet
-        { "zen", enabled = true },
-        { "music_and_audio_engineering", enabled = true },
-        { "figlet", enabled = true },
-        { "markup_bindings_and_tools", enabled = true },
+         -- Read unix man pages in neovim
+         -- Save using sudo when necessary
+         -- Fuzzy searcher to find files, grep code and more
+
+         -- An interactive sheet
+
+
 
         TOOLS = {
             { "spreadsheets", enabled = true },

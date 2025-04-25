@@ -28,7 +28,7 @@ local subclasses = TSLua.subclasses
 -- handle lookup for keyword clashes
 setmetatable(subclasses, {
     __index = function(t, k)
-        print("subclass __index key:", k)
+        -- print("subclass __index key:", k)
         if k == "true" or k == "false" then
             return rawget(t, "boolean")
         end
@@ -215,28 +215,32 @@ subclasses.table_constructor = {
     -- for count, key, value, field in ts_tbl_in:iter_fields() do
     --     print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
     -- end
-    iter_fields = function(self, include_comments)
+    --
+    -- TODO: if filter type == ["index"|"key"]
+    --      then return
+    --
+    iter_fields = function(self, include_comments, filter_type)
         local first_child = self:named_child()
         if not first_child then
             return
         end
         local prev_node
-        local index_total = 0
+        local field_index_real = 0
         local index_indexed = 0 -- count each indexed field
 
-        print(":::::::::::::::::::::::::")
+        -- print(":::::::::::::::::::::::::")
 
         return function()
             local next_node
-            if index_total == 0 then
-                print("> first...")
+            if field_index_real == 0 then
+                -- print("> first...")
                 next_node = self(first_child)
             else
                 local found_next
                 local c = 0
                 while not found_next do
 
-                    print(">", type(next_node), next_node)
+                    -- print(">", type(next_node), next_node)
 
                     if not next_node then
                         next_node = self(prev_node:next_named_sibling())
@@ -250,20 +254,20 @@ subclasses.table_constructor = {
                         found_next = true -- ensure we dont include comment nodes
                     end
 
-                    print("> (while after)", type(next_node), next_node)
+                    -- print("> (while after)", type(next_node), next_node)
                     -- c = c + 1
                     -- if c > 10 then
                     --     return
                     -- end
                 end
             end
-            index_total = index_total + 1
+            field_index_real = field_index_real + 1
             if not next_node then
                 return
             end
             prev_node = next_node
 
-            print("NEXT NODE:", next_node:type())
+            -- print("NEXT NODE:", next_node:type())
 
             -- compute return values
             local the_index, the_value
@@ -276,8 +280,8 @@ subclasses.table_constructor = {
                 the_value = self(next_node:named_child(1))
             end
 
-            -- TODO: return index_total last
-            return index_total, the_index, the_value, next_node
+            -- TODO: return field_index_real last
+            return field_index_real, the_index, the_value, next_node
         end
     end,
 
@@ -408,6 +412,12 @@ subclasses.number = {
     add = function(self) end,
     subtract = function(self) end,
     evaluate = function(self) end,
+}
+
+subclasses.string = {
+    content = function(self)
+        return self(self:named_child()) -- a string always has a string_content child!
+    end
 }
 
 subclasses.comment = {}

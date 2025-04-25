@@ -43,7 +43,8 @@ function ts_tbl_path(ts_table_constr, t_path)
         ret.parent_table_node = ts_tbl_in
         ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
 
-        print(vim.inspect(ret.t_path_left))
+        -- TODO: If I add a third arg to iter, that allows filtering index|key,
+        -- then i can use the iterator as pairs()/ipairs()/kpairs()
 
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
@@ -59,7 +60,7 @@ function ts_tbl_path(ts_table_constr, t_path)
             for _, key, table_leaf, field in ts_tbl_in:iter_fields() do
                 if field:is_index() then
                     for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        if leaf_key == 1 then
+                        if leaf_key == 1 and tostring(leaf_value:content()) == ret.t_path_left[1] then
                             ret.module_found_node = table_leaf
                             ret.deepest_matched_table_node = table_leaf
                             ret.module_name_node = leaf_value
@@ -69,9 +70,7 @@ function ts_tbl_path(ts_table_constr, t_path)
                         return ret
                     end
                     for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
-                        print("leaf_key:", leaf_key)
                         if tostring(leaf_key) == "enabled" then
-                            print("???????")
                             ret.module_field_enabled_value_node = leaf_value
                         end
                     end
@@ -111,7 +110,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
             < b.nodes.deepest_matched_table_node:range()
     end)
 
-    -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
+    print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
     -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
