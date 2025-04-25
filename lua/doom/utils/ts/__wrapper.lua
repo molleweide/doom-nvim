@@ -66,20 +66,21 @@ function M.make_wrapped_node(self, input_node)
             return tbl:text()
         end,
 
-        __eq = function(self, other)
-                print("__eq")
-                return false
-            -- if type(other) == "string" then
-            --     -- remember, the instance has __tostring above.
-            --     return self:tostring() == other
-            --     end
-            --
-            -- if other.__name == "TSNodeInstance" then
-            --     return self:tostring() == other:tostring()
-            -- end
-            --
-            -- return false
-        end,
+        -- I cannot get the __eq to trigger?!
+        -- __eq = function(self, other)
+        --         print("__eq")
+        --         return false
+        --     -- if type(other) == "string" then
+        --     --     -- remember, the instance has __tostring above.
+        --     --     return self:tostring() == other
+        --     --     end
+        --     --
+        --     -- if other.__name == "TSNodeInstance" then
+        --     --     return self:tostring() == other:tostring()
+        --     -- end
+        --     --
+        --     -- return false
+        -- end,
     })
 end
 
@@ -122,9 +123,13 @@ function TSNodeWrapper:text()
 end
 
 function TSNodeWrapper:replace(replacement)
+    local a, b, c, d = self:range()
     vim.api.nvim_buf_set_text(
         self.buf_handle,
-        unpack({ self:range() }),
+        a,
+        b,
+        c,
+        d,
         type(replacement) == "string" and { replacement } or replacement
     )
 end

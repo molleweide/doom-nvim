@@ -285,29 +285,44 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
         },
 
         ["<C-t>"] = {
-            desc = "Set status [enabled|disabled]",
+            desc = "Toggle on/off",
             action = function(prompt_bufnr, entry, key) -- TOGGLE MODULE(S)
+                local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
-
-                local action_set = {}
+                local action_set = { action = "TOGGLE" }
+                actions.close(prompt_bufnr)
                 vim.iter(selection):each(function(entry)
-                    table.insert(action_set, entry)
+                    table.insert(action_set, entry.value)
                 end)
-
-                vim.ui.select({ "ENABLE", "DISABLE" }, {
-                    prompt = "Select enable or disable:",
-                    format_item = function(item)
-                        return "I'd like to choose " .. item
-                    end,
-                }, function(choice)
-                    log.info(string.format("Set selected module to [%s]", choice))
-                    action_set.action = choice
-                    require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                        action_set,
-                    })
-                end)
+                require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+                    action_set,
+                })
             end,
         },
+        -- ["<C-t>"] = {
+        --     desc = "Set status [enabled|disabled]",
+        --     action = function(prompt_bufnr, entry, key) -- TOGGLE MODULE(S)
+        --         local selection = current_picker__get_selected_entries()
+        --
+        --         local action_set = {}
+        --         vim.iter(selection):each(function(entry)
+        --             table.insert(action_set, entry.value)
+        --         end)
+        --
+        --         vim.ui.select({ "ENABLE", "DISABLE" }, {
+        --             prompt = "Select enable or disable:",
+        --             format_item = function(item)
+        --                 return "I'd like to choose " .. item
+        --             end,
+        --         }, function(choice)
+        --             log.info(string.format("Set selected module to [%s]", choice))
+        --             action_set.action = choice
+        --             require("doom.modules.features.dui.modules_manager").manage_modules_tree({
+        --                 action_set,
+        --             })
+        --         end)
+        --     end,
+        -- },
         -- TODO: check if already exists in user.
         ["<C-z>"] = {
             desc = "Copy core mod to user + edit",

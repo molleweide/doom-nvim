@@ -8,38 +8,8 @@ local dui_utils = require("doom.modules.features.dui.utils")
 
 local M = {}
 
---
--- This properly puts together the correct output table that we want to
--- inject at a new position.
---
-local function build_new_inject_string(input)
-    local result_table = {}
-    for _, args in ipairs(input) do
-        if #args.parts > 1 then
-            local tp = vim.iter(args.parts):take(#args.parts - 1):totable()
-            local tip = vim.iter(args.parts):last()
-            local existing_table = utils.get_set_table_path(result_table, tp)
-            if not existing_table then
-                utils.get_set_table_path(result_table, tp, { tip })
-            else
-                table.insert(existing_table, tip)
-            end
-        elseif #args.parts == 1 then
-            table.insert(result_table, args.parts[1])
-        end
-    end
-    local stringified = vim.split(vim.inspect(result_table), "\n")
-    if #stringified > 2 then
-        -- trim surrounding braces {...}
-        table.remove(stringified, 1)
-        table.remove(stringified)
-    else
-        stringified = { string.sub(stringified[1], 2, -2) }
-    end
-    log.debug(stringified)
-
-    return stringified
-end
+local query_return_table =
+    "(return_statement (expression_list (table_constructor) @table_constructor))"
 
 local function build_new_inject_string2(tree)
     local ret = vim.split(vim.inspect(tree), "\n")
@@ -72,6 +42,9 @@ function ts_tbl_path(ts_table_constr, t_path)
         print(string.format("--------------- %s ---------------", depth))
         ret.parent_table_node = ts_tbl_in
         ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
+
+        print(vim.inspect(ret.t_path_left))
+
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
             for _, key, value, field in ts_tbl_in:iter_fields() do
@@ -96,8 +69,10 @@ function ts_tbl_path(ts_table_constr, t_path)
                         return ret
                     end
                     for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
+                        print("leaf_key:", leaf_key)
                         if tostring(leaf_key) == "enabled" then
-                            ret.module_field_enabled_value_node = ts_value
+                            print("???????")
+                            ret.module_field_enabled_value_node = leaf_value
                         end
                     end
                 end
@@ -110,7 +85,7 @@ function ts_tbl_path(ts_table_constr, t_path)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
-local function transform_enabled_modules_tree(action)
+local function transform_enabled_modules_tree(action, no_formatting)
     if not action.action then
         log.debug("No action was supplied")
         return
@@ -119,17 +94,19 @@ local function transform_enabled_modules_tree(action)
 
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
-    local query = "(return_statement (expression_list (table_constructor) @table_constructor))"
     -- print("ts_buf:", vim.inspect(ts_buf))
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
-            t.nodes = ts_tbl_path(ts_buf:query_wrap(query), t.t_path)
+            print("t.t_path:", t.t_path)
+            t.nodes = ts_tbl_path(ts_buf:query_wrap(query_return_table), t.t_path)
         end)
         :totable()
 
     table.sort(action, function(a, b)
         -- TODO: Maybe instead do
         -- if module_node then sort based on it, or else sort based on parent_node
+        -- >>> So that i can remove the [deepest_matched_table_node] and only work
+        -- with [parent AND module]
         return a.nodes.deepest_matched_table_node:range()
             < b.nodes.deepest_matched_table_node:range()
     end)
@@ -142,6 +119,8 @@ local function transform_enabled_modules_tree(action)
     for i = #action, 1, -1 do
         local t = action[i]
         local tn = t.nodes
+
+        -- TODO: capture return ok if any issues
 
         if action.action == "TOGGLE" then
             tn.module_field_enabled_value_node:toggle()
@@ -225,14 +204,16 @@ local function transform_enabled_modules_tree(action)
         end
     end
 
-    -- -- format and save
-    -- -- Is formatting async?!
-    -- vim.api.nvim_buf_call(buf, function()
-    --     vim.lsp.buf.format({ async = false })
-    --     vim.cmd("write")
-    --     log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
-    -- end)
-    -- log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
+    -- Default to formatting the [modules.lua] file.
+    if not no_formatting then
+        vim.api.nvim_buf_call(ts_buf:buf(), function()
+            vim.lsp.buf.format({ async = false })
+            vim.cmd("write")
+            log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
+        end)
+    end
+
+    log.info(("dui :: transformed modules.lua / action: %s"):format(opts.action))
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?

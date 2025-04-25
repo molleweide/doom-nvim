@@ -240,6 +240,7 @@ subclasses.table_constructor = {
             if index_total == 0 then
                 next_node = self(first_child)
             else
+                -- TODO: while loop until next is NOT comment
                 next_node = self(prev_node:next_named_sibling())
             end
             if not next_node then
@@ -302,23 +303,20 @@ subclasses.table_constructor = {
     rearrange = function(self) end,
 
     -- sort table keys. (and put the after / before any existing indexed fields)
-    sort = function() end,
+    sort = function()
+        -- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
+        -- automatically.
+    end,
 
-    -- each of these should take similar options...
-
-    -- pos = first / last / after Nth node / after Nth indexed / after Nth key
-    -- Default -> add element new field last.
+    -- TODO: pos = first / last / after Nth node / after Nth indexed / after Nth key
+    ---Default add element new field last.
     add_field = function(self, opts)
         opts = opts or {}
-
         if not opts.data then
             return
         end
-
         local data = opts.data
-
         local range = { self.node_handle:range() }
-
         local row, col
         if not opts.pos or opts.pos == "last" then
             row, col = range[3], range[4] - 1
@@ -326,8 +324,7 @@ subclasses.table_constructor = {
             row, col = range[1], range[2] + 1
             data[#data] = data[#data] .. ","
         end
-
-        print("ts_tbl:add_field(): data before inserting", vim.inspect(data))
+        -- print("ts_tbl:add_field(): data before inserting", vim.inspect(data))
         vim.api.nvim_buf_set_text(self.buf_handle, row, col, row, col, data)
     end,
 
@@ -350,17 +347,25 @@ subclasses.boolean = {
     toggle = function(self)
         print("hello from boolean:", self)
 
+        if tostring(self) == "true" then
+            self:replace("false")
+        else
+            self:replace("true")
+        end
+
         -- get text
         --
         -- if true then flip
+        return true
     end,
 
     set = function(self, new_value)
         if new_value then
-        -- self:replace("true")
+            self:replace("true")
         else
-            -- self:replace("false")
+            self:replace("false")
         end
+        return true
     end,
 }
 

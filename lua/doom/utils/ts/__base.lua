@@ -44,4 +44,10 @@ function TSBufWrapper:new(buf)
     })
 end
 
+function TSBufWrapper:buf()
+    return self.buf_handle
+end
+
+
+
 return TSBufWrapper

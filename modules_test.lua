@@ -3,29 +3,19 @@
 -- what features are being used.
 --
 -- Uncomment a plugin to enable it and comment out to disable and uninstall it.
---
--- TODO: Use https://github.com/mtrajano/tssorter.nvim to sort this table
--- automatically.
---
--- TODO: Check if we can define custom rules for how to format this table with
--- luacheck/stylua, eg. so that each module becomes its own line, but all sections
--- are broken up into multiline.
-
--- TEST: new modules pattern
--- 1. use uppercase for category keys.
--- 2. use tables for each module
 
 return {
     A = {
         V = { { "c", enabled = true }, { "c", enabled = true } },
     },
-    MOLLEWEIDE = { { "binds_personal", enabled = true, a, r, s, t, s, r } },
+    MOLLEWEIDE = {
+
+        { "binds_personal", enabled = true, a, r, s, t, s, r },
+    },
 }
 
 -- return {
---     AI = { { "aaa",
---     enabled = true
---   }
+--     AI = {
 --         { "ai_chat_gpt", enabled = true },
 --     },
 --     LIB = {
@@ -57,7 +47,6 @@ return {
 --             { "additional_friendly_snippets", enabled = true, tags = { "reduced", "firenvim" } },
 --             { "luasnip_telescope", enabled = true },
 --         },
---
 --         -- Language features
 --         { "annotations", enabled = true }, -- Code annotation generator
 --         { "auto_install", enabled = true }, -- Auto install LSP providers
@@ -77,12 +66,10 @@ return {
 --             { "swap_args_and_elems", enabled = true },
 --             { "ts_plugins", enabled = true },
 --         },
---
 --         -- TODO: Move all lsp stuff into this directory...
 --         LSP = {
 --             { "lspconfig", enabled = false },
 --         },
---
 --         -- Editor
 --         { "auto_session", enabled = true }, -- Remember sessions between loads
 --         { "colorizer", enabled = true }, -- Show colors in neovim
@@ -125,26 +112,21 @@ return {
 --             { "readline", enabled = false }, -- ???
 --             { "editing", enabled = true },
 --         },
---
 --         -- CURSOR MOVEMENT
 --         { "movement_lightspeed", enabled = true },
---
 --         -- UI COMPONENTS
 --         { "tabline", enabled = true }, -- Tab bar buffer switcher
 --         { "dashboard", enabled = true }, -- A pretty dashboard upon opening
 --         { "trouble", enabled = true }, -- A pretty diagnostic viewer
 --         { "statusline", enabled = true }, -- A pretty status line at the bottom of the buffer
 --         { "minimap", enabled = false }, -- Shows current position in document
---
 --         { "terminal", enabled = true }, -- Integrated terminal in neovim
 --         TERMINAL = {
 --             -- TODO: Move terminal related plugins into this dir
 --         },
---
 --         NVIM_HELP = {
 --             { "vimdoc_and_help_decorations", enabled = true },
 --         },
---
 --         { "symbols_outline_sidebar", enabled = true }, -- Navigate between code symbols using telescope
 --         { "ranger", enabled = true }, -- File explorer in neovim (TODO: Test)
 --         { "restclient", enabled = true }, -- Test HTTP requests from neovim (TODO: Test)
@@ -155,7 +137,6 @@ return {
 --         UI = {
 --             { "noice_ergonomic_ui", enabled = true },
 --         },
---
 --         -- TOOLS
 --         { "dap", enabled = true }, -- Debug code through neovim
 --         { "repl", enabled = true },
@@ -188,15 +169,12 @@ return {
 --             { "gpg", enabled = false },
 --             { "collaborate", enabled = false }, -- Google docs collaborative editing.
 --         },
---
 --         -- LIBRARIES
 --         -- "litee"
 --         -- "libmodal"
---
 --         SOCIAL_MEDIA = {
 --             { "discord", enabled = true },
 --         },
---
 --         VARIOUS = {
 --             -- "move anything that cant be categorized into this folder",
 --             -- "everything else should be in a sub category direactory",
@@ -209,13 +187,11 @@ return {
 --             { "auto_focus_and_auto_resize", enabled = true },
 --             { "center_focused_window", enabled = true },
 --         },
---
 --         WORKSPACE_MANAGEMENT = {
 --             { "projects", enabled = true }, -- Quickly switch between projects
 --             { "system_git_repos", enabled = true },
 --             { "ghq", enabled = true },
 --         },
---
 --         -- TODO: ypc and clipboard should go under `editor`
 --         -- Rename to `ypc_and_clipboard`
 --         YANK_PUT_AND_CUT = {
@@ -239,7 +215,6 @@ return {
 --             { "github_litee", enabled = false },
 --         },
 --     },
---
 --     -- UI = {
 --     --   heirline,
 --     --   fidget,
@@ -259,7 +234,6 @@ return {
 --         { "gdscript", enabled = false },
 --         { "php", enabled = false },
 --         { "ruby", enabled = false },
---
 --         -- Web
 --         { "html", enabled = true },
 --         { "javascript", enabled = true },
@@ -268,18 +242,15 @@ return {
 --         { "vue", enabled = true },
 --         { "tailwindcss", enabled = true },
 --         { "svelte", enabled = false },
---
 --         -- Compiled
 --         { "rust", enabled = true },
 --         { "cc", enabled = true },
 --         { "ocaml", enabled = false },
 --         { "haskell", enabled = false },
---
 --         -- JIT
 --         { "c_sharp", enabled = false },
 --         { "kotlin", enabled = false },
 --         { "java", enabled = false },
---
 --         { "json", enabled = true },
 --         { "yaml", enabled = false },
 --         { "toml", enabled = false },
@@ -288,7 +259,6 @@ return {
 --         { "dockerfile", enabled = true },
 --         { "nix", enabled = false }, -- Nix declarations
 --     },
---
 --     -- NOTE: move all these into a module called various color schemes
 --     -- [various_neovim_themes] and [various_vim_themes]
 --     THEMES = {
@@ -363,13 +333,7 @@ return {
 --             { "zephyrium", enabled = false },
 --         },
 --         -- Themes designed for original Vim
---         VIM = { { "aaaa",
---     enabled = true
---   }  { "aaaaa",
---     enabled = true
---   }  { "aaaa",
---     enabled = true
---   }
+--         VIM = {
 --             { "ariake", enabled = false },
 --             { "iceberg", enabled = false },
 --             { "tender", enabled = false },
