@@ -36,7 +36,6 @@ setmetatable(subclasses, {
     end,
 })
 
-
 subclasses.field = {
     field_type = function(self)
         if self:is_index() then
@@ -223,6 +222,10 @@ subclasses.table_constructor = {
         end
     end,
 
+    -- Example usage:
+    -- for count, key, value, field in ts_tbl_in:iter_fields() do
+    --     print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
+    -- end
     iter_fields = function(self)
         local first_child = self:named_child()
         if not first_child then

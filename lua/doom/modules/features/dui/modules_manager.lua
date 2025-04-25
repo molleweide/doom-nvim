@@ -72,43 +72,22 @@ function ts_tbl_path(ts_table_constr, t_path)
         print(string.format("--------------- %s ---------------", depth))
         ret.parent_table_node = ts_tbl_in
         ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
-
-        -- TODO: use iterator instead!!
-
-        -- for count, key, value, field in ts_tbl_in:iter_fields() do
-        --     print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
-        -- end
-
         if #ret.t_path_left > 1 then -- check branches
             local branch, ts_tbl_child
-
-            for count, key, value, field in ts_tbl_in:iter_fields() do
-                -- print(string.format("#%s: key(%s), value(%s), field(%s)", count, key, value, field))
-                -- print("is_key:", field:is_key(), key, tostring(key))
+            for _, key, value, field in ts_tbl_in:iter_fields() do
+                -- NOTE: Could i remove the is_index/is_key check?? since the comparison should be enough!
                 if field:is_key() and tostring(key) == ret.t_path_left[1]:upper() then
                     branch = true
                     ts_tbl_child = value
                     table.remove(ret.t_path_left, 1)
                 end
             end
-
-            -- ts_tbl_in:fields({
-            --     on_key = {
-            --         ret.t_path_left[1]:upper(),
-            --         function(_, ts_value)
-            --             branch = true
-            --             ts_tbl_child = ts_value
-            --             table.remove(ret.t_path_left, 1)
-            --         end,
-            --     },
-            -- })
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-
-            for count, key, value, field in ts_tbl_in:iter_fields() do
+            for _, key, value, field in ts_tbl_in:iter_fields() do
                 if field:is_index() and value:type() == "table_constructor" then
                     local table_leaf = value
-                    for count, leaf_key, leaf_value, field in table_leaf:iter_fields() do
+                    for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
                         if field:is_index() and leaf_key == 1 then
                             ret.module_found_node = table_leaf
                             ret.deepest_matched_table_node = table_leaf
@@ -118,46 +97,13 @@ function ts_tbl_path(ts_table_constr, t_path)
                     if not ret.module_found_node then
                         return ret
                     end
-                    for count, leaf_key, leaf_value, field in table_leaf:iter_fields() do
+                    for _, leaf_key, leaf_value, field in table_leaf:iter_fields() do
                         if field:is_key() and tostring(leaf_key) == "enabled" then
                             ret.module_field_enabled_value_node = ts_value
                         end
                     end
                 end
             end
-
-            -- ts_tbl_in:fields({
-            --     on_index = {
-            --         type = "table",
-            --         action = function(table_leaf)
-            --             table_leaf:fields({
-            --                 on_index = {
-            --                     index = 1,
-            --                     type = "string",
-            --                     equals = ret.t_path_left[1],
-            --                     action = function(str)
-            --                         ret.module_found_node = table_leaf
-            --                         ret.deepest_matched_table_node = table_leaf
-            --                         ret.module_name_node = str
-            --                     end,
-            --                 },
-            --             })
-            --             if not ret.module_found_node then
-            --                 return ret
-            --             end
-            --             table_leaf:fields({
-            --                 on_key = {
-            --                     "enabled",
-            --                     function(key, ts_value)
-            --                         ret.module_field_enabled_value_node = ts_value
-            --                         -- print(vim.inspect(ts_value))
-            --                         -- ts_value:toggle()
-            --                     end,
-            --                 },
-            --             })
-            --         end,
-            --     },
-            -- })
             table.remove(ret.t_path_left, 1)
         end
         return ret
