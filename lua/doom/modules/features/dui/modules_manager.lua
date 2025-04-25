@@ -50,7 +50,7 @@ function ts_tbl_path(ts_table_constr, t_path)
         if #ret.t_path_left > 1 then -- check branches
             for _, key, value in ts_tbl_in:iter_fields() do -- _, "keys"
                 if tostring(key) == ret.t_path_left[1]:upper() then
-                    print("BRANCH KEY:", key)
+                    -- print("BRANCH KEY:", key)
                     branch = true
                     ts_tbl_child = value
                     table.remove(ret.t_path_left, 1)
@@ -61,31 +61,22 @@ function ts_tbl_path(ts_table_constr, t_path)
             -- iterate table fields. each indexed table is a module candidate.
             for _, branch_index, branch_value, field in ts_tbl_in:iter_fields() do -- _, "indexed"
                 if field:is_index() then
-                    -- print("MODULE FIELD:", branch_index, branch_value)
-
-                    -- TODO: use table:index(N) AND table:key("check_key")
-
+                    -- print("MODULE FIELD:---------------------------------") --, branch_index, branch_value)
                     for _, mod_key, mod_value in branch_value:iter_fields() do
                         if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
-                                -- print("MODULE FOUND:", branch_value)
-                                ret.module_found_node = branch_value
-                                ret.deepest_matched_table_node = branch_value
-                                ret.module_name_node = mod_value
+                            print("MODULE FOUND:", branch_value)
+                            ret.module_found_node = branch_value
+                            ret.deepest_matched_table_node = branch_value
+                            ret.module_name_node = mod_value
                         end
-                    end
-                    for _, mod_key, mod_value in branch_value:iter_fields() do -- _, "keys"
-                        if tostring(mod_key) == "enabled" then
+                        if ret.module_found_node and tostring(mod_key) == "enabled" then
                             ret.module_field_enabled_value_node = mod_value
+                            table.remove(ret.t_path_left, 1)
+                            return ret
                         end
                     end
                 end
             end
-            if not ret.module_found_node then
-                print("<return>")
-                return ret
-            end
-
-            table.remove(ret.t_path_left, 1)
         end
         return ret
     end
@@ -131,6 +122,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
         -- TODO: capture return ok if any issues
 
         if action.action == "TOGGLE" then
+            print("DO TOGGLE:", tn.module_found_node)
             tn.module_field_enabled_value_node:toggle()
         end
         if action.action == "ENABLE" then

@@ -23,7 +23,7 @@ return {
     },
     FEATURES = {
         { "architext", enabled = true },
-        { "monitoring", enabled = true },
+        { "monitoring", enabled = false },
         { "lsp_progress", enabled = true },
         { "file_explorer_oil", enabled = true },
         BUFFERS = {
@@ -38,7 +38,7 @@ return {
             { "pathlib", enabled = true },
         },
         COMPLETIONS = {
-            { "cmp_nvim", enabled = false },
+            { "cmp_nvim", enabled = true },
             -- "coc"
         },
         SNIPPETS = {
@@ -147,13 +147,11 @@ return {
         { "neogit", enabled = true }, -- A git client for neovim
         { "netrw", enabled = false },
         { "neorg", enabled = true }, -- Organise your life
-         -- Read unix man pages in neovim
-         -- Save using sudo when necessary
-         -- Fuzzy searcher to find files, grep code and more
+        -- Read unix man pages in neovim
+        -- Save using sudo when necessary
+        -- Fuzzy searcher to find files, grep code and more
 
-         -- An interactive sheet
-
-
+        -- An interactive sheet
 
         TOOLS = {
             { "spreadsheets", enabled = true },

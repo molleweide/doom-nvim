@@ -391,11 +391,12 @@ subclasses.table_constructor = {
 
 subclasses.boolean = {
     toggle = function(self)
-        print("hello from boolean:", self)
 
         if tostring(self) == "true" then
+            print(string.format("hello from boolean: %s -> false", self))
             self:replace("false")
         else
+            print(string.format("hello from boolean: %s -> true", self))
             self:replace("true")
         end
 
