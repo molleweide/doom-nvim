@@ -239,6 +239,8 @@ subclasses.table_constructor = {
         local field_index_real = 0
         local index_indexed = 0 -- count each indexed field
 
+        -- TODO: extract this into a lib func elsewhere, and allow for passing
+        -- a list of types to ignore.
         local function ignore_node_type(check_node)
             if check_node:type() == "comment" and not include_comments then
                 print("ignore comment")
@@ -288,10 +290,6 @@ subclasses.table_constructor = {
             return
         end
 
-        -- if first_child:type() == "comment" then
-        --     first_child = next_sib(first_child)
-        -- end
-
         -- print(":::::::::::::::::::::::::")
         --
 
@@ -304,22 +302,6 @@ subclasses.table_constructor = {
                 next_node = self(first_child)
             else
                 next_node = next_sib(prev_node)
-                -- local found_next
-                -- while not found_next do
-                --     -- print(">", type(next_node), next_node)
-                --
-                --     if not next_node then
-                --         next_node = self(prev_node:next_named_sibling())
-                --     else
-                --         next_node = self(next_node:next_named_sibling())
-                --     end
-                --
-                --     if next_node == nil then
-                --         return
-                --     elseif include_comments or next_node:type() ~= "comment" then
-                --         found_next = true -- ensure we dont include comment nodes
-                --     end
-                -- end
             end
             field_index_real = field_index_real + 1
             if not next_node then
@@ -327,7 +309,7 @@ subclasses.table_constructor = {
             end
             prev_node = next_node
 
-            print("NEXT NODE:", next_node:type())
+            -- print("NEXT NODE:", next_node:type())
 
             -- compute return values
             local the_index, the_value
@@ -340,38 +322,54 @@ subclasses.table_constructor = {
                 the_value = self(next_node:named_child(1))
             end
 
-            -- TODO: return field_index_real last
+            -- NOTE: next_node is always a field, if not include_comments
             return the_index, the_value, next_node, field_index_real
         end
     end,
 
-    -- NOTE: if the key in tables are [identifiers]. It doesnt care if the
-    -- key is an actual string name or an identifier pointing to some other
-    -- variable! name = ... or [name] = are both parsed as [identifiers]. You
-    -- have to check for the contents of the node to determine if it is a pointer
-    -- value or not.
+    -- NOTE: The dict returns a table with keys: key, value, field
     --
-    ---Build a virtual dict of the table, so that I can access keys like a
-    ---regular lua table.
-    ---On the call, it will iterate all nodes and build the dict, then on
-    ---subsequent calls, I will be able to instantly access all keys. This
-    ---removes a lot of unnecessary "direct" usages of [iter_fields], since
-    ---it should mostly be used in cases when you actually want to loop
-    ---and operate on multiple elements. not just one...
     ---@param string|number key The key or index we want to check for.
     ---@return table WrappedNode A wrapped node of the value.
-    dict = function(input_key)
-        -- if first call, then build dict map
+    dict = function(self, input_key)
+
+        print(string.format("DICT(%s)", input_key))
+
+
         if not self.virtual_table then
+            print(string.format("DICT(%s): FIRST <<<", input_key))
             self.virtual_table = {}
             for key, value, field, index in self:iter_fields() do
-                self.virtual_table[type(key) == "number" and key or tostring(key)] = value
+
+                -- print(string.format("DICT: Attacthing: %s | %s", key, value:type()))
+
+                -- self.virtual_table[type(key) == "number" and key or tostring(key)] = value
+
+                self.virtual_table[type(key) == "number" and key or tostring(key)] = {
+                    key = key,
+                    value = value,
+                    field = field
+                }
+
             end
         end
 
         -- TODO: maybe we should put each node in a subtable with { key, value, field }
         -- and then return everything. Since it is a minimal overhead.
-        return self.virtual_table[input_key]
+        -- This would allow access by
+        -- >>>
+        --      my_table:dict()[1].<key|value|field>
+        --      ^ check indexed 1 and get whichever component
+        --
+        -- TODO: wrap the nodes upon returning. not when assigning the values??
+        -- ^ but  wrapped nodes are returned from the iterator anyways, so who
+        -- gives af. for now i can just continue with this and then fix it later
+        -- if necessary.
+
+        local ret = self.virtual_table[input_key]
+
+        print(string.format("DICT(%s): ret = %s", input_key, ret))
+        return ret
     end,
 
     -- TODO:

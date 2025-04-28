@@ -44,37 +44,81 @@ function ts_tbl_path(ts_table_constr, t_path)
         ret.parent_table_node = branch_table
         ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
 
+        print("branch_table ?", branch_table:type())
+
         if #ret.t_path_left > 1 then -- check branches
-            for key, value in branch_table:iter_fields("keys") do -- TODO: _, "keys"
-                if tostring(key) == ret.t_path_left[1]:upper() then
-                    -- print("BRANCH KEY:", key)
-                    branch = true
-                    ts_tbl_child = value
-                    table.remove(ret.t_path_left, 1)
-                end
+            -- w/ dict
+            local lookup_key = ret.t_path_left[1]:upper()
+
+            -- print("branch dict return:", branch_table:dict(lookup_key))
+
+            local ts_tbl_child
+            if branch_table:dict(lookup_key) then
+                print("FOUND BRANCH:", lookup_key, branch_table:type())
+                branch = true
+                ts_tbl_child = branch_table:dict(lookup_key).value
+                print("type ts_tbl_child:", ts_tbl_child)
+                table.remove(ret.t_path_left, 1)
             end
+
+            -- -- w/ iterator
+            -- for key, value in branch_table:iter_fields("keys") do -- TODO: _, "keys"
+            --     if tostring(key) == ret.t_path_left[1]:upper() then
+            --         -- print("BRANCH KEY:", key)
+            --         branch = true
+            --         ts_tbl_child = value
+            --         table.remove(ret.t_path_left, 1)
+            --     end
+            -- end
+
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
+            -- w/ dict
             for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
                 if field:is_index() then
-
-                    -- NOTE: this only works, if the name (index 1) explicitly comes before the enabled key.
-                    -- but we shouldnt rely on this. When [dict] is finished. it will
-                    -- abstract this issue.
-                    for mod_key, mod_value in leaf_table:iter_fields() do
-                        if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
-                            ret.module_found_node = leaf_table
-                            ret.deepest_matched_table_node = leaf_table
-                            ret.module_name_node = mod_value
-                        end
-                        if ret.module_found_node and tostring(mod_key) == "enabled" then
-                            ret.module_field_enabled_value_node = mod_value
-                            table.remove(ret.t_path_left, 1)
-                            return ret
-                        end
+                    -- check name
+                    if
+                        leaf_table:dict(1)
+                        and tostring(leaf_table:dict(1).value:content()) == ret.t_path_left[1]
+                    then
+                        print("found name!!!")
+                        ret.module_found_node = leaf_table
+                        ret.deepest_matched_table_node = leaf_table
+                        ret.module_name_node = mod_value
+                    end
+                    -- check enabled
+                    if
+                        ret.module_found_node
+                        and leaf_table:dict("enabled")
+                    then
+                        print("enabled ???")
+                        ret.module_field_enabled_value_node = leaf_table:dict("enabled").value
+                        table.remove(ret.t_path_left, 1)
+                        return ret
                     end
                 end
             end
+
+            -- -- w/ iterator
+            -- for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
+            --     if field:is_index() then
+            --         -- NOTE: this only works, if the name (index 1) explicitly comes before the enabled key.
+            --         -- but we shouldnt rely on this. When [dict] is finished. it will
+            --         -- abstract this issue.
+            --         for mod_key, mod_value in leaf_table:iter_fields() do
+            --             if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
+            --                 ret.module_found_node = leaf_table
+            --                 ret.deepest_matched_table_node = leaf_table
+            --                 ret.module_name_node = mod_value
+            --             end
+            --             if ret.module_found_node and tostring(mod_key) == "enabled" then
+            --                 ret.module_field_enabled_value_node = mod_value
+            --                 table.remove(ret.t_path_left, 1)
+            --                 return ret
+            --             end
+            --         end
+            --     end
+            -- end
         end
         return ret
     end
