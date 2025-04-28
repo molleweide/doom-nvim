@@ -90,6 +90,9 @@ local tree_traverser = {
             return result
         end
     end,
+    build_ts = function(builder_opts)
+        -- todo..
+    end,
 }
 
 return tree_traverser

@@ -47,6 +47,7 @@ subclasses.field = {
     is_index = function(self)
         return self:named_child_count() == 1
     end,
+
     is_key = function(self)
         return self:named_child_count() == 2
     end,
@@ -229,16 +230,72 @@ subclasses.table_constructor = {
     -- TODO: if filter type == ["index"|"key"]
     --      then return
     --
+    ---@return table|number KeyNodeOrIndex # Either a number or node, depending on if the field is indexed or key-value pair.
+    ---@return table ValueNode
+    ---@return table FieldNode
+    ---@return number RealIndex The real node index count number.
     iter_fields = function(self, filter_type, include_comments)
-        local first_child = self:named_child()
-        if not first_child then
-            return
-        end
         local prev_node
         local field_index_real = 0
         local index_indexed = 0 -- count each indexed field
 
+        local function ignore_node_type(check_node)
+            if check_node:type() == "comment" and not include_comments then
+                print("ignore comment")
+                return true
+            end
+            if check_node:is_index() and filter_type == "keys" then
+                return true
+            end
+            if check_node:is_key() and filter_type == "indexed" then
+                return true
+            end
+        end
+
+        local function next_sib(start_node)
+            local next_node
+            local found_next
+            while not found_next do
+                -- print(">", type(next_node), next_node)
+                if not next_node then
+                    next_node = self(start_node:next_named_sibling())
+                else
+                    next_node = self(next_node:next_named_sibling())
+                end
+
+                if next_node == nil then
+                    return
+                -- elseif include_comments or next_node:type() ~= "comment" then
+                elseif not ignore_node_type(next_node) then
+                    found_next = true -- ensure we dont include comment nodes
+                end
+            end
+            return next_node
+        end
+
+        local first_child = self(self:named_child())
+        if not first_child then
+            return
+        end
+
+        -- print("first child type = ", first_child:type())
+
+        if ignore_node_type(first_child) then
+            first_child = next_sib(first_child)
+        end
+
+        if not first_child then
+            return
+        end
+
+        -- if first_child:type() == "comment" then
+        --     first_child = next_sib(first_child)
+        -- end
+
         -- print(":::::::::::::::::::::::::")
+        --
+
+        print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
 
         return function()
             local next_node
@@ -246,29 +303,23 @@ subclasses.table_constructor = {
                 -- print("> first...")
                 next_node = self(first_child)
             else
-                local found_next
-                local c = 0
-                while not found_next do
-                    -- print(">", type(next_node), next_node)
-
-                    if not next_node then
-                        next_node = self(prev_node:next_named_sibling())
-                    else
-                        next_node = self(next_node:next_named_sibling())
-                    end
-
-                    if next_node == nil then
-                        return
-                    elseif include_comments or next_node:type() ~= "comment" then
-                        found_next = true -- ensure we dont include comment nodes
-                    end
-
-                    -- print("> (while after)", type(next_node), next_node)
-                    -- c = c + 1
-                    -- if c > 10 then
-                    --     return
-                    -- end
-                end
+                next_node = next_sib(prev_node)
+                -- local found_next
+                -- while not found_next do
+                --     -- print(">", type(next_node), next_node)
+                --
+                --     if not next_node then
+                --         next_node = self(prev_node:next_named_sibling())
+                --     else
+                --         next_node = self(next_node:next_named_sibling())
+                --     end
+                --
+                --     if next_node == nil then
+                --         return
+                --     elseif include_comments or next_node:type() ~= "comment" then
+                --         found_next = true -- ensure we dont include comment nodes
+                --     end
+                -- end
             end
             field_index_real = field_index_real + 1
             if not next_node then
@@ -276,7 +327,7 @@ subclasses.table_constructor = {
             end
             prev_node = next_node
 
-            -- print("NEXT NODE:", next_node:type())
+            print("NEXT NODE:", next_node:type())
 
             -- compute return values
             local the_index, the_value
@@ -290,8 +341,37 @@ subclasses.table_constructor = {
             end
 
             -- TODO: return field_index_real last
-            return field_index_real, the_index, the_value, next_node
+            return the_index, the_value, next_node, field_index_real
         end
+    end,
+
+    -- NOTE: if the key in tables are [identifiers]. It doesnt care if the
+    -- key is an actual string name or an identifier pointing to some other
+    -- variable! name = ... or [name] = are both parsed as [identifiers]. You
+    -- have to check for the contents of the node to determine if it is a pointer
+    -- value or not.
+    --
+    ---Build a virtual dict of the table, so that I can access keys like a
+    ---regular lua table.
+    ---On the call, it will iterate all nodes and build the dict, then on
+    ---subsequent calls, I will be able to instantly access all keys. This
+    ---removes a lot of unnecessary "direct" usages of [iter_fields], since
+    ---it should mostly be used in cases when you actually want to loop
+    ---and operate on multiple elements. not just one...
+    ---@param string|number key The key or index we want to check for.
+    ---@return table WrappedNode A wrapped node of the value.
+    dict = function(input_key)
+        -- if first call, then build dict map
+        if not self.virtual_table then
+            self.virtual_table = {}
+            for key, value, field, index in self:iter_fields() do
+                self.virtual_table[type(key) == "number" and key or tostring(key)] = value
+            end
+        end
+
+        -- TODO: maybe we should put each node in a subtable with { key, value, field }
+        -- and then return everything. Since it is a minimal overhead.
+        return self.virtual_table[input_key]
     end,
 
     -- TODO:
@@ -391,7 +471,6 @@ subclasses.table_constructor = {
 
 subclasses.boolean = {
     toggle = function(self)
-
         if tostring(self) == "true" then
             print(string.format("hello from boolean: %s -> false", self))
             self:replace("false")

@@ -463,7 +463,10 @@ local function doom_modules_picker_v2(opts)
             { entry.value.enabled and "x" or " ", "TelescopeResultsIdentifier" },
             { entry.value.missing and "NULL" or entry.value.origin },
             { entry.value.section, "TelescopeResultsIdentifier" },
-            { entry.value[1] .. (entry.value.missing and " (module file missing)" or ""), entry.value.enabled and "" or "ErrorMsg" },
+            {
+                entry.value[1] .. (entry.value.missing and " (module file missing)" or ""),
+                entry.value.enabled and "" or "ErrorMsg",
+            },
         })
     end
 
@@ -494,11 +497,15 @@ local function doom_modules_picker_v2(opts)
             }),
             -------------------------------------------------------
             sorter = require("telescope.config").values.generic_sorter(opts),
+
             attach_mappings = function(prompt_bufnr, map)
                 local state = require("telescope.actions.state")
                 local function call_mappings_func(key)
                     local entry = state.get_selected_entry(prompt_bufnr)
-                    mappings_table["modules"][key].action(prompt_bufnr, entry, key)
+
+                    -- TODO: here, pass reference to self
+
+                    mappings_table["modules"][key].action(prompt_bufnr, entry, key, doom_modules_picker_v2)
                 end
                 for _, key in ipairs(insert_mappings) do
                     if mappings_table["modules"][key] then

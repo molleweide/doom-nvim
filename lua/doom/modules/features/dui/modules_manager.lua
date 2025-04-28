@@ -37,18 +37,15 @@ function ts_tbl_path(ts_table_constr, t_path)
     local depth = 0
 
     ---@param table_constructor_wrapper TS node wrapper of table constructor
-    local function ts_root_mod_tbl_try_find_target(ts_tbl_in)
+    local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
         print(string.format("--------------- %s ---------------", depth))
         print(vim.inspect(ret.t_path_left))
-        ret.parent_table_node = ts_tbl_in
-        ret.deepest_matched_table_node = ts_tbl_in -- this is only used for the initial sorting, which feels a bit unnecessary.
-
-        -- TODO: If I add a third arg to iter, that allows filtering index|key,
-        -- then i can use the iterator as pairs()/ipairs()/kpairs()
+        ret.parent_table_node = branch_table
+        ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
 
         if #ret.t_path_left > 1 then -- check branches
-            for _, key, value in ts_tbl_in:iter_fields() do -- _, "keys"
+            for key, value in branch_table:iter_fields("keys") do -- TODO: _, "keys"
                 if tostring(key) == ret.t_path_left[1]:upper() then
                     -- print("BRANCH KEY:", key)
                     branch = true
@@ -58,15 +55,16 @@ function ts_tbl_path(ts_table_constr, t_path)
             end
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            -- iterate table fields. each indexed table is a module candidate.
-            for _, branch_index, branch_value, field in ts_tbl_in:iter_fields() do -- _, "indexed"
+            for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
                 if field:is_index() then
-                    -- print("MODULE FIELD:---------------------------------") --, branch_index, branch_value)
-                    for _, mod_key, mod_value in branch_value:iter_fields() do
+
+                    -- NOTE: this only works, if the name (index 1) explicitly comes before the enabled key.
+                    -- but we shouldnt rely on this. When [dict] is finished. it will
+                    -- abstract this issue.
+                    for mod_key, mod_value in leaf_table:iter_fields() do
                         if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
-                            print("MODULE FOUND:", branch_value)
-                            ret.module_found_node = branch_value
-                            ret.deepest_matched_table_node = branch_value
+                            ret.module_found_node = leaf_table
+                            ret.deepest_matched_table_node = leaf_table
                             ret.module_name_node = mod_value
                         end
                         if ret.module_found_node and tostring(mod_key) == "enabled" then

@@ -216,6 +216,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
     }))
 end
 
+-- why is this defined as a function and not table?
 nvim_cmp.binds = function()
     return {
         {
