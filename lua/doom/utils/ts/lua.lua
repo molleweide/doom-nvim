@@ -246,10 +246,16 @@ subclasses.table_constructor = {
                 print("ignore comment")
                 return true
             end
+            -- ignore indexed
+            -- print(string.format("    is_index:%s, is_key:%s", check_node:is_index(), check_node:is_key()))
+
             if check_node:is_index() and filter_type == "keys" then
+                print("ignore index:", check_node)
                 return true
             end
+                    -- ignore keys
             if check_node:is_key() and filter_type == "indexed" then
+                print("ignore key:", check_node)
                 return true
             end
         end
@@ -295,6 +301,12 @@ subclasses.table_constructor = {
 
         print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
 
+        -- local function do_iteration()
+        -- end
+
+        -- call the function,
+        --
+
         return function()
             local next_node
             if field_index_real == 0 then
@@ -332,44 +344,21 @@ subclasses.table_constructor = {
     ---@param string|number key The key or index we want to check for.
     ---@return table WrappedNode A wrapped node of the value.
     dict = function(self, input_key)
-
-        print(string.format("DICT(%s)", input_key))
-
-
+        -- print(string.format("DICT(%s)", input_key))
         if not self.virtual_table then
-            print(string.format("DICT(%s): FIRST <<<", input_key))
+            -- print(string.format("DICT(%s): FIRST <<<", input_key))
             self.virtual_table = {}
             for key, value, field, index in self:iter_fields() do
-
                 -- print(string.format("DICT: Attacthing: %s | %s", key, value:type()))
-
-                -- self.virtual_table[type(key) == "number" and key or tostring(key)] = value
-
                 self.virtual_table[type(key) == "number" and key or tostring(key)] = {
                     key = key,
                     value = value,
                     field = field
                 }
-
             end
         end
-
-        -- TODO: maybe we should put each node in a subtable with { key, value, field }
-        -- and then return everything. Since it is a minimal overhead.
-        -- This would allow access by
-        -- >>>
-        --      my_table:dict()[1].<key|value|field>
-        --      ^ check indexed 1 and get whichever component
-        --
-        -- TODO: wrap the nodes upon returning. not when assigning the values??
-        -- ^ but  wrapped nodes are returned from the iterator anyways, so who
-        -- gives af. for now i can just continue with this and then fix it later
-        -- if necessary.
-
-        local ret = self.virtual_table[input_key]
-
-        print(string.format("DICT(%s): ret = %s", input_key, ret))
-        return ret
+        -- print(string.format("DICT(%s): type(ret) = %s", input_key, type(self.virtual_table[input_key])))
+        return self.virtual_table[input_key]
     end,
 
     -- TODO:
@@ -467,13 +456,14 @@ subclasses.table_constructor = {
     move_field = function() end,
 }
 
+-- bool:toggle()
 subclasses.boolean = {
     toggle = function(self)
         if tostring(self) == "true" then
-            print(string.format("hello from boolean: %s -> false", self))
+            -- print(string.format("hello from boolean: %s -> false", self))
             self:replace("false")
         else
-            print(string.format("hello from boolean: %s -> true", self))
+            -- print(string.format("hello from boolean: %s -> true", self))
             self:replace("true")
         end
 

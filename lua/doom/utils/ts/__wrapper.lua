@@ -129,7 +129,7 @@ function TSNodeWrapper:text()
 end
 
 function TSNodeWrapper:replace(replacement)
-    print("TSNodeWrapper:replace() on ```%s``", self)
+    -- print("TSNodeWrapper:replace() on ```%s``", self)
     local a, b, c, d = self:range()
     print(self:range())
     vim.api.nvim_buf_set_text(

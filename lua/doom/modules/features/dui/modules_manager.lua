@@ -44,7 +44,7 @@ function ts_tbl_path(ts_table_constr, t_path)
         ret.parent_table_node = branch_table
         ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
 
-        print("branch_table ?", branch_table:type())
+        -- print("branch_table ?", branch_table:type())
 
         if #ret.t_path_left > 1 then -- check branches
             -- w/ dict
@@ -57,7 +57,7 @@ function ts_tbl_path(ts_table_constr, t_path)
                 print("FOUND BRANCH:", lookup_key, branch_table:type())
                 branch = true
                 ts_tbl_child = branch_table:dict(lookup_key).value
-                print("type ts_tbl_child:", ts_tbl_child)
+                -- print("type ts_tbl_child:", ts_tbl_child)
                 table.remove(ret.t_path_left, 1)
             end
 
@@ -75,13 +75,12 @@ function ts_tbl_path(ts_table_constr, t_path)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
             -- w/ dict
             for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
-                if field:is_index() then
                     -- check name
                     if
                         leaf_table:dict(1)
                         and tostring(leaf_table:dict(1).value:content()) == ret.t_path_left[1]
                     then
-                        print("found name!!!")
+                        -- print("found name!!!")
                         ret.module_found_node = leaf_table
                         ret.deepest_matched_table_node = leaf_table
                         ret.module_name_node = mod_value
@@ -91,12 +90,11 @@ function ts_tbl_path(ts_table_constr, t_path)
                         ret.module_found_node
                         and leaf_table:dict("enabled")
                     then
-                        print("enabled ???")
+                        -- print("enabled ???")
                         ret.module_field_enabled_value_node = leaf_table:dict("enabled").value
                         table.remove(ret.t_path_left, 1)
                         return ret
                     end
-                end
             end
 
             -- -- w/ iterator
@@ -164,7 +162,7 @@ local function transform_enabled_modules_tree(action, no_formatting)
         -- TODO: capture return ok if any issues
 
         if action.action == "TOGGLE" then
-            print("DO TOGGLE:", tn.module_found_node)
+            -- print("DO TOGGLE:", tn.module_found_node)
             tn.module_field_enabled_value_node:toggle()
         end
         if action.action == "ENABLE" then

@@ -21,7 +21,7 @@ return {
     -- [the_key] = "XXX"
 
     AI = {
-        { "ai_chat_gpt", enabled = false },
+        { "ai_chat_gpt", enabled = true },
     },
     LIB = {
         { "nio", enabled = true }, -- asynch IO
