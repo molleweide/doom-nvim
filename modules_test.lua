@@ -24,10 +24,10 @@ return {
     FEATURES = {
         { "architext", enabled = true },
         { "monitoring", enabled = false },
-        { "lsp_progress", enabled = true },
+        { "lsp_progress", enabled = false },
         { "file_explorer_oil", enabled = true },
         BUFFERS = {
-            { "buffer_management", enabled = true },
+            { "buffer_management", enabled = false },
             { "temporary_buffers", enabled = true },
             { "cleanup_unused", enabled = true },
         },
@@ -53,7 +53,7 @@ return {
         { "autopairs", enabled = true }, -- Automatically close character pairs
         { "comment", enabled = true }, -- Adds keybinds to comment in any language
         { "linter", enabled = true }, -- Linting and formatting for languages
-        { "lsp", enabled = true }, -- Code completion
+        { "lsp", enabled = false }, -- Code completion
         { "lsp_cmp", enabled = true },
         { "lsp_signature_hints", enabled = true },
         { "context_in_code", enabled = true },

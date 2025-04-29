@@ -44,6 +44,9 @@ subclasses.field = {
             return "key"
         end
     end,
+
+    -- NOTE: I could use the TSNode:field() method here as well.
+
     is_index = function(self)
         return self:named_child_count() == 1
     end,
@@ -243,19 +246,15 @@ subclasses.table_constructor = {
         -- a list of types to ignore.
         local function ignore_node_type(check_node)
             if check_node:type() == "comment" and not include_comments then
-                print("ignore comment")
+                -- print("ignore comment")
                 return true
             end
-            -- ignore indexed
-            -- print(string.format("    is_index:%s, is_key:%s", check_node:is_index(), check_node:is_key()))
-
             if check_node:is_index() and filter_type == "keys" then
-                print("ignore index:", check_node)
+                -- print("ignore index:", check_node)
                 return true
             end
-                    -- ignore keys
             if check_node:is_key() and filter_type == "indexed" then
-                print("ignore key:", check_node)
+                -- print("ignore key:", check_node)
                 return true
             end
         end
@@ -299,7 +298,7 @@ subclasses.table_constructor = {
         -- print(":::::::::::::::::::::::::")
         --
 
-        print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
+        -- print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
 
         -- local function do_iteration()
         -- end

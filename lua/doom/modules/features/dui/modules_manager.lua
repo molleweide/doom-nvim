@@ -8,8 +8,9 @@ local dui_utils = require("doom.modules.features.dui.utils")
 
 local M = {}
 
-local query_return_table =
-    "(return_statement (expression_list (table_constructor) @table_constructor))"
+local QUERY = [[
+    (return_statement (expression_list (table_constructor) @table_constructor))
+]]
 
 local function build_new_inject_string2(tree)
     local ret = vim.split(vim.inspect(tree), "\n")
@@ -38,8 +39,8 @@ function ts_tbl_path(ts_table_constr, t_path)
     ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
-        print(string.format("--------------- %s ---------------", depth))
-        print(vim.inspect(ret.t_path_left))
+        -- print(string.format("--------------- %s ---------------", depth))
+        -- print(vim.inspect(ret.t_path_left))
         ret.parent_table_node = branch_table
         ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
         if #ret.t_path_left > 1 then -- check branches
@@ -79,19 +80,22 @@ local function transform_enabled_modules_tree(ts_buf, action)
         log.debug("No action was supplied")
         return
     end
-    -- action = vim.deepcopy(action)
-    local action_it = vim.iter(ipairs(action))
-        :map(function(_, t)
-            print("t.t_path:", vim.inspect(t.t_path))
-            t.nodes = ts_tbl_path(ts_buf:query_wrap(query_return_table), t.t_path)
-        end)
+    local axit = vim
+        .iter(ipairs(action))
+        -- pass [t] to ts_tbl_path. assign all module data to the [t] table
+        -- itself.
+        :map(
+            function(_, t)
+                t.nodes = ts_tbl_path(ts_buf:query_wrap(QUERY), t.t_path)
+            end
+        )
         :totable()
 
     table.sort(action, function(a, b)
-        -- TODO: Maybe instead do
-        -- if module_node then sort based on it, or else sort based on parent_node
-        -- >>> So that i can remove the [deepest_matched_table_node] and only work
-        -- with [parent AND module]
+        -- return a.module_found_node and a.module_found_node:range()
+        --     or a.parent_table_node:range() < b.module_found_node and b.module_found_node:range()
+        --     or b.parent_table_node:range()
+
         return a.nodes.deepest_matched_table_node:range()
             < b.nodes.deepest_matched_table_node:range()
     end)
@@ -106,6 +110,10 @@ local function transform_enabled_modules_tree(ts_buf, action)
         local tn = t.nodes
 
         -- TODO: capture return ok if any issues
+
+        -- TODO: if action and ax.table_node.is_module
+        -- >> if we write the is_module flag to the wrapper itself it becomes
+        -- much easier to handle. tighter
 
         if action.action == "TOGGLE" then
             -- print("DO TOGGLE:", tn.module_found_node)
@@ -189,6 +197,8 @@ local function transform_enabled_modules_tree(ts_buf, action)
             })
         end
     end
+
+    return true
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?
@@ -250,7 +260,7 @@ end
 ---target_module_dir is assumed to be a Pathlib Path object.
 --- NOTE: Should this be an async func that I use create to run with.
 M.manage_modules_tree = function(opts)
-    local should_apply_formatting = true
+    local should_apply_formatting = false
     local nio = require("nio")
     local Path = require("pathlib")
     local helpers = require("doom.modules.features.dui.operations.helpers.nio")
@@ -262,18 +272,21 @@ M.manage_modules_tree = function(opts)
     end
 
     print(string.format(
-        [[-------------------------------------------------------
--- manage_modules: #actions: %s
--------------------------------------------------------]],
-        #opts
+        [[
+
+------------------------------------
+|-- MANAGE_MODULES: #ACTIONS: %s --|
+------------------------------------
+
+]],
+        tostring(#opts):len() == 1 and " " .. tostring(#opts) or #opts
     ))
 
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
-    -- print("ts_buf:", vim.inspect(ts_buf))
 
     for i, action in ipairs(opts) do
-        print(i, "Action:", vim.inspect(action))
+        print(string.format("ACTION (%s/%s): <<%s>>", i, #opts, vim.inspect(action))) --, vim.inspect(action))
         local ok = transform_enabled_modules_tree(ts_buf, action)
         if not ok then
             log.warn(
@@ -288,9 +301,12 @@ M.manage_modules_tree = function(opts)
         end
     end
 
-    -- Default to formatting the [modules.lua] file.
-    if not should_apply_formatting then
-        vim.api.nvim_buf_call(ts_buf:buf(), function()
+    print("<POST TRANSFORM | PRE FORMATTING>")
+
+    -- NOTE: This one could be made [async]
+    --
+    if should_apply_formatting then
+        vim.api.nvim_buf_call(buf, function()
             vim.lsp.buf.format({ async = false })
             vim.cmd("write")
             log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
@@ -299,53 +315,29 @@ M.manage_modules_tree = function(opts)
 
     -- log.info(("dui :: transformed modules.lua / action: %s"):format(action.action))
 
-    if true then
-        return
-    end
-
-    -- TODO: I have to allow for passing a set of multiple module paths
-    -- create / remove multiple modules.
-    -- >>> Gather all actions and only perform reloading / updating stuff
-    -- with lazy after all async actions have been gathered.
-
-    -- local actions = vim.iter(to_install)
-    --     :map(function(entry)
-    --         return nio.create(function()
-    --             local future = nio.control.future()
-    --             require("rocks.api").install(entry.name, entry.version, {
-    --                 callback = function()
-    --                     future.set(true)
-    --                 end,
-    --             })
-    --             future.wait()
-    --         end)
+    -- -- Async handle dir operations
+    -- nio.run(function()
+    --     helpers.semaphore.with(function()
+    --         if opts.action == "ADD" and not path_init_file:exists() then
+    --             local ok = module__create_dir_await(path_init_file, opts.target_module_name) -- .wait()
+    --             if ok then
+    --                 log.info(("DUI :: Success creating new module: %s"):format(path_init_file))
+    --                 open_file(path_init_file, "current")
+    --             end
+    --         elseif opts.action == "TOGGLE" then
+    --         -- toggle doesnt require any fs operations
+    --         elseif opts.action == "ENABLE" then
+    --         elseif opts.action == "DISABLE" then
+    --         elseif opts.action == "MOVE" then
+    --         -- moving dirs does require fs op
+    --         elseif opts.action == "REMOVE" then
+    --             local ok = module__dir_remove_async(opts.target_module_dir:tostring())
+    --             if ok then
+    --                 log.info("DUI: Success removing dir:", opts.target_module_dir:tostring())
+    --             end
+    --         end
     --     end)
-    --     :totable()
-    -- nio.gather(actions)
-
-    -- Async handle dir operations
-    nio.run(function()
-        helpers.semaphore.with(function()
-            if opts.action == "ADD" and not path_init_file:exists() then
-                local ok = module__create_dir_await(path_init_file, opts.target_module_name) -- .wait()
-                if ok then
-                    log.info(("DUI :: Success creating new module: %s"):format(path_init_file))
-                    open_file(path_init_file, "current")
-                end
-            elseif opts.action == "TOGGLE" then
-            -- toggle doesnt require any fs operations
-            elseif opts.action == "ENABLE" then
-            elseif opts.action == "DISABLE" then
-            elseif opts.action == "MOVE" then
-            -- moving dirs does require fs op
-            elseif opts.action == "REMOVE" then
-                local ok = module__dir_remove_async(opts.target_module_dir:tostring())
-                if ok then
-                    log.info("DUI: Success removing dir:", opts.target_module_dir:tostring())
-                end
-            end
-        end)
-    end)
+    -- end)
 end
 
 return M

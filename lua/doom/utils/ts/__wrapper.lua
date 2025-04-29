@@ -19,7 +19,7 @@ function M.make_wrapped_node(self, input_node)
 
     -- print("MAKE WRAPPER:", vim.inspect(input_node))
     if input_node.__name == "TSNodeInstance" then
-        print("Tried to wrap an already wrapped node. Returning early...")
+        print("<CANNOT WRAP ALREADY WRAPPED>")
         return input_node
     end
 
