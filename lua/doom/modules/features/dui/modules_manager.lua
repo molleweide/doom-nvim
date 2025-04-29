@@ -48,6 +48,7 @@ function ts_tbl_path(ts_table_constr, target)
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
         target.parent_table_node = branch_table
+            print("???", type(branch_table))
         if #target.t_path_left > 1 then
             local lookup_key = target.t_path_left[1]:upper()
             local is_branch, ts_tbl_child
@@ -185,43 +186,6 @@ local function transform_enabled_modules_tree(ts_buf, action)
     return true
 end
 
--- NOTE: Use semaphore to ensure that only one module operation is run at once?
--- !! All core rocks nvim actions are ran with semaphore to ensure that
--- only one is ran at a time.
--- >>> Copy over the rocks operations helper file and
-
--- TODO: I have to prepare these async modules as if they were part of
--- Rocks nvim so that I do all of this properly.
-
-local function module__create_dir_await(file_path, name)
-    local Path = require("pathlib")
-    log.info(("Adding new module: %s -> %s"):format(name, file_path:tostring()))
-    local ok = file_path:touch(Path.permission("rw-r--r--"), true)
-    if ok then
-        ok = (fs.get_write_file_awaiter())(
-            file_path:tostring(),
-            "w",
-            pu.gen_temp_from_mod_name(name)
-        )
-        if ok then
-            return true
-        end
-    end
-end
-
-local function module__dir_move()
-    log.info("Moving a module...")
-end
-
-local function module__dir_remove_async(dir_path)
-    log.info("Removing a module:", dir_path)
-    fs.rm_dir(dir_path)
-end
-
-local function module_load_single()
-    -- model this after rocks load_dynamic
-end
-
 ---@param file string The path to edit
 ---@param where string Eg. "current" for current window
 local function open_file(file, where)
@@ -257,13 +221,20 @@ M.manage_modules_tree = function(action)
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
 
-    -- FIX: the target path is wrong for the new module.
-
     print(string.format("ACTION: <<%s>>", vim.inspect(action))) --, vim.inspect(action))
 
     if action.action == "ADD" then
         local ts_action = { action = "ADD" }
         for i, v in ipairs(action) do
+    --         print(string.format(
+    --             [[
+    -- old: %s
+    -- new: %s
+    -- ]],
+    --             v.old:path(),
+    --             v.new:path()
+    --         ))
+
             table.insert(ts_action, v.new)
         end
 

@@ -186,4 +186,10 @@ function fs.mkdir_p(dir)
     return true
 end
 
+---Analogous to `mv` command.
+function fs.mv(path)
+    -- TODO: Use `vim.systems(mv)`
+    -- TODO: Later, redo using [uv]
+end
+
 return fs

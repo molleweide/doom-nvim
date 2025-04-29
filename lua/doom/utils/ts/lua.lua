@@ -242,21 +242,22 @@ subclasses.table_constructor = {
         local field_index_real = 0
         local index_indexed = 0 -- count each indexed field
 
-        -- TODO: extract this into a lib func elsewhere, and allow for passing
-        -- a list of types to ignore.
         local function ignore_node_type(check_node)
+            local should_ignore = false
             if check_node:type() == "comment" and not include_comments then
                 -- print("ignore comment")
-                return true
-            end
-            if check_node:is_index() and filter_type == "keys" then
+                should_ignore = true
+            elseif check_node:is_index() and filter_type == "keys" then
                 -- print("ignore index:", check_node)
-                return true
-            end
-            if check_node:is_key() and filter_type == "indexed" then
+                should_ignore = true
+            elseif check_node:is_key() and filter_type == "indexed" then
                 -- print("ignore key:", check_node)
-                return true
+                should_ignore = true
             end
+            if should_ignore then
+                field_index_real = field_index_real + 1
+            end
+            return should_ignore
         end
 
         local function next_sib(start_node)
@@ -281,27 +282,11 @@ subclasses.table_constructor = {
         end
 
         local first_child = self(self:named_child())
-        if not first_child then
-            return
-        end
-
-        -- print("first child type = ", first_child:type())
-
-        if ignore_node_type(first_child) then
+        if first_child and ignore_node_type(first_child) then
             first_child = next_sib(first_child)
         end
 
-        if not first_child then
-            return
-        end
-
-        -- print(":::::::::::::::::::::::::")
-        --
-
         -- print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
-
-        -- local function do_iteration()
-        -- end
 
         -- call the function,
         --
@@ -310,6 +295,9 @@ subclasses.table_constructor = {
             local next_node
             if field_index_real == 0 then
                 -- print("> first...")
+                if not first_child then
+                    return
+                end
                 next_node = self(first_child)
             else
                 next_node = next_sib(prev_node)
@@ -352,7 +340,7 @@ subclasses.table_constructor = {
                 self.virtual_table[type(key) == "number" and key or tostring(key)] = {
                     key = key,
                     value = value,
-                    field = field
+                    field = field,
                 }
             end
         end

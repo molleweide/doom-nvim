@@ -34,7 +34,7 @@ ModSpec.dir = function(self)
         "lua",
         self.origin,
         "modules",
-        table.concat(self, system.sep)
+        table.concat(self.t_path, system.sep),
     }, system.sep)
 end
 
@@ -44,7 +44,7 @@ ModSpec.path = function(self)
         "lua",
         self.origin,
         "modules",
-        table.concat(self, system.sep),
+        table.concat(self.t_path, system.sep),
         "init.lua",
     }, system.sep)
 end
@@ -73,33 +73,31 @@ mt.__call = function(self, node, stack)
                 table.insert(t_section, sn.key:lower())
             end
         end
+        o.t_section = t_section
         o.section = table.concat(t_section, ".")
     else
         t_section = node.t_section
+        o.t_section = t_section
         o.section = table.concat(t_section, ".")
     end
 
-    -- TODO: Use this later if i remove dependency on path
-    -- o.path_init_file = table.concat({
-    --     doom_config_root,
-    --     "lua",
-    --     "user",
-    --     "modules",
-    --     table.concat(decl.t_section, "/"),
-    --     node[1],
-    --     "init.lua",
-    -- }, system.sep)
-
     local Path = require("pathlib")
-    local module_init_file = Path(
+
+    local t_prepare_path = {
         doom_config_root,
         "lua",
         "user",
         "modules",
-        table.concat(t_section, "/"),
-        o[1],
-        "init.lua"
-    )
+    }
+
+    for _, v in ipairs(t_section) do
+        table.insert(t_prepare_path, v)
+    end
+
+    table.insert(t_prepare_path, o[1])
+    table.insert(t_prepare_path, "init.lua")
+
+    local module_init_file = Path(unpack(t_prepare_path))
 
     if module_init_file:exists() then
         o.origin = "user"
@@ -118,8 +116,9 @@ mt.__call = function(self, node, stack)
     end
 
     -- make t_path
-    table.insert(t_section, node[1])
-    o.t_path = t_section
+    local t_path = vim.deepcopy(t_section)
+    table.insert(t_path, node[1])
+    o.t_path = t_path
 
     -- print("o.t_path:", vim.inspect(o.t_path))
 

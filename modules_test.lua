@@ -24,7 +24,7 @@ return {
     FEATURES = {
         { "architext", enabled = true },
         { "monitoring", enabled = false },
-        { "lsp_progress", enabled = false },
+        { "lsp_progress", enabled = true },
         { "file_explorer_oil", enabled = true },
         BUFFERS = {
             { "buffer_management", enabled = false },
