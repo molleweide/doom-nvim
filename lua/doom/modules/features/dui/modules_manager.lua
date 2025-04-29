@@ -48,7 +48,6 @@ function ts_tbl_path(ts_table_constr, target)
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
         target.parent_table_node = branch_table
-            print("???", type(branch_table))
         if #target.t_path_left > 1 then
             local lookup_key = target.t_path_left[1]:upper()
             local is_branch, ts_tbl_child
@@ -84,6 +83,8 @@ local function transform_enabled_modules_tree(ts_buf, action)
         log.debug("Cannot pass <nil> as an argument!")
         return
     end
+
+    print(": enter transformer :")
 
     vim.iter(ipairs(action))
         :map(function(_, target)
@@ -226,14 +227,14 @@ M.manage_modules_tree = function(action)
     if action.action == "ADD" then
         local ts_action = { action = "ADD" }
         for i, v in ipairs(action) do
-    --         print(string.format(
-    --             [[
-    -- old: %s
-    -- new: %s
-    -- ]],
-    --             v.old:path(),
-    --             v.new:path()
-    --         ))
+            --         print(string.format(
+            --             [[
+            -- old: %s
+            -- new: %s
+            -- ]],
+            --             v.old:path(),
+            --             v.new:path()
+            --         ))
 
             table.insert(ts_action, v.new)
         end

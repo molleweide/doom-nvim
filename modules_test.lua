@@ -16,7 +16,7 @@
 
 return {
     AI = {
-        { "ai_chat_gpt", enabled = false }, --- arst
+        { "ai_chat_gpt", enabled = false }, -- arst
     },
     LIB = {
         { "nio", enabled = true }, -- asynch IO

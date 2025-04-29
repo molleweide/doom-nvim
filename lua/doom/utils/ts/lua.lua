@@ -289,11 +289,13 @@ subclasses.table_constructor = {
         -- print(string.format("filter_type: %s, include_comments: %s", filter_type, include_comments))
 
         -- call the function,
-        --
+
+        local first_iter = true
 
         return function()
             local next_node
-            if field_index_real == 0 then
+            if first_iter then
+                first_iter = false
                 -- print("> first...")
                 if not first_child then
                     return
