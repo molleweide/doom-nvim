@@ -7,9 +7,20 @@
 local M = {}
 M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 
+-- WARN: Is there any issues if I try to wrap an already wrapped node?
+-- So far there doesnt seem to be any problem
+
 function M.make_wrapped_node(self, input_node)
+
+    -- WARN: it should be `~= "table"`?!
     if not input_node or type(input_node.type) ~= "function" then
         return
+    end
+
+    -- print("MAKE WRAPPER:", vim.inspect(input_node))
+    if input_node.__name == "TSNodeInstance" then
+        print("Tried to wrap an already wrapped node. Returning early...")
+        return input_node
     end
 
     local tslua = self.__tslua or self

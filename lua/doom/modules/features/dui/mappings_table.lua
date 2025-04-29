@@ -63,6 +63,17 @@ local function make_target(user_input, selection)
     return new
 end
 
+local function do_next(fn)
+    if fn and type(fn) == "function" then
+        print("<DO NEXT>")
+        fn()
+    else
+        -- do cleanup?
+    end
+end
+
+-- TODO: Make type definitions for the [action] func.
+
 local mappings = {
 
     -- TODO: Prevent modifying core modules.
@@ -286,7 +297,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 
         ["<C-t>"] = {
             desc = "Toggle on/off",
-            action = function(prompt_bufnr, entry, key) -- TOGGLE MODULE(S)
+            action = function(prompt_bufnr, entry, key, next) -- TOGGLE MODULE(S)
                 local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
                 local action_set = { action = "TOGGLE" }
@@ -297,6 +308,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                 require("doom.modules.features.dui.modules_manager").manage_modules_tree({
                     action_set,
                 })
+                do_next(next)
             end,
         },
         -- ["<C-t>"] = {

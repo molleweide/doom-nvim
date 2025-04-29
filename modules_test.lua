@@ -14,14 +14,9 @@
 --     },
 -- }
 
-local the_key = "x"
-
 return {
-
-    -- [the_key] = "XXX"
-
     AI = {
-        { "ai_chat_gpt", enabled = true },
+        { "ai_chat_gpt", enabled = false }, --- arst
     },
     LIB = {
         { "nio", enabled = true }, -- asynch IO

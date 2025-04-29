@@ -35,7 +35,6 @@ end
 function ts_tbl_path(ts_table_constr, t_path)
     local ret = { t_path_left = vim.deepcopy(t_path) }
     local depth = 0
-
     ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
@@ -43,80 +42,31 @@ function ts_tbl_path(ts_table_constr, t_path)
         print(vim.inspect(ret.t_path_left))
         ret.parent_table_node = branch_table
         ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
-
-        -- print("branch_table ?", branch_table:type())
-
         if #ret.t_path_left > 1 then -- check branches
-            -- w/ dict
             local lookup_key = ret.t_path_left[1]:upper()
-
-            -- print("branch dict return:", branch_table:dict(lookup_key))
-
             local ts_tbl_child
             if branch_table:dict(lookup_key) then
-                print("FOUND BRANCH:", lookup_key, branch_table:type())
                 branch = true
                 ts_tbl_child = branch_table:dict(lookup_key).value
-                -- print("type ts_tbl_child:", ts_tbl_child)
                 table.remove(ret.t_path_left, 1)
             end
-
-            -- -- w/ iterator
-            -- for key, value in branch_table:iter_fields("keys") do -- TODO: _, "keys"
-            --     if tostring(key) == ret.t_path_left[1]:upper() then
-            --         -- print("BRANCH KEY:", key)
-            --         branch = true
-            --         ts_tbl_child = value
-            --         table.remove(ret.t_path_left, 1)
-            --     end
-            -- end
-
             return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            -- w/ dict
             for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
-                    -- check name
-                    if
-                        leaf_table:dict(1)
-                        and tostring(leaf_table:dict(1).value:content()) == ret.t_path_left[1]
-                    then
-                        -- print("found name!!!")
-                        ret.module_found_node = leaf_table
-                        ret.deepest_matched_table_node = leaf_table
-                        ret.module_name_node = mod_value
-                    end
-                    -- check enabled
-                    if
-                        ret.module_found_node
-                        and leaf_table:dict("enabled")
-                    then
-                        -- print("enabled ???")
-                        ret.module_field_enabled_value_node = leaf_table:dict("enabled").value
-                        table.remove(ret.t_path_left, 1)
-                        return ret
-                    end
+                if
+                    leaf_table:dict(1)
+                    and tostring(leaf_table:dict(1).value:content()) == ret.t_path_left[1]
+                then
+                    ret.module_found_node = leaf_table
+                    ret.deepest_matched_table_node = leaf_table
+                    ret.module_name_node = mod_value
+                end
+                if ret.module_found_node and leaf_table:dict("enabled") then
+                    ret.module_field_enabled_value_node = leaf_table:dict("enabled").value
+                    table.remove(ret.t_path_left, 1)
+                    return ret
+                end
             end
-
-            -- -- w/ iterator
-            -- for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
-            --     if field:is_index() then
-            --         -- NOTE: this only works, if the name (index 1) explicitly comes before the enabled key.
-            --         -- but we shouldnt rely on this. When [dict] is finished. it will
-            --         -- abstract this issue.
-            --         for mod_key, mod_value in leaf_table:iter_fields() do
-            --             if mod_key == 1 and tostring(mod_value:content()) == ret.t_path_left[1] then
-            --                 ret.module_found_node = leaf_table
-            --                 ret.deepest_matched_table_node = leaf_table
-            --                 ret.module_name_node = mod_value
-            --             end
-            --             if ret.module_found_node and tostring(mod_key) == "enabled" then
-            --                 ret.module_field_enabled_value_node = mod_value
-            --                 table.remove(ret.t_path_left, 1)
-            --                 return ret
-            --             end
-            --         end
-            --     end
-            -- end
         end
         return ret
     end
@@ -124,16 +74,12 @@ function ts_tbl_path(ts_table_constr, t_path)
 end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
-local function transform_enabled_modules_tree(action, no_formatting)
+local function transform_enabled_modules_tree(ts_buf, action)
     if not action.action then
         log.debug("No action was supplied")
         return
     end
-    action = vim.deepcopy(action)
-
-    local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
-    local ts_buf = require("doom.utils.ts.lua"):new(buf)
-    -- print("ts_buf:", vim.inspect(ts_buf))
+    -- action = vim.deepcopy(action)
     local action_it = vim.iter(ipairs(action))
         :map(function(_, t)
             print("t.t_path:", vim.inspect(t.t_path))
@@ -243,20 +189,6 @@ local function transform_enabled_modules_tree(action, no_formatting)
             })
         end
     end
-
-    -- WARN: If multiple actions, then formatting has to be done last!!!
-    -- Ie. the ts_buf handle has to be PASSED TO transform_enabled_modules_tree
-
-    -- Default to formatting the [modules.lua] file.
-    if not no_formatting then
-        vim.api.nvim_buf_call(ts_buf:buf(), function()
-            vim.lsp.buf.format({ async = false })
-            vim.cmd("write")
-            log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
-        end)
-    end
-
-    log.info(("dui :: transformed modules.lua / action: %s"):format(action.action))
 end
 
 -- NOTE: Use semaphore to ensure that only one module operation is run at once?
@@ -318,6 +250,7 @@ end
 ---target_module_dir is assumed to be a Pathlib Path object.
 --- NOTE: Should this be an async func that I use create to run with.
 M.manage_modules_tree = function(opts)
+    local should_apply_formatting = true
     local nio = require("nio")
     local Path = require("pathlib")
     local helpers = require("doom.modules.features.dui.operations.helpers.nio")
@@ -335,11 +268,13 @@ M.manage_modules_tree = function(opts)
         #opts
     ))
 
-    -- TODO: rename `opts` to `actions`
+    local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
+    local ts_buf = require("doom.utils.ts.lua"):new(buf)
+    -- print("ts_buf:", vim.inspect(ts_buf))
 
     for i, action in ipairs(opts) do
         print(i, "Action:", vim.inspect(action))
-        local ok = transform_enabled_modules_tree(action, true)
+        local ok = transform_enabled_modules_tree(ts_buf, action)
         if not ok then
             log.warn(
                 string.format(
@@ -353,7 +288,16 @@ M.manage_modules_tree = function(opts)
         end
     end
 
-    -- TODO: apply formatting here..
+    -- Default to formatting the [modules.lua] file.
+    if not should_apply_formatting then
+        vim.api.nvim_buf_call(ts_buf:buf(), function()
+            vim.lsp.buf.format({ async = false })
+            vim.cmd("write")
+            log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
+        end)
+    end
+
+    -- log.info(("dui :: transformed modules.lua / action: %s"):format(action.action))
 
     if true then
         return
