@@ -33,14 +33,12 @@ end
 --- TS get set table path
 ---@param Takes TS object we are working on.
 ---@param Table of path components to check for
-function ts_tbl_path(ts_table_constr, t_path)
+function ts_tbl_path(ts_table_constr, t_path, action_table)
     local ret = { t_path_left = vim.deepcopy(t_path) }
     local depth = 0
     ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
-        -- print(string.format("--------------- %s ---------------", depth))
-        -- print(vim.inspect(ret.t_path_left))
         ret.parent_table_node = branch_table
         ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
         if #ret.t_path_left > 1 then -- check branches
@@ -76,17 +74,18 @@ end
 
 ---Handles adding, toggling, and removing modules from `./modules.lua`.
 local function transform_enabled_modules_tree(ts_buf, action)
-    if not action.action then
-        log.debug("No action was supplied")
+    if not ts_buf or not action.action then
+        log.debug("Cannot pass <nil> as an argument!")
         return
     end
+
     local axit = vim
         .iter(ipairs(action))
         -- pass [t] to ts_tbl_path. assign all module data to the [t] table
         -- itself.
         :map(
             function(_, t)
-                t.nodes = ts_tbl_path(ts_buf:query_wrap(QUERY), t.t_path)
+                t.nodes = ts_tbl_path(ts_buf:query_wrap(QUERY), t.t_path, t)
             end
         )
         :totable()
