@@ -44,7 +44,7 @@ return {
         SNIPPETS = {
             { "extra_snippets", enabled = true }, -- Code snippets for all languages
             { "luasnip_engine", enabled = true, tags = { "reduced", "firenvim" } },
-            { "additional_friendly_snippets", enabled = true, tags = { "reduced", "firenvim" } },
+            { "additional_friendly_snippets", enabled = false, tags = { "reduced", "firenvim" } },
             { "luasnip_telescope", enabled = true },
         },
         -- Language features

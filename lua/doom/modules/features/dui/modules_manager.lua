@@ -33,41 +33,38 @@ end
 --- TS get set table path
 ---@param Takes TS object we are working on.
 ---@param Table of path components to check for
-function ts_tbl_path(ts_table_constr, t_path, action_table)
-    local ret = { t_path_left = vim.deepcopy(t_path) }
+function ts_tbl_path(ts_table_constr, target)
+    target.t_path_left = vim.deepcopy(target.t_path)
     local depth = 0
     ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
-        ret.parent_table_node = branch_table
-        ret.deepest_matched_table_node = branch_table -- this is only used for the initial sorting, which feels a bit unnecessary.
-        if #ret.t_path_left > 1 then -- check branches
-            local lookup_key = ret.t_path_left[1]:upper()
-            local ts_tbl_child
+        target.parent_table_node = branch_table
+        if #target.t_path_left > 1 then
+            local lookup_key = target.t_path_left[1]:upper()
+            local is_branch, ts_tbl_child
             if branch_table:dict(lookup_key) then
-                branch = true
+                is_branch = true
                 ts_tbl_child = branch_table:dict(lookup_key).value
-                table.remove(ret.t_path_left, 1)
+                table.remove(target.t_path_left, 1)
             end
-            return not branch and ret or ts_root_mod_tbl_try_find_target(ts_tbl_child)
-        elseif #ret.t_path_left == 1 then -- handle indexed fields | for each table
-            for _, leaf_table, field in branch_table:iter_fields("indexed") do -- TODO: _, "indexed"
+            return not is_branch and target or ts_root_mod_tbl_try_find_target(ts_tbl_child)
+        elseif #target.t_path_left == 1 then -- handle indexed fields | for each table
+            for _, leaf_table, field in branch_table:iter_fields("indexed") do
                 if
                     leaf_table:dict(1)
-                    and tostring(leaf_table:dict(1).value:content()) == ret.t_path_left[1]
+                    and tostring(leaf_table:dict(1).value:content()) == target.t_path_left[1]
                 then
-                    ret.module_found_node = leaf_table
-                    ret.deepest_matched_table_node = leaf_table
-                    ret.module_name_node = mod_value
+                    target.module_found_node = leaf_table
                 end
-                if ret.module_found_node and leaf_table:dict("enabled") then
-                    ret.module_field_enabled_value_node = leaf_table:dict("enabled").value
-                    table.remove(ret.t_path_left, 1)
-                    return ret
+                if target.module_found_node and leaf_table:dict("enabled") then
+                    target.module_field_enabled_value_node = leaf_table:dict("enabled").value
+                    table.remove(target.t_path_left, 1)
+                    return target
                 end
             end
         end
-        return ret
+        return target
     end
     return ts_root_mod_tbl_try_find_target(ts_table_constr)
 end
@@ -79,62 +76,42 @@ local function transform_enabled_modules_tree(ts_buf, action)
         return
     end
 
-    local axit = vim
-        .iter(ipairs(action))
-        -- pass [t] to ts_tbl_path. assign all module data to the [t] table
-        -- itself.
-        :map(
-            function(_, t)
-                t.nodes = ts_tbl_path(ts_buf:query_wrap(QUERY), t.t_path, t)
-            end
-        )
+    vim.iter(ipairs(action))
+        :map(function(_, target)
+            return ts_tbl_path(ts_buf:query_wrap(QUERY), target)
+        end)
         :totable()
 
     table.sort(action, function(a, b)
-        -- return a.module_found_node and a.module_found_node:range()
-        --     or a.parent_table_node:range() < b.module_found_node and b.module_found_node:range()
-        --     or b.parent_table_node:range()
-
-        return a.nodes.deepest_matched_table_node:range()
-            < b.nodes.deepest_matched_table_node:range()
+        return a.module_found_node and a.module_found_node:range()
+            or a.parent_table_node:range() < b.module_found_node and b.module_found_node:range()
+            or b.parent_table_node:range()
     end)
 
     -- print("action table post [ts_root_mod_tbl_try_find_target]:", vim.inspect(action))
 
-    -- Collect multiple edits and apply in correct order at once.
     local injection_nodes = {}
 
+    -- vim.iter(ipairs(action)):rev():each(function() end)
     for i = #action, 1, -1 do
-        local t = action[i]
-        local tn = t.nodes
-
-        -- TODO: capture return ok if any issues
-
-        -- TODO: if action and ax.table_node.is_module
-        -- >> if we write the is_module flag to the wrapper itself it becomes
-        -- much easier to handle. tighter
+        local target = action[i]
 
         if action.action == "TOGGLE" then
             -- print("DO TOGGLE:", tn.module_found_node)
-            tn.module_field_enabled_value_node:toggle()
+            target.module_field_enabled_value_node:toggle()
         end
         if action.action == "ENABLE" then
-            tn.module_field_enabled_value_node:set(true)
+            target.module_field_enabled_value_node:set(true)
         end
         if action.action == "DISABLE" then
-            tn.module_field_enabled_value_node:set(false)
+            target.module_field_enabled_value_node:set(false)
         end
         if action.action == "REMOVE" then
-            tn.module_found_node:remove({ up_to = "first_sibling" })
+            target.module_found_node:remove({ up_to = "first_sibling" })
         end
 
-        --
-        -- Handle case which requires injecting a new tree, ie. for each new
-        -- target, build the insertion tree from the ancestor that exists.
-        --
-
         if action.action == "ADD" then
-            local id = tn.parent_table_node:id()
+            local id = target.parent_table_node:id()
             local t_injectable
             for i, v in ipairs(injection_nodes) do
                 if v.node:id() == id then
@@ -143,17 +120,17 @@ local function transform_enabled_modules_tree(ts_buf, action)
             end
             if not t_injectable then
                 t_injectable = {
-                    parent_table_node = tn.parent_table_node,
+                    parent_table_node = target.parent_table_node,
                     injection_table = {},
                 }
 
                 table.insert(injection_nodes, t_injectable)
             end
             setmetatable(t_injectable, {
-                __index = tn.parent_table_node, -- fallback/ makes TSNode methods available directly
+                __index = target.parent_table_node, -- fallback/ makes TSNode methods available directly
             })
 
-            local t_path_new_segment = vim.deepcopy(tn.t_path_left)
+            local t_path_new_segment = vim.deepcopy(target.t_path_left)
             table.remove(t_path_new_segment) -- remove last item, ie. the module name
 
             t_path_new_segment = vim.iter(t_path_new_segment)
@@ -164,7 +141,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
 
             local new_name, new_branch
             if #t_path_new_segment > 0 then
-                new_name = tn.t_path_left[#tn.t_path_left]
+                new_name = target.t_path_left[#target.t_path_left]
                 new_branch =
                     utils.get_set_table_path(t_injectable.injection_table, t_path_new_segment)
                 if not new_branch then
@@ -176,11 +153,15 @@ local function transform_enabled_modules_tree(ts_buf, action)
                     )
                 end
             else
-                new_name = t.t_path[#t.t_path]
+                new_name = target.t_path[#target.t_path]
                 new_branch = t_injectable.injection_table
             end
 
             table.insert(new_branch, { new_name, enabled = true })
+        end
+
+        if action.action == "COPY" then
+            -- TODO: inject new module path, and set it to [false] by default
         end
     end
 
@@ -237,6 +218,8 @@ local function module_load_single()
     -- model this after rocks load_dynamic
 end
 
+---@param file string The path to edit
+---@param where string Eg. "current" for current window
 local function open_file(file, where)
     vim.schedule(function()
         if where == "current" then
@@ -284,6 +267,7 @@ M.manage_modules_tree = function(opts)
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
 
+    -- ts
     for i, action in ipairs(opts) do
         print(string.format("ACTION (%s/%s): <<%s>>", i, #opts, vim.inspect(action))) --, vim.inspect(action))
         local ok = transform_enabled_modules_tree(ts_buf, action)
@@ -302,9 +286,8 @@ M.manage_modules_tree = function(opts)
 
     print("<POST TRANSFORM | PRE FORMATTING>")
 
-    -- NOTE: This one could be made [async]
-    --
     if should_apply_formatting then
+        -- TEST: this actually makes sense to run as async
         vim.api.nvim_buf_call(buf, function()
             vim.lsp.buf.format({ async = false })
             vim.cmd("write")
@@ -312,31 +295,70 @@ M.manage_modules_tree = function(opts)
         end)
     end
 
-    -- log.info(("dui :: transformed modules.lua / action: %s"):format(action.action))
+    -- fs
 
-    -- -- Async handle dir operations
-    -- nio.run(function()
-    --     helpers.semaphore.with(function()
-    --         if opts.action == "ADD" and not path_init_file:exists() then
-    --             local ok = module__create_dir_await(path_init_file, opts.target_module_name) -- .wait()
-    --             if ok then
-    --                 log.info(("DUI :: Success creating new module: %s"):format(path_init_file))
-    --                 open_file(path_init_file, "current")
-    --             end
-    --         elseif opts.action == "TOGGLE" then
-    --         -- toggle doesnt require any fs operations
-    --         elseif opts.action == "ENABLE" then
-    --         elseif opts.action == "DISABLE" then
-    --         elseif opts.action == "MOVE" then
-    --         -- moving dirs does require fs op
-    --         elseif opts.action == "REMOVE" then
-    --             local ok = module__dir_remove_async(opts.target_module_dir:tostring())
-    --             if ok then
-    --                 log.info("DUI: Success removing dir:", opts.target_module_dir:tostring())
-    --             end
-    --         end
-    --     end)
-    -- end)
+    for i, action in ipairs(opts) do
+        for _, target in ipairs(action) do
+            -- FIX: the target path is wrong for the new module.
+
+            print(string.format("#%s | FS %s: %s", i, action.action, target:dir()))
+
+            -- NOTE: how should COPY be combined to get the desired results?
+            -- ~ reuse ADD logic somehow
+            -- ~ BUT if copy
+
+            if opts.action == "ADD" and not path_init_file:exists() then
+                -- local ok = target:path():touch(Path.permission("rw-r--r--"), true)
+                --
+                -- if not ok then
+                --     log.info("failure creating file:", target:path())
+                --     return
+                -- end
+                -- ok = fs.write_file(target:path(), pu.gen_temp_from_mod_name(name), "w+")
+                --
+                -- if not ok then
+                --     log.info("failure writing module template to:", target:path())
+                --     return
+                -- end
+                --
+                -- if ok then
+                --     open_file(target:path(), "current")
+                -- end
+            elseif opts.action == "COPY" then
+
+                -- TODO:
+                --  touch new file.
+                --      write the previous file to it.
+                --          (*) requires attaching the original path to the table, so that
+                --              it can be used as source when copying to target:path()
+
+                -- NOTE: currently each action[target] is a ModSpec table.
+                --  but since i need the table for original and new. then it needs
+                --  something likeg
+                --  {
+                --       current = ModSpec,
+                --       new = ModSpec.
+                --  }
+                --  and then skip the iterating of all actions. instead loop
+                --  targets only once. ie have only one action.
+                --  and then
+
+                -- Path:copy({target})                                                  *Path:copy*
+                --     Copy file to `target`
+                --
+                --     Parameters: ~
+                --         {target}  (PathlibPath)  # `self` will be copied to `target`
+                --
+                --     Returns: ~
+                --         (boolean|nil)  # whether operation succeeded
+            elseif opts.action == "REMOVE" then
+                -- fs.rm_dir(target:dir())
+                -- if ok then
+                --     log.info("DUI: Success removing dir:", target:path())
+                -- end
+            end
+        end
+    end
 end
 
 return M

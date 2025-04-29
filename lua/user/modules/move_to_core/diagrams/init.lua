@@ -13,6 +13,8 @@ diagrams.settings = {}
 -- would it be possible to use some kind of ascii paint lib to create more shapes and patterns and
 -- then use cool commands to manipulate.
 
+-- TODO: Use venn to generate a graph diagram of all modes.
+
 diagrams.packages = {
   ["venn.nvim"] = { "jbyuki/venn.nvim" },
   -- ["vim-slumlord"] = {"scrooloose/vim-slumlord "}, -- seems pretty cool.

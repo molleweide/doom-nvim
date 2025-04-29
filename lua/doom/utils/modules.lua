@@ -28,7 +28,17 @@ M.ModSpec = ModSpec
 --     }
 -- end
 
-ModSpec.path = function()
+ModSpec.dir = function(self)
+    return table.concat({
+        doom_config_root,
+        "lua",
+        self.origin,
+        "modules",
+        table.concat(self, system.sep)
+    }, system.sep)
+end
+
+ModSpec.path = function(self)
     return table.concat({
         doom_config_root,
         "lua",
@@ -42,6 +52,8 @@ end
 local mt = {}
 
 setmetatable(ModSpec, mt)
+
+ModSpec.__index = ModSpec
 
 mt.__call = function(self, node, stack)
     -- if type node == table -> then we are working with node/stack

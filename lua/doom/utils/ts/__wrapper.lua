@@ -10,6 +10,79 @@ M.TSNodeWrapper = { __name = "TSNodeWrapperClass" }
 -- WARN: Is there any issues if I try to wrap an already wrapped node?
 -- So far there doesnt seem to be any problem
 
+
+
+--------------------------------------------------------------------------------
+--
+-- TODO: return a null object that catches all subsequent calls and prevents
+-- dict() checks that return nothing from failing.
+--
+-- This pattern allows chaining calls like:
+--
+-- ```lua
+-- leaf_table:dict(1).value:content()
+-- ```
+--
+-- without needing to check each intermediate value explicitly.
+--
+-- ---
+--
+-- ### ✅ Solution: Use a **"NullNode"** wrapper
+--
+-- Here's how you can do it:
+--
+-- #### 1. Create a special null-node handler:
+-- ```lua
+-- local NullNode = setmetatable({}, {
+--     __index = function()
+--         return NullNode  -- any property access returns itself
+--     end,
+--     __call = function()
+--         return NullNode  -- any method call returns itself
+--     end,
+--     __tostring = function()
+--         return "<null>"
+--     end,
+--     __eq = function(_, other)
+--         return other == nil or other == NullNode
+--     end,
+-- })
+-- ```
+--
+-- #### 2. In your `NodeWrapper` methods, return `NullNode` when the target doesn't exist:
+-- ```lua
+-- function NodeWrapper:dict(i)
+--     local node = self:get_field_node("dict", i)  -- however you're doing it
+--     if not node then
+--         return NullNode
+--     end
+--     return self(node)  -- or however you're wrapping nodes
+-- end
+-- ```
+--
+-- Now you can write elegant and safe chaining like:
+-- ```lua
+-- local val = leaf_table:dict(1).value:content()
+-- ```
+-- And if any part in the chain doesn't exist, it simply propagates the `NullNode`, avoiding errors.
+--
+-- ---
+--
+-- ### 💡 Bonus: Check for real existence
+--
+-- To see if the value is real and not a NullNode:
+-- ```lua
+-- if leaf_table:dict(1).value ~= NullNode then
+--     -- do something
+-- end
+-- ```
+--
+-- ---
+--
+-- Would you like me to help you adapt this `NullNode` pattern to your current node wrapper structure?
+--------------------------------------------------------------------------------
+
+
 function M.make_wrapped_node(self, input_node)
 
     -- WARN: it should be `~= "table"`?!
