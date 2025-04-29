@@ -12,6 +12,14 @@ local QUERY = [[
     (return_statement (expression_list (table_constructor) @table_constructor))
 ]]
 
+local mod_manager_header = [[
+
+------------------------------------
+|-- MANAGE_MODULES: #ACTIONS: %s --|
+------------------------------------
+
+]]
+
 local function build_new_inject_string2(tree)
     local ret = vim.split(vim.inspect(tree), "\n")
     print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
@@ -159,10 +167,6 @@ local function transform_enabled_modules_tree(ts_buf, action)
 
             table.insert(new_branch, { new_name, enabled = true })
         end
-
-        if action.action == "COPY" then
-            -- TODO: inject new module path, and set it to [false] by default
-        end
     end
 
     -- inject new data
@@ -241,50 +245,88 @@ end
 ---
 ---target_module_dir is assumed to be a Pathlib Path object.
 --- NOTE: Should this be an async func that I use create to run with.
-M.manage_modules_tree = function(opts)
+M.manage_modules_tree = function(action)
     local should_apply_formatting = false
-    local nio = require("nio")
-    local Path = require("pathlib")
-    local helpers = require("doom.modules.features.dui.operations.helpers.nio")
-    if not nio or not Path then
-        log.error(
-            "Dui requires nio and pathlib for async. Enable modules [lib/pathlib] and [lib/nio]"
+    print(
+        string.format(
+            mod_manager_header,
+            tostring(#action):len() == 1 and " " .. tostring(#action) or #action
         )
-        return
-    end
-
-    print(string.format(
-        [[
-
-------------------------------------
-|-- MANAGE_MODULES: #ACTIONS: %s --|
-------------------------------------
-
-]],
-        tostring(#opts):len() == 1 and " " .. tostring(#opts) or #opts
-    ))
+    )
 
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
 
-    -- ts
-    for i, action in ipairs(opts) do
-        print(string.format("ACTION (%s/%s): <<%s>>", i, #opts, vim.inspect(action))) --, vim.inspect(action))
-        local ok = transform_enabled_modules_tree(ts_buf, action)
-        if not ok then
-            log.warn(
-                string.format(
-                    "Failure updating [modules.lua] in action #%s:[%s]. Aborting..",
-                    i,
-                    action.action
-                )
-            )
-            -- restore original state of file..
-            return
-        end
-    end
+    -- FIX: the target path is wrong for the new module.
 
-    print("<POST TRANSFORM | PRE FORMATTING>")
+    print(string.format("ACTION: <<%s>>", vim.inspect(action))) --, vim.inspect(action))
+
+    if action.action == "ADD" then
+        local ts_action = { action = "ADD" }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.new)
+        end
+
+        -- print("run add:", vim.inspect(ts_action))
+
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+
+        -- local ok = target:path():touch(Path.permission("rw-r--r--"), true)
+        --
+        -- if not ok then
+        --     log.info("failure creating file:", target:path())
+        --     return
+        -- end
+        -- ok = fs.write_file(target:path(), pu.gen_temp_from_mod_name(name), "w+")
+        --
+        -- if not ok then
+        --     log.info("failure writing module template to:", target:path())
+        --     return
+        -- end
+        --
+        -- if ok then
+        --     open_file(target:path(), "current")
+        -- end
+    elseif action.action == "MOVE" then
+        local ts_action = { action = "REMOVE" }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.old)
+        end
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+
+        local ts_action = { action = "ADD" }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.new)
+        end
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+    elseif action.action == "COPY" then
+        local ts_action = { action = "ADD" }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.new)
+        end
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+
+        -- for i, v in ipairs(action) do
+        --     v.old:path:():copy(v.new:path())
+        -- end
+    elseif action.action == "REMOVE" then
+        local ts_action = { action = "REMOVE" }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.old)
+        end
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+
+        -- fs.rm_dir(target:dir())
+        -- if ok then
+        --     log.info("DUI: Success removing dir:", target:path())
+        -- end
+    elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
+        local ts_action = { action = action.action }
+        for i, v in ipairs(action) do
+            table.insert(ts_action, v.old)
+        end
+        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
+    end
 
     if should_apply_formatting then
         -- TEST: this actually makes sense to run as async
@@ -293,71 +335,6 @@ M.manage_modules_tree = function(opts)
             vim.cmd("write")
             log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
         end)
-    end
-
-    -- fs
-
-    for i, action in ipairs(opts) do
-        for _, target in ipairs(action) do
-            -- FIX: the target path is wrong for the new module.
-
-            print(string.format("#%s | FS %s: %s", i, action.action, target:dir()))
-
-            -- NOTE: how should COPY be combined to get the desired results?
-            -- ~ reuse ADD logic somehow
-            -- ~ BUT if copy
-
-            if opts.action == "ADD" and not path_init_file:exists() then
-                -- local ok = target:path():touch(Path.permission("rw-r--r--"), true)
-                --
-                -- if not ok then
-                --     log.info("failure creating file:", target:path())
-                --     return
-                -- end
-                -- ok = fs.write_file(target:path(), pu.gen_temp_from_mod_name(name), "w+")
-                --
-                -- if not ok then
-                --     log.info("failure writing module template to:", target:path())
-                --     return
-                -- end
-                --
-                -- if ok then
-                --     open_file(target:path(), "current")
-                -- end
-            elseif opts.action == "COPY" then
-
-                -- TODO:
-                --  touch new file.
-                --      write the previous file to it.
-                --          (*) requires attaching the original path to the table, so that
-                --              it can be used as source when copying to target:path()
-
-                -- NOTE: currently each action[target] is a ModSpec table.
-                --  but since i need the table for original and new. then it needs
-                --  something likeg
-                --  {
-                --       current = ModSpec,
-                --       new = ModSpec.
-                --  }
-                --  and then skip the iterating of all actions. instead loop
-                --  targets only once. ie have only one action.
-                --  and then
-
-                -- Path:copy({target})                                                  *Path:copy*
-                --     Copy file to `target`
-                --
-                --     Parameters: ~
-                --         {target}  (PathlibPath)  # `self` will be copied to `target`
-                --
-                --     Returns: ~
-                --         (boolean|nil)  # whether operation succeeded
-            elseif opts.action == "REMOVE" then
-                -- fs.rm_dir(target:dir())
-                -- if ok then
-                --     log.info("DUI: Success removing dir:", target:path())
-                -- end
-            end
-        end
     end
 end
 

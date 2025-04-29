@@ -157,9 +157,56 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                 }, function(user_input)
                     if validate_user_input(user_input) then
                         mm.manage_modules_tree({
+                            action = "ADD",
                             {
-                                action = "ADD",
-                                mu.ModSpec(make_target(user_input, v)),
+                                old = v,
+                                new = mu.ModSpec(make_target(user_input, v)),
+                            },
+                        })
+                    end
+                end)
+            end,
+        },
+        ["<C-z>"] = {
+            desc = "Prompt: Copy module",
+            action = function(prompt_bufnr, entry, key)
+                local actions = require("telescope.actions")
+                local selection = current_picker__get_selected_entries()
+                if #selection > 1 then
+                    log.warn("Mult selection is not supported for [Copy]!")
+                    return
+                end
+                local v = selection[1].value
+                actions.close(prompt_bufnr)
+
+                local selected_section_str = string.format("%s.%s.%s", v.origin, v.section, v[1])
+
+                vim.ui.input({
+                    prompt = string.format(
+                        [[:: COPY TO NEW MODULE; selection = (%s) ::
+-----------------------------------------------------------------------------
+A. Create new module copy from selected section, eg. if selection is "%s"
+    an inputing is "new.module" will create "%s.new.module".
+B. Prefixing with [.] creates new module starting from same origin as selection;
+    ^ eg. ".my.new.module".
+C. Prefixing with [doom|user] explicitly creates new module under that origin;
+    ^ eg. "doom.my.new.module".
+                        ]],
+                        selected_section_str,
+                        selected_section_str,
+                        v.section
+                    ),
+                }, function(user_input)
+                    if validate_user_input(user_input) then
+                        -- TODO: copy_to
+
+                        mm.manage_modules_tree({
+                            {
+                                action = "COPY",
+                                {
+                                    old = v,
+                                    new = mu.ModSpec(make_target(user_input, v)),
+                                },
                             },
                         })
                     end
@@ -175,16 +222,16 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                 local Path = require("pathlib")
                 local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
-                local action_old = { action = "REMOVE" }
-                local action_new = { action = "ADD" }
+                local action = { action = "MOVE" }
+                -- local action_new = { action = "ADD" }
                 actions.close(prompt_bufnr)
                 local function move_multiple()
-                    local sel_idx = #action_old + 1
+                    local sel_idx = #action + 1
                     -- apply actions
                     if sel_idx > #selection then
-                        mm.manage_modules_tree({ action_old, action_new })
+                        mm.manage_modules_tree(action)
                     else
-                        local v = selection[#action_old + 1].value
+                        local v = selection[#action + 1].value
 
                         local selected_section_str =
                             string.format("%s.%s.%s", v.origin, v.section, v[1])
@@ -198,15 +245,18 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
 * If you ommit doom/user prefix, then modules are moved under same origin as selection.
                         ]],
                                 selected_section_str,
-                                #action_old + 1,
+                                #action + 1,
                                 #selection
                             ),
                         }, function(user_input)
                             if not validate_user_input(user_input) then
                                 return
                             end
-                            table.insert(action_old, v)
-                            table.insert(action_new, mu.ModSpec(make_target(user_input, v)))
+                            table.insert(action, {
+                                old = v,
+                                new = mu.ModSpec(make_target(user_input, v)),
+                            })
+                            -- table.insert(action_new, mu.ModSpec(make_target(user_input, v)))
                             move_multiple()
                         end)
                     end
@@ -258,7 +308,7 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     --     .. i
                     --     .. ": "
                     --     .. string.format("%s.%s.%s", s.origin, s.section, s[1])
-                    table.insert(action, s)
+                    table.insert(action, { old = s })
                 end
 
                 vim.ui.select({ "yes", "no" }, {
@@ -270,9 +320,9 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
                     log.info(string.format("Set selected module to [%s]", choice))
 
                     if choice == "yes" then
-                        require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                            action,
-                        })
+                        require("doom.modules.features.dui.modules_manager").manage_modules_tree(
+                            action
+                        )
                     end
                 end)
             end,
@@ -300,14 +350,12 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
             action = function(prompt_bufnr, entry, key, next) -- TOGGLE MODULE(S)
                 local actions = require("telescope.actions")
                 local selection = current_picker__get_selected_entries()
-                local action_set = { action = "TOGGLE" }
+                local action = { action = "TOGGLE" }
                 actions.close(prompt_bufnr)
                 vim.iter(selection):each(function(entry)
-                    table.insert(action_set, entry.value)
+                    table.insert(action, { old = entry.value })
                 end)
-                require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-                    action_set,
-                })
+                require("doom.modules.features.dui.modules_manager").manage_modules_tree(action)
                 do_next(next)
             end,
         },
@@ -316,9 +364,9 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
         --     action = function(prompt_bufnr, entry, key) -- TOGGLE MODULE(S)
         --         local selection = current_picker__get_selected_entries()
         --
-        --         local action_set = {}
+        --         local action = {}
         --         vim.iter(selection):each(function(entry)
-        --             table.insert(action_set, entry.value)
+        --             table.insert(action, { old = entry.value })
         --         end)
         --
         --         vim.ui.select({ "ENABLE", "DISABLE" }, {
@@ -328,24 +376,22 @@ C. Prefix path with "user", eg "user.my.new.name", to move module to [user/modul
         --             end,
         --         }, function(choice)
         --             log.info(string.format("Set selected module to [%s]", choice))
-        --             action_set.action = choice
-        --             require("doom.modules.features.dui.modules_manager").manage_modules_tree({
-        --                 action_set,
-        --             })
+        --             action.action = choice
+        --             require("doom.modules.features.dui.modules_manager").manage_modules_tree(action)
         --         end)
         --     end,
         -- },
         -- TODO: check if already exists in user.
-        ["<C-z>"] = {
-            desc = "Copy core mod to user + edit",
-            action = function(prompt_bufnr, entry, key)
-                local selection = current_picker__get_selected_entries()
-                if #selection > 1 then
-                    log.warn("Mult selection is not supported yet!")
-                    return
-                end
-            end,
-        },
+        -- ["<C-z>"] = {
+        --     desc = "Copy core mod to user + edit",
+        --     action = function(prompt_bufnr, entry, key)
+        --         local selection = current_picker__get_selected_entries()
+        --         if #selection > 1 then
+        --             log.warn("Mult selection is not supported yet!")
+        --             return
+        --         end
+        --     end,
+        -- },
         ["<Tab>"] = {
             desc = "select forward",
             -- action = actions.toggle_selection + actions.move_selection_worse,
