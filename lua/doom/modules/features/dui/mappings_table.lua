@@ -201,13 +201,11 @@ C. Prefixing with [doom|user] explicitly creates new module under that origin;
                         -- TODO: copy_to
 
                         mm.manage_modules_tree({
-                            {
                                 action = "COPY",
                                 {
                                     old = v,
                                     new = mu.ModSpec(make_target(user_input, v)),
                                 },
-                            },
                         })
                     end
                 end)

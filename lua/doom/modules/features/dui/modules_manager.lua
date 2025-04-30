@@ -20,7 +20,7 @@ local mod_manager_header = [[
 
 ]]
 
-local function build_new_inject_string2(tree)
+local function build_new_inject_string(tree)
     local ret = vim.split(vim.inspect(tree), "\n")
     print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
     if #ret > 2 then
@@ -179,7 +179,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
         for _, injectable in ipairs(injection_nodes) do
             injectable:add_field({
                 pos = "first",
-                data = build_new_inject_string2(injectable.injection_table),
+                data = build_new_inject_string(injectable.injection_table),
             })
         end
     end
@@ -187,9 +187,11 @@ local function transform_enabled_modules_tree(ts_buf, action)
     return true
 end
 
+-- TODO: move this to [utils]
+--
 ---@param file string The path to edit
 ---@param where string Eg. "current" for current window
-local function open_file(file, where)
+local function edit_file_in_window(file, where)
     vim.schedule(function()
         if where == "current" then
             print("nvim open current")
@@ -211,7 +213,7 @@ end
 ---target_module_dir is assumed to be a Pathlib Path object.
 --- NOTE: Should this be an async func that I use create to run with.
 M.manage_modules_tree = function(action)
-    local should_apply_formatting = false
+    local should_apply_formatting = yes
     print(
         string.format(
             mod_manager_header,
@@ -219,89 +221,64 @@ M.manage_modules_tree = function(action)
         )
     )
 
+    -- TODO: This function should not reside in [dui], move it to [doom.utils]
     local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
+
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
 
     print(string.format("ACTION: <<%s>>", vim.inspect(action))) --, vim.inspect(action))
 
-    if action.action == "ADD" then
+    local function map_ts_action(which, name, debug)
         local ts_action = { action = "ADD" }
         for i, v in ipairs(action) do
-            --         print(string.format(
-            --             [[
-            -- old: %s
-            -- new: %s
-            -- ]],
-            --             v.old:path(),
-            --             v.new:path()
-            --         ))
-
-            table.insert(ts_action, v.new)
+            _ = debug and print(string.format("old: %s new: %s", v.old:path(), v.new:path()))
+            table.insert(ts_action, v[new])
+            return ts_action
         end
-
-        -- print("run add:", vim.inspect(ts_action))
-
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
-
-        -- local ok = target:path():touch(Path.permission("rw-r--r--"), true)
-        --
-        -- if not ok then
-        --     log.info("failure creating file:", target:path())
-        --     return
-        -- end
-        -- ok = fs.write_file(target:path(), pu.gen_temp_from_mod_name(name), "w+")
-        --
-        -- if not ok then
-        --     log.info("failure writing module template to:", target:path())
-        --     return
-        -- end
-        --
-        -- if ok then
-        --     open_file(target:path(), "current")
-        -- end
-    elseif action.action == "MOVE" then
-        local ts_action = { action = "REMOVE" }
-        for i, v in ipairs(action) do
-            table.insert(ts_action, v.old)
-        end
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
-
-        local ts_action = { action = "ADD" }
-        for i, v in ipairs(action) do
-            table.insert(ts_action, v.new)
-        end
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
-    elseif action.action == "COPY" then
-        local ts_action = { action = "ADD" }
-        for i, v in ipairs(action) do
-            table.insert(ts_action, v.new)
-        end
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
-
-        -- for i, v in ipairs(action) do
-        --     v.old:path:():copy(v.new:path())
-        -- end
-    elseif action.action == "REMOVE" then
-        local ts_action = { action = "REMOVE" }
-        for i, v in ipairs(action) do
-            table.insert(ts_action, v.old)
-        end
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
-
-        -- fs.rm_dir(target:dir())
-        -- if ok then
-        --     log.info("DUI: Success removing dir:", target:path())
-        -- end
-    elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
-        local ts_action = { action = action.action }
-        for i, v in ipairs(action) do
-            table.insert(ts_action, v.old)
-        end
-        local ok = transform_enabled_modules_tree(ts_buf, ts_action)
     end
 
+    if action.action == "ADD" then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
+
+        for i, v in ipairs(action) do
+            local ok = v.new:path():touch(Path.permission("rw-r--r--"), true)
+            if not ok then
+                log.info("failure creating file:", v.new:path())
+                return
+            end
+            ok = fs.write_file(v.new:path(), pu.gen_temp_from_mod_name(v.new[1]), "w+")
+            if not ok then
+                log.info("failure writing module template to:", target:path())
+                return
+            end
+            -- TODO: make opt-in open new file. action = { "ADD", "ADD_AND_EDIT" }
+            if ok then
+                edit_file_in_window(v.new:path(), "current")
+            end
+        end
+    elseif action.action == "MOVE" then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
+        for i, v in ipairs(action) do
+            v.old:path():copy(v.new:path()) -- copy to dest
+            fs.rm_dir(v.old:dir())
+        end
+    elseif action.action == "COPY" then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
+        for i, v in ipairs(action) do
+            v.old:path():copy(v.new:path()) -- copy to dest
+        end
+    elseif action.action == "REMOVE" then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
+        for i, v in ipairs(action) do
+            fs.rm_dir(v.old:dir())
+        end
+    elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", action.action))
+    end
+
+    -- TEST: this actually makes sense to run as async
     if should_apply_formatting then
-        -- TEST: this actually makes sense to run as async
         vim.api.nvim_buf_call(buf, function()
             vim.lsp.buf.format({ async = false })
             vim.cmd("write")
