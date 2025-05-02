@@ -275,24 +275,27 @@ M.manage_modules_tree = function(action)
         for i, v in ipairs(action) do
             fs.rm_dir(v.old:dir())
         end
-
     elseif action.action == "MOVE" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
         for i, v in ipairs(action) do
-            v.old:path():copy(v.new:path()) -- copy to dest
+            -- local path_old_dir = Path(v.old:dir())
+            -- path_old_dir:copy(v.new:dir()) -- unfortunately, only works on single file
+
+            -- obj = { code = 0, signal = 0, stdout = 'hello', stderr = '' }
+            local obj = vim.system("cp", "-R", v.old:dir(), v.new:dir()):wait()
+
             fs.rm_dir(v.old:dir())
         end
     elseif action.action == "COPY" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
         for i, v in ipairs(action) do
-            v.old:path():copy(v.new:path()) -- copy to dest
+            local obj = vim.system("cp", "-R", v.old:dir(), v.new:dir()):wait()
         end
     elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", action.action))
     end
 
-    -- !!! this actually makes sense to run as async
     if should_apply_formatting then
         vim.api.nvim_buf_call(buf, function()
             vim.lsp.buf.format({ async = true })
