@@ -364,5 +364,15 @@ utils.list_tail = function(list)
     return head, tail
 end
 
+utils.get_buf_handle = function(path)
+  local buf
+  if path ~= nil then
+    buf = vim.uri_to_bufnr(vim.uri_from_fname(path))
+  else
+    buf = vim.api.nvim_get_current_buf()
+  end
+  return buf
+end
+
 
 return utils

@@ -48,6 +48,7 @@ function ts_tbl_path(ts_table_constr, target)
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
         target.parent_table_node = branch_table
+
         if #target.t_path_left > 1 then
             local lookup_key = target.t_path_left[1]:upper()
             local is_branch, ts_tbl_child
@@ -56,6 +57,7 @@ function ts_tbl_path(ts_table_constr, target)
                 ts_tbl_child = branch_table:dict(lookup_key).value
                 table.remove(target.t_path_left, 1)
             end
+
             return not is_branch and target or ts_root_mod_tbl_try_find_target(ts_tbl_child)
         elseif #target.t_path_left == 1 then -- handle indexed fields | for each table
             for _, leaf_table, field in branch_table:iter_fields("indexed") do
@@ -84,7 +86,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
         return
     end
 
-    print(": enter transformer :")
+    print(": enter transformer :", vim.inspect(action))
 
     vim.iter(ipairs(action))
         :map(function(_, target)
@@ -206,56 +208,74 @@ local function edit_file_in_window(file, where)
     end)
 end
 
+-- TODO: Later, I have to add proper error handling for everything.
+-- TODO: Prevent creating/copying/moving to already existing locations.
+--          ^ Is already kind of th case but it should be properly handled.
+--
 ---Entry point for performing modules related operations, eg. CRUD. It
 ---ensures that the modules.lua file and the modules directory stay in
 ---sync and allows you to easilly manage modules from eg. telescope.
 ---
 ---target_module_dir is assumed to be a Pathlib Path object.
---- NOTE: Should this be an async func that I use create to run with.
 M.manage_modules_tree = function(action)
-    local should_apply_formatting = yes
+    local should_apply_formatting = true
+    local Path = require("pathlib")
+
     print(
         string.format(
             mod_manager_header,
             tostring(#action):len() == 1 and " " .. tostring(#action) or #action
         )
     )
-
-    -- TODO: This function should not reside in [dui], move it to [doom.utils]
-    local buf = dui_utils.get_buf_handle(utils.find_config("modules_test.lua"))
-
-    local ts_buf = require("doom.utils.ts.lua"):new(buf)
-
     print(string.format("ACTION: <<%s>>", vim.inspect(action))) --, vim.inspect(action))
 
-    local function map_ts_action(which, name, debug)
-        local ts_action = { action = "ADD" }
+    local function map_ts_action(which, action_name, debug)
+        local ts_action = { action = action_name }
         for i, v in ipairs(action) do
+            -- TODO: have a smart print statement that only prints if true, and move to some util.. logging?
             _ = debug and print(string.format("old: %s new: %s", v.old:path(), v.new:path()))
-            table.insert(ts_action, v[new])
+            table.insert(ts_action, v[which])
             return ts_action
         end
     end
 
+    local buf = utils.get_buf_handle(utils.find_config("modules_test.lua"))
+
+    -- TODO: use switch pattern
+
+    local ts_buf = require("doom.utils.ts.lua"):new(buf)
     if action.action == "ADD" then
-        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD", true))
+
+        -- NOTE: the issue is that i return the full path and not the path object which is
+        -- what we want.
 
         for i, v in ipairs(action) do
-            local ok = v.new:path():touch(Path.permission("rw-r--r--"), true)
+            -- add/create new module file.
+            local path_new = Path(v.new:path())
+            local ok = path_new:touch(Path.permission("rw-r--r--"), true)
+
             if not ok then
-                log.info("failure creating file:", v.new:path())
+                log.info("failure creating file:", path_new)
                 return
             end
-            ok = fs.write_file(v.new:path(), pu.gen_temp_from_mod_name(v.new[1]), "w+")
-            if not ok then
-                log.info("failure writing module template to:", target:path())
-                return
-            end
-            -- TODO: make opt-in open new file. action = { "ADD", "ADD_AND_EDIT" }
-            if ok then
-                edit_file_in_window(v.new:path(), "current")
-            end
+
+            -- write_file is async IIRC so it does not return bool
+            fs.write_file(path_new:tostring(), pu.gen_temp_from_mod_name(v.new[1]), "w+")
+
+            -- if not ok then
+            --     log.info("failure writing module template to:", path_new)
+            --     return
+            -- end
+
+            edit_file_in_window(v.new:path(), "current")
         end
+    elseif action.action == "REMOVE" then
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
+        for i, v in ipairs(action) do
+            fs.rm_dir(v.old:dir())
+        end
+
     elseif action.action == "MOVE" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
@@ -268,19 +288,14 @@ M.manage_modules_tree = function(action)
         for i, v in ipairs(action) do
             v.old:path():copy(v.new:path()) -- copy to dest
         end
-    elseif action.action == "REMOVE" then
-        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
-        for i, v in ipairs(action) do
-            fs.rm_dir(v.old:dir())
-        end
     elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", action.action))
     end
 
-    -- TEST: this actually makes sense to run as async
+    -- !!! this actually makes sense to run as async
     if should_apply_formatting then
         vim.api.nvim_buf_call(buf, function()
-            vim.lsp.buf.format({ async = false })
+            vim.lsp.buf.format({ async = true })
             vim.cmd("write")
             log.info("DUI: TS transform modules.lua -> lsp.buf.formatted()")
         end)

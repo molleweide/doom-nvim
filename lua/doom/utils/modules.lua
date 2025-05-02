@@ -4,6 +4,11 @@ local traverser = require("doom.services.traverser")
 
 -- TODO: move this file to doom/modules/utils.lua
 
+-- NOTE: Reduce dependencies OR move into doom module
+-- Since the ModSpec is dependent on PathLib this should live in a module.
+-- Something like:
+--      doom.modules.helpers.module_spec?
+
 -- move everything from dui/modules to here??
 
 --
@@ -143,6 +148,9 @@ end
 -- then call the traverse_out func.
 --
 
+-- NOTE: When I convert the [modules.lua] file to be a pure list, then this
+-- function will be obsolete.
+--
 -- Designed to travers `modules.lua` file, ie. allows you to operate on
 -- each module `dot` path.
 M.traverse_modules_declarations = traverser.build({
@@ -205,7 +213,7 @@ end
 M.get_modules_list_with_origins = function(enabled_modules, cb)
     local mods = {}
 
-    require("doom.utils.modules").traverse_modules_declarations(
+    M.traverse_modules_declarations(
         enabled_modules,
         function(node, stack)
             -- TODO: pass the stack and node into

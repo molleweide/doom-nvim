@@ -29,9 +29,9 @@ return {
         BUFFERS = {
             { "buffer_management", enabled = false },
             { "temporary_buffers", enabled = true },
-            { "cleanup_unused", enabled = true },
+            { "cleanup_unused", enabled = false },
         },
-        { "testmodule", enabled = false },
+        { "testmodule", enabled = true },
         { "task_and_job_manager", enabled = true },
         LIB = {
             { "litee", enabled = true },
@@ -340,7 +340,7 @@ return {
     },
     MOVE_TO_CORE = {},
     MOLLEWEIDE = {
-        { "binds_personal", enabled = true },
+        { "binds_personal", enabled = false },
         { "reaper", enabled = true },
         { "tamton_essentials", enabled = true, tags = { "beta" } },
         { "tweak", enabled = true },
