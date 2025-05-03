@@ -288,13 +288,8 @@ M.manage_modules_tree = function(action)
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
         for i, v in ipairs(action) do
-            -- local path_old_dir = Path(v.old:dir())
-            -- path_old_dir:copy(v.new:dir()) -- unfortunately, only works on single file
-
             -- obj = { code = 0, signal = 0, stdout = 'hello', stderr = '' }
-            local obj = vim.system({ "cp", "-R", v.old:dir(), v.new:dir() }):wait()
-
-            fs.rm_dir(v.old:dir())
+            local obj = vim.system({ "mv", v.old:dir(), v.new:dir() }):wait()
         end
     elseif action.action == "COPY" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
