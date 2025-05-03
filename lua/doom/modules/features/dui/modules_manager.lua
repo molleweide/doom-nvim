@@ -86,7 +86,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
         return
     end
 
-    print(": enter transformer :", vim.inspect(action))
+    -- print(": enter transformer :", vim.inspect(action))
 
     vim.iter(ipairs(action))
         :map(function(_, target)
@@ -218,6 +218,7 @@ end
 ---
 ---target_module_dir is assumed to be a Pathlib Path object.
 M.manage_modules_tree = function(action)
+    local debug = true
     local should_apply_formatting = true
     local Path = require("pathlib")
 
@@ -229,23 +230,31 @@ M.manage_modules_tree = function(action)
     )
     print(string.format("ACTION: <<%s>>", vim.inspect(action))) --, vim.inspect(action))
 
-    local function map_ts_action(which, action_name, debug)
+    local function map_ts_action(which, action_name)
         local ts_action = { action = action_name }
         for i, v in ipairs(action) do
             -- TODO: have a smart print statement that only prints if true, and move to some util.. logging?
-            _ = debug and print(string.format("old: %s new: %s", v.old:path(), v.new:path()))
+            _ = debug
+                and print(
+                    string.format(
+                        "-----%s-----\nold: %s \nnew: %s",
+                        action_name,
+                        v.old:path(),
+                        v.new and v.new:path()
+                    )
+                )
             table.insert(ts_action, v[which])
             return ts_action
         end
     end
 
-    local buf = utils.get_buf_handle(utils.find_config("modules_test.lua"))
+    local buf = utils.get_buf_handle(utils.find_config("modules.lua"))
 
     -- TODO: use switch pattern
 
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
     if action.action == "ADD" then
-        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD", true))
+        local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
 
         -- NOTE: the issue is that i return the full path and not the path object which is
         -- what we want.
@@ -268,7 +277,7 @@ M.manage_modules_tree = function(action)
             --     return
             -- end
 
-            edit_file_in_window(v.new:path(), "current")
+            -- edit_file_in_window(v.new:path(), "current")
         end
     elseif action.action == "REMOVE" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))
@@ -283,14 +292,14 @@ M.manage_modules_tree = function(action)
             -- path_old_dir:copy(v.new:dir()) -- unfortunately, only works on single file
 
             -- obj = { code = 0, signal = 0, stdout = 'hello', stderr = '' }
-            local obj = vim.system("cp", "-R", v.old:dir(), v.new:dir()):wait()
+            local obj = vim.system({ "cp", "-R", v.old:dir(), v.new:dir() }):wait()
 
             fs.rm_dir(v.old:dir())
         end
     elseif action.action == "COPY" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("new", "ADD"))
         for i, v in ipairs(action) do
-            local obj = vim.system("cp", "-R", v.old:dir(), v.new:dir()):wait()
+            local obj = vim.system({ "cp", "-R", v.old:dir(), v.new:dir() }):wait()
         end
     elseif vim.tbl_contains({ "TOGGLE", "ENABLE", "DISABLE" }, action.action) then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", action.action))

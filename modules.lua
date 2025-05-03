@@ -11,14 +11,8 @@
 -- luacheck/stylua, eg. so that each module becomes its own line, but all sections
 -- are broken up into multiline.
 
--- TEST: new modules pattern
--- 1. use uppercase for category keys.
--- 2. use tables for each module
-
 return {
-    AI = {
-        { "ai_chat_gpt", enabled = true },
-    },
+    AI = { { "chat_gpt", enabled = true } },
     LIB = {
         { "nio", enabled = true }, -- asynch IO
     },
