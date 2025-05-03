@@ -208,15 +208,23 @@ local function edit_file_in_window(file, where)
     end)
 end
 
--- TODO: Later, I have to add proper error handling for everything.
--- TODO: Prevent creating/copying/moving to already existing locations.
---          ^ Is already kind of th case but it should be properly handled.
+-- TODO: ( ) Later, I have to add proper error handling for everything.
+-- TODO: ( ) Prevent creating/copying/moving to already existing locations.
+--              ^ Is already kind of th case but it should be properly handled.
+--              ^ Prevent path/branch name collisions.
+-- TODO: ( ) Use switch pattern: put all actions in a table.
+-- TODO: ( ) If action is NOT modspec, then call it with ModSpec.
+--              ^ How to check if is modspec? >> add a __name = "ModSpec"
+-- TODO: ( ) Call [core/modules.load/unload()] module when necessary.
+-- TODO: ( ) Search-and-Replace module path and doom table identifier path
+--              upon copy, and moving.
+-- TODO: ( ) If [remove] check what downstream modules that are affected.
+--              Ie. which modules are trying to access the removed module.
+--              ^ Inform user!!! prompt: should we unload affected modules??
 --
 ---Entry point for performing modules related operations, eg. CRUD. It
 ---ensures that the modules.lua file and the modules directory stay in
 ---sync and allows you to easilly manage modules from eg. telescope.
----
----target_module_dir is assumed to be a Pathlib Path object.
 M.manage_modules_tree = function(action)
     local debug = true
     local should_apply_formatting = true
@@ -249,8 +257,6 @@ M.manage_modules_tree = function(action)
     end
 
     local buf = utils.get_buf_handle(utils.find_config("modules.lua"))
-
-    -- TODO: use switch pattern
 
     local ts_buf = require("doom.utils.ts.lua"):new(buf)
     if action.action == "ADD" then
