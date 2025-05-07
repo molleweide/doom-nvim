@@ -374,5 +374,22 @@ utils.get_buf_handle = function(path)
   return buf
 end
 
+---@param file string The path to edit
+---@param where string Eg. "current" for current window
+utils.edit_file_in_window = function(file, where)
+    vim.schedule(function()
+        if where == "current" then
+            print("nvim open current")
+            -- vim.cmd(string.format("edit %s", file))
+            --
+            local buf = vim.uri_to_bufnr(vim.uri_from_fname(file))
+            vim.api.nvim_set_current_buf(buf)
+        elseif where == "split" then
+        elseif where == "vsplit" then
+        else
+        end
+    end)
+end
+
 
 return utils

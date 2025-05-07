@@ -189,25 +189,6 @@ local function transform_enabled_modules_tree(ts_buf, action)
     return true
 end
 
--- TODO: move this to [utils]
---
----@param file string The path to edit
----@param where string Eg. "current" for current window
-local function edit_file_in_window(file, where)
-    vim.schedule(function()
-        if where == "current" then
-            print("nvim open current")
-            -- vim.cmd(string.format("edit %s", file))
-            --
-            local buf = vim.uri_to_bufnr(vim.uri_from_fname(file))
-            vim.api.nvim_set_current_buf(buf)
-        elseif where == "split" then
-        elseif where == "vsplit" then
-        else
-        end
-    end)
-end
-
 -- TODO: ( ) Later, I have to add proper error handling for everything.
 -- TODO: ( ) Prevent creating/copying/moving to already existing locations.
 --              ^ Is already kind of th case but it should be properly handled.
@@ -283,7 +264,7 @@ M.manage_modules_tree = function(action)
             --     return
             -- end
 
-            -- edit_file_in_window(v.new:path(), "current")
+            -- utils.edit_file_in_window(v.new:path(), "current")
         end
     elseif action.action == "REMOVE" then
         local ok = transform_enabled_modules_tree(ts_buf, map_ts_action("old", "REMOVE"))

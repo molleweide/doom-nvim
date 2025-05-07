@@ -12,13 +12,15 @@
 -- are broken up into multiline.
 
 return {
-    AI = { { "chat_gpt",
-    enabled = true
-  } ,  },
+    AI = { { "chat_gpt", enabled = true } },
     LIB = {
         { "nio", enabled = true }, -- asynch IO
+        -- "litee"
+        -- "libmodal" -- custom pseudo modes | also check out https://github.com/nvimtools/hydra.nvim
+        -- https://github.com/jrop/u.nvim/tree/v2
     },
     FEATURES = {
+        { "lua_table_editor", enabled = false },
         { "architext", enabled = true },
         { "monitoring", enabled = true },
         { "lsp_progress", enabled = true },
@@ -175,10 +177,6 @@ return {
             { "gpg", enabled = false },
             { "collaborate", enabled = false }, -- Google docs collaborative editing.
         },
-
-        -- LIBRARIES
-        -- "litee"
-        -- "libmodal"
 
         SOCIAL_MEDIA = {
             { "discord", enabled = true },

@@ -417,6 +417,8 @@ end
 
 -- TODO: if not telescope, then try use ui_select_browser.
 -- TODO: async get results
+-- TODO: show # of subfiles
+--          ^ Better might be to, upon <CR>, check if module has subfiles, and then spin up a new picker of all subfiles.
 local function doom_modules_picker_v2(opts)
     opts = opts or {}
     local entry_display = require("telescope.pickers.entry_display")

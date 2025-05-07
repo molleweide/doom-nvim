@@ -19,6 +19,7 @@ end
 -- Creates a Telescope `finder` based on the given options
 -- and list of mappers
 M.mapper_finder = function(mappers)
+
     local widths = {
         keys = 0,
         category = 0,
@@ -27,7 +28,7 @@ M.mapper_finder = function(mappers)
         cmd = 0
     }
 
-    -- The mapper has the following keys :
+    -- The entry has the following keys :
     -- - buffer_only: bool
     -- - category: str
     -- - cmd: str
@@ -40,17 +41,16 @@ M.mapper_finder = function(mappers)
     -- We want the display line to be like this :
     -- category mapping description
 
-    -- Loop over all of the mappers and find the maximum length of
-    -- each of the keys
-    for _, mapper in pairs(mappers) do
-        mapper.description_display = mapper.description
+    -- get max length of result entry attributes
+    for _, entry in pairs(mappers) do
+        entry.description_display = entry.description
         for key, value in pairs(widths) do
             widths[key] = math.max(value,
-                                   strings.strdisplaywidth(mapper[key] or ''))
+                                   strings.strdisplaywidth(entry[key] or ''))
         end
     end
 
-    -- The mapper display line
+    -- result entry formatting
     local displayer = entry_display.create {
         -- separator = " | ",
         separator = " ▏",
@@ -63,24 +63,25 @@ M.mapper_finder = function(mappers)
 
         }
     }
-    local make_display = function(mapper)
+
+    local make_display = function(entry)
         return displayer {
-            {mapper.category, "TelescopeResultsClass"},
-            {mapper.mode, mode_highlight(mapper.mode)},
-            {mapper.keys, "TelescopeResultsComment"},
-            {mapper.description},
+            {entry.category, "TelescopeResultsClass"},
+            {entry.mode, mode_highlight(entry.mode)},
+            {entry.keys, "TelescopeResultsComment"},
+            {entry.description},
         }
     end
 
     return finders.new_table {
         results = mappers,
-        entry_maker = function(mapper)
-            mapper.value = mapper.description
-            mapper.ordinal = mapper.description .. mapper.unique_identifier .. mapper.keys .. mapper.category
-            mapper.display = make_display
-            mapper.id = mapper.unique_identifier
-            mapper.lines = mapper.lines
-            return mapper
+        entry_maker = function(entry)
+            entry.value = entry.description
+            entry.ordinal = entry.description .. entry.unique_identifier .. entry.keys .. entry.category
+            entry.display = make_display
+            entry.id = entry.unique_identifier
+            entry.lines = entry.lines
+            return entry
         end
     }
 end
