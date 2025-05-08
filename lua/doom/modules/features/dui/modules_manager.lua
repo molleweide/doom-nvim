@@ -89,7 +89,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
 
     vim.iter(ipairs(action))
         :map(function(_, target)
-            return ts_tbl_path(ts_buf:query_wrap(QUERY), target)
+            return ts_tbl_path(ts_buf:query_wrap(QUERY)[1], target)
         end)
         :totable()
 

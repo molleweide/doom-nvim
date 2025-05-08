@@ -5,28 +5,35 @@ function TSLua:test(msg)
     print("test from TSLua", msg)
 end
 
--- This function should become a bit more flexible and then moved into parent
--- wrapper.
--- opt 1: just get first or last capture from the query.
--- opt 2: pass in a list of captures that we want to get.
---
--- TODO: self.language = <lang>
---
--- TODO: has to also take the first/last lines so that one can work on the
--- viewport only.
---
--- TODO: first or last?
----Currently: Returns a wrapped instance of the last captured node.
-function TSLua:query_wrap(query_str, debug)
+-- TODO: self.language = <lang> and move this up to __base
+function TSLua:query_wrap(opts, debug)
+    local query, opt_string
+    local ret = {}
+
+    if type(opts) == "string" then
+        query = opts
+        opt_string = true
+    elseif type(opts) == "table" then
+        query = opts.query
+    end
+
     local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
-    local return_query = vim.treesitter.query.parse("lua", query_str)
-    local ts_tbl
-    for id, capture_node, metadata, match in return_query:iter_captures(root, self.buf_handle) do
-        local cname = return_query.captures[id]
 
-        ts_tbl = capture_node
-        -- print("type:", ts_tbl:type())
+    -- parsed query
+    local pq = vim.treesitter.query.parse("lua", query)
+
+    for id, capture_node, metadata, match in pq:iter_captures(root, self.buf_handle, opts.first, opts.last) do
+        local cname = pq.captures[id]
+
+        if opt_string or not opt_string and not opts.captures then
+            table.insert(ret, self(capture_node))
+        else
+            if vim.tbl_contains(opts.captures, cname) then
+                table.insert(ret, self(capture_node))
+            end
+        end
+
         if debug then
             -- local name = query.captures[id] -- name of the capture in the query
 
@@ -42,7 +49,7 @@ function TSLua:query_wrap(query_str, debug)
 
                 ]],
                     id,
-                    return_query.captures[id],
+                    pq.captures[id],
                     vim.inspect(capture_node),
                     vim.inspect(metadata),
                     vim.inspect(match)
@@ -51,7 +58,7 @@ function TSLua:query_wrap(query_str, debug)
         end
     end
     -- print("query_wrap self >>>>", vim.inspect(self))
-    return self(ts_tbl)
+    return ret
 end
 
 -------------------------------------------------------------------------------
@@ -308,7 +315,7 @@ subclasses.table_constructor = {
 
                 if next_node == nil then
                     return
-                -- elseif include_comments or next_node:type() ~= "comment" then
+                    -- elseif include_comments or next_node:type() ~= "comment" then
                 elseif not ignore_node_type(next_node) then
                     found_next = true -- ensure we dont include comment nodes
                 end
