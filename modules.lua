@@ -12,7 +12,7 @@
 -- are broken up into multiline.
 
 return {
-    AI = { { "chat_gpt", enabled = true } },
+    AI = { { "lectic", enabled = false }, { "chat_gpt", enabled = true } },
     LIB = {
         { "nio", enabled = true }, -- asynch IO
         -- "litee"

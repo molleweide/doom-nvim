@@ -68,7 +68,7 @@ M.mapper = function(opts)
                     log.info("nest telescope -> did not return a proper module_path")
                     return
                 end
-                require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
+                -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
             end)
 
             return true

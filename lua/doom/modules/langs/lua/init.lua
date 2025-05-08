@@ -134,6 +134,8 @@ lua.autocmds = {
         "FileType",
         "lua",
         langs_utils.wrap_language_setup("lua", function()
+            local log = require("doom.utils.logging")
+            log.debug("should only fire once..")
             require("neodev").setup(doom.langs.lua.settings.neodev)
 
             local config = vim.tbl_deep_extend("force", doom.langs.lua.settings.lsp_config, {

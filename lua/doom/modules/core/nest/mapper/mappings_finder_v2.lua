@@ -15,50 +15,77 @@ local M = {}
 -- ~ [binds = \{...}]
 --    ~~ in modules with [M.binds = ...]
 --    ~~ in config.lua with [local binds = ...]
--- TEST: Later, I can check for more dynamically put together components.
+local ts_query = [[
+    ; NOTE: How can I reduce these queries to be smaller
+    ;`M.bind = ...`
+         (assignment_statement
+           (variable_list
+             name: (dot_index_expression
+               table: (identifier)
+               field: (identifier) @field
+                  (#lua-match? @field "binds")
+                ))
+           (expression_list
+             value: (table_constructor) @binds.table))
 
-M.v2 = function(args)
+    ;;`M.bind = function() ...`
+         (assignment_statement
+           (variable_list
+             name: (dot_index_expression
+               table: (identifier)
+               field: (identifier) @field
+                  (#lua-match? @field "binds")
+                ))
+           (expression_list
+             value: (function_definition
+               parameters: (parameters)
+               body: (block) @binds.func_body)))
+
+    ;;`doom.use_keybind({...})`
+         (function_call
+           name: (dot_index_expression
+             table: (identifier)
+             field: (identifier) @field
+              (#lua-match? @field "use_keybind")
+            )
+           arguments: (arguments
+             (table_constructor) @binds.table))
+]]
+
+M.v2 = function(entry)
     local utils = require("doom.utils")
+    local _utils = require("doom.modules.core.nest.mapper.utils")
+    local ts_utils_lua = require("doom.utils.ts.lua")
+    local keys_parsed = _utils.parse_key_sequence(entry.keys)
+    local module_path = _utils.get_abs_path_from_module_origin(entry)
+    local buf = utils.get_buf_handle(module_path)
+    local ts_buf = ts_utils_lua:new(buf)
 
-    -- TODO: Make queries | These are the first level of table_constructor's to query for
-    -- `M.bind = ...`
-    --      (assignment_statement ; [233, 0] - [260, 1]
-    --        (variable_list ; [233, 0] - [233, 10]
-    --          name: (dot_index_expression ; [233, 0] - [233, 10]
-    --            table: (identifier) ; [233, 0] - [233, 4]
-    --            field: (identifier))) ; [233, 5] - [233, 10]
-    --        (expression_list ; [233, 13] - [260, 1]
-    --          value: (table_constructor ; [233, 13] - [260, 1]
-    -- `M.bind = function() ...`
-    --      (assignment_statement ; [140, 0] - [284, 3]
-    --        (variable_list ; [140, 0] - [140, 15]
-    --          name: (dot_index_expression ; [140, 0] - [140, 15]
-    --            table: (identifier) ; [140, 0] - [140, 9]
-    --            field: (identifier))) ; [140, 10] - [140, 15]
-    --        (expression_list ; [140, 18] - [284, 3]
-    --          value: (function_definition ; [140, 18] - [284, 3]
-    --            parameters: (parameters) ; [140, 26] - [140, 28]
-    --            body: (block ; [141, 4] - [283, 16]
-    -- `doom.use_keybind({...})`
-    --      (function_call ; [738, 0] - [752, 2]
-    --        name: (dot_index_expression ; [738, 0] - [738, 16]
-    --          table: (identifier) ; [738, 0] - [738, 4]
-    --          field: (identifier)) ; [738, 5] - [738, 16]
-    --        arguments: (arguments ; [738, 16] - [752, 2]
-    --          (table_constructor ; [738, 17] - [752, 1]
+    print("from v2 from pweviewer:", vim.inspect(keys_parsed))
 
-    -- TODO: Get ts buf of path (copy from mod manager)
-    --  redo this staement with the module path.
+    -- TODO: ( ) print the bindings tree if found. `h iter_captures`
+    -- ~ check that i have a good query func for getting captures.
+    --      ^ It has to work with [config.lua] where there can be multiple tables.
+    --      --
+    -- ~ I need to be able to return multiple captures.
+    -- ~ Specify which captures I want.
+    --      ^ I only want [@binds.table]
 
-    -- local buf = utils.get_buf_handle(utils.find_config("modules.lua"))
+    local node = ts_buf:query_wrap(ts_query, true)
 
-    -- TODO: Go to file (copy from mod manager.)
-    -- utils.edit_file_in_window(v.new:path(), "current")
+    print("NODE:", node)
+
+    return node
 
     -- TODO: Mirror [services/keymaps]
 
-
-
+    -- local function prepare_args(keybind)
+    --     return {
+    --         module_path = _utils.get_abs_path_from_module_origin(keybind),
+    --         keybind = keybind,
+    --         keys_parsed = _utils.parse_key_sequence(keybind.keys),
+    --     }
+    -- end
 end
 
 return M

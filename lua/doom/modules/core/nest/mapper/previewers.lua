@@ -4,10 +4,35 @@ local defaulter = utils.make_default_callable
 -- local mapper = require("nvim-mapper")
 local _utils = require("doom.modules.core.nest.mapper.utils")
 
+
 -- TODO: show the origin module path in the previewer.
 -- get info about user/core
 
 local M = {}
+
+
+-- ENTRY: {
+--   buffer_only = false,
+--   category = "+file",
+--   cmd = "<cmd>SudaWrite<CR>",
+--   description = "Write with sudo",
+--   description_display = "Write with sudo",
+--   display = <function 1>,
+--   id = "write_with_sudo_n",
+--   index = 2,
+--   keys = "<leader>fW",
+--   lines = { "Id:           write_with_sudo_n", "Category:     +file", "Mode:         normal", "Keys:         <leader>fW", "Command:      <cmd>SudaWrite<CR>", "Buffer only:  false", "Options:      {noremap = true, silent = true}", "Definition:   :", "Origin:       features.suda", "", "Write with sudo" },
+--   mode = "n",
+--   module_origin = "features.suda",
+--   options = {
+--     noremap = true,
+--     silent = true
+--   },
+--   ordinal = "Write with sudowrite_with_sudo_n<leader>fW+file",
+--   unique_identifier = "write_with_sudo_n",
+--   value = "Write with sudo"
+-- }
+
 
 M.previewer = defaulter(function(_)
     return previewers.new_buffer_previewer({
@@ -23,7 +48,7 @@ M.previewer = defaulter(function(_)
 
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
 
-            -- test
+            -- test: append line
             vim.api.nvim_buf_set_lines(
                 self.state.bufnr,
                 -1,
@@ -74,6 +99,18 @@ M.previewer = defaulter(function(_)
                     vim.cmd(":hi link MapperCode Comment")
                 end)
             end
+
+                -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
+            local currently_a_node = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+
+            vim.api.nvim_buf_set_lines(
+                self.state.bufnr,
+                -1,
+                -1,
+                false,
+                vim.split(tostring(currently_a_node), "\n")
+            )
+
         end,
     })
 end, {})

@@ -5,15 +5,50 @@ function TSLua:test(msg)
     print("test from TSLua", msg)
 end
 
+-- This function should become a bit more flexible and then moved into parent
+-- wrapper.
+-- opt 1: just get first or last capture from the query.
+-- opt 2: pass in a list of captures that we want to get.
+--
+-- TODO: self.language = <lang>
+--
+-- TODO: has to also take the first/last lines so that one can work on the
+-- viewport only.
+--
+-- TODO: first or last?
 ---Currently: Returns a wrapped instance of the last captured node.
-function TSLua:query_wrap(query_str)
+function TSLua:query_wrap(query_str, debug)
     local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
     local return_query = vim.treesitter.query.parse("lua", query_str)
     local ts_tbl
-    for _, capture_node, _ in return_query:iter_captures(root, self.buf_handle) do
+    for id, capture_node, metadata, match in return_query:iter_captures(root, self.buf_handle) do
+        local cname = return_query.captures[id]
+
         ts_tbl = capture_node
         -- print("type:", ts_tbl:type())
+        if debug then
+            -- local name = query.captures[id] -- name of the capture in the query
+
+            print(
+                string.format(
+                    [[
+                TSLua:query_wrap:
+                capture id:     %s
+                capture name:   %s
+                capture node:   %s
+                metadata:       %s
+                match:          %s
+
+                ]],
+                    id,
+                    return_query.captures[id],
+                    vim.inspect(capture_node),
+                    vim.inspect(metadata),
+                    vim.inspect(match)
+                )
+            )
+        end
     end
     -- print("query_wrap self >>>>", vim.inspect(self))
     return self(ts_tbl)

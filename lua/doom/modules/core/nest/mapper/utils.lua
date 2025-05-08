@@ -193,6 +193,19 @@ M.get_last_char = function(keys)
     end
 end
 
+-- WARN: These sequences fail:
+-- ---------------------------------
+--      <c-z>               
+--      <leader>r<cr>
+--      ; 
+--      :
+--      ,
+--      <C-Left>
+--      |
+-- ---------------------------------
+--  ^ Okay, so it turns out that small letters do not work.
+--  ^ Special characters also dont work.
+--
 M.parse_key_sequence = function(keys)
     local ret = {}
     local patterns = {

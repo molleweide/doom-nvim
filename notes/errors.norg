@@ -1,0 +1,42 @@
+@document.meta
+title: errors
+description:
+authors: hjalmarjakobsson
+categories:
+created: 2025-05-08T00:01:42-0500
+updated: 2025-05-08T00:03:10-0500
+version: 1.1.1
+@end
+
+
+
+...escope/telescope.nvim/lua/telescope/_extensions/init.lua:10: 'fzf' extension
+doesn't exist or isn't installed:
+...hare/nvim/lazy/telescope-fzf-native.nvim/lua/fzf_lib.lua:11:
+dlopen(/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/lua/../build/libfzf.so,
+0x0005): tried:
+'/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/lua/../build/libfzf.so'
+(no such file),
+'/System/Volumes/Preboot/Cryptexes/OS/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/lua/../build/libfzf.so'
+(no such file),
+'/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/lua/../build/libfzf.so'
+(no such file),
+'/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/build/libfzf.so'
+(no such file),
+'/System/Volumes/Preboot/Cryptexes/OS/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/build/libfzf.so'
+(no such file),
+'/Users/hjalmarjakobsson/.local/share/nvim/lazy/telescope-fzf-native.nvim/build/libfzf.so'
+(no such file)
+
+# stacktrace:
+  - ~/code/repos/github.com/nvim-telescope/telescope.nvim/lua/telescope/_extensions/init.lua:10 _in_ **load_extension**
+  - ~/code/repos/github.com/nvim-telescope/telescope.nvim/lua/telescope/_extensions/init.lua:62 _in_ **load_extension**
+  - ~/.config/nvim/lua/doom/modules/features/telescope/init.lua:133 _in_ **config**
+  - /octo.nvim/lua/octo/pickers/telescope/previewers.lua:6
+  - /octo.nvim/lua/octo/pickers/telescope/provider.lua:4
+  - /octo.nvim/lua/octo/picker.lua:11 _in_ **setup**
+  - /octo.nvim/lua/octo/init.lua:37 _in_ **setup**
+  - ~/.config/nvim/lua/user/modules/version_control/git/github_octo/init.lua:23 _in_ **config**
+  - ~/.config/nvim/lua/doom/core/modules.lua:288 _in_ **handle_lazynvim**
+  - ~/.config/nvim/lua/doom/core/init.lua:158
+  - init.lua:47

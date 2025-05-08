@@ -1,6 +1,11 @@
 local log = require("doom.utils.logging")
 local profiler = require("doom.services.profiler")
 
+-- TODO: move functions from here into [auto_install] and [linter] modules.
+--      ^ Why does this have to be a standalone util, when everything can just be
+--      located in each respective module.
+--
+--
 -- TODO: Where to put mason registy -> refresh()/update()?
 
 local module = {}
@@ -221,6 +226,8 @@ module.use_lsp_mason = function(lsp_name, options)
     local profiler_msg = ("lsp|setup `%s`"):format(lsp_name)
     profiler.start(profiler_msg)
 
+    log.debug("???")
+
     local utils = require("doom.utils")
     if not utils.is_module_enabled("features", "lsp") then
         return
@@ -273,6 +280,7 @@ module.use_lsp_mason = function(lsp_name, options)
 
     -- Start server and bind to buffers
     local start_lsp = function()
+        log.debug("lspconfg[name] = ", config_name)
         local final_config = vim.tbl_deep_extend("keep", user_config or {}, capabilities_config)
         if lspconfig[config_name].setup == nil then
             log.warn(
@@ -284,12 +292,15 @@ module.use_lsp_mason = function(lsp_name, options)
             return
         end
 
+        log.debug("lsp final config:", vim.inspect(final_config))
+
         lspconfig[config_name].setup(final_config)
 
         -- Try attaching the LSP to buffers
         local lsp_config_server = lspconfig[config_name]
         if lsp_config_server.manager then
             for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+                log.debug("Try add lsp servers to bufnr:", bufnr)
                 if lsp_config_server.filetypes then
                     lsp_config_server.manager:try_add_wrapper(bufnr)
                 else
@@ -300,6 +311,11 @@ module.use_lsp_mason = function(lsp_name, options)
     end
 
     log.info("before `if auto_install`")
+
+    -- NOTE: I don't understand why this function is called [use_lsp_mason] but
+    -- then we do a check if auto_install and then let [use_mason_package] do the
+    -- actual handling of the "starting", (and installing ofc).
+    -- The naming scheme doesnt make sense somehow.
 
     -- Auto install if possible
     if utils.is_module_enabled("features", "auto_install") and not opts.no_installer then

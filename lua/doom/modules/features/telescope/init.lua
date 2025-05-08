@@ -55,7 +55,7 @@ telescope.settings = {
             "╰",
         },
         color_devicons = true,
-        use_less = true,                           -- deprecated option > remove?
+        use_less = true, -- deprecated option > remove?
         set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
         -- todo: loop override default binds with `doom.settings.mappings.telescope_defaults`
     },
@@ -71,11 +71,17 @@ telescope.settings = {
             command = {
                 "ast-grep",
                 "--json=stream",
-            },                       -- must have --json=stream
+            }, -- must have --json=stream
             grep_open_files = false, -- search in opened files
-            lang = nil,              -- string value, specify language for ast-grep `nil` for default
+            lang = nil, -- string value, specify language for ast-grep `nil` for default
         },
-        "fzf",
+        fzf = {
+            fuzzy = true, -- false will only do exact matching
+            override_generic_sorter = true, -- override the generic sorter
+            override_file_sorter = true, -- override the file sorter
+            case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+            -- the default case_mode is "smart_case"
+        },
     },
 }
 
@@ -87,7 +93,11 @@ telescope.packages = {
         lazy = true,
         dev = true,
     },
-    ["telescope-fzf-native.nvim"] = { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    ["telescope-fzf-native.nvim"] = {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        -- build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release',
+        build = "make",
+    },
     ["telescope-file-browser.nvim"] = {
         "nvim-telescope/telescope-file-browser.nvim",
         -- commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
@@ -153,7 +163,7 @@ telescope.binds = function()
                 end,
                 name = "Browse cwd",
             },
-            { ".", "<cmd>Telescope file_browser<CR>",    name = "Browse project" },
+            { ".", "<cmd>Telescope file_browser<CR>", name = "Browse project" },
             {
                 ",",
                 function()
@@ -168,8 +178,8 @@ telescope.binds = function()
                 name = "Search buffers",
             },
 
-            { "/", "<cmd>Telescope live_grep<CR>",       name = "Search text" },
-            { ";", "<cmd>Telescope commands<CR>",        name = "Browse cmds" },
+            { "/", "<cmd>Telescope live_grep<CR>", name = "Search text" },
+            { ";", "<cmd>Telescope commands<CR>", name = "Browse cmds" },
             { ":", "<cmd>Telescope command_history<CR>", name = "Search recent commands" },
             {
                 "b",
@@ -208,8 +218,8 @@ telescope.binds = function()
                         end,
                         name = "Find in Lazy pgks",
                     },
-                    { "r", "<cmd>Telescope oldfiles<CR>",   name = "Find recent" },
-                    { "/", "<cmd>Telescope ast_grep<CR>",   name = "Find in proj (ast-grep)" },
+                    { "r", "<cmd>Telescope oldfiles<CR>", name = "Find recent" },
+                    { "/", "<cmd>Telescope ast_grep<CR>", name = "Find in proj (ast-grep)" },
                 },
             },
             {
@@ -224,7 +234,7 @@ telescope.binds = function()
                 "g",
                 name = "+git",
                 {
-                    { "S", "<cmd>Telescope git_status<CR>",   name = "Status" },
+                    { "S", "<cmd>Telescope git_status<CR>", name = "Status" },
                     { "B", "<cmd>Telescope git_branches<CR>", name = "Branches" },
                     -- { "c", "<cmd>Telescope git_commits<CR>", name = "Commits" },
                 },
@@ -249,7 +259,7 @@ telescope.binds = function()
                         "<cmd>Telescope command_history<CR>",
                         name = "Recent commands",
                     },
-                    { "m", "<cmd>Telescope marks<CR>",     name = "Marks" },
+                    { "m", "<cmd>Telescope marks<CR>", name = "Marks" },
                 },
             },
             {
