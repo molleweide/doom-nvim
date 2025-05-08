@@ -155,8 +155,9 @@ utils.is_module_enabled = function(section, plugin)
             return v[1] == name
         end, { predicate = true })
     else
-        return modules[section] --vim.tbl_contains(modules[section:upper()], plugin)
-            and vim.tbl_contains(section:upper(), function(v)
+        local t = modules[section:upper()]
+        return t
+            and vim.tbl_contains(t, function(v)
                 return v[1] == plugin
             end, { predicate = true })
     end
@@ -344,7 +345,7 @@ end
 utils.list_merge = function(base, ...)
     local new_list = vim.deepcopy(base)
     for arg_i = 1, select("#", ...) do
-        print(arg_i, select(arg_i, ...))  -- Access each argument using select
+        print(arg_i, select(arg_i, ...)) -- Access each argument using select
         for _, item in ipairs(select(arg_i, ...)) do
             table.insert(new_list, item)
         end
@@ -365,13 +366,13 @@ utils.list_tail = function(list)
 end
 
 utils.get_buf_handle = function(path)
-  local buf
-  if path ~= nil then
-    buf = vim.uri_to_bufnr(vim.uri_from_fname(path))
-  else
-    buf = vim.api.nvim_get_current_buf()
-  end
-  return buf
+    local buf
+    if path ~= nil then
+        buf = vim.uri_to_bufnr(vim.uri_from_fname(path))
+    else
+        buf = vim.api.nvim_get_current_buf()
+    end
+    return buf
 end
 
 ---@param file string The path to edit
@@ -379,7 +380,6 @@ end
 utils.edit_file_in_window = function(file, where)
     vim.schedule(function()
         if where == "current" then
-            print("nvim open current")
             -- vim.cmd(string.format("edit %s", file))
             --
             local buf = vim.uri_to_bufnr(vim.uri_from_fname(file))
@@ -390,6 +390,5 @@ utils.edit_file_in_window = function(file, where)
         end
     end)
 end
-
 
 return utils
