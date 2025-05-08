@@ -71,11 +71,11 @@ M.v2 = function(entry)
     -- ~ Specify which captures I want.
     --      ^ I only want [@binds.table]
 
-    local node = ts_buf:query_wrap(ts_query, true)
+    local ret = ts_buf:query_wrap({ query = ts_query, capture = "binds.table" }, true)
 
-    print("NODE:", node)
+    print("CAPTURES:", vim.inspect(ret))
 
-    return node
+    return ret
 
     -- TODO: Mirror [services/keymaps]
 

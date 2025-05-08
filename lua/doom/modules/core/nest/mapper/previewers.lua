@@ -4,12 +4,10 @@ local defaulter = utils.make_default_callable
 -- local mapper = require("nvim-mapper")
 local _utils = require("doom.modules.core.nest.mapper.utils")
 
-
 -- TODO: show the origin module path in the previewer.
 -- get info about user/core
 
 local M = {}
-
 
 -- ENTRY: {
 --   buffer_only = false,
@@ -33,7 +31,6 @@ local M = {}
 --   value = "Write with sudo"
 -- }
 
-
 M.previewer = defaulter(function(_)
     return previewers.new_buffer_previewer({
         title = "Mapping details",
@@ -54,7 +51,7 @@ M.previewer = defaulter(function(_)
                 -1,
                 -1,
                 false,
-                { "Path -> ".._utils.get_short_path_from_module_origin(entry) }
+                { "Path -> " .. _utils.get_short_path_from_module_origin(entry) }
             )
 
             -- Set wrap for the preview window
@@ -100,17 +97,18 @@ M.previewer = defaulter(function(_)
                 end)
             end
 
-                -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
-            local currently_a_node = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+            -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
+            local captures = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
 
-            vim.api.nvim_buf_set_lines(
-                self.state.bufnr,
-                -1,
-                -1,
-                false,
-                vim.split(tostring(currently_a_node), "\n")
-            )
-
+            for i, v in ipairs(captures) do
+                vim.api.nvim_buf_set_lines(
+                    self.state.bufnr,
+                    -1,
+                    -1,
+                    false,
+                    vim.split(tostring(v), "\n")
+                )
+            end
         end,
     })
 end, {})

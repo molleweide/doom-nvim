@@ -23,13 +23,27 @@ function TSLua:query_wrap(opts, debug)
     -- parsed query
     local pq = vim.treesitter.query.parse("lua", query)
 
-    for id, capture_node, metadata, match in pq:iter_captures(root, self.buf_handle, opts.first, opts.last) do
+    for id, capture_node, metadata, match in
+        pq:iter_captures(root, self.buf_handle, opts.first, opts.last)
+    do
         local cname = pq.captures[id]
 
-        if opt_string or not opt_string and not opts.captures then
+        if opt_string then
+                print("<all>")
             table.insert(ret, self(capture_node))
         else
-            if vim.tbl_contains(opts.captures, cname) then
+
+            print(vim.inspect(opts))
+            local get_all = not ( opts.capture or opts.captures )
+
+            if opts.capture and cname == opts.capture then
+                print("<single>")
+                table.insert(ret, self(capture_node))
+            elseif opts.captures and vim.tbl_contains(opts.captures, cname) then
+                print("<multi>")
+                table.insert(ret, self(capture_node))
+            elseif get_all then
+                print("<all2>")
                 table.insert(ret, self(capture_node))
             end
         end
