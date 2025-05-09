@@ -14,7 +14,13 @@
 return {
     AI = { { "lectic", enabled = false }, { "chat_gpt", enabled = false } },
     LIB = {
+        { "symbolic_math", enabled = false },
+        { "stylish_ui_components", enabled = false },
+        { "nui", enabled = true },
+        { "libmodal", enabled = false },
+        { "animations", enabled = false },
         { "nio", enabled = true }, -- asynch IO
+
         -- "litee"
         -- "libmodal" -- custom pseudo modes | also check out https://github.com/nvimtools/hydra.nvim
         -- https://github.com/jrop/u.nvim/tree/v2

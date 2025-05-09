@@ -33,7 +33,7 @@ function TSLua:query_wrap(opts, debug)
             table.insert(ret, self(capture_node))
         else
 
-            print(vim.inspect(opts))
+            -- print(vim.inspect(opts))
             local get_all = not ( opts.capture or opts.captures )
 
             if opts.capture and cname == opts.capture then
@@ -54,13 +54,13 @@ function TSLua:query_wrap(opts, debug)
             print(
                 string.format(
                     [[
-                TSLua:query_wrap:
-                capture id:     %s
-                capture name:   %s
-                capture node:   %s
-                metadata:       %s
-                match:          %s
-
+--- query_wrap debug ---
+TSLua:query_wrap:
+capture id:     %s
+capture name:   %s
+capture node:   %s
+metadata:       %s
+match:          %s
                 ]],
                     id,
                     pq.captures[id],
@@ -393,14 +393,25 @@ subclasses.table_constructor = {
         if not self.virtual_table then
             -- print(string.format("DICT(%s): FIRST <<<", input_key))
             self.virtual_table = {}
+            local length = 0
             for key, value, field, index in self:iter_fields() do
                 -- print(string.format("DICT: Attacthing: %s | %s", key, value:type()))
-                self.virtual_table[type(key) == "number" and key or tostring(key)] = {
+
+                -- Collect the "#" length of the array.
+                local is_number = type(key) == "number"
+                if is_number then
+                    length = length + 1
+                end
+
+                self.virtual_table[is_number and key or tostring(key)] = {
                     key = key,
                     value = value,
                     field = field,
                 }
             end
+
+            -- NOTE: Im not sure if this is the best location to attach it!
+            self.length = length
         end
         -- print(string.format("DICT(%s): type(ret) = %s", input_key, type(self.virtual_table[input_key])))
         return self.virtual_table[input_key]

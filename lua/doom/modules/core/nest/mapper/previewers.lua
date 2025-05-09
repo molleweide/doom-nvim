@@ -38,7 +38,7 @@ M.previewer = defaulter(function(_)
             -- Write the entry lines
             local lines = entry.lines
 
-            print("LINES:", vim.inspect(entry))
+            -- print("LINES:", vim.inspect(entry))
             -- for _, l in ipairs(lines) do
             -- print(l)
             -- end
@@ -96,6 +96,8 @@ M.previewer = defaulter(function(_)
                     vim.cmd(":hi link MapperCode Comment")
                 end)
             end
+
+            vim.api.nvim_buf_set_lines(self.state.bufnr, -1, -1, false, { string.rep("-", 33)})
 
             -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
             local captures = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)

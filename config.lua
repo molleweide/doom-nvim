@@ -142,6 +142,10 @@ P = function(data, depth, prefix_str)
     return data
 end
 
+PS = function(...)
+  print(string.format(...))
+end
+
 -- TODO: bind P( viw / viW )
 -- funcs.inspect_visual_sel = function()
 --   vim.inspect(funcs.get_visual_selection())

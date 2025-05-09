@@ -92,7 +92,7 @@ function M.make_wrapped_node(self, input_node)
 
     -- print("MAKE WRAPPER:", vim.inspect(input_node))
     if input_node.__name == "TSNodeInstance" then
-        print("<CANNOT WRAP ALREADY WRAPPED>")
+        -- print("<CANNOT WRAP ALREADY WRAPPED>")
         return input_node
     end
 
