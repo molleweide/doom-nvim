@@ -153,16 +153,27 @@ M.v2 = function(entry)
     local buf = utils.get_buf_handle(module_path)
     local ts_buf = ts_utils_lua:new(buf)
 
-    print("from v2 from pweviewer:", vim.inspect(keys_parsed))
+    print("ENTRY ENTRY FROM V2:", vim.inspect(entry))
+
+    print("FROM V2 FROM PWEVIEWER:", vim.inspect(keys_parsed))
 
     local t_nodes = ts_buf:query_wrap({ query = ts_query, capture = "binds.table" }, true)
 
     -- print("CAPTURES:", vim.inspect(t_nodes))
 
+    local ret = {
+    }
+
     for _, n in ipairs(t_nodes) do
         M.bind_finder(n, function(stack)
             local found = false
             local last = stack[#stack]
+
+            local lhs_concat = table.concat(vim.iter(stack)
+                :map(function(v)
+                    return tostring(v.prefix:content())
+                end)
+                :totable())
 
             PS(
                 [[
@@ -173,11 +184,7 @@ M.v2 = function(entry)
 ]],
                 last.prefix,
                 last.name,
-                table.concat(vim.iter(stack)
-                    :map(function(v)
-                        return tostring(v.prefix:content())
-                    end)
-                    :totable())
+                lhs_concat
             )
 
             -- TODO: (x) return a proper stack
@@ -189,11 +196,20 @@ M.v2 = function(entry)
             --      ~ Collect this diagnostics in table and show in previewer.
             --          ^ "Potential match, but requires not-yet-supported analysis."
 
+            if lhs_concat == entry.keys then
+                found = true
+                ret.definition_stack = stack
+                PS("Found mapping definition: %s", lhs_concat)
+            end
+
             return found
         end)
+        break
     end
 
-    return t_nodes
+    -- print("#ret", #ret.definition_stack)
+
+    return ret
 end
 
 return M

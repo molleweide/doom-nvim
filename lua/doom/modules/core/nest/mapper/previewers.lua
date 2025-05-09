@@ -31,28 +31,34 @@ local M = {}
 --   value = "Write with sudo"
 -- }
 
+local Helper = {}
+Helper.__index = Helper
+
+function Helper.new(bufnr)
+    local o = { bufnr = bufnr }
+    return setmetatable(o, Helper)
+end
+
+function Helper:append(data)
+    print("??? append ???", self.bufnr)
+    vim.api.nvim_buf_set_lines(
+        self.bufnr,
+        -1,
+        -1,
+        false,
+        type(data) == "string" and { data } or data
+    )
+end
+
 M.previewer = defaulter(function(_)
     return previewers.new_buffer_previewer({
         title = "Mapping details",
         define_preview = function(self, entry, _)
-            -- Write the entry lines
+            local helper = Helper.new(self.state.bufnr)
             local lines = entry.lines
-
-            -- print("LINES:", vim.inspect(entry))
-            -- for _, l in ipairs(lines) do
-            -- print(l)
-            -- end
-
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
 
-            -- test: append line
-            vim.api.nvim_buf_set_lines(
-                self.state.bufnr,
-                -1,
-                -1,
-                false,
-                { "Path -> " .. _utils.get_short_path_from_module_origin(entry) }
-            )
+            helper:append("Path -> " .. _utils.get_short_path_from_module_origin(entry))
 
             -- Set wrap for the preview window
             vim.api.nvim_win_set_option(self.state.winid, "wrap", true)
@@ -97,19 +103,34 @@ M.previewer = defaulter(function(_)
                 end)
             end
 
-            vim.api.nvim_buf_set_lines(self.state.bufnr, -1, -1, false, { string.rep("-", 33)})
+            helper:append("---------------------------------")
 
             -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
-            local captures = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+            local data = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
 
-            for i, v in ipairs(captures) do
-                vim.api.nvim_buf_set_lines(
-                    self.state.bufnr,
-                    -1,
-                    -1,
-                    false,
-                    vim.split(tostring(v), "\n")
-                )
+            -- NOTE: failing modules:
+            --      ~ refactoring (uses table.insert)
+
+            if data.definition_stack then
+                local stack = data.definition_stack
+                local first = stack[1].prefix
+                local last = stack[#stack].prefix
+                local parent_table = first(first:parent():parent())
+                local parent_table_last = last(last:parent():parent())
+
+                helper:append("---------------------------------")
+                helper:append("definition leaf:")
+
+                helper:append(vim.split(tostring(parent_table_last), "\n"))
+
+                helper:append("---------------------------------")
+                helper:append("parent binds table:")
+
+                helper:append(vim.split(tostring(parent_table), "\n"))
+            else
+                print("data:", data.definition_stack)
+
+                helper:append("Could not find a mappings_definition")
             end
         end,
     })
