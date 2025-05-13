@@ -78,6 +78,17 @@ picker_modules.sorter = require("telescope.config").values.generic_sorter()
 
 picker_modules.attach_mappings = function(prompt_bufnr, map)
     local state = require("telescope.actions.state")
+
+    map("i", "<C-g><C-g>", function()
+        require("doom.modules.features.dui.picker").picker(
+            require("doom.modules.features.dui.pickers.main")
+        )
+    end)
+
+
+    -- TODO: migrate to using applyKeymaps instead.
+
+    -- custom modules actions
     local function call_mappings_func(key)
         local entry = state.get_selected_entry(prompt_bufnr)
 

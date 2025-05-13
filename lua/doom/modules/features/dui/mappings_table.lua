@@ -85,9 +85,14 @@ local mappings = {
     --
     modules = {
         ["<CR>"] = {
-            -- TODO: if mult select load all into buffer.
             desc = "Edit module",
             action = function(prompt_bufnr, entry, key)
+
+
+                -- TODO: check if has more than one file
+                -- if > 1 run file browser, else edit init file.
+
+
                 local actions = require("telescope.actions")
                 actions.close(prompt_bufnr)
                 vim.cmd(string.format("edit %s", entry.value.path_init_file))

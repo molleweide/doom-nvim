@@ -16,19 +16,20 @@ local dui_picker = {}
 
 dui_picker.picker = function(opts, current_picker_bufnr)
     opts = opts or require("doom.modules.features.dui.pickers.main")
+    local picker_utils = require("doom.modules.features.dui.pickers.utils")
 
+    -- get the picker by name
     if type(opts) == "string" then
         opts = require("doom.modules.features.dui.pickers." .. opts)
     end
 
+    -- if func
     if type(opts) == "function" then
         opts = opts()
     end
 
-    local picker_utils = require("doom.modules.features.dui.pickers.utils")
-
+    -- if open, refresh to next picker
     local current_picker = action_state.get_current_picker(current_picker_bufnr)
-
     if current_picker then
         picker_utils:switch_picker(current_picker, opts)
     else
