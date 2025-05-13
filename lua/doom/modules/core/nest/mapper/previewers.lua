@@ -60,6 +60,8 @@ M.previewer = defaulter(function(_)
 
             helper:append("Path -> " .. _utils.get_short_path_from_module_origin(entry))
 
+            helper:append("YYYY")
+
             -- Set wrap for the preview window
             vim.api.nvim_win_set_option(self.state.winid, "wrap", true)
 

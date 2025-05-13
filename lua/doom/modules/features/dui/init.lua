@@ -209,211 +209,213 @@ end
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
+-- --
+-- -- MAKE RESULTS
+-- --
 --
--- MAKE RESULTS
+-- -- returns telescope picker results table based on the ui query type
+-- local function make_results()
+--     local results = {}
 --
-
--- returns telescope picker results table based on the ui query type
-local function make_results()
-    local results = {}
-
-    if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-        results = crawl({
-            tree = require("doom.modules.features.dui.results").main_menu().entries,
-            filter = "list",
-        })
-    elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-        results = crawl({
-            tree = doom.settings,
-            leaf = (require("doom.modules.features.dui.results").settings)().entry_template,
-            filter = "settings",
-        })
-    elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-        -- TODO: replace with current tree api -> crawl all modules and build the
-        -- telescope entries.
-        -- It recurse iterates over all leafs and accumulates a mapped version into
-        -- results.
-        -- !! Why does this have to be tree recursive. Couldnt
-        -- Maybe I could just use a flat array map where each key is the `table.path`
-        -- and then use vim.iter() here to create the mapping.
-        results = crawl({
-            tree = require("doom.modules.features.dui.mod_utils").extend(),
-            leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
-            filter = "doom_module_single",
-        })
-    -- local ext_mod = require("doom.modules.features.dui.mod_utils").extend()
-    -- require("doom.utils.modules").traverse_loaded(ext_mod, function(node, stack)
-    -- end)
-    -- print("results:", results, type(results))
-    -- log.info("DUI - LIST_ALL_MODULES:", results)
-
-    -- todo: rename "SINGLE_MODULE"
-    elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-        crawl({
-            tree = DOOM_UI_STATE.selected_module,
-            filter = "list",
-            leaf = function(_, k, v)
-                -- TODO: use
-                -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
-                -- end
-                if k == "settings" then
-                    results = crawl({
-                        tree = v,
-                        filter = "settings",
-                        leaf = require("doom.modules.features.dui.results")[k]().entry_template,
-                        acc = results,
-                    })
-                elseif k == "binds" then
-                    results = crawl({
-                        tree = v,
-                        -- TODO: simplify this by just adding the string name for the subtable
-                        branch_next = function(v)
-                            return v.rhs
-                        end,
-                        leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
-                        acc = results,
-                        filter = function(_, l, r)
-                            return type(r.val.rhs) ~= "table"
-                        end,
-                    })
-                elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
-                    results = crawl({
-                        tree = v,
-                        filter = "list",
-                        leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
-                        acc = results,
-                    })
-                end
-            end,
-        })
-
-    -----------------------------------------------------------------------------
-    -----------------------------------------------------------------------------
-    elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
-        -- 1. select components set
-        -- 2. how do I attach the corresponding `module` into each component entry?
-        crawl({
-            tree = require("doom.modules.utils").extend({
-                -- TODO: get `user` to work here for origins
-                origins = { "doom", "user" },
-                sections = { "features" },
-                names = { "git", "lsp", "dap" },
-                enabled = true,
-            }),
-            filter = "doom_module_single",
-            leaf = function(_, k, v)
-                -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
-                -- I can assign results here inside of `node` or I could return entry if package.
-                -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
-                if k == "packages" then
-                    results = crawl({
-                        tree = v,
-                        filter = "list",
-                        leaf = require("doom.modules.features.dui.results")[k],
-                        acc = results,
-                    })
-                end
-            end,
-        })
-
-    -----------------------------------------------------------------------------
-    -----------------------------------------------------------------------------
-    -- feels like this should be a special case of the above "MULT/SINGLE"
-    elseif DOOM_UI_STATE.query.type == "all" then
-        -- todo: list everything!
-    end
-
-    return results
-end
-
------------------------------------------------------------------------------
------------------------------------------------------------------------------
-
+--     if DOOM_UI_STATE.query.type == "MAIN_MENU" then
+--         results = crawl({
+--             tree = require("doom.modules.features.dui.results").main_menu().entries,
+--             filter = "list",
+--         })
+--     elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
+--         results = crawl({
+--             tree = doom.settings,
+--             leaf = (require("doom.modules.features.dui.results").settings)().entry_template,
+--             filter = "settings",
+--         })
+--     elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
+--         -- TODO: replace with current tree api -> crawl all modules and build the
+--         -- telescope entries.
+--         -- It recurse iterates over all leafs and accumulates a mapped version into
+--         -- results.
+--         -- !! Why does this have to be tree recursive. Couldnt
+--         -- Maybe I could just use a flat array map where each key is the `table.path`
+--         -- and then use vim.iter() here to create the mapping.
+--         results = crawl({
+--             tree = require("doom.modules.features.dui.mod_utils").extend(),
+--             leaf = (require("doom.modules.features.dui.results").modules)().entry_template,
+--             filter = "doom_module_single",
+--         })
+--     -- local ext_mod = require("doom.modules.features.dui.mod_utils").extend()
+--     -- require("doom.utils.modules").traverse_loaded(ext_mod, function(node, stack)
+--     -- end)
+--     -- print("results:", results, type(results))
+--     -- log.info("DUI - LIST_ALL_MODULES:", results)
 --
--- PICKER
+--     -- todo: rename "SINGLE_MODULE"
+--     elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
+--         crawl({
+--             tree = DOOM_UI_STATE.selected_module,
+--             filter = "list",
+--             leaf = function(_, k, v)
+--                 -- TODO: use
+--                 -- vim.tbl_contains(DOOM_UI_STATE.query.components or spec.module, k) then
+--                 -- end
+--                 if k == "settings" then
+--                     results = crawl({
+--                         tree = v,
+--                         filter = "settings",
+--                         leaf = require("doom.modules.features.dui.results")[k]().entry_template,
+--                         acc = results,
+--                     })
+--                 elseif k == "binds" then
+--                     results = crawl({
+--                         tree = v,
+--                         -- TODO: simplify this by just adding the string name for the subtable
+--                         branch_next = function(v)
+--                             return v.rhs
+--                         end,
+--                         leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
+--                         acc = results,
+--                         filter = function(_, l, r)
+--                             return type(r.val.rhs) ~= "table"
+--                         end,
+--                     })
+--                 elseif k == "configs" or k == "packages" or k == "cmds" or k == "autocmds" then
+--                     results = crawl({
+--                         tree = v,
+--                         filter = "list",
+--                         leaf = (require("doom.modules.features.dui.results")[k])().entry_template,
+--                         acc = results,
+--                     })
+--                 end
+--             end,
+--         })
 --
+--     -----------------------------------------------------------------------------
+--     -----------------------------------------------------------------------------
+--     elseif DOOM_UI_STATE.query.type == "MULTIPLE_MODULES" then
+--         -- 1. select components set
+--         -- 2. how do I attach the corresponding `module` into each component entry?
+--         crawl({
+--             tree = require("doom.modules.utils").extend({
+--                 -- TODO: get `user` to work here for origins
+--                 origins = { "doom", "user" },
+--                 sections = { "features" },
+--                 names = { "git", "lsp", "dap" },
+--                 enabled = true,
+--             }),
+--             filter = "doom_module_single",
+--             leaf = function(_, k, v)
+--                 -- TODO: vim.tbl_contains(DOOM_UI_STATE.query.components or spec.components)
+--                 -- I can assign results here inside of `node` or I could return entry if package.
+--                 -- REMEMBER: ATTACH MODULE PARAMS TO COMPONENT
+--                 if k == "packages" then
+--                     results = crawl({
+--                         tree = v,
+--                         filter = "list",
+--                         leaf = require("doom.modules.features.dui.results")[k],
+--                         acc = results,
+--                     })
+--                 end
+--             end,
+--         })
+--
+--     -----------------------------------------------------------------------------
+--     -----------------------------------------------------------------------------
+--     -- feels like this should be a special case of the above "MULT/SINGLE"
+--     elseif DOOM_UI_STATE.query.type == "all" then
+--         -- todo: list everything!
+--     end
+--
+--     return results
+-- end
+--
+-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+--
+-- --
+-- -- PICKER
+-- --
+--
+-- local function make_title()
+--     local title
+--     if DOOM_UI_STATE.query.type == "MAIN_MENU" then
+--         title = (":: %s ::"):format("MAIN MENU")
+--     elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
+--         title = ":: USER SETTINGS ::"
+--     elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
+--         title = (":: %s | %s ::"):format("DOOM MODULES", "Enabled x of yz")
+--     elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
+--         local postfix = ""
+--         local morig = DOOM_UI_STATE.selected_module.origin
+--         local mfeat = DOOM_UI_STATE.selected_module.section
+--         local mname = DOOM_UI_STATE.selected_module.name
+--         local menab = DOOM_UI_STATE.selected_module.enabled
+--         local on = menab and "enabled" or "disabled"
+--         postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
+--         title = "MODULE_FULL: " .. postfix -- make into const
+--     elseif DOOM_UI_STATE.query.type == "component" then
+--     elseif DOOM_UI_STATE.query.type == "all" then
+--     end
+--     return title
+-- end
+--
+-- -- can I redo this passing an `opts` table as arg and start follow the opts pattern
+-- local function doom_picker()
+--     local entry_display = require("telescope.pickers.entry_display")
+--     local actions_set = require("telescope.actions.set")
+--     local results = make_results() --.get_results_for_query()
+--     local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
+--
+--     -- i(results)
+--     -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
+--     -- print("picker -> title:", title)
+--
+--     require("telescope.pickers")
+--         .new(opts, {
+--             prompt_title = make_title(),
+--             -------------------------------------------------------
+--             finder = require("telescope.finders").new_table({
+--                 results = results,
+--                 entry_maker = function(entry)
+--                     -- print(vim.inspect(entry))
+--                     local displayer = entry_display.create(
+--                         components[entry.component_type]().displayer(entry)
+--                             or doom_ui.settings.displayer_default
+--                     )
+--
+--                     local make_display = function(display_entry)
+--                         -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
+--                         return displayer(display_entry.value.items)
+--                     end
+--                     return {
+--                         value = entry,
+--                         display = make_display,
+--                         ordinal = entry.ordinal,
+--                     }
+--                 end,
+--             }),
+--             -------------------------------------------------------
+--             sorter = require("telescope.config").values.generic_sorter(opts),
+--             attach_mappings = function(prompt_bufnr, map)
+--                 local state = require("telescope.actions.state")
+--
+--                 -- NOTE: Notice here that we access mappings based on the selected
+--                 -- entry, but what should happen if we are showing multiple entry
+--                 -- component types.
+--                 local function call_mappings_func(key)
+--                     local entry = state.get_selected_entry(prompt_bufnr)
+--                     mappings_table[entry.value.component_type][key](prompt_bufnr, entry, key)
+--                 end
+--                 for _, map_str in ipairs(insert_mappings) do
+--                     map("i", map_str, function()
+--                         call_mappings_func(map_str)
+--                     end)
+--                 end
+--                 return true
+--             end,
+--             initial_mode = "insert",
+--         })
+--         :find()
+-- end
 
-local function make_title()
-    local title
-    if DOOM_UI_STATE.query.type == "MAIN_MENU" then
-        title = (":: %s ::"):format("MAIN MENU")
-    elseif DOOM_UI_STATE.query.type == "SHOW_DOOM_SETTINGS" then
-        title = ":: USER SETTINGS ::"
-    elseif DOOM_UI_STATE.query.type == "LIST_ALL_MODULES" then
-        title = (":: %s | %s ::"):format("DOOM MODULES", "Enabled x of yz")
-    elseif DOOM_UI_STATE.query.type == "SHOW_SINGLE_MODULE" then
-        local postfix = ""
-        local morig = DOOM_UI_STATE.selected_module.origin
-        local mfeat = DOOM_UI_STATE.selected_module.section
-        local mname = DOOM_UI_STATE.selected_module.name
-        local menab = DOOM_UI_STATE.selected_module.enabled
-        local on = menab and "enabled" or "disabled"
-        postfix = postfix .. "[" .. morig .. ":" .. mfeat .. "] -> " .. mname .. " (" .. on .. ")"
-        title = "MODULE_FULL: " .. postfix -- make into const
-    elseif DOOM_UI_STATE.query.type == "component" then
-    elseif DOOM_UI_STATE.query.type == "all" then
-    end
-    return title
-end
 
--- can I redo this passing an `opts` table as arg and start follow the opts pattern
-local function doom_picker()
-    local entry_display = require("telescope.pickers.entry_display")
-    local actions_set = require("telescope.actions.set")
-    local results = make_results() --.get_results_for_query()
-    local opts = DOOM_UI_STATE.query.topts or {} -- require("telescope.themes").get_ivy()
-
-    -- i(results)
-    -- print("picker -> query:", vim.inspect(DOOM_UI_STATE.query))
-    -- print("picker -> title:", title)
-
-    require("telescope.pickers")
-        .new(opts, {
-            prompt_title = make_title(),
-            -------------------------------------------------------
-            finder = require("telescope.finders").new_table({
-                results = results,
-                entry_maker = function(entry)
-                    -- print(vim.inspect(entry))
-                    local displayer = entry_display.create(
-                        components[entry.component_type]().displayer(entry)
-                            or doom_ui.settings.displayer_default
-                    )
-
-                    local make_display = function(display_entry)
-                        -- I can custom transform each entry here if I like. Eg. I could do the `char surrounding` here instead if inside each component config. What would be smart to do here?
-                        return displayer(display_entry.value.items)
-                    end
-                    return {
-                        value = entry,
-                        display = make_display,
-                        ordinal = entry.ordinal,
-                    }
-                end,
-            }),
-            -------------------------------------------------------
-            sorter = require("telescope.config").values.generic_sorter(opts),
-            attach_mappings = function(prompt_bufnr, map)
-                local state = require("telescope.actions.state")
-
-                -- NOTE: Notice here that we access mappings based on the selected
-                -- entry, but what should happen if we are showing multiple entry
-                -- component types.
-                local function call_mappings_func(key)
-                    local entry = state.get_selected_entry(prompt_bufnr)
-                    mappings_table[entry.value.component_type][key](prompt_bufnr, entry, key)
-                end
-                for _, map_str in ipairs(insert_mappings) do
-                    map("i", map_str, function()
-                        call_mappings_func(map_str)
-                    end)
-                end
-                return true
-            end,
-            initial_mode = "insert",
-        })
-        :find()
-end
 
 -- TODO: if not telescope, then try use ui_select_browser.
 -- TODO: async get results
@@ -685,6 +687,8 @@ doom_ui.binds = {
             {
                 "k",
                 doom_modules_picker_v2,
+                -- TODO: later use:
+                --                         require("doom.modules.features.dui.picker").picker("modules"),
                 name = "Browse modules",
                 -- options = { silent = false },
             },
@@ -715,6 +719,11 @@ doom_ui.binds = {
                         "W",
                         doom_modules_picker_v2,
                         name = "Browse modules",
+                    },
+                    {
+                        "Q",
+                        require("doom.modules.features.dui.picker").picker,
+                        name = "MAIN MENU V2",
                     },
                     {
                         "n",

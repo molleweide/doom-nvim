@@ -26,7 +26,7 @@ local function bulk_unload_all_doom_modules()
     -- log.debug("unload all")
     for k, _ in pairs(package.loaded) do
         if
-            -- this is just so you can toggle/test more easilly
+        -- this is just so you can toggle/test more easilly
             string.match(k, "^doom%.core")
             or string.match(k, "^doom%.modules")
             or string.match(k, "^doom%.services")
@@ -36,6 +36,16 @@ local function bulk_unload_all_doom_modules()
         then
             package.loaded[k] = nil
             -- print("unload path: ", k)
+        end
+    end
+end
+
+local function bulk_unload_single(module_path)
+    print("bulk_unload_single:", module_path)
+    for k, _ in pairs(package.loaded) do
+        if string.match(k, "^"..utils.escape_str(module_path)) then
+            package.loaded[k] = nil
+            print("unload path: ", k)
         end
     end
 end
@@ -94,7 +104,7 @@ end
 --- Reload a single Lua module
 --- @param mod_path string The configuration module path
 --- @param quiet boolean If the reloader should send an info log or not
-reloader.reload_lua_module = function(mod_path_pre, quiet)
+reloader.reload_lua_module = function(mod_path_pre, quiet, nested)
     local mod_path
     if mod_path_pre:find("/") then
         mod_path = path_to_lua_module(mod_path_pre)
@@ -121,8 +131,14 @@ reloader.reload_lua_module = function(mod_path_pre, quiet)
     -- Get the module from package table
     local mod = package.loaded[mod_path]
 
-    -- Unload the module and load it again
-    package.loaded[mod_path] = nil
+    if nested then
+        print("<NESTED MODULE UNLOAD>")
+        bulk_unload_single(mod_path)
+    else
+        print("<TOP-LEVEL MODULE UNLOAD>")
+        -- Unload the module and load it again
+        package.loaded[mod_path] = nil
+    end
     require(mod_path)
 
     if type(mod) == "function" then
@@ -236,7 +252,6 @@ reloader._reload_doom = function(opts)
         local active_module_found = false
         local is_sub_file
         while not active_module_found do
-            count = count + 1
             log.info("checking:", table.concat(t_path, "."))
             is_mod = utils.get_set_table_path(doom.modules, t_path)
             if is_mod then
@@ -253,6 +268,7 @@ reloader._reload_doom = function(opts)
                     return
                 end
             end
+            count = count + 1
         end
         local path_module = table.concat(t_path, ".")
         log.info("active found:", table.concat(t_path, "."))
@@ -260,17 +276,38 @@ reloader._reload_doom = function(opts)
         local old_module = utils.get_set_table_path(doom.modules, t_path)
         require("doom.core.modules").unload_module(old_module, path_module)
         -- reload (commands, autocmds, packages spec, and binds)
-        reloader.reload_lua_module(event_target_module, false)
-        if is_sub_file then
-            reloader.reload_lua_module(
-                string.format(
-                    "%s.modules.%s",
-                    event_target_module:match("^user") and "user" or "doom",
-                    path_module
-                ),
-                false
-            )
-        end
+
+        PS(
+            [[
+        --------
+        event_target_module: %s
+        path_module: %s
+        --------
+        ]],
+            event_target_module,
+            path_module
+        )
+
+        -- reloader.bulk_unload_single(path_module)
+
+        -- reloader.reload_lua_module(event_target_module, false)
+
+        print("is_sub_file:", is_sub_file)
+
+        -- print("xxxxxx")
+
+        -- if is_sub_file then
+        reloader.reload_lua_module(
+            string.format(
+                "%s.modules.%s",
+                event_target_module:match("^user") and "user" or "doom",
+                path_module
+            ),
+            false,
+            is_sub_file
+        )
+        -- end
+
         local module = require("doom.core.config").attach_module(t_path)
         require("doom.core.modules").load_module(module, path_module)
 
@@ -386,7 +423,7 @@ reloader.binds = {
                             _doom_reloader.reload_on_save = not _doom_reloader.reload_on_save
                             vim.notify(
                                 "Toggle reload_on_save -> "
-                                    .. tostring(_doom_reloader.reload_on_save)
+                                .. tostring(_doom_reloader.reload_on_save)
                             )
                             log.info(
                                 string.format(
