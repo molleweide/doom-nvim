@@ -72,6 +72,23 @@ local function do_next(fn)
     end
 end
 
+local function module_has_mult_files(path_dir)
+    local luv = vim.loop
+    local handle = luv.fs_scandir(path_dir)
+    if type(handle) == "string" then
+        return
+        -- return fs.notify.error(handle)
+    end
+    local count = 0
+    while true do
+        local name, t = luv.fs_scandir_next(handle)
+        if not name or count > 1 then
+            break
+        end
+        count = count + 1
+    end
+    return count > 1
+end
 -- TODO: Make type definitions for the [action] func.
 
 local mappings = {
@@ -87,15 +104,13 @@ local mappings = {
         ["<CR>"] = {
             desc = "Edit module",
             action = function(prompt_bufnr, entry, key)
-
-
-                -- TODO: check if has more than one file
-                -- if > 1 run file browser, else edit init file.
-
-
+                -- if module_has_mult_files(entry.value:dir()) then
+                --     print("run file browser on module")
+                -- else
                 local actions = require("telescope.actions")
                 actions.close(prompt_bufnr)
                 vim.cmd(string.format("edit %s", entry.value.path_init_file))
+                -- end
             end,
         },
         ["<C-s>"] = {

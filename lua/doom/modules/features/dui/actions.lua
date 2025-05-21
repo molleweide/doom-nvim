@@ -5,6 +5,8 @@ local nui = require("doom.modules.features.dui.nui")
 local mutils = require("doom.modules.features.dui.utils")
 -- local sh = require("user.modules.features.dui2.shell")
 
+-- WARN: THIS FILE IS DEPRECATED
+
 -- TODO: nui themeing and stylez
 
 -- TODO: undo points for all actions

@@ -7,6 +7,8 @@ local telescope = {}
 -- TODO: center everything in telescope so that you are always looking with you head
 -- in center position.
 
+-- https://github.com/fdschmidt93/telescope-egrepify.nvim?tab=readme-ov-file
+
 -- Create a builtin picker for nvim options -> `:options`
 -- ??
 

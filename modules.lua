@@ -240,7 +240,9 @@ return {
     --   GIT = {},
     --   GITHUB = {},
     -- },
-    LANGS = {
+    LANGS = { { "tmux",
+    enabled = true
+  } ,
         { "lua", enabled = true },
         { "python", enabled = true },
         { "bash", enabled = true },

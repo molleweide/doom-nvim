@@ -33,9 +33,15 @@ local doom_main_menu_results = {
     end,
     PACKAGES = function() end,
     COMMANDS = function() end,
-    AUTOCMDS = function() end,
+    AUTOCMDS = function()
+        require("doom.modules.features.dui.picker").picker(
+            require("doom.modules.features.dui.pickers.autocmds")
+        )
+    end,
     BINDINGS = function() end,
     SNIPPETS = function() end,
+    -- inspect: shown; hidden, special, etc.
+    BUFFERS = function() end,
 }
 
 picker_main.results_title = "[Select]"

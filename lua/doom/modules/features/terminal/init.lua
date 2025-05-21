@@ -81,6 +81,7 @@ terminal.packages = {
         cmd = { "ToggleTerm", "TermExec" },
         lazy = true,
     },
+    -- https://github.com/CRAG666/betterTerm.nvim
     -- https://github.com/distek/tt.nvim
     -- https://github.com/sychen52/smart-term-esc.nvim
 }

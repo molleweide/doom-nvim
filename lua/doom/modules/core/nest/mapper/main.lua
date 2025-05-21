@@ -2,12 +2,6 @@
 local log = require("doom.utils.logging")
 local pickers = require("telescope.pickers")
 local conf = require("telescope.config").values
-local system = require("doom.core.system")
-local utils = require("doom.utils")
-local fs = require("doom.utils.fs")
-local ts = vim.treesitter
-
-local b = require("doom.modules.features.dui.buf")
 
 -- telescope-mapper modules
 local _finders = require("doom.modules.core.nest.mapper.finders")
@@ -37,38 +31,26 @@ M.mapper = function(opts)
             local actions = require("telescope.actions")
             local action_state = require("telescope.actions.state")
 
-            map({ "i", "n" }, "<C-s>", function()
-                _G.__monitor_doom_debug_binds = prepare_args(action_state.get_selected_entry())
-                actions.close(prompt_bufnr)
-            end, { desc = "Set the global __monitor_<name> var." })
-
-            map("i", "<C-q>", function()
-                local args = prepare_args(action_state.get_selected_entry())
-                if not args.module_path then
-                    log.info("nest telescope -> did not return a proper module_path")
-                    return
-                end
-                actions.close(prompt_bufnr)
-
-                open(args)
-
-                -- Bind the output to the buffer monitor module so that we can
-                -- use the output as the value for the output to the buff monitor.
-                _G.__monitor_doom_debug_binds = args
-
-                require("doom.modules.core.nest.mapper.mappings_finder_v1").get_match_for_keybind(
-                    args
-                )
-            end, { desc = "Go to mapping [V1]" })
-
-            -- NOTE: V2
+            -- <CR> jump to LHS
             actions.select_default:replace(function()
-                local args = prepare_args(action_state.get_selected_entry())
-                if not args.module_path then
-                    log.info("nest telescope -> did not return a proper module_path")
-                    return
+                local entry = action_state.get_selected_entry()
+                local data = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+                local module_path = _utils.get_abs_path_from_module_origin(entry)
+
+                if data.definition_stack then
+                    local stack = data.definition_stack
+                    local last = stack[#stack].prefix
+                    -- local parent_table_last = last(last:parent():parent()) -- get the leaf table_constructor.
+                    local lhs_prefix_range = { last:range() }
+                    actions.close(prompt_bufnr)
+                    vim.cmd(string.format("edit %s", module_path))
+                    vim.api.nvim_win_set_cursor(0, { lhs_prefix_range[1] + 1, lhs_prefix_range[2]+1 })
+                    vim.cmd("norm zz")
+                else
+                    -- TODO: If has binds table, then jump to the binds table.
+                    actions.close(prompt_bufnr)
+                    vim.cmd(string.format("edit %s", module_path))
                 end
-                -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
             end)
 
             return true

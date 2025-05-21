@@ -12,7 +12,6 @@ local b = require("doom.modules.features.dui.buf")
 -- telescope step for the leaf candidates and by so let the
 -- user decide which one to go to.
 
-local dui_utils = require("doom.modules.features.dui.utils")
 
 -- HACK: If there is no full match or whatever -> then just pass the
 -- leaf candidates to telescope and let user see a good preview of the
@@ -559,7 +558,7 @@ M.get_match_for_keybind = function(opts)
         log.debug("opts cant be nil for nest/main.get_match_for_keybind()")
         return
     end
-    opts.buf = dui_utils.get_buf_handle(opts.module_path)
+    opts.buf = utils.get_buf_handle(opts.module_path)
     opts.messages = {}
     local build_msg = utils.new_message_builder(opts.messages)
 

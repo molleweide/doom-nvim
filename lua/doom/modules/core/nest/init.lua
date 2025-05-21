@@ -57,7 +57,8 @@ nest.reload_binds = function()
         --- Tries to create a unique keymap id given a lhs, rhs and name
         --- lhs/rhs used as key
         --- @param lhs string
-        --- @param rhs string
+        --- @param name string
+        --- @param mode string
         --- @return string|nil
         local determine_uid = function(lhs, name, mode)
             -- Format name to snake case no punctuation

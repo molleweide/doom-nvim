@@ -11,6 +11,8 @@ local b = require("doom.modules.features.dui.buf")
 local dq = require("doom.modules.features.dui.queries")
 local mutils = require("doom.modules.features.dui.utils")
 
+-- WARN: THIS FILE IS DEPRECATED
+
 -- GLOSSARY:
 --
 --    root <file> refers to a file in the root. eg `./modules.lua`

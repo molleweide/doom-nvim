@@ -85,7 +85,6 @@ picker_modules.attach_mappings = function(prompt_bufnr, map)
         )
     end)
 
-
     -- TODO: migrate to using applyKeymaps instead.
 
     -- custom modules actions

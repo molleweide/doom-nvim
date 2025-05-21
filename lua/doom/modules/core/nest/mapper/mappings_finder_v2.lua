@@ -53,6 +53,7 @@ local ts_query = [[
 ---3. (Later), return parent, or whatever, so that one can manage the leader
 ---branches.
 M.bind_finder = function(start_table_node, cb_leaf, cb_branch)
+
     print([[
 -------------------------------------------------------
 -- BIND_FINDER ----------------------------------------

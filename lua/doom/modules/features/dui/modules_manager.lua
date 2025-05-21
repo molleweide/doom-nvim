@@ -3,7 +3,6 @@ local log = require("doom.utils.logging")
 local fs = require("doom.utils.fs")
 
 local pu = require("doom.modules.features.dui.templates")
-local dui_utils = require("doom.modules.features.dui.utils")
 
 local M = {}
 

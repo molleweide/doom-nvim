@@ -24,8 +24,8 @@
 
 local a = vim.api
 
-local fb_utils = require("telescope._extensions.file_browser.utils")
-local fb_lsp = require("telescope._extensions.file_browser.lsp")
+-- local fb_utils = require("telescope._extensions.file_browser.utils")
+-- local fb_lsp = require("telescope._extensions.file_browser.lsp")
 
 local actions = require("telescope.actions")
 local state = require("telescope.state")
@@ -33,111 +33,111 @@ local action_state = require("telescope.actions.state")
 local action_utils = require("telescope.actions.utils")
 local action_set = require("telescope.actions.set")
 local config = require("telescope.config")
-local transform_mod = require("telescope.actions.mt").transform_mod
+-- local transform_mod = require("telescope.actions.mt").transform_mod
 
-local Path = require("plenary.path")
-local popup = require("plenary.popup")
-local scan = require("plenary.scandir")
-local async = require("plenary.async")
+-- local Path = require("plenary.path")
+-- local popup = require("plenary.popup")
+-- local scan = require("plenary.scandir")
+-- local async = require("plenary.async")
 
-local fb_actions = setmetatable({}, {
+local dui_picker_actions = setmetatable({}, {
     __index = function(_, k)
         error("Key does not exist for 'fb_actions': " .. tostring(k))
     end,
 })
 
-local os_sep = Path.path.sep
+-- local os_sep = Path.path.sep
 
--- utility to get absolute path of target directory for create, copy, moving files/folders
-local get_target_dir = function(finder)
-    local entry_path
-    if finder.files == false then
-        local entry = action_state.get_selected_entry()
-        entry_path = entry and entry.value -- absolute path
-    end
-    return finder.files and finder.path or entry_path
-end
+-- -- utility to get absolute path of target directory for create, copy, moving files/folders
+-- local get_target_dir = function(finder)
+--     local entry_path
+--     if finder.files == false then
+--         local entry = action_state.get_selected_entry()
+--         entry_path = entry and entry.value -- absolute path
+--     end
+--     return finder.files and finder.path or entry_path
+-- end
 
 -- return Path file on success, otherwise nil
-local create = function(file, finder)
-    if not file then
-        return
-    end
-    if
-        file == ""
-        or (finder.files and file == finder.path .. os_sep)
-        or (not finder.files and file == finder.cwd .. os_sep)
-    then
-        fb_utils.notify("actions.create", {
-            msg = "Please enter a valid file or folder name!",
-            level = "WARN",
-            quiet = finder.quiet,
-        })
-        return
-    end
-    file = Path:new(file)
-    if file:exists() then
-        fb_utils.notify(
-            "actions.create",
-            { msg = "Selection already exists!", level = "WARN", quiet = finder.quiet }
-        )
-        return
-    end
+-- local create = function(file, finder)
+--     if not file then
+--         return
+--     end
+--     if
+--         file == ""
+--         or (finder.files and file == finder.path .. os_sep)
+--         or (not finder.files and file == finder.cwd .. os_sep)
+--     then
+--         fb_utils.notify("actions.create", {
+--             msg = "Please enter a valid file or folder name!",
+--             level = "WARN",
+--             quiet = finder.quiet,
+--         })
+--         return
+--     end
+--     file = Path:new(file)
+--     if file:exists() then
+--         fb_utils.notify(
+--             "actions.create",
+--             { msg = "Selection already exists!", level = "WARN", quiet = finder.quiet }
+--         )
+--         return
+--     end
+--
+--     local filename = file:absolute()
+--     fb_lsp.will_create_files({ filename })
+--
+--     if not fb_utils.is_dir(file.filename) then
+--         file:touch({ parents = true })
+--     else
+--         Path:new(file.filename:sub(1, -2)):mkdir({ parents = true, mode = 493 }) -- 493 => decimal for mode 0755
+--     end
+--
+--     fb_lsp.did_create_files({ filename })
+--     return file
+-- end
 
-    local filename = file:absolute()
-    fb_lsp.will_create_files({ filename })
+-- local function newly_created_root(path, cwd)
+--     local idx
+--     local parents = path:parents()
+--     cwd = fb_utils.sanitize_path_str(cwd)
+--     for i, p in ipairs(parents) do
+--         if p == cwd then
+--             idx = i
+--             break
+--         end
+--     end
+--
+--     if idx == nil then
+--         return nil
+--     end
+--     return idx == 1 and path:absolute() or parents[idx - 1]
+-- end
 
-    if not fb_utils.is_dir(file.filename) then
-        file:touch({ parents = true })
-    else
-        Path:new(file.filename:sub(1, -2)):mkdir({ parents = true, mode = 493 }) -- 493 => decimal for mode 0755
-    end
+-- local function get_input(opts, callback)
+--     local fb_config = require("telescope._extensions.file_browser.config")
+--     if fb_config.values.use_ui_input then
+--         vim.ui.input(opts, callback)
+--     else
+--         async.run(function()
+--             return vim.fn.input(opts)
+--         end, callback)
+--     end
+-- end
 
-    fb_lsp.did_create_files({ filename })
-    return file
-end
-
-local function newly_created_root(path, cwd)
-    local idx
-    local parents = path:parents()
-    cwd = fb_utils.sanitize_path_str(cwd)
-    for i, p in ipairs(parents) do
-        if p == cwd then
-            idx = i
-            break
-        end
-    end
-
-    if idx == nil then
-        return nil
-    end
-    return idx == 1 and path:absolute() or parents[idx - 1]
-end
-
-local function get_input(opts, callback)
-    local fb_config = require("telescope._extensions.file_browser.config")
-    if fb_config.values.use_ui_input then
-        vim.ui.input(opts, callback)
-    else
-        async.run(function()
-            return vim.fn.input(opts)
-        end, callback)
-    end
-end
-
-local function get_confirmation(opts, callback)
-    local fb_config = require("telescope._extensions.file_browser.config")
-    if fb_config.values.use_ui_input then
-        opts.prompt = opts.prompt .. " [y/N]"
-        vim.ui.input(opts, function(input)
-            callback(input and input:lower() == "y")
-        end)
-    else
-        async.run(function()
-            return vim.fn.confirm(opts.prompt, table.concat({ "&Yes", "&No" }, "\n"), 2) == 1
-        end, callback)
-    end
-end
+-- local function get_confirmation(opts, callback)
+--     local fb_config = require("telescope._extensions.file_browser.config")
+--     if fb_config.values.use_ui_input then
+--         opts.prompt = opts.prompt .. " [y/N]"
+--         vim.ui.input(opts, function(input)
+--             callback(input and input:lower() == "y")
+--         end)
+--     else
+--         async.run(function()
+--             return vim.fn.confirm(opts.prompt, table.concat({ "&Yes", "&No" }, "\n"), 2) == 1
+--         end, callback)
+--     end
+-- end
 
 --- Creates a new file or dir in the current directory of the |telescope-file-browser.picker.file_browser|.
 --- - Finder:
@@ -146,7 +146,7 @@ end
 ---@note You can create folders by ending the name in the path separator of your OS, e.g. "/" on Unix systems
 ---@note You can implicitly create new folders by passing $/CWD/new_folder/filename.lua
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.create = function(prompt_bufnr)
+dui_picker_actions.create = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
 
@@ -168,7 +168,7 @@ end
 ---@note You can create folders by ending the name in the path separator of your OS, e.g. "/" on Unix systems
 ---@note You can implicitly create new folders by passing $/CWD/new_folder/filename.lua
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.create_from_prompt = function(prompt_bufnr)
+dui_picker_actions.create_from_prompt = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local input = (finder.files and finder.path or finder.cwd)
@@ -293,7 +293,7 @@ end
 ---@note in which the user can rename/move files multi-selected files at once
 ---@note In `Batch Rename`, the number of paths must persist: keeping a file name means keeping the line unchanged
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.rename = function(prompt_bufnr)
+dui_picker_actions.rename = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local quiet = current_picker.finder.quiet
     local selections = fb_utils.get_selected_files(prompt_bufnr, false)
@@ -374,7 +374,7 @@ end
 ---@note Moving multi-selections is sensitive to order of selection, which
 --- potentially unpacks files from parent(s) dirs if files are selected first.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.move = function(prompt_bufnr)
+dui_picker_actions.move = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
 
@@ -432,7 +432,7 @@ end
 ---   - file_browser: copies (multi-selected) file(s) in/to opened dir (w/o multi-selection, creates in-place copy)
 ---   - folder_browser: copies (multi-selected) file(s) in/to selected dir (w/o multi-selection, creates in-place copy)
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.copy = function(prompt_bufnr)
+dui_picker_actions.copy = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local parents = Path:new(finder):parents()
@@ -542,7 +542,7 @@ end
 ---
 ---@note Performs a blocking synchronized file-system operation.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.remove = function(prompt_bufnr)
+dui_picker_actions.remove = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local quiet = current_picker.finder.quiet
@@ -618,7 +618,7 @@ end
 
 --- Toggle hidden files or folders for |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.toggle_hidden = function(prompt_bufnr)
+dui_picker_actions.toggle_hidden = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
 
@@ -638,7 +638,7 @@ end
 
 --- Toggle respect_gitignore for |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.toggle_respect_gitignore = function(prompt_bufnr)
+dui_picker_actions.toggle_respect_gitignore = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
 
@@ -656,7 +656,7 @@ end
 ---   - macOS: relies on `open` to start the program
 ---   - Windows: defaults to default applications through `start`
 ---@pram prompt_bufnr number: The prompt bufnr
-fb_actions.open = function(prompt_bufnr)
+dui_picker_actions.open = function(prompt_bufnr)
     local quiet = action_state.get_current_picker(prompt_bufnr).finder.quiet
     local selections = fb_utils.get_selected_files(prompt_bufnr, true)
     if vim.tbl_isempty(selections) then
@@ -684,7 +684,7 @@ end
 --- Goto parent directory in |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
 ---@param bypass boolean: Allow passing beyond the globally set current working directory
-fb_actions.goto_parent_dir = function(prompt_bufnr, bypass)
+dui_picker_actions.goto_parent_dir = function(prompt_bufnr, bypass)
     bypass = vim.F.if_nil(bypass, true)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
@@ -714,7 +714,7 @@ end
 
 --- Goto working directory of nvim in |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.goto_cwd = function(prompt_bufnr)
+dui_picker_actions.goto_cwd = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     finder.path = vim.loop.cwd()
@@ -729,7 +729,7 @@ end
 
 --- Change working directory of nvim to the selected file/folder in |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.change_cwd = function(prompt_bufnr)
+dui_picker_actions.change_cwd = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local entry_path = action_state.get_selected_entry().Path
@@ -751,7 +751,7 @@ end
 
 --- Goto home directory in |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.goto_home_dir = function(prompt_bufnr)
+dui_picker_actions.goto_home_dir = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
 
     local finder = current_picker.finder
@@ -771,7 +771,7 @@ end
 
 ---@param prompt_bufnr number: The prompt bufnr
 ---@param opts table:  Picker opts
-fb_actions.switch_picker = function(prompt_bufnr, opts)
+dui_picker_actions.switch_picker = function(prompt_bufnr, opts)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
 
     -- TODO: if an option is not provided, then unset it, eg
@@ -795,7 +795,7 @@ end
 
 --- Toggle between file and folder browser for |telescope-file-browser.picker.file_browser|.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.toggle_browser = function(prompt_bufnr, opts)
+dui_picker_actions.toggle_browser = function(prompt_bufnr, opts)
     opts = opts or {}
     opts.reset_prompt = vim.F.if_nil(opts.reset_prompt, true)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
@@ -812,7 +812,7 @@ end
 --- Toggles all selections akin to |telescope.actions.toggle_all| but ignores parent & current directory
 ---@note if the parent or current directory were selected, they will be ignored (manually unselect with `<TAB>`)
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.toggle_all = function(prompt_bufnr)
+dui_picker_actions.toggle_all = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local parent_dir = Path:new(finder.path):parent().filename
@@ -841,7 +841,7 @@ end
 ---@note selected entries may include results not visible in the results popup.
 ---@note if the parent or current directly was previously selected, they will be ignored in the selected state (manually unselect with `<TAB>`)
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.select_all = function(prompt_bufnr)
+dui_picker_actions.select_all = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local parent_dir = Path:new(finder.path):parent().filename
@@ -895,7 +895,7 @@ end
 --- Toggle sorting by size of the entry.<br>
 ---@note initially sorts descendingly in size.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.sort_by_size = function(prompt_bufnr)
+dui_picker_actions.sort_by_size = function(prompt_bufnr)
     local finder = action_state.get_current_picker(prompt_bufnr).finder
     finder.__sort_size = not finder.__sort_size
     sort_by(prompt_bufnr, function(x, y)
@@ -919,7 +919,7 @@ end
 --- Toggle sorting by last change to the entry.<br>
 ---@note initially sorts desendingly from most to least recently changed entry.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.sort_by_date = function(prompt_bufnr)
+dui_picker_actions.sort_by_date = function(prompt_bufnr)
     local finder = action_state.get_current_picker(prompt_bufnr).finder
     finder.__sort_date = not finder.__sort_date
     sort_by(prompt_bufnr, function(x, y)
@@ -943,11 +943,11 @@ end
 --- If the prompt is empty, goes up to parent dir. Otherwise, acts as normal.
 ---@param prompt_bufnr number: The prompt bufnr
 ---@param bypass boolean: Allow passing beyond the globally set current working directory
-fb_actions.backspace = function(prompt_bufnr, bypass)
+dui_picker_actions.backspace = function(prompt_bufnr, bypass)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
 
     if current_picker:_get_prompt() == "" then
-        fb_actions.goto_parent_dir(prompt_bufnr, bypass)
+        dui_picker_actions.goto_parent_dir(prompt_bufnr, bypass)
     else
         vim.api.nvim_feedkeys(
             vim.api.nvim_replace_termcodes("<bs>", true, false, true),
@@ -959,13 +959,13 @@ end
 
 --- When a path separator is entered, navigate to the directory in the prompt.
 ---@param prompt_bufnr number: The prompt bufnr
-fb_actions.path_separator = function(prompt_bufnr)
+dui_picker_actions.path_separator = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local dir =
         Path:new(current_picker.finder.path .. os_sep .. current_picker:_get_prompt() .. os_sep)
 
     if current_picker.finder.files and dir:exists() and dir:is_dir() then
-        fb_actions.open_dir(prompt_bufnr, nil, dir.filename)
+        dui_picker_actions.open_dir(prompt_bufnr, nil, dir.filename)
     else
         vim.api.nvim_feedkeys(
             vim.api.nvim_replace_termcodes(os_sep, true, false, true),
@@ -1010,7 +1010,7 @@ end
 ---@param prompt_bufnr integer
 ---@param _ any select type
 ---@param dir string? priority dir path
-fb_actions.open_dir = function(prompt_bufnr, _, dir)
+dui_picker_actions.open_dir = function(prompt_bufnr, _, dir)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
     local entry = action_state.get_selected_entry()
@@ -1028,5 +1028,56 @@ fb_actions.open_dir = function(prompt_bufnr, _, dir)
     })
 end
 
-fb_actions = transform_mod(fb_actions)
-return fb_actions
+-- TODO: Input NAME -> LHS -> RHS
+-- TODO: Choose add options?
+-- TODO: Choose add to module?
+-- TODO: Default, add to [config.lua]
+dui_picker_actions.bind_add_new = function(prompt_bufnr) end
+
+dui_picker_actions.bind_update_lhs = function(prompt_bufnr) end
+
+dui_picker_actions.bind_update_last_lhs_char = function(prompt_bufnr) end
+
+dui_picker_actions.bind_update_rhs = function(prompt_bufnr)
+    -- TODO: Use popup buffer
+end
+
+dui_picker_actions.bind_update_name = function(prompt_bufnr)
+
+    -- TODO: prefill with current name
+    local name_current
+
+    vim.ui.input({ prompt = "Edit name: ", default = name_current }, function() end)
+
+    -- TODO: TS update binding definition
+
+    -- TODO: update picker
+end
+
+dui_picker_actions.bind_update_description = function(prompt_bufnr)
+    -- TODO: Use popup buffer.
+end
+
+-- • {opts}  Optional parameters map: Accepts all |:map-arguments| as keys
+--           except <buffer>, values are booleans (default false). Also:
+--           • "noremap" disables |recursive_mapping|, like |:noremap|
+--           • "desc" human-readable description.
+--           • "callback" Lua function called in place of {rhs}.
+--           • "replace_keycodes" (boolean) When "expr" is true, replace
+--             keycodes in the resulting string (see
+--             |nvim_replace_termcodes()|). Returning nil from the Lua
+--             "callback" is equivalent to returning an empty string.
+--
+-- "<buffer>", "<nowait>", "<silent>", "<script>", "<expr>" and
+-- "<unique>" can be used in any order.  They must appear right after the
+-- command, before any other arguments.
+dui_picker_actions.bind_toggle_option = function(prompt_bufnr)
+    -- TODO: ui.select -> toggle
+    -- ~ noremap:
+    -- ~ silent
+    -- ~ nowait
+end
+
+-- fb_actions = transform_mod(fb_actions)
+
+return dui_picker_actions

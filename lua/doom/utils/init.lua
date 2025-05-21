@@ -391,4 +391,14 @@ utils.edit_file_in_window = function(file, where)
     end)
 end
 
+---Merge two tables
+---TODO: Use `select`, so that one can merge an arbitrary number of tables.
+utils.tbl_merge = function(t1, t2)
+    t1, t2 = vim.deepcopy(t1), vim.deepcopy(t2)
+    for _, v in ipairs(t2) do
+        table.insert(t1, v)
+    end
+    return t1
+end
+
 return utils
