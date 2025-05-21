@@ -31,6 +31,10 @@ local M = {}
 --   value = "Write with sudo"
 -- }
 
+local function ts_contents_2_table(ts_node)
+    return vim.split(tostring(ts_node), "\n")
+end
+
 local Helper = {}
 Helper.__index = Helper
 
@@ -58,9 +62,47 @@ M.previewer = defaulter(function(_)
             local lines = entry.lines
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
 
+            local data = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+
+            local bind_stack = data.definition_stack
+
             helper:append("Path -> " .. _utils.get_short_path_from_module_origin(entry))
 
-            helper:append("YYYY")
+            if bind_stack then
+                local leaf = bind_stack[#bind_stack]
+
+                -- show branch
+                helper:append("---------------------------------")
+                helper:append("BRANCH / NAME:")
+                local names = {}
+                for k, v in pairs(bind_stack) do
+                    if v.name then
+                        table.insert(names, string.format("[%s]", tostring(v.name:content())))
+                    end
+                end
+                helper:append({ "", table.concat(names, " -> "), "" })
+
+                -- show rhs
+                helper:append({ "---------------------------------", "RIGHT HAND SIDE (RHS):", "" })
+                local rhs = leaf.rhs
+                if rhs:type() == "string" then
+                    helper:append(ts_contents_2_table(rhs:content()))
+                elseif rhs:type() == "function_definition" then
+                    helper:append(ts_contents_2_table(rhs))
+                elseif rhs:type() == "identifier" then
+                end
+                helper:append("")
+
+                -- show explicit options
+                if leaf.options then
+                    helper:append({
+                        "---------------------------------",
+                        "EXPLICITLY DECLARED OPTIONS:",
+                        "",
+                    })
+                    helper:append(ts_contents_2_table(leaf.options))
+                end
+            end
 
             -- Set wrap for the preview window
             vim.api.nvim_win_set_option(self.state.winid, "wrap", true)
@@ -107,16 +149,12 @@ M.previewer = defaulter(function(_)
 
             helper:append("---------------------------------")
 
-            -- require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(args)
-            local data = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
-
             -- NOTE: failing modules:
             --      ~ refactoring (uses table.insert)
 
-            if data.definition_stack then
-                local stack = data.definition_stack
-                local first = stack[1].prefix
-                local last = stack[#stack].prefix
+            if bind_stack then
+                local first = bind_stack[1].prefix
+                local last = bind_stack[#bind_stack].prefix
                 local parent_table = first(first:parent():parent())
                 local parent_table_last = last(last:parent():parent())
 

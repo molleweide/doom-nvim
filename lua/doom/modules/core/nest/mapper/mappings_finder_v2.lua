@@ -53,7 +53,6 @@ local ts_query = [[
 ---3. (Later), return parent, or whatever, so that one can manage the leader
 ---branches.
 M.bind_finder = function(start_table_node, cb_leaf, cb_branch)
-
     print([[
 -------------------------------------------------------
 -- BIND_FINDER ----------------------------------------
@@ -121,6 +120,10 @@ M.bind_finder = function(start_table_node, cb_leaf, cb_branch)
             current_settings.description = tbl_node:dict(4).value
         end
 
+        if tbl_node:dict("options") then
+            current_settings.options = tbl_node:dict("options").value
+        end
+
         -- lhs
         current_settings.lhs = current_settings.prefix
         current_settings.rhs = rhs
@@ -151,6 +154,7 @@ M.v2 = function(entry)
     local ts_utils_lua = require("doom.utils.ts.lua")
     local keys_parsed = _utils.parse_key_sequence(entry.keys)
     local module_path = _utils.get_abs_path_from_module_origin(entry)
+
     local buf = utils.get_buf_handle(module_path)
     local ts_buf = ts_utils_lua:new(buf)
 
@@ -162,8 +166,7 @@ M.v2 = function(entry)
 
     -- print("CAPTURES:", vim.inspect(t_nodes))
 
-    local ret = {
-    }
+    local ret = {}
 
     for _, n in ipairs(t_nodes) do
         M.bind_finder(n, function(stack)
