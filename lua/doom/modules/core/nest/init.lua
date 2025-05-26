@@ -44,6 +44,7 @@ happens in [core.modules]
 nest.settings = {}
 
 -- TODO: rename to load_all_binds
+-- TODO: move this into subfile cache_mappings.lua
 nest.reload_binds = function()
     _G._doom.bindings_unique = {} -- reset the global bindings array
     _G._doom.bindings_array = {}
@@ -143,6 +144,12 @@ nest.reload_binds = function()
                 -- TODO: make this into one single func call
                 if id ~= nil then
                     local rhs = type(node.rhs) == "function" and "<function>" or node.rhs
+
+                    -- NOTE: Does the "buffer" call here make any sense at all.
+                    -- Since, we are not creating the mappings here it doesnt
+                    -- make any sense and should be removed.
+                    -- TODO: Move this into the "accumulator".
+
                     if node_settings.buffer then
                         Mapper.map_buf_virtual(
                             sanitizedMode,
@@ -183,22 +190,32 @@ nest.reload_binds = function()
     require("doom.utils.modules").traverse_loaded(doom.modules, function(node, stack)
         if node.type then
             local module = node
+
+            -- TODO: This, the "table-path", could actually be abstracted into the
+            -- traverser func and supplied as the last arg.
+            --      ^ Then, just do a nil check for each node.
             local t_path = vim.tbl_map(function(stack_node)
                 return type(stack_node.key) == "string" and stack_node.key
             end, stack)
+
             local mod_path = table.concat(t_path, ".")
+
             if module.binds then
                 count = count + 1
+
                 vim.defer_fn(function()
                     -- table.insert(all_keymaps, type(module.binds) == "function" and module.binds() or module.binds)
                     local profiler_msg = ("keymaps(async)|module: %s"):format(mod_path)
+
                     profiler.start(profiler_msg)
+
                     keymaps_service.applyKeymaps(
                         type(module.binds) == "function" and module.binds() or module.binds,
                         nil,
                         { mapper_integration },
                         { module_origin = mod_path }
                     )
+
                     profiler.stop(profiler_msg)
                 end, count)
             end
@@ -220,7 +237,6 @@ nest.set_caching = function(arg)
         -- loading/reloading.
         -- run the service on each trigger of the picker.
     end
-
 end
 
 nest.cmds = {

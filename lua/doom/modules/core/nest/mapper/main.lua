@@ -18,7 +18,10 @@ M.mapper = function(opts)
         attach_mappings = function(_, map)
             actions.select_default:replace(bindings_actions.jump_to_binding)
 
-            map("i", "<C-r>", bindings_actions.edit_binding_name, { desc = "Update name" })
+            map("i", "<C-r>", bindings_actions.edit_binding_name, { desc = "UPDATE NAME" })
+            map("i", "<C-e>", bindings_actions.edit_binding_rhs, { desc = "UPDATE RHS" })
+            map("i", "<C-a>", bindings_actions.add_new_dummy_bind, { desc = "ADD NEW DUMMY BIND" })
+
 
             return true
         end,

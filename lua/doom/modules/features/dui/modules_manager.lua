@@ -45,7 +45,7 @@ function ts_tbl_path(ts_table_constr, target)
     ---@param table_constructor_wrapper TS node wrapper of table constructor
     local function ts_root_mod_tbl_try_find_target(branch_table)
         depth = depth + 1
-        target.parent_table_node = branch_table
+        target.parent_table_node = branch_table -- the injection table node, if leaf is not found.
 
         if #target.t_path_left > 1 then
             local lookup_key = target.t_path_left[1]:upper()

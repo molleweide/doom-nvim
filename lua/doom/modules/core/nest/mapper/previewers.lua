@@ -62,14 +62,23 @@ M.previewer = defaulter(function(_)
             local lines = entry.lines
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
 
-            local data = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(entry)
+            P(entry)
 
-            local bind_stack = data.definition_stack
 
-            helper:append("Path -> " .. _utils.get_short_path_from_module_origin(entry))
+            local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
+            local data, bind_stack = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(
+                module_path,
+                entry.keys
+            )
+
+            -- local bind_stack = data.definition_stack
+
+            helper:append("Path -> " .. _utils.get_short_path_from_module_origin(entry.module_origin))
 
             if bind_stack then
                 local leaf = bind_stack[#bind_stack]
+
+                print("previews leaf = ", leaf)
 
                 -- show branch
                 helper:append("---------------------------------")

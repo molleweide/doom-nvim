@@ -114,16 +114,16 @@ local dui_picker_actions = setmetatable({}, {
 --     return idx == 1 and path:absolute() or parents[idx - 1]
 -- end
 
--- local function get_input(opts, callback)
---     local fb_config = require("telescope._extensions.file_browser.config")
---     if fb_config.values.use_ui_input then
---         vim.ui.input(opts, callback)
---     else
---         async.run(function()
---             return vim.fn.input(opts)
---         end, callback)
---     end
--- end
+local function get_input(opts, callback)
+    local fb_config = require("telescope._extensions.file_browser.config")
+    if fb_config.values.use_ui_input then
+        vim.ui.input(opts, callback)
+    else
+        async.run(function()
+            return vim.fn.input(opts)
+        end, callback)
+    end
+end
 
 -- local function get_confirmation(opts, callback)
 --     local fb_config = require("telescope._extensions.file_browser.config")

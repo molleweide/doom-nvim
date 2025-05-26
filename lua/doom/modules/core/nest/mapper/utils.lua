@@ -1,3 +1,4 @@
+local utils = require("doom.utils")
 local system = require("doom.core.system")
 local fs = require("doom.utils.fs")
 local job = require("plenary.job")
@@ -195,9 +196,9 @@ end
 
 -- WARN: These sequences fail:
 -- ---------------------------------
---      <c-z>               
+--      <c-z>
 --      <leader>r<cr>
---      ; 
+--      ;
 --      :
 --      ,
 --      <C-Left>
@@ -210,11 +211,11 @@ M.parse_key_sequence = function(keys)
     local ret = {}
     local patterns = {
         { "<leader>", 8 },
-        { "<C%-.>", 5 },
-        { "<A%-.>", 5 },
-        { "<F%d>", 4 },
-        { "%a", 1 },
-        { "%p", 1 },
+        { "<C%-.>",   5 },
+        { "<A%-.>",   5 },
+        { "<F%d>",    4 },
+        { "%a",       1 },
+        { "%p",       1 },
         -- "<A%-.>",
     }
     local i = 1
@@ -222,9 +223,15 @@ M.parse_key_sequence = function(keys)
         local pi = 1
         local pat
         local has_match = false
-        while not has_match or not (pi <= #patterns) do
+        while not has_match or pi <= #patterns do
             pat = patterns[pi]
+
+            -- print("pat:", pat, pi, #patterns, has_match)
+
             local ok, substr = pcall(string.sub, keys, i, i + pat[2] - 1)
+
+            -- substr = utils.escape_str(substr)
+
             if ok then
                 if substr:match(pat[1]) then
                     -- print("MATCH = ", check_this)
@@ -232,7 +239,7 @@ M.parse_key_sequence = function(keys)
                     table.insert(ret, substr)
                     i = i + pat[2]
                 end
-                print(substr, pat[1], has_match)
+                -- print(substr, pat[1], has_match)
             end
             pi = pi + 1
         end
@@ -244,8 +251,8 @@ M.parse_key_sequence = function(keys)
     return ret
 end
 
-M.get_short_path_from_module_origin=function(keybind)
-    local parts = vim.split(keybind.module_origin, "%.")
+M.get_short_path_from_module_origin = function(module_origin)
+    local parts = vim.split(module_origin, "%.")
     local module_init_file = table.concat(parts, "/") .. "/init.lua"
     local module_path = system.doom_configs_root .. "/lua/doom/modules/" .. module_init_file
     local status
@@ -257,13 +264,13 @@ M.get_short_path_from_module_origin=function(keybind)
             status = "user"
         end
     end
-    local s,e = module_path:find("lua/")
+    local s, e = module_path:find("lua/")
     -- print("[NEST PICKERS:]", status, module_path)
     return module_path:sub(e)
 end
 
-M.get_abs_path_from_module_origin = function(keybind)
-    local parts = vim.split(keybind.module_origin, "%.")
+M.get_abs_path_from_module_origin = function(module_origin)
+    local parts = vim.split(module_origin, "%.")
     local module_init_file = table.concat(parts, "/") .. "/init.lua"
     local module_path = system.doom_configs_root .. "/lua/doom/modules/" .. module_init_file
     local status
