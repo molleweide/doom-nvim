@@ -49,6 +49,22 @@ local M = {}
 --              (table_constructor) @binds.table))
 -- ]]
 
+-- TODO: Pass target_keys and then do iterative pattern matching.
+--      ~ pass string
+--      ~ for each level check if the current node lhs segment matches
+--              target_keys:find("^lhs_segment")
+--      ~ remove the found substring when entering child
+--
+-- TODO: Always check that a branch does not have a `mode = X` statement
+-- that cascades a branch. Ie. ensure that we are always check on the
+-- correct branch AND mode.
+--
+-- NOTE: A partial key can consist of two components. This is assumed.
+-- Ie. only two parts, eg. `<C-` and `c>`, and not three distinct parts.
+--
+-- WARN: Handle `partial` modifier keys, eg `<C-` as a lhs.
+--      ^ Solution: A parent injection branch cannot end with `<%W-`
+
 ---1. Tries to find the definition table of a binding in a [binds] table.
 ---Expects a wrapped [binds] table_constructor as input node.
 ---2. Currently, return the wrapped table node of the definiton table if found.
@@ -69,26 +85,18 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
 -------------------------------------------------------
     ]])
 
-    -- TODO: Pass target_keys and then do iterative pattern matching.
-    --      ~ pass string
-    --      ~ for each level check if the current node lhs segment matches
-    --              target_keys:find("^lhs_segment")
-    --      ~ remove the found substring when entering child
-    --
-    -- TODO: Always check that a branch does not have a `mode = X` statement
-    -- that cascades a branch. Ie. ensure that we are always check on the
-    -- correct branch AND mode.
-    --
-    -- WARN: Handle `partial` modifier keys, eg `<C-` as a lhs.
-    --      ^ Solution: A parent injection branch cannot end with `<%W-`
-
     local leaf_predicate = false
     local branch_stack = {}
     local parent_table
+    local ins_level_highest = 0
     local insertion_branch_for_lhs_input
     local target_leaf_stack
 
-    local function traverse(tbl_node, input_seq, input_parsed, seq_accumulated)
+    ---@param tbl_node userdata The table we currently are operating on
+    ---@param input_seq string Input sequence that is trimmed from the start if there is a prefix match
+    ---@param input_parsed table The parsed_keys table of the lhs_input_seq, that is also trimmed from 1
+    ---@param seq_accumulated string Builds the current real sequence that we find with treesitter.
+    local function traverse(tbl_node, input_seq, input_parsed, seq_accumulated, ins_level)
         local input_parsed_copy = vim.deepcopy(input_parsed)
         -- FIX: In the regular traverse, this is always deepcopied, so that
         -- subsequent calls dont affect siblings. However, we cant use deepcopy
@@ -104,11 +112,9 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
         if first:type() == "table_constructor" then
             parent_table = tbl_node
 
-            print("?")
-
             for _, tbl_child in tbl_node:iter_fields("indexed") do
                 print(string.format("TRAVERS INTO: <%s>", tbl_child))
-                traverse(tbl_child, input_seq, input_parsed, seq_accumulated)
+                traverse(tbl_child, input_seq, input_parsed, seq_accumulated, ins_level)
                 -- if leaf_predicate then
                 --     return
                 -- end
@@ -163,27 +169,56 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
 
         local prefix_content = tostring(prefix:content())
 
+        -- partial keys: unsuported for now.
+        local is_partial_start = prefix_content:match("<%a%-$") -- a prefix ends with partial key
+        if is_partial_start then
+            return
+        end
+
         seq_accumulated = seq_accumulated .. prefix_content
 
         local prefix_content_escaped = utils.escape_str(prefix_content)
-        local sub_left, sub_left
+        local sub_left, sub_right
 
-        if input_seq then
-            local s, e = input_seq:find("^" .. prefix_content_escaped)
-            local has_match
+        local s, e = input_seq:find("^" .. prefix_content_escaped)
+        local has_match
 
-            if s and e then
-                has_match = true
-                sub_left = input_seq:sub(s, e)
-                sub_right = input_seq:sub(e + 1)
+        local next_ins_level
 
-                if sub_right == "" then
+        PS([[
+        ins_level: %s
+        ins_level_highest: %s
+        ]], ins_level, ins_level_highest)
+
+        if s and e then
+            has_match = true
+            sub_left = input_seq:sub(s, e)
+            sub_right = input_seq:sub(e + 1)
+
+            -- an insertion point requires that there is a left over, otherwise it would be a leaf match...
+            if #sub_right > 0 then
+                -- for all entries at the same level, then ins_level will become
+                -- the same numer after addition.
+
+                next_ins_level = ins_level + 1
+
+                if next_ins_level > ins_level_highest then
+                    print("<set insertion parent>")
+                    ins_level_highest = next_ins_level
                     insertion_branch_for_lhs_input = parent_table
                 end
             end
+        else
+            print("xxx")
+            next_ins_level = ins_level
+            if sub_right == nil and next_ins_level == ins_level_highest then
+                print("yyy")
+                insertion_branch_for_lhs_input = parent_table
+            end
+        end
 
-            PS(
-                [[
+        PS(
+            [[
 ::: ^find against input seq :::
 real_sequence:  %s
 input_seq:      %s
@@ -193,20 +228,20 @@ s,e:            %s, %s
 substr:         %s
 leftover:       %s
         ]],
-                seq_accumulated,
-                input_seq,
-                prefix,
-                "^" .. prefix_content_escaped,
-                s,
-                e,
-                sub_left,
-                sub_right
-            )
-        else
-            print("v2: INPUT SEQ == NIL")
-        end
+            seq_accumulated,
+            input_seq,
+            prefix,
+            "^" .. prefix_content_escaped,
+            s,
+            e,
+            sub_left,
+            sub_right
+        )
+        -- else
+        --     print("v2: INPUT SEQ == NIL")
+        -- end
 
-        PS("??? %s == %s ===", lhs_input_seq, seq_accumulated)
+        PS("??? %s == %s ???", lhs_input_seq, seq_accumulated)
 
         if rhs:type() == "table_constructor" then
             -- if cb_branch and type(cb_branch) == "function" then
@@ -214,7 +249,7 @@ leftover:       %s
             --         return
             --     end
             -- end
-            traverse(rhs, sub_right, input_parsed, seq_accumulated)
+            traverse(rhs, sub_right or "", input_parsed, seq_accumulated, next_ins_level)
         else
             -- the input string matches with the accumulated string which means
             -- that we have a matching leaf.
@@ -231,17 +266,15 @@ leftover:       %s
         end
     end
 
-    traverse(start_table_node, lhs_input_seq, lhs_parsed, "")
-
-    -- PS("target leaf: <<%s>>", vim.inspect(target_leaf_stack))
-    PS("target leaf: <<%s>>", target_leaf_stack and target_leaf_stack[#target_leaf_stack])
-    PS("insertion table: <<%s>>", insertion_branch_for_lhs_input)
+    traverse(start_table_node, lhs_input_seq, lhs_parsed, "", 0)
 
     if not insertion_branch_for_lhs_input then
+        print(">>> Insertion was nil, so setting it now at the end...")
         insertion_branch_for_lhs_input = start_table_node
     end
 
-    print(">>", target_leaf_stack, insertion_branch_for_lhs_input)
+    PS("target leaf: <<%s>>", target_leaf_stack and target_leaf_stack[#target_leaf_stack])
+    PS("insertion table: <<%s>>", insertion_branch_for_lhs_input)
 
     return target_leaf_stack, insertion_branch_for_lhs_input
 end
