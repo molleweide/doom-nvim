@@ -221,6 +221,18 @@ nest.reload_binds = function()
             end
         end
     end)
+
+    -- add user binds
+    if doom.binds then
+        local config_path = require("doom.core.config").source
+        keymaps_service.applyKeymaps(
+            type(doom.binds) == "function" and doom.binds() or doom.binds,
+            nil,
+            { mapper_integration },
+            { module_origin = config_path }
+        )
+    end
+
     vim.notify("Loaded [Nest] binds")
 end
 

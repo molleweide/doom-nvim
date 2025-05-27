@@ -213,12 +213,12 @@ M.parse_key_sequence = function(keys)
     print("PARSED KEYS INPUT:", keys)
     local patterns = {
         { "<leader>", 8 },
-        { "<%a%-.>", 5 }, -- modifier keys, eg <C-c>, <A-k>, ...
+        { "<%a%-.>",  5 }, -- modifier keys, eg <C-c>, <A-k>, ...
         -- { "<A%-.>", 5 },
-        { "<F%d>", 4 },
-        { "<F%d%d>", 5 }, -- double digit Fn keys
-        { "%a", 1 }, -- alphabetical chars
-        { "%p", 1 }, -- punctuation chars.
+        { "<F%d>",    4 },
+        { "<F%d%d>",  5 }, -- double digit Fn keys
+        { "%a",       1 }, -- alphabetical chars
+        { "%p",       1 }, -- punctuation chars.
         -- "<A%-.>",
     }
 
@@ -267,6 +267,10 @@ M.parse_key_sequence = function(keys)
 end
 
 M.get_short_path_from_module_origin = function(module_origin)
+    if module_origin:match("/") then
+        return module_origin
+    end
+
     local parts = vim.split(module_origin, "%.")
     local module_init_file = table.concat(parts, "/") .. "/init.lua"
     local module_path = system.doom_configs_root .. "/lua/doom/modules/" .. module_init_file
@@ -279,15 +283,21 @@ M.get_short_path_from_module_origin = function(module_origin)
             status = "user"
         end
     end
+
     local s, e = module_path:find("lua/")
     -- print("[NEST PICKERS:]", status, module_path)
     return module_path:sub(e)
 end
 
 M.get_abs_path_from_module_origin = function(module_origin)
+    if module_origin:match("/") then
+        return module_origin
+    end
+
     local parts = vim.split(module_origin, "%.")
     local module_init_file = table.concat(parts, "/") .. "/init.lua"
     local module_path = system.doom_configs_root .. "/lua/doom/modules/" .. module_init_file
+
     local status
     if fs.file_exists(module_path) then
         status = "doom"

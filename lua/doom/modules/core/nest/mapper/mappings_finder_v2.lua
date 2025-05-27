@@ -234,7 +234,21 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
             -- the input string matches with the accumulated string which means
             -- that we have a matching leaf.
             if lhs_input_seq == seq_accumulated then
-                target_leaf_stack = branch_stack
+                -- NOTE: manually copy the target leaf table stack to the return value,
+                -- as the recursor will continue to
+                -- TEST: I should be able to simply return here, and then I can
+                -- just assign target_leaf_stack = branch_stack, but I have to
+                -- investigate that something else doesnt depend on the recursin
+                -- to complete fully first.
+                local res = {}
+                for i, v in ipairs(branch_stack) do
+                    table.insert(res, {})
+                    for j, w in pairs(v) do
+                        print(j, w)
+                        res[i][j] = w
+                    end
+                end
+                target_leaf_stack = res
             end
 
             -- if cb_leaf and type(cb_leaf) == "function" then
@@ -257,10 +271,25 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
         insertion_branch_for_lhs_input = nil
     end
 
-    log.debug(string.format([[ Target leaf: %s; Injection table: %s ]],
-        target_leaf_stack and true or false,
-        insertion_branch_for_lhs_input and true or false
-    ))
+    log.debug(
+        string.format(
+            [[ Target leaf: %s; Injection table: %s ]],
+            target_leaf_stack and true or false,
+            insertion_branch_for_lhs_input and true or false
+        )
+    )
+
+    if target_leaf_stack then
+
+        local leaf_prefix = target_leaf_stack[#target_leaf_stack].prefix
+
+        print(
+            "target leaf:",
+            target_leaf_stack and leaf_prefix((leaf_prefix):parent():parent())
+        )
+    else
+        print("target leaf:", nil)
+    end
 
     return target_leaf_stack, insertion_branch_for_lhs_input
 end

@@ -609,7 +609,7 @@ doom.use_keybind({
       {
         "o",
         ":options<CR>",
-        name = "nvim :options",
+        name = "Show nvim :options",
       },
     },
   },
