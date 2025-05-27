@@ -1,4 +1,5 @@
 local utils = require("doom.utils")
+local log = require("doom.utils.logging")
 local system = require("doom.core.system")
 local fs = require("doom.utils.fs")
 local job = require("plenary.job")
@@ -209,44 +210,58 @@ end
 --
 M.parse_key_sequence = function(keys)
     local ret = {}
+    print("PARSED KEYS INPUT:", keys)
     local patterns = {
         { "<leader>", 8 },
-        { "<C%-.>",   5 },
-        { "<A%-.>",   5 },
-        { "<F%d>",    4 },
-        { "%a",       1 },
-        { "%p",       1 },
+        { "<%a%-.>", 5 }, -- modifier keys, eg <C-c>, <A-k>, ...
+        -- { "<A%-.>", 5 },
+        { "<F%d>", 4 },
+        { "<F%d%d>", 5 }, -- double digit Fn keys
+        { "%a", 1 }, -- alphabetical chars
+        { "%p", 1 }, -- punctuation chars.
         -- "<A%-.>",
     }
+
     local i = 1
+    local match_counter = 1
     while i < keys:len() + 1 do
         local pi = 1
         local pat
         local has_match = false
+
         while not has_match or pi <= #patterns do
             pat = patterns[pi]
 
-            -- print("pat:", pat, pi, #patterns, has_match)
-
             local ok, substr = pcall(string.sub, keys, i, i + pat[2] - 1)
 
-            -- substr = utils.escape_str(substr)
+            -- PS(
+            --     "sub(keys,i): {%s} | pat[2]:, {%s} | new substr: {%s}",
+            --     string.sub(keys, i),
+            --     pat[2],
+            --     substr
+            -- )
 
             if ok then
                 if substr:match(pat[1]) then
-                    -- print("MATCH = ", check_this)
                     has_match = true
                     table.insert(ret, substr)
                     i = i + pat[2]
+                    pi = 1
+                    break
                 end
-                -- print(substr, pat[1], has_match)
             end
+
             pi = pi + 1
         end
+
         if not has_match then
             return "no match"
         end
+
+        match_counter = match_counter + 1
     end
+
+    print("PARSED KEYS RETURN:", vim.inspect(ret))
 
     return ret
 end

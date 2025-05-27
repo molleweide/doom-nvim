@@ -125,21 +125,29 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         print("INSERTION TABLE:", insertion_table)
 
         -- TODO: ADD DUMMY BIND
-        --  ~ Determine target file: if selection, then use module
-        --  ~ Check existing binds table
+        --  (x) Fix parsed keys w/mult modifiers / special keys
+        --  ( ) Include `user` keybinds into keybinds accumulator.
+        --  ( ) Determine target file: if selection, then use module/config.lua file.
+        --  ( ) Check existing binds table
         --      ^ Run get binds table (BT) query and use first capture.
-        --  ~ If NOT binds table
+        --  ( ) If NOT binds table
         --      A. config.lua   -> add a use_keybinds call with empty table.
         --      B. module       -> get [module_name] from return statement
-        --      X. Add injections last in file, before return statement.
-        --      XX. Rerun get binds table query.
-        --  ~ Find injection node in current BT
-        --      ~~ look at modules_manager
-        --          ^ how can it be modified to work here???
-        --  ~ Build injection branch
-        --      ~~ Extract logic from modules manager into some util/lib
-        --      ~~ Add support for including anon funcs somehow.
-        --  ~ Inject branch.
+        --      ( ) Prepare injection data with this pase.
+        --          ^ Build the table in the same way as with BTS below.
+        --                  "<FUNCTION><contents></FUNCTION>"
+        --  (x) Find injection node in current BT
+        --  ( ) Build injection branch
+        --          ~ Put together branch table structure (BTS).
+        --          ~ If FUNCTION -> put string placeholder: "<FUNC_START\nFUNC_END>"
+        --              ~~ Capture the vim.inspect() output.
+        --              ~~ Split the function into table.
+        --              ~~ Inject the function table into the BTS
+        --                  ~~~ find the FUNC_START and replace with pop index 1
+        --                  ~~~ find the FUNC_END and replace with pop # index
+        --                  ~~~ Inject the rest from the FUNC_START index.
+        --  ( ) Make test module.
+        --  ( ) Inject branch dummy mapping branches.
         --
     end)
 end

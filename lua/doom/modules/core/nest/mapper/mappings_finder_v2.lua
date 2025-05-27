@@ -1,4 +1,5 @@
 local utils = require("doom.utils")
+local log = require("doom.utils.logging")
 
 local M = {}
 
@@ -70,10 +71,15 @@ local M = {}
 ---2. Currently, return the wrapped table node of the definiton table if found.
 ---3. (Later), return parent, or whatever, so that one can manage the leader
 ---branches.
----
+
 ---Get information about LHS on specifc binds tree. Returns the branch sequence
 ---of TS nodes up until the last segment found.
----
+---If there is a full match for a key sequence, then the leaf_stack is returned
+---in the first return value, and if there is a partial or no match, then the
+---proposed insertion point table for this potentially new mapping is returned.
+---It tries to return the insertion point table at the most granular point, ie.
+---a table branch with each lhs prefix being the smallest size, eg. "g", "c", "c"
+---wins over "gc" prefix.
 ---@param start_table_node userdata The binds table to target
 ---@param lhs_input_seq string The string used to match from
 ---@param cb_leaf? function
@@ -85,7 +91,7 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
 -------------------------------------------------------
     ]])
 
-    local leaf_predicate = false
+    -- local leaf_predicate = false -- used with callbacks at the bottom.
     local branch_stack = {}
     local parent_table
     local ins_level_highest = 0
@@ -98,13 +104,6 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
     ---@param seq_accumulated string Builds the current real sequence that we find with treesitter.
     local function traverse(tbl_node, input_seq, input_parsed, seq_accumulated, ins_level)
         local input_parsed_copy = vim.deepcopy(input_parsed)
-        -- FIX: In the regular traverse, this is always deepcopied, so that
-        -- subsequent calls dont affect siblings. However, we cant use deepcopy
-        -- here, since, <userdata> throws error. >>> Need to maintain a stack
-        -- manually.
-        --
-        --
-        -- local mergedSettings = mergeSettings(settings or module.defaults, node)
 
         local first = tbl_node:dict(1).value
 
@@ -180,68 +179,49 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
         local prefix_content_escaped = utils.escape_str(prefix_content)
         local sub_left, sub_right
 
-        local s, e = input_seq:find("^" .. prefix_content_escaped)
-        local has_match
-
+        -- this block makes it so that a
         local next_ins_level
-
-        PS([[
-        ins_level: %s
-        ins_level_highest: %s
-        ]], ins_level, ins_level_highest)
-
+        local s, e = input_seq:find("^" .. prefix_content_escaped)
         if s and e then
-            has_match = true
             sub_left = input_seq:sub(s, e)
             sub_right = input_seq:sub(e + 1)
-
-            -- an insertion point requires that there is a left over, otherwise it would be a leaf match...
             if #sub_right > 0 then
-                -- for all entries at the same level, then ins_level will become
-                -- the same numer after addition.
-
                 next_ins_level = ins_level + 1
-
                 if next_ins_level > ins_level_highest then
-                    print("<set insertion parent>")
                     ins_level_highest = next_ins_level
                     insertion_branch_for_lhs_input = parent_table
                 end
             end
         else
-            print("xxx")
             next_ins_level = ins_level
             if sub_right == nil and next_ins_level == ins_level_highest then
-                print("yyy")
                 insertion_branch_for_lhs_input = parent_table
             end
         end
 
-        PS(
-            [[
-::: ^find against input seq :::
-real_sequence:  %s
-input_seq:      %s
-prefix:         %s
-pattern:        %s
-s,e:            %s, %s
-substr:         %s
-leftover:       %s
-        ]],
-            seq_accumulated,
-            input_seq,
-            prefix,
-            "^" .. prefix_content_escaped,
-            s,
-            e,
-            sub_left,
-            sub_right
-        )
-        -- else
-        --     print("v2: INPUT SEQ == NIL")
-        -- end
-
-        PS("??? %s == %s ???", lhs_input_seq, seq_accumulated)
+        --         PS(
+        --             [[
+        -- ::: ^find against input seq :::
+        -- real_sequence:  %s
+        -- input_seq:      %s
+        -- prefix:         %s
+        -- pattern:        %s
+        -- s,e:            %s, %s
+        -- substr:         %s
+        -- leftover:       %s
+        -- lhs_input_seq == seq_accumulated: %s, %s
+        --         ]],
+        --             seq_accumulated,
+        --             input_seq,
+        --             prefix,
+        --             "^" .. prefix_content_escaped,
+        --             s,
+        --             e,
+        --             sub_left,
+        --             sub_right,
+        --             lhs_input_seq,
+        --             seq_accumulated
+        --         )
 
         if rhs:type() == "table_constructor" then
             -- if cb_branch and type(cb_branch) == "function" then
@@ -254,7 +234,6 @@ leftover:       %s
             -- the input string matches with the accumulated string which means
             -- that we have a matching leaf.
             if lhs_input_seq == seq_accumulated then
-                print("<<< !!!!!!!!!!!!!! >>>")
                 target_leaf_stack = branch_stack
             end
 
@@ -268,13 +247,20 @@ leftover:       %s
 
     traverse(start_table_node, lhs_input_seq, lhs_parsed, "", 0)
 
+    -- could this be set first?
     if not insertion_branch_for_lhs_input then
         print(">>> Insertion was nil, so setting it now at the end...")
         insertion_branch_for_lhs_input = start_table_node
     end
 
-    PS("target leaf: <<%s>>", target_leaf_stack and target_leaf_stack[#target_leaf_stack])
-    PS("insertion table: <<%s>>", insertion_branch_for_lhs_input)
+    if target_leaf_stack then
+        insertion_branch_for_lhs_input = nil
+    end
+
+    log.debug(string.format([[ Target leaf: %s; Injection table: %s ]],
+        target_leaf_stack and true or false,
+        insertion_branch_for_lhs_input and true or false
+    ))
 
     return target_leaf_stack, insertion_branch_for_lhs_input
 end
@@ -289,7 +275,7 @@ M.v2 = function(target_path, target_keys)
 
     -- print("ENTRY ENTRY FROM V2:", vim.inspect(entry))
 
-    print("FROM V2 FROM PWEVIEWER:", vim.inspect(keys_parsed))
+    -- log.info(vim.inspect(keys_parsed))
 
     local buf = utils.get_buf_handle(target_path)
     local ts_buf = ts_utils_lua:new(buf)
@@ -307,13 +293,10 @@ M.v2 = function(target_path, target_keys)
 
     local binds_table_constructor = t_nodes[1]
 
-    print("XXX")
-
-    PS("binds_table_constructor -> <<%s>>", binds_table_constructor)
+    -- PS("binds_table_constructor -> <<%s>>", binds_table_constructor)
 
     -- for _, binds_table_constructor in ipairs(t_nodes) do
     if binds_table_constructor then
-        print("??????? ? ?")
         target_leaf_stack, insertion_branch =
             M.bind_finder(binds_table_constructor, target_keys, keys_parsed)
 

@@ -44,7 +44,6 @@ function Helper.new(bufnr)
 end
 
 function Helper:append(data)
-    print("??? append ???", self.bufnr)
     vim.api.nvim_buf_set_lines(
         self.bufnr,
         -1,
