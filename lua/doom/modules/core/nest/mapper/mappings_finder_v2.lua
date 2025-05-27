@@ -377,7 +377,7 @@ M.v2 = function(target_path, target_keys)
 
     -- print("#ret", #ret.definition_stack)
 
-    return ret, target_leaf_stack, insertion_branch
+    return binds_table_constructor, target_leaf_stack, insertion_branch, buf
 end
 
 return M

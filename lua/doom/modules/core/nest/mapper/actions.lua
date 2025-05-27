@@ -1,4 +1,5 @@
 local utils = require("doom.utils")
+local log = require("doom.utils.logging")
 
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
@@ -11,7 +12,7 @@ M.jump_to_binding = function(prompt_bufnr)
     local entry = action_state.get_selected_entry()
 
     local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
-    local data, stack =
+    local binds_table, stack =
         require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(module_path, entry.keys)
 
     if stack then
@@ -44,7 +45,7 @@ M.edit_binding_name = function(prompt_bufnr)
     local entry = action_state.get_selected_entry()
 
     local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
-    local data, bind_stack =
+    local binds_table, bind_stack =
         require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(module_path, entry.keys)
 
     if not bind_stack then
@@ -73,7 +74,7 @@ M.edit_binding_rhs = function(prompt_bufnr)
     local entry = action_state.get_selected_entry()
 
     local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
-    local data, bind_stack =
+    local binds_table, bind_stack =
         require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(module_path, entry.keys)
 
     if not bind_stack then
@@ -115,7 +116,7 @@ M.add_new_dummy_bind = function(prompt_bufnr)
 
         local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
 
-        local data, leaf_stack, insertion_table =
+        local binds_table, leaf_stack, insertion_table, buf =
             require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(module_path, input)
 
         if leaf_stack then
@@ -124,31 +125,74 @@ M.add_new_dummy_bind = function(prompt_bufnr)
 
         print("INSERTION TABLE:", insertion_table)
 
-        -- TODO: ADD DUMMY BIND
-        --  (x) Fix parsed keys w/mult modifiers / special keys
-        --  ( ) Include `user` keybinds into keybinds accumulator.
-        --  ( ) Determine target file: if selection, then use module/config.lua file.
-        --  ( ) Check existing binds table
-        --      ^ Run get binds table (BT) query and use first capture.
-        --  ( ) If NOT binds table
-        --      A. config.lua   -> add a use_keybinds call with empty table.
-        --      B. module       -> get [module_name] from return statement
-        --      ( ) Prepare injection data with this pase.
-        --          ^ Build the table in the same way as with BTS below.
-        --                  "<FUNCTION><contents></FUNCTION>"
-        --  (x) Find injection node in current BT
-        --  ( ) Build injection branch
-        --          ~ Put together branch table structure (BTS).
-        --          ~ If FUNCTION -> put string placeholder: "<FUNC_START\nFUNC_END>"
-        --              ~~ Capture the vim.inspect() output.
-        --              ~~ Split the function into table.
-        --              ~~ Inject the function table into the BTS
-        --                  ~~~ find the FUNC_START and replace with pop index 1
-        --                  ~~~ find the FUNC_END and replace with pop # index
-        --                  ~~~ Inject the rest from the FUNC_START index.
-        --  ( ) Make test module.
-        --  ( ) Inject branch dummy mapping branches.
-        --
+        local dummy_bind = {
+            { "QA", ':echo "hello"', name = "v2 dummy mapping" },
+            -- { "QB", ':echo "hello"', name = "v2 dummy mapping" },
+        }
+
+        local t_dummy_bind_inject = utils.build_new_inject_string(dummy_bind)
+
+        -- P(t_dummy_bind_inject)
+
+        for _, s in ipairs(t_dummy_bind_inject) do
+            print()
+            PS("::: %s", s)
+        end
+
+        -- Binds table exists and we found a insertion table for injecting our
+        -- new binds data into.
+        if insertion_table then
+            PS("final insertion: \n<%s>", t_dummy_bind_inject)
+            insertion_table:add_field({
+                pos = "last",
+                data = t_dummy_bind_inject,
+            })
+        else
+            -- Now insertion_table implies that there is no binds table in the module.
+
+            -- If config.lua, simply insert new contents last.
+            if module_path == require("doom.core.config").source then
+                table.insert(t_dummy_bind_inject, 1, "doom.use_keybind({")
+                table.insert(t_dummy_bind_inject, "})")
+                -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, t_dummy_bind_inject)
+                PS("final insertion: \n<%s>", t_dummy_bind_inject)
+            else
+                -- TODO: ( ) get the return statement, check the name of the module,
+                -- then pre/append the necessary M.binds = {} table bootstrapping.
+                -- ~ use the add_contents_above method to inject data above the
+                -- return statement.
+
+                local ts_utils_lua = require("doom.utils.ts.lua")
+                local ts_buf = ts_utils_lua:new(buf)
+
+                local ts_query_module_return = [[
+                    (chunk (return_statement (expression_list (identifier) @module.identifier)))
+                ]]
+
+                local ts_module_identifier = ts_buf:query_wrap({
+                    query = ts_query_module_return,
+                    capture = "module.identifier",
+                }, true)[1]
+
+                if not ts_module_identifier then
+                    log.warn(
+                        "Aborting! Could not find a return statement for module:",
+                        entry.module_origin
+                    )
+                    return
+                end
+
+                table.insert(
+                    t_dummy_bind_inject,
+                    1,
+                    string.format("%s.binds = {", tostring(ts_module_identifier))
+                )
+                table.insert(t_dummy_bind_inject, "}")
+                PS("final insertion: \n<%s>", t_dummy_bind_inject)
+            end
+        end
+
+        -- TODO: run formatting on file
     end)
 end
 

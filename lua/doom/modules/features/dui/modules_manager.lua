@@ -18,21 +18,6 @@ local mod_manager_header = [[
 
 ]]
 
-local function build_new_inject_string(tree)
-    local ret = vim.split(vim.inspect(tree), "\n")
-    print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
-    if #ret > 2 then
-        -- trim surrounding braces {...}
-        -- table.remove(ret, 1)
-        -- table.remove(ret)
-        ret[1] = string.sub(ret[1], 2)
-        ret[#ret] = string.sub(ret[#ret], 1, -2)
-        -- else
-        --     ret = { string.sub(ret[1], 2, -2) }
-    end
-    return ret
-end
-
 -- TODO: ts_tbl_path needs to be extracted in its generalized form so that
 -- one can use it on any table, eg add_branch_table_under_cursor
 --
@@ -179,7 +164,7 @@ local function transform_enabled_modules_tree(ts_buf, action)
         for _, injectable in ipairs(injection_nodes) do
             injectable:add_field({
                 pos = "first",
-                data = build_new_inject_string(injectable.injection_table),
+                data = utils.build_new_inject_string(injectable.injection_table),
             })
         end
     end

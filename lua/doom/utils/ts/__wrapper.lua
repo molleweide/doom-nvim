@@ -226,6 +226,31 @@ function TSNodeWrapper:replace(replacement)
     )
 end
 
+function TSNodeWrapper:insert_contents_above(replacement)
+    local a, b, c, d = self:range()
+    print(self:range())
+    vim.api.nvim_buf_set_lines(
+        self.buf_handle,
+        a,
+        a,
+        false,
+        type(replacement) == "string" and { replacement } or replacement
+    )
+end
+
+function TSNodeWrapper:insert_contents_below(replacement)
+    local a, b, c, d = self:range()
+    print(self:range())
+    vim.api.nvim_buf_set_lines(
+        self.buf_handle,
+        c,
+        c,
+        false,
+        type(replacement) == "string" and { replacement } or replacement
+    )
+end
+
+
 ---Make it easy to move a node to another location after/before node X.
 function TSNodeWrapper:move_to(opts) end
 

@@ -401,4 +401,23 @@ utils.tbl_merge = function(t1, t2)
     return t1
 end
 
+
+---Special function used for aiding in converting a vim.inspect table into a
+---table of strings that can be inserted into a buffer.
+utils.build_new_inject_string = function(tree)
+    local ret = vim.split(vim.inspect(tree), "\n")
+    print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
+    if #ret > 2 then
+        -- trim surrounding braces {...}
+        -- table.remove(ret, 1)
+        -- table.remove(ret)
+        ret[1] = string.sub(ret[1], 2)
+        ret[#ret] = string.sub(ret[#ret], 1, -2)
+        -- else
+        --     ret = { string.sub(ret[1], 2, -2) }
+    end
+    return ret
+end
+
+
 return utils
