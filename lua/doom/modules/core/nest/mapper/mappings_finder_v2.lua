@@ -112,7 +112,7 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
             parent_table = tbl_node
 
             for _, tbl_child in tbl_node:iter_fields("indexed") do
-                print(string.format("TRAVERS INTO: <%s>", tbl_child))
+                -- print(string.format("TRAVERS INTO: <%s>", tbl_child))
                 traverse(tbl_child, input_seq, input_parsed, seq_accumulated, ins_level)
                 -- if leaf_predicate then
                 --     return

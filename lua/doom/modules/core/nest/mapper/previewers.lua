@@ -65,7 +65,7 @@ M.previewer = defaulter(function(_)
 
 
             local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
-            local data, bind_stack = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(
+            local _, bind_stack = require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(
                 module_path,
                 entry.keys
             )

@@ -107,21 +107,34 @@ end
 -- ~~ ( ) If no selection, add to [config.lua]
 -- ~~ ( ) Else, add to selected module.
 M.add_new_dummy_bind = function(prompt_bufnr)
-    vim.ui.input({ prompt = "New LHS: " }, function(input)
-        -- vim.cmd([[ redraw ]]) -- redraw to clear out vim.ui.prompt to avoid hit-enter prompt
+    -- TEST: Run this at the end if any issues with lingering ui components.
+    -- vim.cmd([[ redraw ]]) -- redraw to clear out vim.ui.prompt to avoid hit-enter prompt
 
-        print("ADD NEW BIND")
+    local entry = action_state.get_selected_entry()
+    local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
 
-        local entry = action_state.get_selected_entry()
+    local user_input_name, user_input_lhs, user_input_rhs_contents, rhs_is_func, leader_branch_names
 
-        local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
+    local function apply_new_mapping() end
 
-        local binds_table, leaf_stack, insertion_table, buf =
-            require("doom.modules.core.nest.mapper.mappings_finder_v2").v2(module_path, input)
+    local function prepare_new_mapping()
+        PS("Final RHS contents: <<%s>>", vim.inspect(user_input_rhs_contents))
 
-        if leaf_stack then
-            print("LEAF", leaf_stack[#leaf_stack])
+        local new_lhs_parsed = _utils.parse_key_sequence(user_input_lhs)
+
+        if not new_lhs_parsed then
+            log.error("Couldnt parse the new LHS string")
+            return
         end
+
+        -- ^ the key seq is already being parsed inside of v2, so maybe this
+        -- could be passed to v2, instead of doing the parsing twice..
+
+        local is_leader_mappping = new_lhs_parsed[1]:match("<leader>")
+
+        local binds_table, leaf_stack, insertion_table, buf = require(
+            "doom.modules.core.nest.mapper.mappings_finder_v2"
+        ).v2(module_path, user_input_lhs)
 
         print("INSERTION TABLE:", insertion_table)
 
@@ -130,7 +143,50 @@ M.add_new_dummy_bind = function(prompt_bufnr)
             -- { "QB", ':echo "hello"', name = "v2 dummy mapping" },
         }
 
+        if is_leader_mappping then
+            local li = 2
+
+            if not leader_branch_names then
+                leader_branch_names = {}
+            end
+
+            local function get_branch_names_or_apply()
+                if li < #new_lhs_parsed then
+                    local helper_string = ""
+
+                    for i, v in ipairs(new_lhs_parsed) do
+                        local val = i == li and "(" .. v .. ")" or v
+                        helper_string = string.format(
+                            "%s %s",
+                            helper_string,
+                            i ~= #new_lhs_parsed and val or val .. " "
+                        )
+                    end
+
+                    vim.ui.input(
+                        { prompt = string.format("INPUT NAME for branch: {{%s}}", helper_string) },
+                        function(input_branch_name)
+                            li = li + 1
+
+                            table.insert(leader_branch_names, input_branch_name)
+
+                            get_branch_names_or_apply()
+                        end
+                    )
+                else
+                    apply_new_mapping()
+                end
+            end
+            get_branch_names_or_apply()
+        else
+            apply_new_mapping()
+        end
+
         local t_dummy_bind_inject = utils.build_new_inject_string(dummy_bind)
+
+        if rhs_is_func then
+            print(":: TODO: REPLACE FUNC CONTENTS INTO INJECTION TABLE HERE ::")
+        end
 
         -- P(t_dummy_bind_inject)
 
@@ -143,10 +199,10 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         -- new binds data into.
         if insertion_table then
             PS("final insertion: \n<%s>", t_dummy_bind_inject)
-            insertion_table:add_field({
-                pos = "last",
-                data = t_dummy_bind_inject,
-            })
+            -- insertion_table:add_field({
+            --     pos = "last",
+            --     data = t_dummy_bind_inject,
+            -- })
         else
             -- Now insertion_table implies that there is no binds table in the module.
 
@@ -154,7 +210,9 @@ M.add_new_dummy_bind = function(prompt_bufnr)
             if module_path == require("doom.core.config").source then
                 table.insert(t_dummy_bind_inject, 1, "doom.use_keybind({")
                 table.insert(t_dummy_bind_inject, "})")
+
                 -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, t_dummy_bind_inject)
+
                 PS("final insertion: \n<%s>", t_dummy_bind_inject)
             else
                 -- TODO: ( ) get the return statement, check the name of the module,
@@ -193,6 +251,37 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         end
 
         -- TODO: run formatting on file
+    end
+
+    -- NOTE: The vim.ui... api requires nesting calls in a pipeline which is an
+    -- akward pattern with large pipelines.
+
+    vim.ui.input({ prompt = "INPUT NEW MAPPING NAME/DESCR: " }, function(input_name)
+        user_input_name = input_name
+
+        vim.ui.input({ prompt = "INPUT NEW LHS: " }, function(input_lhs)
+            user_input_lhs = input_lhs
+
+            vim.ui.select({ "STRING", "FUNCTION" }, {
+                prompt = "WHAT TYPE OF RHS DO YOU WANT TO USE?",
+            }, function(rhs_type_choice)
+                if rhs_type_choice == "STRING" then
+                    vim.ui.input({ prompt = "INPUT NEW RHS:" }, function(input_rhs)
+                        user_input_rhs_contents = input_rhs
+                        prepare_new_mapping()
+                    end)
+                elseif rhs_type_choice == "FUNCTION" then
+                    rhs_is_func = true
+                    -- TODO: Spawn popup buffer with:
+                    --  ~ autocmd to continue the pipeline on save/exit.
+                    --  ~ attached lua lsp to ensure that we cannot proceed unless
+                    --      code is completely valid.
+                    user_input_rhs_contents = false
+
+                    prepare_new_mapping()
+                end
+            end)
+        end)
     end)
 end
 
