@@ -1,6 +1,8 @@
 local utils = require("doom.utils")
 local log = require("doom.utils.logging")
 
+local _utils = require("doom.modules.core.nest.mapper.utils")
+
 local M = {}
 
 -- NOTE: Resources:
@@ -13,42 +15,11 @@ local M = {}
 -- ~ vim.fn.maplist
 -- ~ https://www.reddit.com/r/vim/comments/x1zll/command_to_get_lhs_of_a_mapping/
 
--- local ts_query = [[
---     ; NOTE: How can I reduce these queries to be smaller
---     ;`M.bind = ...`
---          (assignment_statement
---            (variable_list
---              name: (dot_index_expression
---                table: (identifier)
---                field: (identifier) @field
---                   (#lua-match? @field "binds")
---                 ))
---            (expression_list
---              value: (table_constructor) @binds.table))
---
---     ;;`M.bind = function() ...`
---          (assignment_statement
---            (variable_list
---              name: (dot_index_expression
---                table: (identifier)
---                field: (identifier) @field
---                   (#lua-match? @field "binds")
---                 ))
---            (expression_list
---              value: (function_definition
---                parameters: (parameters)
---                body: (block) @binds.func_body)))
---
---     ;;`doom.use_keybind({...})`
---          (function_call
---            name: (dot_index_expression
---              table: (identifier)
---              field: (identifier) @field
---               (#lua-match? @field "use_keybind")
---             )
---            arguments: (arguments
---              (table_constructor) @binds.table))
--- ]]
+local function table_remove_n(t, n)
+    for i = 1, n, 1 do
+        table.remove(t, 1)
+    end
+end
 
 -- TODO: Pass target_keys and then do iterative pattern matching.
 --      ~ pass string
@@ -80,40 +51,60 @@ local M = {}
 ---It tries to return the insertion point table at the most granular point, ie.
 ---a table branch with each lhs prefix being the smallest size, eg. "g", "c", "c"
 ---wins over "gc" prefix.
----@param start_table_node userdata The binds table to target
----@param lhs_input_seq string The string used to match from
+---@param input_start_node userdata The binds table to target
+---@param input_lhs_string string The string used to match from
 ---@param cb_leaf? function
 ---@param cb_branch? function
-M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, cb_branch)
+M.bind_finder = function(
+    input_start_node,
+    input_lhs_string,
+    input_lhs_parsed,
+    callback_leaf,
+    callback_branch
+)
     print([[
 -------------------------------------------------------
 -- BIND_FINDER ----------------------------------------
 -------------------------------------------------------
     ]])
 
+    local function compare_node_to_input() end
+
     -- local leaf_predicate = false -- used with callbacks at the bottom.
     local branch_stack = {}
     local parent_table
-    local ins_level_highest = 0
-    local insertion_branch_for_lhs_input
+    local insertion_level_highest_so_far = 0
+    local insertion_point_data
     local target_leaf_stack
 
-    ---@param tbl_node userdata The table we currently are operating on
-    ---@param input_seq string Input sequence that is trimmed from the start if there is a prefix match
-    ---@param input_parsed table The parsed_keys table of the lhs_input_seq, that is also trimmed from 1
-    ---@param seq_accumulated string Builds the current real sequence that we find with treesitter.
-    local function traverse(tbl_node, input_seq, input_parsed, seq_accumulated, ins_level)
-        local input_parsed_copy = vim.deepcopy(input_parsed)
+    ---@param ts_table_node userdata The table we currently are operating on
+    ---@param current_lhs_string string Input sequence that is trimmed from the start if there is a prefix match
+    ---@param _lhs_parsed table The parsed_keys table of the lhs_input_seq, that is also trimmed from 1
+    ---@param lhs_real_accumulated string Builds the current real sequence that we find with treesitter.
+    local function traverse(
+        ts_table_node,
+        current_lhs_string,
+        _lhs_parsed,
+        lhs_real_accumulated,
+        insertion_level
+    )
+        local lhs_parsed = vim.deepcopy(_lhs_parsed)
 
-        local first = tbl_node:dict(1).value
+        local first = ts_table_node:dict(1).value
 
         -- top level
         if first:type() == "table_constructor" then
-            parent_table = tbl_node
+            parent_table = ts_table_node
 
-            for _, tbl_child in tbl_node:iter_fields("indexed") do
+            for _, tbl_child in ts_table_node:iter_fields("indexed") do
                 -- print(string.format("TRAVERS INTO: <%s>", tbl_child))
-                traverse(tbl_child, input_seq, input_parsed, seq_accumulated, ins_level)
+                traverse(
+                    tbl_child,
+                    current_lhs_string,
+                    lhs_parsed,
+                    lhs_real_accumulated,
+                    insertion_level
+                )
                 -- if leaf_predicate then
                 --     return
                 -- end
@@ -138,25 +129,25 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
         local current_settings = { prefix = prefix }
         table.insert(branch_stack, current_settings)
 
-        local rhs = tbl_node:dict(2).value
+        local rhs = ts_table_node:dict(2).value
 
         -- NOTE: This is a bit annoying. if it returns nil, then we can check for
         -- the valuez.
 
-        if tbl_node:dict("name") then
-            current_settings.name = tbl_node:dict("name").value
-        elseif tbl_node:dict("name") == nil and tbl_node.length >= 3 then
-            current_settings.name = tbl_node:dict(3).value
+        if ts_table_node:dict("name") then
+            current_settings.name = ts_table_node:dict("name").value
+        elseif ts_table_node:dict("name") == nil and ts_table_node.length >= 3 then
+            current_settings.name = ts_table_node:dict(3).value
         end
 
-        if tbl_node:dict("description") then
-            current_settings.description = tbl_node:dict("description").value
-        elseif tbl_node:dict("description") == nil and tbl_node.length >= 4 then
-            current_settings.description = tbl_node:dict(4).value
+        if ts_table_node:dict("description") then
+            current_settings.description = ts_table_node:dict("description").value
+        elseif ts_table_node:dict("description") == nil and ts_table_node.length >= 4 then
+            current_settings.description = ts_table_node:dict(4).value
         end
 
-        if tbl_node:dict("options") then
-            current_settings.options = tbl_node:dict("options").value
+        if ts_table_node:dict("options") then
+            current_settings.options = ts_table_node:dict("options").value
         end
 
         -- lhs
@@ -174,28 +165,54 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
             return
         end
 
-        seq_accumulated = seq_accumulated .. prefix_content
+        lhs_real_accumulated = lhs_real_accumulated .. prefix_content
 
         local prefix_content_escaped = utils.escape_str(prefix_content)
-        local sub_left, sub_right
+        local sub_left, sub_right = ""
 
         -- this block makes it so that a
         local next_ins_level
-        local s, e = input_seq:find("^" .. prefix_content_escaped)
+        local s, e = current_lhs_string:find("^" .. prefix_content_escaped)
+
+        -- NOTE: Scrap, this impl of prefix matching the input sequence with the
+        -- current prefix, and instead just use the input_parsed_copy table.
+        -- 1. This would make it so that all mappings are managed as nested tables
+        -- with a single char per level, but i think this is fine for now, since,
+        -- it makes it much easier to deal with.
+
+        -- found match!
         if s and e then
-            sub_left = input_seq:sub(s, e)
-            sub_right = input_seq:sub(e + 1)
+            sub_left = current_lhs_string:sub(s, e)
+            sub_right = current_lhs_string:sub(e + 1)
             if #sub_right > 0 then
-                next_ins_level = ins_level + 1
-                if next_ins_level > ins_level_highest then
-                    ins_level_highest = next_ins_level
-                    insertion_branch_for_lhs_input = parent_table
+                next_ins_level = insertion_level + 1
+
+                local sub_left_parsed = _utils.parse_key_sequence(sub_left)
+                table_remove_n(lhs_parsed, #sub_left_parsed)
+
+                -- if we are at a deeper level of nesting, then update the insertion point
+                if next_ins_level > insertion_level_highest_so_far then
+                    insertion_level_highest_so_far = next_ins_level
+
+                    insertion_point_data = {
+                        keys_parsed_leftover = lhs_parsed,
+                        trimmed_count = #input_lhs_parsed - #lhs_parsed,
+                        ts_target_table = parent_table,
+                    }
                 end
             end
         else
-            next_ins_level = ins_level
-            if sub_right == nil and next_ins_level == ins_level_highest then
-                insertion_branch_for_lhs_input = parent_table
+            next_ins_level = insertion_level
+
+            -- NOTE: should it be <= ins_level_highest here so that we dont
+            -- update the insertion point with a lower level?!
+
+            if sub_right == nil and next_ins_level == insertion_level_highest_so_far then
+                insertion_point_data = {
+                    keys_parsed_leftover = lhs_parsed,
+                    trimmed_count = #input_lhs_parsed - #lhs_parsed,
+                    ts_target_table = parent_table,
+                }
             end
         end
 
@@ -229,11 +246,11 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
             --         return
             --     end
             -- end
-            traverse(rhs, sub_right or "", input_parsed, seq_accumulated, next_ins_level)
+            traverse(rhs, sub_right or "", lhs_parsed, lhs_real_accumulated, next_ins_level)
         else
             -- the input string matches with the accumulated string which means
             -- that we have a matching leaf.
-            if lhs_input_seq == seq_accumulated then
+            if input_lhs_string == lhs_real_accumulated then
                 -- NOTE: manually copy the target leaf table stack to the return value,
                 -- as the recursor will continue to
                 -- TEST: I should be able to simply return here, and then I can
@@ -259,43 +276,46 @@ M.bind_finder = function(start_table_node, lhs_input_seq, lhs_parsed, cb_leaf, c
         end
     end
 
-    traverse(start_table_node, lhs_input_seq, lhs_parsed, "", 0)
+    traverse(input_start_node, input_lhs_string, input_lhs_parsed, "", 0)
 
     -- could this be set first?
-    if not insertion_branch_for_lhs_input then
-        print(">>> Insertion was nil, so setting it now at the end...")
-        insertion_branch_for_lhs_input = start_table_node
+    if not insertion_point_data then
+        print(">>> Insertion was nil, so setting it now at the end...")({
+            keys_parsed_leftover = lhs_parsed,
+            ts_target_table = parent_table,
+        })
+
+        insertion_point_data = {
+            keys_parsed_leftover = input_lhs_parsed,
+            trimmed_count = 0,
+            ts_target_table = input_start_node,
+        }
     end
 
     if target_leaf_stack then
-        insertion_branch_for_lhs_input = nil
+        insertion_point_data = nil
     end
 
     log.debug(
         string.format(
             [[ Target leaf: %s; Injection table: %s ]],
             target_leaf_stack and true or false,
-            insertion_branch_for_lhs_input and true or false
+            insertion_point_data and true or false
         )
     )
 
     if target_leaf_stack then
-
         local leaf_prefix = target_leaf_stack[#target_leaf_stack].prefix
 
-        print(
-            "target leaf:",
-            target_leaf_stack and leaf_prefix((leaf_prefix):parent():parent())
-        )
+        print("target leaf:", target_leaf_stack and leaf_prefix((leaf_prefix):parent():parent()))
     else
         print("target leaf:", nil)
     end
 
-    return target_leaf_stack, insertion_branch_for_lhs_input
+    return target_leaf_stack, insertion_point_data
 end
 
 M.v2 = function(target_path, target_keys)
-    local _utils = require("doom.modules.core.nest.mapper.utils")
     local ts_utils_lua = require("doom.utils.ts.lua")
 
     print("keys is null:", target_keys)
@@ -318,7 +338,7 @@ M.v2 = function(target_path, target_keys)
 
     local ret = {}
 
-    local target_leaf_stack, insertion_branch
+    local target_leaf_stack, insertion_data
 
     local binds_table_constructor = t_nodes[1]
 
@@ -326,7 +346,7 @@ M.v2 = function(target_path, target_keys)
 
     -- for _, binds_table_constructor in ipairs(t_nodes) do
     if binds_table_constructor then
-        target_leaf_stack, insertion_branch =
+        target_leaf_stack, insertion_data =
             M.bind_finder(binds_table_constructor, target_keys, keys_parsed)
 
         --         target_leaf_stack, insertion_branch = M.bind_finder(
@@ -377,7 +397,7 @@ M.v2 = function(target_path, target_keys)
 
     -- print("#ret", #ret.definition_stack)
 
-    return binds_table_constructor, target_leaf_stack, insertion_branch, buf
+    return binds_table_constructor, target_leaf_stack, insertion_data, buf
 end
 
 return M

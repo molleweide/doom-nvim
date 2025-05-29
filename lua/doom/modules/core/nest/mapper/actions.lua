@@ -113,79 +113,56 @@ M.add_new_dummy_bind = function(prompt_bufnr)
     local entry = action_state.get_selected_entry()
     local module_path = _utils.get_abs_path_from_module_origin(entry.module_origin)
 
-    local user_input_name, user_input_lhs, user_input_rhs_contents, rhs_is_func, leader_branch_names
+    local user_input_name, user_input_lhs, user_input_rhs_contents
+    local rhs_is_func, leader_branch_names, new_lhs_parsed
 
-    local function apply_new_mapping() end
+    -- return values from v2 mappings finder parser.
+    local insertion_data, target_buf
 
-    local function prepare_new_mapping()
-        PS("Final RHS contents: <<%s>>", vim.inspect(user_input_rhs_contents))
-
-        local new_lhs_parsed = _utils.parse_key_sequence(user_input_lhs)
-
-        if not new_lhs_parsed then
-            log.error("Couldnt parse the new LHS string")
-            return
+    local function prepare_rhs()
+        if type(user_input_rhs_contents) == "function" then
+            return "<FUNCTION>"
         end
+        return user_input_rhs_contents
+    end
 
-        -- ^ the key seq is already being parsed inside of v2, so maybe this
-        -- could be passed to v2, instead of doing the parsing twice..
+    ---Puts together the mapping branch lua table, that will later be converted
+    ---to a string for injection into the buffer.
+    local function build_mapping_branch()
+        local t_new_bind = {}
+        local current
+        for i, v in ipairs(new_lhs_parsed) do
+            current = i == 1 and t_new_bind or current[2]
+            current[1] = v
+            current[2] = {}
+            if i == #new_lhs_parsed then
+                current[2] = prepare_rhs()
+                current.name = user_input_name
+            else
+                if v:match("<leader>") then
+                    current.name = "+prefix"
+                elseif leader_branch_names and leader_branch_names[i] then
+                    current.name = "+" .. leader_branch_names[i]
+                end
+            end
+        end
+        return t_new_bind
+    end
 
-        local is_leader_mappping = new_lhs_parsed[1]:match("<leader>")
-
-        local binds_table, leaf_stack, insertion_table, buf = require(
-            "doom.modules.core.nest.mapper.mappings_finder_v2"
-        ).v2(module_path, user_input_lhs)
-
-        print("INSERTION TABLE:", insertion_table)
-
+    local function build_new_mapping()
         local dummy_bind = {
             { "QA", ':echo "hello"', name = "v2 dummy mapping" },
             -- { "QB", ':echo "hello"', name = "v2 dummy mapping" },
         }
 
-        if is_leader_mappping then
-            local li = 2
+        local t_new_bind = build_mapping_branch()
 
-            if not leader_branch_names then
-                leader_branch_names = {}
-            end
-
-            local function get_branch_names_or_apply()
-                if li < #new_lhs_parsed then
-                    local helper_string = ""
-
-                    for i, v in ipairs(new_lhs_parsed) do
-                        local val = i == li and "(" .. v .. ")" or v
-                        helper_string = string.format(
-                            "%s %s",
-                            helper_string,
-                            i ~= #new_lhs_parsed and val or val .. " "
-                        )
-                    end
-
-                    vim.ui.input(
-                        { prompt = string.format("INPUT NAME for branch: {{%s}}", helper_string) },
-                        function(input_branch_name)
-                            li = li + 1
-
-                            table.insert(leader_branch_names, input_branch_name)
-
-                            get_branch_names_or_apply()
-                        end
-                    )
-                else
-                    apply_new_mapping()
-                end
-            end
-            get_branch_names_or_apply()
-        else
-            apply_new_mapping()
-        end
+        PS("NEW BIND TABLE: <%s>", vim.inspect(t_new_bind))
 
         local t_dummy_bind_inject = utils.build_new_inject_string(dummy_bind)
 
         if rhs_is_func then
-            print(":: TODO: REPLACE FUNC CONTENTS INTO INJECTION TABLE HERE ::")
+            print(":: TODO: REPLACE <FUNCTION> INTO INJECTION TABLE HERE ::")
         end
 
         -- P(t_dummy_bind_inject)
@@ -221,7 +198,7 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                 -- return statement.
 
                 local ts_utils_lua = require("doom.utils.ts.lua")
-                local ts_buf = ts_utils_lua:new(buf)
+                local ts_buf = ts_utils_lua:new(target_buf)
 
                 local ts_query_module_return = [[
                     (chunk (return_statement (expression_list (identifier) @module.identifier)))
@@ -251,6 +228,94 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         end
 
         -- TODO: run formatting on file
+    end
+
+    local function prepare_new_mapping()
+        PS("Final RHS contents: <<%s>>", vim.inspect(user_input_rhs_contents))
+
+        -- ! the key seq is already being parsed inside of v2, so maybe this
+        -- could be passed to v2, instead of doing the parsing twice..
+        new_lhs_parsed = _utils.parse_key_sequence(user_input_lhs)
+        if not new_lhs_parsed then
+            log.error("Couldnt parse the new LHS string")
+            return
+        end
+
+        local is_leader_mappping = new_lhs_parsed[1]:match("<leader>")
+
+        -- TODO: v2 needs to return the number of "parsed keys" that where removed,
+        -- so that we know which key to accept new branch names from above.
+        --
+        _, _, insertion_data, target_buf = require(
+            "doom.modules.core.nest.mapper.mappings_finder_v2"
+        ).v2(module_path, user_input_lhs)
+
+        print(
+            "prepare_new_mapping: INSERTION TABLE:",
+            insertion_data and insertion_data.ts_target_table
+        )
+
+        local accept_existing_branch_names = true
+
+        if accept_existing_branch_names then
+            PS(
+                [[
+        ----
+        leftover parsed: %s
+        trimmed_count: %s
+        ----
+        ]],
+                vim.inspect(insertion_data.keys_parsed_leftover),
+                insertion_data.trimmed_count
+            )
+
+            for i = 1, insertion_data.trimmed_count, 1 do
+                table.remove(new_lhs_parsed, 1)
+            end
+        end
+
+        if is_leader_mappping then
+            -- If one accepts existing branch names, then we want add names
+            -- for all new branch nodes, hence, why the `li` starts from 1,
+            -- otherwise, when you build a new leader from scratch, then the
+            -- leader name should always be the same.
+            local li = insertion_data.trimmed_count > 0 and 1 or 2
+
+            if not leader_branch_names then
+                leader_branch_names = {}
+            end
+
+            local function get_branch_names_or_apply()
+                if li < #new_lhs_parsed then
+                    local helper_string = ""
+
+                    for i, v in ipairs(new_lhs_parsed) do
+                        local val = i == li and "(" .. v .. ")" or v
+                        helper_string = string.format(
+                            "%s %s",
+                            helper_string,
+                            i ~= #new_lhs_parsed and val or val .. " "
+                        )
+                    end
+
+                    vim.ui.input(
+                        { prompt = string.format("INPUT NAME for branch: {{%s}}", helper_string) },
+                        function(input_branch_name)
+                            li = li + 1
+
+                            table.insert(leader_branch_names, input_branch_name)
+
+                            get_branch_names_or_apply()
+                        end
+                    )
+                else
+                    build_new_mapping()
+                end
+            end
+            get_branch_names_or_apply()
+        else
+            build_new_mapping()
+        end
     end
 
     -- NOTE: The vim.ui... api requires nesting calls in a pipeline which is an
@@ -285,6 +350,17 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                     vim.api.nvim_buf_set_name(rhs_buf_handle, rhs_buf_name)
                     vim.bo[rhs_buf_handle].filetype = "lua"
 
+                    local title = "Create RHS for LHS .... todo"
+
+                    local client = vim.lsp.get_clients({ name = "lua_ls" })[1]
+                    if client then
+                        vim.lsp.buf_attach_client(rhs_buf_handle, client.id)
+                        title = title .. " (LSP attached)"
+                    else
+                        -- TODO: Handle lua_ls not started.
+                        title = title .. " (LSP unavailable)"
+                    end
+
                     -- TODO: CENTER FLOAT WINDOW
                     --
                     -- local gheight = vim.api.nvim_list_uis()[1].height
@@ -300,7 +376,7 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                     -- }
 
                     local open_win_config = {
-                        title = "Create RHS for LHS .... todo",
+                        title = title,
                         title_pos = "right",
                         footer = "This is footer",
                         footer_pos = "center",
@@ -319,16 +395,12 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                         border = "single",
                     }
 
+                    -- WARN: Prevent the window from being moved around.
+
                     local rhs_win_handle =
                         vim.api.nvim_open_win(rhs_buf_handle, true, open_win_config)
 
-                    local client = vim.lsp.get_clients({ name = "lua_ls" })[1]
-                    if client then
-                        vim.lsp.buf_attach_client(rhs_buf_handle, client.id)
-                        else
-                            -- TODO: Handle lua_ls not started.
-                    end
-
+                    -- close window / this is how we proceed to next step
                     vim.api.nvim_create_autocmd({ "BufDelete", "WinClosed" }, {
                         buffer = rhs_buf_handle,
                         callback = function(ev)
@@ -339,7 +411,8 @@ M.add_new_dummy_bind = function(prompt_bufnr)
 
                             -- TODO: Capture the contents of the buffer
 
-                            user_input_rhs_contents = false
+                            user_input_rhs_contents =
+                                vim.api.nvim_buf_get_lines(rhs_buf_handle, 0, -1)
 
                             vim.api.nvim_buf_delete(rhs_buf_handle, {
                                 force = true,
