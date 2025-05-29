@@ -272,13 +272,92 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                     end)
                 elseif rhs_type_choice == "FUNCTION" then
                     rhs_is_func = true
-                    -- TODO: Spawn popup buffer with:
-                    --  ~ autocmd to continue the pipeline on save/exit.
-                    --  ~ attached lua lsp to ensure that we cannot proceed unless
-                    --      code is completely valid.
-                    user_input_rhs_contents = false
 
-                    prepare_new_mapping()
+                    --
+                    -- Open a flow win for editing a single function out of
+                    -- context.
+                    -- Make this pattern reusable so that I can use it for
+                    -- both creating AND editing existing mappings.
+                    --
+
+                    local rhs_buf_name = "RHS_BUF_NAME"
+                    local rhs_buf_handle = vim.api.nvim_create_buf(true, true)
+                    vim.api.nvim_buf_set_name(rhs_buf_handle, rhs_buf_name)
+                    vim.bo[rhs_buf_handle].filetype = "lua"
+
+                    -- TODO: CENTER FLOAT WINDOW
+                    --
+                    -- local gheight = vim.api.nvim_list_uis()[1].height
+                    -- local gwidth = vim.api.nvim_list_uis()[1].width
+                    -- local width = 30
+                    -- local height = 30
+                    -- open_win_config = {
+                    --     relative = "editor",
+                    --     width = width,
+                    --     height = height,
+                    --     row = (gheight - height) * 0.5,
+                    --     column = (gwidth - width) * 0.5,
+                    -- }
+
+                    local open_win_config = {
+                        title = "Create RHS for LHS .... todo",
+                        title_pos = "right",
+                        footer = "This is footer",
+                        footer_pos = "center",
+                        -- • relative: Sets the window layout to "floating", placed at
+                        --   (row,col) coordinates relative to:
+                        --   • "editor" The global editor grid
+                        --   • "win" Window given by the `win` field, or current
+                        --     window.
+                        --   • "cursor" Cursor position in current window.
+                        --   • "mouse" Mouse position
+                        relative = "win",
+                        row = 5,
+                        col = 2,
+                        width = 50,
+                        height = 20,
+                        border = "single",
+                    }
+
+                    local rhs_win_handle =
+                        vim.api.nvim_open_win(rhs_buf_handle, true, open_win_config)
+
+                    local client = vim.lsp.get_clients({ name = "lua_ls" })[1]
+                    if client then
+                        vim.lsp.buf_attach_client(rhs_buf_handle, client.id)
+                        else
+                            -- TODO: Handle lua_ls not started.
+                    end
+
+                    vim.api.nvim_create_autocmd({ "BufDelete", "WinClosed" }, {
+                        buffer = rhs_buf_handle,
+                        callback = function(ev)
+                            print(string.format("EVENT FIRED: %s", vim.inspect(ev)))
+                            PS("diagnostics: <%s>", vim.inspect(vim.diagnostic.get(rhs_buf_handle)))
+
+                            -- TODO: Handle diagnostics errors.
+
+                            -- TODO: Capture the contents of the buffer
+
+                            user_input_rhs_contents = false
+
+                            vim.api.nvim_buf_delete(rhs_buf_handle, {
+                                force = true,
+                            })
+
+                            prepare_new_mapping()
+                        end,
+                    })
+
+                    -- vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+                    --   pattern = {"*.c", "*.h"},
+                    --   callback = function(ev)
+                    --     print(string.format('event fired: %s', vim.inspect(ev)))
+                    --   end
+                    -- })
+
+                    -- TODO: capture contents of the buffer.
+                    --  ~ parse with TS??
                 end
             end)
         end)
