@@ -400,4 +400,106 @@ M.v2 = function(target_path, target_keys)
     return binds_table_constructor, target_leaf_stack, insertion_data, buf
 end
 
+M.build_new_mappings_tree = function()
+    local t_new_bind_lua = build_mapping_branch()
+    local t_new_bind_lua_stringified = utils.build_new_inject_string(t_new_bind_lua, true)
+
+    PS("t_new_bind_lua: <%s>", vim.inspect(t_new_bind_lua))
+
+    PS("t_new_bind_lua_stringified: <%s>", vim.inspect(t_new_bind_lua_stringified))
+
+    -- TODO: Move this logic of merging a function into another table.
+
+    if rhs_is_func then
+        local fn_pattern = '"<FUNCTION>"'
+        for i, v in ipairs(t_new_bind_lua_stringified) do
+            PS("%s t_new_bind_lua_stringified | %s", i, v)
+
+            local match = v:match(fn_pattern)
+
+            if match then
+                local mi = i -- match index
+                local ms, me = v:find(fn_pattern)
+                local current_value = v
+
+                local fn_split_pre = current_value:sub(1, ms)
+                local fn_split_post = current_value:sub(me)
+
+                t_new_bind_lua_stringified[i] = fn_split_pre .. "function()"
+
+                for j, w in ipairs(user_input_rhs_contents) do
+                    table.insert(t_new_bind_lua_stringified, i + j, w)
+                end
+
+                table.insert(
+                    t_new_bind_lua_stringified,
+                    i + #user_input_rhs_contents,
+                    "end" .. fn_split_post
+                )
+            end
+        end
+
+        for i, v in ipairs(t_new_bind_lua_stringified) do
+            PS("%s t_new_bind_lua_stringified AFTER | %s", i, v)
+        end
+    end
+end
+
+M.insert_new_binds_tree = function()
+    -- Binds table exists and we found a insertion table for injecting our
+    -- new binds data into.
+    if insertion_data.ts_target_table then
+        PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
+        -- insertion_data.ts_target_table:add_field({
+        --     pos = "last",
+        --     data = t_new_bind_lua_stringified,
+        -- })
+    else
+        -- Now insertion_data.ts_target_table implies that there is no binds table in the module.
+
+        -- If config.lua, simply insert new contents last.
+        if module_path == require("doom.core.config").source then
+            table.insert(t_new_bind_lua_stringified, 1, "doom.use_keybind({")
+            table.insert(t_new_bind_lua_stringified, "})")
+
+            -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, t_new_bind_lua_stringified)
+
+            PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
+        else
+            -- TODO: ( ) get the return statement, check the name of the module,
+            -- then pre/append the necessary M.binds = {} table bootstrapping.
+            -- ~ use the add_contents_above method to inject data above the
+            -- return statement.
+
+            local ts_utils_lua = require("doom.utils.ts.lua")
+            local ts_buf = ts_utils_lua:new(target_buf)
+
+            local ts_query_module_return = [[
+                    (chunk (return_statement (expression_list (identifier) @module.identifier)))
+                ]]
+
+            local ts_module_identifier = ts_buf:query_wrap({
+                query = ts_query_module_return,
+                capture = "module.identifier",
+            }, true)[1]
+
+            if not ts_module_identifier then
+                log.warn(
+                    "Aborting! Could not find a return statement for module:",
+                    entry.module_origin
+                )
+                return
+            end
+
+            table.insert(
+                t_new_bind_lua_stringified,
+                1,
+                string.format("%s.binds = {", tostring(ts_module_identifier))
+            )
+            table.insert(t_new_bind_lua_stringified, "}")
+            PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
+        end
+    end
+end
+
 return M

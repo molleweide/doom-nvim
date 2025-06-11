@@ -350,6 +350,10 @@ doom.settings.mappings.cmp = {
     complete = "<C-Space>",
     close = "<C-e><C-w>",
     confirm = "<C-e><C-f>",
+    -- it could even be nice to have a different set of keys other than s/tab
+    -- to cycle so that i know that i am never going to accidentally cycle
+    -- when i want to generate a tab or whatever.
+    -- rstrst
     tab = "<Tab>",
     stab = "<S-Tab>",
 }

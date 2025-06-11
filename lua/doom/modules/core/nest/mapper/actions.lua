@@ -6,6 +6,20 @@ local action_state = require("telescope.actions.state")
 
 local _utils = require("doom.modules.core.nest.mapper.utils")
 
+-- TODO: CENTER FLOAT WINDOW
+--
+-- local gheight = vim.api.nvim_list_uis()[1].height
+-- local gwidth = vim.api.nvim_list_uis()[1].width
+-- local width = 30
+-- local height = 30
+-- open_win_config = {
+--     relative = "editor",
+--     width = width,
+--     height = height,
+--     row = (gheight - height) * 0.5,
+--     column = (gwidth - width) * 0.5,
+-- }
+
 local M = {}
 
 M.jump_to_binding = function(prompt_bufnr)
@@ -68,6 +82,7 @@ end
 
 -- WARN: VALIDATE CHANGES BEFORE WRITING THEM TO FILE
 --          ^ I need to check that new data is valid and wont fail
+--
 M.edit_binding_rhs = function(prompt_bufnr)
     local current_picker = action_state.get_current_picker(prompt_bufnr)
     local finder = current_picker.finder
@@ -103,6 +118,13 @@ M.edit_binding_rhs = function(prompt_bufnr)
     end
 end
 
+-- TODO: Take the current RHS string and wrap it in vim.cmd("").
+-- Put it in the function body, and open the popup buffer with this content
+-- for the user to modify.
+-- This allows a user to seamlessly expand on an RHS into a function and then
+-- continue work.
+M.convet_rhs_into_function = function(prompt_bufnr) end
+
 -- TODO: ADD NEW [normal] BIND W/ DUMMY RHS ACTION
 -- ~~ ( ) If no selection, add to [config.lua]
 -- ~~ ( ) Else, add to selected module.
@@ -119,8 +141,10 @@ M.add_new_dummy_bind = function(prompt_bufnr)
     -- return values from v2 mappings finder parser.
     local insertion_data, target_buf
 
+    -- TODO: these two helpers should also go into v2
+
     local function prepare_rhs()
-        if type(user_input_rhs_contents) == "function" then
+        if rhs_is_func then
             return "<FUNCTION>"
         end
         return user_input_rhs_contents
@@ -149,48 +173,79 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         return t_new_bind
     end
 
+    -- TODO: move this to mappings_finder_v2.build_new_mappings_tree()
+
     local function build_new_mapping()
-        local dummy_bind = {
-            { "QA", ':echo "hello"', name = "v2 dummy mapping" },
-            -- { "QB", ':echo "hello"', name = "v2 dummy mapping" },
-        }
+        local t_new_bind_lua = build_mapping_branch()
+        local t_new_bind_lua_stringified = utils.build_new_inject_string(t_new_bind_lua, true)
 
-        local t_new_bind = build_mapping_branch()
+        PS("t_new_bind_lua: <%s>", vim.inspect(t_new_bind_lua))
 
-        PS("NEW BIND TABLE: <%s>", vim.inspect(t_new_bind))
+        PS("t_new_bind_lua_stringified: <%s>", vim.inspect(t_new_bind_lua_stringified))
 
-        local t_dummy_bind_inject = utils.build_new_inject_string(dummy_bind)
+        -- TODO: Move this logic of merging a function into another table.
 
         if rhs_is_func then
-            print(":: TODO: REPLACE <FUNCTION> INTO INJECTION TABLE HERE ::")
+            local fn_pattern = '"<FUNCTION>"'
+            for i, v in ipairs(t_new_bind_lua_stringified) do
+                PS("%s t_new_bind_lua_stringified | %s", i, v)
+
+                local match = v:match(fn_pattern)
+
+                if match then
+                    local mi = i -- match index
+                    local ms, me = v:find(fn_pattern)
+                    local current_value = v
+
+                    local fn_split_pre = current_value:sub(1, ms)
+                    local fn_split_post = current_value:sub(me)
+
+                    t_new_bind_lua_stringified[i] = fn_split_pre .. "function()"
+
+                    for j, w in ipairs(user_input_rhs_contents) do
+                        table.insert(t_new_bind_lua_stringified, i + j, w)
+                    end
+
+                    table.insert(
+                        t_new_bind_lua_stringified,
+                        i + #user_input_rhs_contents,
+                        "end" .. fn_split_post
+                    )
+                end
+            end
+
+            for i, v in ipairs(t_new_bind_lua_stringified) do
+                PS("%s t_new_bind_lua_stringified AFTER | %s", i, v)
+            end
         end
 
-        -- P(t_dummy_bind_inject)
-
-        for _, s in ipairs(t_dummy_bind_inject) do
-            print()
-            PS("::: %s", s)
+        if true then
+            return
         end
+
+        -- TODO: Show final display of mapping - Confirm yes/no
+
+        -- TODO: move this to mappings_finder_v2.insert_new_binds_tree
 
         -- Binds table exists and we found a insertion table for injecting our
         -- new binds data into.
-        if insertion_table then
-            PS("final insertion: \n<%s>", t_dummy_bind_inject)
-            -- insertion_table:add_field({
+        if insertion_data.ts_target_table then
+            PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
+            -- insertion_data.ts_target_table:add_field({
             --     pos = "last",
-            --     data = t_dummy_bind_inject,
+            --     data = t_new_bind_lua_stringified,
             -- })
         else
-            -- Now insertion_table implies that there is no binds table in the module.
+            -- Now insertion_data.ts_target_table implies that there is no binds table in the module.
 
             -- If config.lua, simply insert new contents last.
             if module_path == require("doom.core.config").source then
-                table.insert(t_dummy_bind_inject, 1, "doom.use_keybind({")
-                table.insert(t_dummy_bind_inject, "})")
+                table.insert(t_new_bind_lua_stringified, 1, "doom.use_keybind({")
+                table.insert(t_new_bind_lua_stringified, "})")
 
-                -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, t_dummy_bind_inject)
+                -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, t_new_bind_lua_stringified)
 
-                PS("final insertion: \n<%s>", t_dummy_bind_inject)
+                PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
             else
                 -- TODO: ( ) get the return statement, check the name of the module,
                 -- then pre/append the necessary M.binds = {} table bootstrapping.
@@ -218,12 +273,12 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                 end
 
                 table.insert(
-                    t_dummy_bind_inject,
+                    t_new_bind_lua_stringified,
                     1,
                     string.format("%s.binds = {", tostring(ts_module_identifier))
                 )
-                table.insert(t_dummy_bind_inject, "}")
-                PS("final insertion: \n<%s>", t_dummy_bind_inject)
+                table.insert(t_new_bind_lua_stringified, "}")
+                PS("final insertion: \n<%s>", t_new_bind_lua_stringified)
             end
         end
 
@@ -233,7 +288,7 @@ M.add_new_dummy_bind = function(prompt_bufnr)
     local function prepare_new_mapping()
         PS("Final RHS contents: <<%s>>", vim.inspect(user_input_rhs_contents))
 
-        -- ! the key seq is already being parsed inside of v2, so maybe this
+        -- !! the key seq is already being parsed inside of v2, so maybe this
         -- could be passed to v2, instead of doing the parsing twice..
         new_lhs_parsed = _utils.parse_key_sequence(user_input_lhs)
         if not new_lhs_parsed then
@@ -254,6 +309,17 @@ M.add_new_dummy_bind = function(prompt_bufnr)
             "prepare_new_mapping: INSERTION TABLE:",
             insertion_data and insertion_data.ts_target_table
         )
+
+        -- TODO: Currently, we assume that user wants to use the existing
+        -- leader branch names. Later, add a prompt to ask user if she wants
+        -- to create new leader names from scratch.
+        -- ~~ ( ) ask: use exiting branch names
+        -- ~~ ( ) yes
+        --    ~~~ ( ) only collect input for, and build, from the leftover parsed keys
+        -- ~~ ( ) now
+        --    ~~~ ( ) build from scratch AND build_from_scratch == true
+        -- ~~~ reparse w/v2 and include check for "branch names"
+        --    ~~~ compute insertion point anew, and inject.
 
         local accept_existing_branch_names = true
 
@@ -327,16 +393,34 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         vim.ui.input({ prompt = "INPUT NEW LHS: " }, function(input_lhs)
             user_input_lhs = input_lhs
 
+            -- TODO: validate left hand side?
+
             vim.ui.select({ "STRING", "FUNCTION" }, {
                 prompt = "WHAT TYPE OF RHS DO YOU WANT TO USE?",
             }, function(rhs_type_choice)
                 if rhs_type_choice == "STRING" then
                     vim.ui.input({ prompt = "INPUT NEW RHS:" }, function(input_rhs)
                         user_input_rhs_contents = input_rhs
+
+                            -- TODO: rhs string: Handle empty input
+                            --
+                            -- TODO: rhs string: Handle erroneous input
+                            -- ~ how to validate mappings?
+                            --      ^ no builtins for this
+                            -- ! keymaps service creates mappings with pcall, so
+                            -- if a mapping is invalid it will fail gracefully
+                            -- and one can then update the binding later...
+                            --
+
+
                         prepare_new_mapping()
                     end)
                 elseif rhs_type_choice == "FUNCTION" then
                     rhs_is_func = true
+
+                    -- TODO: install the buffer-helper library and check if it makes it
+                    -- easier to use buffers by concealing the buf ref etc. with nicer
+                    -- methods.
 
                     --
                     -- Open a flow win for editing a single function out of
@@ -345,48 +429,29 @@ M.add_new_dummy_bind = function(prompt_bufnr)
                     -- both creating AND editing existing mappings.
                     --
 
+                    local rhs_buf_title = "Create RHS for LHS .... todo"
                     local rhs_buf_name = "RHS_BUF_NAME"
                     local rhs_buf_handle = vim.api.nvim_create_buf(true, true)
+
                     vim.api.nvim_buf_set_name(rhs_buf_handle, rhs_buf_name)
                     vim.bo[rhs_buf_handle].filetype = "lua"
 
-                    local title = "Create RHS for LHS .... todo"
+                    local lua_lsp_client = vim.lsp.get_clients({ name = "lua_ls" })[1]
 
-                    local client = vim.lsp.get_clients({ name = "lua_ls" })[1]
-                    if client then
-                        vim.lsp.buf_attach_client(rhs_buf_handle, client.id)
-                        title = title .. " (LSP attached)"
+                    if lua_lsp_client then
+                        vim.lsp.buf_attach_client(rhs_buf_handle, lua_lsp_client.id)
+                        rhs_buf_title = rhs_buf_title .. " (LSP attached)"
                     else
                         -- TODO: Handle lua_ls not started.
-                        title = title .. " (LSP unavailable)"
+                        -- Trigger mason installer etc..
+                        rhs_buf_title = rhs_buf_title .. " (LSP unavailable)"
                     end
 
-                    -- TODO: CENTER FLOAT WINDOW
-                    --
-                    -- local gheight = vim.api.nvim_list_uis()[1].height
-                    -- local gwidth = vim.api.nvim_list_uis()[1].width
-                    -- local width = 30
-                    -- local height = 30
-                    -- open_win_config = {
-                    --     relative = "editor",
-                    --     width = width,
-                    --     height = height,
-                    --     row = (gheight - height) * 0.5,
-                    --     column = (gwidth - width) * 0.5,
-                    -- }
-
                     local open_win_config = {
-                        title = title,
+                        title = rhs_buf_title,
                         title_pos = "right",
                         footer = "This is footer",
                         footer_pos = "center",
-                        -- • relative: Sets the window layout to "floating", placed at
-                        --   (row,col) coordinates relative to:
-                        --   • "editor" The global editor grid
-                        --   • "win" Window given by the `win` field, or current
-                        --     window.
-                        --   • "cursor" Cursor position in current window.
-                        --   • "mouse" Mouse position
                         relative = "win",
                         row = 5,
                         col = 2,
@@ -397,22 +462,39 @@ M.add_new_dummy_bind = function(prompt_bufnr)
 
                     -- WARN: Prevent the window from being moved around.
 
-                    local rhs_win_handle =
-                        vim.api.nvim_open_win(rhs_buf_handle, true, open_win_config)
+                    -- spawn window
+                    vim.api.nvim_open_win(rhs_buf_handle, true, open_win_config)
 
-                    -- close window / this is how we proceed to next step
+                    -- autocmd: close window / this is how we proceed to next step
                     vim.api.nvim_create_autocmd({ "BufDelete", "WinClosed" }, {
                         buffer = rhs_buf_handle,
                         callback = function(ev)
                             print(string.format("EVENT FIRED: %s", vim.inspect(ev)))
                             PS("diagnostics: <%s>", vim.inspect(vim.diagnostic.get(rhs_buf_handle)))
 
-                            -- TODO: Handle diagnostics errors.
+                            -- TODO: handle if buff is empty
+                                -- prompt user with select
 
-                            -- TODO: Capture the contents of the buffer
+                            local numd = #vim.diagnostic.get(rhs_buf_handle)
+
+                            -- inform user about probablity of crashing.
+                            if lua_lsp_client then
+                                if numd > 0 then
+                                    PS(
+                                        "%s diagnostic issues. do you want to proceed, or continue editing?",
+                                        numd
+                                    )
+                                else
+                                    print("no diagnostic iussues. we are good to proceed.")
+                                end
+                            else
+                                print(
+                                    "no lsp: the code cannot be checked. do you still want to proceed?"
+                                )
+                            end
 
                             user_input_rhs_contents =
-                                vim.api.nvim_buf_get_lines(rhs_buf_handle, 0, -1)
+                                vim.api.nvim_buf_get_lines(rhs_buf_handle, 0, -1, true)
 
                             vim.api.nvim_buf_delete(rhs_buf_handle, {
                                 force = true,
@@ -436,6 +518,17 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         end)
     end)
 end
+
+M.add_option_to_selection = function(prompt_bufnr) end
+
+M.edit_options = function(prompt_bufnr) end
+
+-- M.xxx = function(prompt_bufnr) end
+-- M.xxx = function(prompt_bufnr) end
+-- M.xxx = function(prompt_bufnr) end
+-- M.xxx = function(prompt_bufnr) end
+-- M.xxx = function(prompt_bufnr) end
+-- M.xxx = function(prompt_bufnr) end
 
 M.select_filter_modes = function(prompt_bufnr) end
 

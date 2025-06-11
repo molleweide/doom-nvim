@@ -404,10 +404,9 @@ end
 
 ---Special function used for aiding in converting a vim.inspect table into a
 ---table of strings that can be inserted into a buffer.
-utils.build_new_inject_string = function(tree)
+utils.build_new_inject_string = function(tree, prevent_trimming_surrounding_braces)
     local ret = vim.split(vim.inspect(tree), "\n")
-    print("BUILD NEW INJECT STRING2", #ret, vim.inspect(ret))
-    if #ret > 2 then
+    if #ret > 2 and not prevent_trimming_surrounding_braces then
         -- trim surrounding braces {...}
         -- table.remove(ret, 1)
         -- table.remove(ret)

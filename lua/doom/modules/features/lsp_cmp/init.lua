@@ -197,19 +197,6 @@ nvim_cmp.configs["nvim-cmp"] = function()
 
             -- <Tab>
             [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
-                -- if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
-                --     cmp.select_next_item()
-                -- elseif luasnip_exists and luasnip.expand_or_jumpable() then
-                --     print("expand_or_jumpable")
-                --     vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
-                -- elseif check_backspace() then
-                --     print("feedkeys")
-                --     vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
-                -- else
-                --     print("fallback")
-                --     fallback()
-                -- end
-
                 if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
                     cmp.select_next_item()
                 elseif luasnip.locally_jumpable(1) then
@@ -227,14 +214,12 @@ nvim_cmp.configs["nvim-cmp"] = function()
 
             -- <STab>
             [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
-                if doom.settings.cmp_cycle_entries_with_tab then
-                    if cmp.visible() then
-                        cmp.select_prev_item()
-                    elseif luasnip.locally_jumpable(-1) then
-                        luasnip.jump(-1)
-                    else
-                        fallback()
-                    end
+                if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
+                    cmp.select_prev_item()
+                elseif luasnip.locally_jumpable(-1) then
+                    luasnip.jump(-1)
+                else
+                    fallback()
                 end
             end, {
                 "i",
@@ -243,7 +228,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
         },
     }, {
         mapping = type(doom.features.lsp_cmp.settings.completion.mapping) == "function"
-                and doom.features.lsp_cmp.settings.completion.mapping(cmp)
+            and doom.features.lsp_cmp.settings.completion.mapping(cmp)
             or doom.features.lsp_cmp.settings.completion.mapping,
         enabled = function()
             return _doom.cmp_enable and vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"

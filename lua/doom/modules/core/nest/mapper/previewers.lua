@@ -176,8 +176,6 @@ M.previewer = defaulter(function(_)
 
                 helper:append(vim.split(tostring(parent_table), "\n"))
             else
-                print("data:", data.definition_stack)
-
                 helper:append("Could not find a mappings_definition")
             end
         end,

@@ -22,7 +22,6 @@ M.mapper = function(opts)
             map("i", "<C-e>", bindings_actions.edit_binding_rhs, { desc = "UPDATE RHS" })
             map("i", "<C-a>", bindings_actions.add_new_dummy_bind, { desc = "ADD NEW DUMMY BIND" })
 
-
             return true
         end,
     })

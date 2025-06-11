@@ -47,7 +47,7 @@ return {
             -- "coc"
         },
         SNIPPETS = {
-            { "extra_snippets", enabled = true }, -- Code snippets for all languages
+            { "extra_snippets", enabled = false }, -- Code snippets for all languages
             { "luasnip_engine", enabled = true, tags = { "reduced", "firenvim" } },
             { "additional_friendly_snippets", enabled = true, tags = { "reduced", "firenvim" } },
             { "luasnip_telescope", enabled = true },
@@ -125,7 +125,7 @@ return {
         { "movement_lightspeed", enabled = true },
 
         -- UI COMPONENTS
-        { "tabline", enabled = true }, -- Tab bar buffer switcher
+        { "tabline", enabled = false }, -- Tab bar buffer switcher
         { "dashboard", enabled = true }, -- A pretty dashboard upon opening
         { "trouble", enabled = true }, -- A pretty diagnostic viewer
         { "statusline", enabled = true }, -- A pretty status line at the bottom of the buffer
@@ -240,9 +240,8 @@ return {
     --   GIT = {},
     --   GITHUB = {},
     -- },
-    LANGS = { { "tmux",
-    enabled = true
-  } ,
+    LANGS = {
+        { "tmux", enabled = true },
         { "lua", enabled = true },
         { "python", enabled = true },
         { "bash", enabled = true },
