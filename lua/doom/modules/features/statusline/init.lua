@@ -6,6 +6,9 @@
 --
 -- FIX: Autocmds fail to reload
 
+-- TODO: think about loading order of plugins. Maybe we need a system that allows
+-- for setting loading order of modules? load_before = ..., load_index = <integer>
+
 local hex2rgb = function(hex)
     hex = hex:gsub("#", "")
     return {
@@ -391,7 +394,7 @@ statusline.configs["heirline.nvim"] = function()
         FileSize,
         FileIcon,
         utils.insert(FileNameModifer, FileName), -- a new table where FileName is a child of FileNameModifier
-        unpack(FileFlags)                        -- A small optimisation, since their parent does nothing
+        unpack(FileFlags) -- A small optimisation, since their parent does nothing
     )
 
     -- Mason LSP indicator, shows when a package is being installed
@@ -552,7 +555,7 @@ statusline.configs["heirline.nvim"] = function()
         lib.component.virtual_env(),
         { Ruler }, -- lib.component.nav(), -- nav is the same as ruler..
         lib.component.mode({
-            hl = { fg = "dark_red" },
+            hl = { fg = colors.dark_red },
             mode_text = {},
             surround = { separator = "right" },
         }),
@@ -590,18 +593,100 @@ statusline.configs["heirline.nvim"] = function()
             ),
         },
         -- A winbar for regular files
-        utils.surround({ "", "" }, "bright_bg", FileName),
+        utils.surround({ "", "" }, colors.bright_bg, FileName),
     }
+
+    -- NormalNvim config
+
+    local normal_nvim_opts = function()
+        return {
+            opts = {
+                disable_winbar_cb = function(args) -- We do this to avoid showing it on the greeter.
+                    local is_disabled = not require("heirline-components.buffer").is_valid(
+                            args.buf
+                        )
+                        or lib.condition.buffer_matches({
+                            buftype = { "terminal", "prompt", "nofile", "help", "quickfix" },
+                            filetype = { "NvimTree", "neo%-tree", "dashboard", "Outline", "aerial" },
+                        }, args.buf)
+                    return is_disabled
+                end,
+            },
+            tabline = { -- UI upper bar
+                lib.component.tabline_conditional_padding(),
+                lib.component.tabline_buffers(),
+                lib.component.fill({ hl = { bg = "tabline_bg" } }),
+                lib.component.tabline_tabpages(),
+            },
+            winbar = { -- UI breadcrumbs bar
+                init = function(self)
+                    self.bufnr = vim.api.nvim_get_current_buf()
+                end,
+                fallthrough = false,
+                -- Winbar for terminal, neotree, and aerial.
+                {
+                    condition = function()
+                        return not lib.condition.is_active()
+                    end,
+                    {
+                        lib.component.neotree(),
+                        lib.component.compiler_play(),
+                        lib.component.fill(),
+                        lib.component.compiler_build_type(),
+                        lib.component.compiler_redo(),
+                        lib.component.aerial(),
+                    },
+                },
+                -- Regular winbar
+                {
+                    lib.component.neotree(),
+                    lib.component.compiler_play(),
+                    lib.component.fill(),
+                    lib.component.breadcrumbs(),
+                    lib.component.fill(),
+                    lib.component.compiler_redo(),
+                    lib.component.aerial(),
+                },
+            },
+            statuscolumn = { -- UI left column
+                init = function(self)
+                    self.bufnr = vim.api.nvim_get_current_buf()
+                end,
+                lib.component.foldcolumn(),
+                lib.component.numbercolumn(),
+                lib.component.signcolumn(),
+            } or nil,
+            statusline = { -- UI statusbar
+                hl = { fg = "fg", bg = "bg" },
+                lib.component.mode(),
+                lib.component.git_branch(),
+                lib.component.file_info(),
+                lib.component.git_diff(),
+                lib.component.diagnostics(),
+                lib.component.fill(),
+                lib.component.cmd_info(),
+                lib.component.fill(),
+                lib.component.lsp(),
+                lib.component.compiler_state(),
+                lib.component.virtual_env(),
+                lib.component.nav(),
+                lib.component.mode({ surround = { separator = "right" } }),
+            },
+        }
+    end
+    if false then
+        normal_nvim_opts()
+    end
 
     -----------------------------------------------------------------------------
     --
     -- HEIRLINE: TABLINE
     --
 
-    TabLine = { -- UI upper bar
+    local TabLine = { -- UI upper bar
         lib.component.tabline_conditional_padding(),
         lib.component.tabline_buffers(),
-        lib.component.fill({ hl = { bg = "tabline_bg" } }),
+        lib.component.fill({ hl = { bg = colors.tabline_bg } }),
         lib.component.tabline_tabpages(),
     }
 
@@ -622,18 +707,25 @@ statusline.configs["heirline.nvim"] = function()
             -- if the callback returns true, the winbar will be disabled for that window
             -- the args parameter corresponds to the table argument passed to autocommand callbacks. :h nvim_lua_create_autocmd()
             disable_winbar_cb = function(args)
-                return conditions.buffer_matches({
-                    buftype = { "nofile", "prompt", "help", "quickfix" },
-                    filetype = { "^git.*", "fugitive", "Trouble", "dashboard" },
-                }, args.buf)
+                local is_disabled = not require("heirline-components.buffer").is_valid(args.buf)
+                    or lib.condition.buffer_matches({
+                        buftype = { "terminal", "prompt", "nofile", "help", "quickfix" },
+                        filetype = { "NvimTree", "neo%-tree", "dashboard", "Outline", "aerial" },
+                    }, args.buf)
+                return is_disabled
             end,
         },
     })
+
+    vim.o.showtabline = 2
 end
 
 statusline.try_refresh = function()
     xpcall(doom.modules.features.statusline.configs["heirline.nvim"], debug.traceback)
 end
+
+-- TODO: vim.cmd([[au FileType * if index(['wipe', 'delete'], &bufhidden) >= 0 | set nobuflisted | endif]])
+-- Convert this into lua
 
 statusline.autocmds = {
     {
@@ -657,5 +749,8 @@ statusline.autocmds = {
         once = true,
     },
 }
+
+-- TODO: Add tweak mapping to toggle the tabline.
+statusline.binds = {}
 
 return statusline

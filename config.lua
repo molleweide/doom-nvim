@@ -7,6 +7,7 @@ local system = require("doom.core.system")
 
 -- NOTE: Review of AI plugins 2024
 -- https://www.joshmedeski.com/posts/ai-in-neovim-neovimconf-2024/
+--
 
 -- TODO: mode v -> `:` -> enter cmdline.
 

@@ -353,6 +353,10 @@ end
 module.applyKeymaps = function(nest_config, settings, integrations, opts)
     local ints
 
+    if #nest_config == 0 then
+        return
+    end
+
     if type(integrations) == "table" then
         -- use custom integration
         ints = integrations

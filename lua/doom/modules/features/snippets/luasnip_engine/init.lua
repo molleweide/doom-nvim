@@ -18,12 +18,21 @@ luasnip.packages = {
         -- commit = "53e812a6f51c9d567c98215733100f0169bcc20a",
         dev = false,
     },
+    ["friendly-snippets"] = {
+        "rafamadriz/friendly-snippets",
+        event = "VeryLazy",
+    },
 }
 
 luasnip.configs = {
     ["LuaSnip"] = function()
         local ls = require("luasnip")
         ls.config.set_config(doom.features.snippets.luasnip_engine.settings.config)
+
+        -- load eg. friendly-snippets
+        require("luasnip.loaders.from_vscode").lazy_load()
+
+        -- load our own snippets
         require("luasnip.loaders.from_lua").load({
             paths = doom.modules.features.snippets.luasnip_engine.settings.load_dirs,
         })
