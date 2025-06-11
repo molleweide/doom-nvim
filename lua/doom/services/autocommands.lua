@@ -24,7 +24,7 @@
 --- IMPLEMENTATIONS
 --- Wraps the nvim functionality to handle different neovim versions.
 local utils = require("doom.utils")
--- local log = require("doom.utils.logging")
+local log = require("doom.utils.logging")
 
 local DOOM_AUTOCMDS_NAMESPACE = "DoomAutoCommands"
 
@@ -135,6 +135,7 @@ local del_autocmd_implementations = {
         end
     end,
     ["latest"] = function(id)
+        print("DELETE AUTOCMD ID:", id)
         vim.api.nvim_del_autocmd(id)
     end,
 }
@@ -219,7 +220,10 @@ end
 autocmds_service.del_by_signature = function(path_module, event, pattern)
     local sig_str = make_signature(path_module, event, pattern)
     local id = data.autocmd_signatures_to_ids[sig_str]
-    -- log.warn(string.format("%s -> %s", sig_str, tostring(id)))
+    log.trace(string.format([[
+        signature: %s
+        id: %s
+        ]], sig_str, tostring(id)))
     autocmds_service.del(id)
 
     -- TODO: handle errors gracefully

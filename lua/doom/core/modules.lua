@@ -21,11 +21,11 @@ modules.source = utils.find_config(filename)
 -- Merge core modules (can't be disabled) with user enabled modules
 local core_modules = {
     core = {
-        { "doom", enabled = true },
-        { "nest", enabled = true },
+        { "doom",       enabled = true },
+        { "nest",       enabled = true },
         { "treesitter", enabled = true },
-        { "reloader", enabled = true },
-        { "updater", enabled = true },
+        { "reloader",   enabled = true },
+        { "updater",    enabled = true },
     },
 }
 
@@ -74,7 +74,8 @@ modules.load_module = function(module, path_module)
             if not utils.get_set_table_path(doom.modules, vim.split(dependent_module, "%.")) then
                 should_enable_module = false
                 log.error(
-                    ('Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.'):format(
+                    ('Doom module "%s" depends on a module that is not enabled "%s".  Please enable the %s module.')
+                    :format(
                         path_module,
                         dependent_module,
                         dependent_module
@@ -176,16 +177,18 @@ modules.unload_module = function(module, path_module, ignore)
     if not ignore then
         if module.cmds then
             for _, cmd_spec in
-                ipairs(type(module.cmds) == "function" and module.cmds() or module.cmds)
+            ipairs(type(module.cmds) == "function" and module.cmds() or module.cmds)
             do
                 commands_service.del(cmd_spec[1])
             end
         end
         if module.autocmds then
             for _, autocmd_spec in
-                ipairs(type(module.autocmds) == "function" and module.autocmds() or module.autocmds)
+            ipairs(type(module.autocmds) == "function" and module.autocmds() or module.autocmds)
             do
-                autocmds_service.del_by_signature(path_module, autocmd_spec[1], autocmd_spec[2])
+                if not autocmd_spec.once then
+                    autocmds_service.del_by_signature(path_module, autocmd_spec[1], autocmd_spec[2])
+                end
             end
         end
     end
@@ -203,7 +206,6 @@ end
 
 --- Applies user's commands, autocommands, packages from `use_*` helper functions.
 modules.handle_user_config = function()
-
     -- TODO: pass the whole spec to the service
 
     -- Handle extra user cmds
@@ -236,11 +238,13 @@ modules.unload_user_config = function()
         commands_service.del(cmd_spec[1])
     end
     for _, autocmd_spec in pairs(doom.autocmds) do
-        autocmds_service.del_by_signature(
-            "config.lua", -- maybe make these user-autocmd logic into their own api funcs
-            autocmd_spec[1],
-            autocmd_spec[2]
-        )
+        if not autocmd_spec.once then
+            autocmds_service.del_by_signature(
+                "config.lua", -- maybe make these user-autocmd logic into their own api funcs
+                autocmd_spec[1],
+                autocmd_spec[2]
+            )
+        end
     end
     for _, keybinds in ipairs(doom.binds) do
         keymaps_service.applyKeymaps(keybinds, nil, "delete")

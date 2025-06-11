@@ -541,9 +541,11 @@ statusline.configs["heirline.nvim"] = function()
         { FileBlock },
         { FileEncoding },
         lib.component.file_info(),
+        -- lib.component.fill(),
+        lib.component.fill(),
         lib.component.git_diff(),
         lib.component.diagnostics(),
-        lib.component.fill(),
+        -- lib.component.fill(),
         lib.component.cmd_info(),
         lib.component.fill(),
         lib.component.lsp(),
@@ -699,6 +701,10 @@ statusline.configs["heirline.nvim"] = function()
 
     -- PS("heirline lib colors: <%s>", vim.inspect(lib.hl.get_colors()))
 
+    -- TODO: heirline can be refreshed at anytime, so we should use a post reload
+    -- hook to reset, instead of doing it via lazy, since it wont trigger on
+    -- subsequent relods.
+
     heirline.setup({
         statusline = StatusLine,
         winbar = WinBars,
@@ -720,9 +726,12 @@ statusline.configs["heirline.nvim"] = function()
     vim.o.showtabline = 2
 end
 
-statusline.try_refresh = function()
+
+statusline.try_refresh = function(arg)
     xpcall(doom.modules.features.statusline.configs["heirline.nvim"], debug.traceback)
 end
+
+statusline.on_loaded_each = statusline.try_refresh
 
 -- TODO: vim.cmd([[au FileType * if index(['wipe', 'delete'], &bufhidden) >= 0 | set nobuflisted | endif]])
 -- Convert this into lua
