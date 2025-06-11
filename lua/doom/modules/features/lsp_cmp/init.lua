@@ -146,6 +146,8 @@ nvim_cmp.configs["nvim-cmp"] = function()
         return comparators[comparator]
     end, doom.features.lsp_cmp.settings.sorting)
 
+    PS("doom.settings.mappigs: <%s>", vim.inspect(doom.settings.mappings))
+
     cmp.setup(vim.tbl_deep_extend("force", doom.features.lsp_cmp.settings.completion, {
         completeopt = nil,
         completion = {
@@ -163,43 +165,76 @@ nvim_cmp.configs["nvim-cmp"] = function()
             end,
         },
         mapping = {
+
+            -- select items
             [doom.settings.mappings.cmp.select_prev_item] = cmp.mapping.select_prev_item(),
             [doom.settings.mappings.cmp.select_next_item] = cmp.mapping.select_next_item(),
+
+            -- scroll docs
             [doom.settings.mappings.cmp.scroll_docs_bkw] = cmp.mapping.scroll_docs(-4),
             [doom.settings.mappings.cmp.scroll_docs_fwd] = cmp.mapping.scroll_docs(4),
+
+            -- ??
             [doom.settings.mappings.cmp.complete] = cmp.mapping.complete(),
+
+            -- close the comp window
             [doom.settings.mappings.cmp.close] = cmp.mapping.close(),
-            -- ["<ESC>"] = cmp.mapping.close(),
-            [doom.settings.mappings.cmp.confirm] = cmp.mapping.confirm({
-                behavior = cmp.ConfirmBehavior.Replace,
-                select = true,
-            }),
+
+            -- select current entry
+            [doom.settings.mappings.cmp.confirm] = cmp.mapping(function(fallback)
+                if cmp.visible() then
+                    if luasnip.expandable() then
+                        luasnip.expand()
+                    else
+                        cmp.confirm({
+                            select = true,
+                        })
+                    end
+                else
+                    fallback()
+                end
+            end),
+
+            -- <Tab>
             [doom.settings.mappings.cmp.tab] = cmp.mapping(function(fallback)
+                -- if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
+                --     cmp.select_next_item()
+                -- elseif luasnip_exists and luasnip.expand_or_jumpable() then
+                --     print("expand_or_jumpable")
+                --     vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
+                -- elseif check_backspace() then
+                --     print("feedkeys")
+                --     vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
+                -- else
+                --     print("fallback")
+                --     fallback()
+                -- end
+
                 if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
                     cmp.select_next_item()
-                elseif luasnip_exists and luasnip.expand_or_jumpable() then
-                    print("expand_or_jumpable")
-                    vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-expand-or-jump"), "")
+                elseif luasnip.locally_jumpable(1) then
+                    luasnip.jump(1)
                 elseif check_backspace() then
                     print("feedkeys")
                     vim.fn.feedkeys(replace_termcodes("<Tab>"), "n")
                 else
-                    print("fallback")
                     fallback()
                 end
             end, {
                 "i",
                 "s",
             }),
+
+            -- <STab>
             [doom.settings.mappings.cmp.stab] = cmp.mapping(function(fallback)
-                if cmp.visible() and doom.settings.cmp_cycle_entries_with_tab then
-                    cmp.select_prev_item()
-                elseif luasnip_exists and luasnip.jumpable(-1) then
-                    print("feedkeys")
-                    vim.fn.feedkeys(replace_termcodes("<Plug>luasnip-jump-prev"), "")
-                else
-                    print("fallback")
-                    fallback()
+                if doom.settings.cmp_cycle_entries_with_tab then
+                    if cmp.visible() then
+                        cmp.select_prev_item()
+                    elseif luasnip.locally_jumpable(-1) then
+                        luasnip.jump(-1)
+                    else
+                        fallback()
+                    end
                 end
             end, {
                 "i",

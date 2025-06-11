@@ -107,40 +107,29 @@ local system = require("doom.core.system")
 
 -- packer.nvim logs to stdpath(cache)/packer.nvim.log. Looking at this file is usually a good start if something isn't working as expected.
 
--- doom.settings.cmp_binds = {
---   select_prev_item = "<C-p>",
---   select_next_item = "<C-n>",
---   scroll_docs_fwd = "<C-d>",
---   scroll_docs_bkw = "<C-f>",
---   complete = "<C-Space>",
---   close = "<C-h>",
---   confirm = "<C-a>",
---   tab = "<C-l>",
---   stab = "<C-h>",
--- }
-
 doom.settings.local_plugins_path = "~/code/repos/github.com"
 doom.settings.using_ghq = true
 
 ---------------------------
 ---       GLOBALS       ---
 ---------------------------
+---
 
 local ok, plenary_reload = pcall(require, "plenary.reload")
 local reloader = require
 if ok then
-  reloader = plenary_reload.reload_module
+    reloader = plenary_reload.reload_module
 end
 
 P = function(...)
-  for i = 1, select("#", ...) do
-    local x = select(i, ...)
-    print(vim.inspect(x))
-  end
+    for i = 1, select("#", ...) do
+        local x = select(i, ...)
+        print(vim.inspect(x))
+    end
 end
 
 PS = function(...)
-  print(string.format(...))
+    print(string.format(...))
 end
 
 -- TODO: bind P( viw / viW )
@@ -151,27 +140,27 @@ end
 -- P("arst")
 
 GGG = function(depth)
-  local t = {}
-  depth = depth or 1
-  for k, v in pairs(_G) do
-    if k:match("^_doom") then
-      t[k] = v
+    local t = {}
+    depth = depth or 1
+    for k, v in pairs(_G) do
+        if k:match("^_doom") then
+            t[k] = v
+        end
     end
-  end
-  print("inspect `_doom`", vim.inspect(t, { depth = depth }))
+    print("inspect `_doom`", vim.inspect(t, { depth = depth }))
 end
 
 D = function(v, pre)
-  log.debug(pre or "", v)
+    log.debug(pre or "", v)
 end
 
 RELOAD = function(...)
-  return reloader(...)
+    return reloader(...)
 end
 
 R = function(name)
-  RELOAD(name)
-  return require(name)
+    RELOAD(name)
+    return require(name)
 end
 
 --------------------------
@@ -260,9 +249,9 @@ doom.settings.escape_sequences = { "zm" }
 
 -- vim.lsp.set_log_level('info')
 vim.diagnostic.config({
-  float = {
-    source = "always",
-  },
+    float = {
+        source = "always",
+    },
 })
 
 --
@@ -270,20 +259,20 @@ vim.diagnostic.config({
 --
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(
-      _,
-      _,
-      diagnostics_dict,
-      _
-  )
-    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
-    local s = ""
-    for e, _ in pairs(diagnostics_dict) do
-      local sym = e == "error" and " " or (e == "warning" and " " or " ")
-      s = s .. sym
+    doom.modules.tabline.settings.options.diagnostics_indicator = function(
+        _,
+        _,
+        diagnostics_dict,
+        _
+    )
+        doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+        local s = ""
+        for e, _ in pairs(diagnostics_dict) do
+            local sym = e == "error" and " " or (e == "warning" and " " or " ")
+            s = s .. sym
+        end
+        return s
     end
-    return s
-  end
 end
 
 -------------------------------------
@@ -305,17 +294,17 @@ local funcs = {}
 -- https://github.com/kristijanhusak/neovim-config/blob/master/nvim/lua/partials/search.lua
 -- TODO: move to utils??
 funcs.get_visual_selection = function()
-  local s_start = vim.fn.getpos("'<")
-  local s_end = vim.fn.getpos("'>")
-  local n_lines = math.abs(s_end[2] - s_start[2]) + 1
-  local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
-  lines[1] = string.sub(lines[1], s_start[3], -1)
-  if n_lines == 1 then
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
-  else
-    lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
-  end
-  return table.concat(lines, "\n")
+    local s_start = vim.fn.getpos("'<")
+    local s_end = vim.fn.getpos("'>")
+    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+    lines[1] = string.sub(lines[1], s_start[3], -1)
+    if n_lines == 1 then
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
+    else
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
+    end
+    return table.concat(lines, "\n")
 end
 
 -- -- open buffer and read feat req template so that one can quickly
@@ -354,15 +343,15 @@ end
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
 
 doom.settings.mappings.cmp = {
-  select_prev_item = "<C-p>",
-  select_next_item = "<C-n>",
-  scroll_docs_fwd = "<C-d>",
-  scroll_docs_bkw = "<C-f>",
-  complete = "<C-Space>",
-  close = "<C-e>",
-  confirm = "<C-l>",
-  tab = "<Tab>",
-  stab = "<S-Tab>",
+    select_prev_item = "<C-p>",
+    select_next_item = "<C-n>",
+    scroll_docs_fwd = "<C-d>",
+    scroll_docs_bkw = "<C-f>",
+    complete = "<C-Space>",
+    close = "<C-e><C-w>",
+    confirm = "<C-e><C-f>",
+    tab = "<Tab>",
+    stab = "<S-Tab>",
 }
 
 -- TODO: CUSTOMIZE SNIPPET BINDS
@@ -393,9 +382,9 @@ doom.settings.mappings.cmp = {
 -------------------------------
 
 vim.diagnostic.config({
-  float = {
-    source = "always",
-  },
+    float = {
+        source = "always",
+    },
 })
 
 ---------------------------
@@ -403,20 +392,20 @@ vim.diagnostic.config({
 ---------------------------
 
 if doom.modules.tabline then
-  doom.modules.tabline.settings.options.diagnostics_indicator = function(
-      _,
-      _,
-      diagnostics_dict,
-      _
-  )
-    doom.modules.tabline.settings.options.numbers = nil     -- Hide buffer numbers
-    local s = ""
-    for e, _ in pairs(diagnostics_dict) do
-      local sym = e == "error" and " " or (e == "warning" and " " or " ")
-      s = s .. sym
+    doom.modules.tabline.settings.options.diagnostics_indicator = function(
+        _,
+        _,
+        diagnostics_dict,
+        _
+    )
+        doom.modules.tabline.settings.options.numbers = nil -- Hide buffer numbers
+        local s = ""
+        for e, _ in pairs(diagnostics_dict) do
+            local sym = e == "error" and " " or (e == "warning" and " " or " ")
+            s = s .. sym
+        end
+        return s
     end
-    return s
-  end
 end
 
 --------------------------
@@ -516,28 +505,28 @@ telescope_defaults.winblend = 10
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
 doom.use_autocmd({
-  {
-    "BufEnter",
-    "*.norg",
-    function()
-      print("[doom config]: buf enter for *.norg")
-    end,
-  },
+    {
+        "BufEnter",
+        "*.norg",
+        function()
+            print("[doom config]: buf enter for *.norg")
+        end,
+    },
 })
 
 -- 	:autocmd BufReadPost *.gsm  set filetype=asm
 doom.use_cmd({
-  "MyTestingCmd",
-  function(args)
-    print("[doom config]: Hi from my testing cmd")
-    P(args)
-  end,
-  {
-    nargs = 1,
-    complete = function(arg_lead, cmdline, curpos)
-      print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+    "MyTestingCmd",
+    function(args)
+        print("[doom config]: Hi from my testing cmd")
+        P(args)
     end,
-  },
+    {
+        nargs = 1,
+        complete = function(arg_lead, cmdline, curpos)
+            print(string.format("[%s], [%s], [%s]", arg_lead, cmdline, curpos))
+        end,
+    },
 })
 
 --
@@ -547,26 +536,26 @@ doom.use_cmd({
 -- Test handle windows and buffers
 
 local function demo_windows_and_bufs()
-  local ns = "[ demo_windows_and_bufs ]:"
+    local ns = "[ demo_windows_and_bufs ]:"
 
-  local buf = vim.api.nvim_create_buf(true, true)
+    local buf = vim.api.nvim_create_buf(true, true)
 
-  -- print(ns, "buf num = ", buf)
+    -- print(ns, "buf num = ", buf)
 
-  local window = vim.api.nvim_open_win(buf, false, {
-    split = "right",
-    -- win = 0,
-  })
+    local window = vim.api.nvim_open_win(buf, false, {
+        split = "right",
+        -- win = 0,
+    })
 
-  vim.api.nvim_buf_set_name(buf, ns)
+    vim.api.nvim_buf_set_name(buf, ns)
 
-  -- TODO: run dorothy command tests and then print the results into this new
-  -- scratch buffer.
-  -- 1. setup an autocmd
-  -- execute_anything_tj_style
-  --
-  -- move all of this to the execute execute_anything_tj_style module
-  -- and rename it and use this test system and see what happens.
+    -- TODO: run dorothy command tests and then print the results into this new
+    -- scratch buffer.
+    -- 1. setup an autocmd
+    -- execute_anything_tj_style
+    --
+    -- move all of this to the execute execute_anything_tj_style module
+    -- and rename it and use this test system and see what happens.
 end
 
 -- FIX: Put this in `features/terminal` <<<<<<
@@ -574,7 +563,6 @@ end
 -- TODO: feature -> run command in a terminal and put it in the background.
 -- Also, rename the terminal after the command.
 -- >>>> Basically, run terminal command in the background.
-
 
 --
 -- USER | KEYBINDS TREE
@@ -589,30 +577,30 @@ end
 -- fast.
 
 doom.use_keybind({
-  {
-    "<leader>n",
-    name = "+nvim",
     {
-      {
-        "t",
-        name = "+testing",
+        "<leader>n",
+        name = "+nvim",
         {
-          {
-            "w",
-            function()
-              demo_windows_and_bufs()
-            end,
-            name = "test win buf 1",
-          },
+            {
+                "t",
+                name = "+testing",
+                {
+                    {
+                        "w",
+                        function()
+                            demo_windows_and_bufs()
+                        end,
+                        name = "test win buf 1",
+                    },
+                },
+            },
+            {
+                "o",
+                ":options<CR>",
+                name = "Show nvim :options",
+            },
         },
-      },
-      {
-        "o",
-        ":options<CR>",
-        name = "Show nvim :options",
-      },
     },
-  },
 })
 
 -- vim: sw=2 sts=2 ts=2 expandtab
