@@ -365,10 +365,13 @@ utils.list_tail = function(list)
     return head, tail
 end
 
-utils.get_buf_handle = function(path)
+utils.get_buf_handle = function(path, keep_unloaded)
     local buf
     if path ~= nil then
         buf = vim.uri_to_bufnr(vim.uri_from_fname(path))
+        if not keep_unloaded then
+            vim.fn.bufload(buf)
+        end
     else
         buf = vim.api.nvim_get_current_buf()
     end
@@ -401,7 +404,6 @@ utils.tbl_merge = function(t1, t2)
     return t1
 end
 
-
 ---Special function used for aiding in converting a vim.inspect table into a
 ---table of strings that can be inserted into a buffer.
 utils.build_new_inject_string = function(tree, prevent_trimming_surrounding_braces)
@@ -417,6 +419,5 @@ utils.build_new_inject_string = function(tree, prevent_trimming_surrounding_brac
     end
     return ret
 end
-
 
 return utils
