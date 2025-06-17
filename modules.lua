@@ -12,18 +12,23 @@
 -- are broken up into multiline.
 
 return {
+    TESTING = { { "abc", enabled = false } },
     AI = { { "lectic", enabled = false }, { "chat_gpt", enabled = false } },
     LIB = {
+        {
+            "u_text_manipulation",
+            enabled = true,
+        },
         { "symbolic_math", enabled = false },
         { "stylish_ui_components", enabled = false },
         { "nui", enabled = true },
         { "libmodal", enabled = false },
         { "animations", enabled = false },
         { "nio", enabled = true }, -- asynch IO
+        { "pathlib", enabled = true },
+        { "litee", enabled = true },
 
-        -- "litee"
         -- "libmodal" -- custom pseudo modes | also check out https://github.com/nvimtools/hydra.nvim
-        -- https://github.com/jrop/u.nvim/tree/v2
     },
     FEATURES = {
         { "lua_table_editor", enabled = false },
@@ -38,10 +43,6 @@ return {
         },
         { "testmodule", enabled = false },
         { "task_and_job_manager", enabled = true },
-        LIB = {
-            { "litee", enabled = true },
-            { "pathlib", enabled = true },
-        },
         COMPLETIONS = {
             { "cmp_nvim", enabled = false },
             -- "coc"

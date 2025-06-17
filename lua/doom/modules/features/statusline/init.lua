@@ -3,11 +3,16 @@
 -- NOTE: Examples on how to use heirline-components
 --  https://github.com/NormalNvim/NormalNvim/blob/69e334c1f10554ba03b07193b4d4aad5c71c021a/lua/plugins/2-ui.lua#L320
 --
+-- NOTE: heirline-components is super powerful and configures most things. It
+-- really is a good resource for learning.
+--
 --
 -- FIX: Autocmds fail to reload
 
 -- TODO: think about loading order of plugins. Maybe we need a system that allows
 -- for setting loading order of modules? load_before = ..., load_index = <integer>
+--
+-- TODO: If eg. neorg journal file, then show parents up until journal dir.
 
 local hex2rgb = function(hex)
     hex = hex:gsub("#", "")
@@ -394,7 +399,7 @@ statusline.configs["heirline.nvim"] = function()
         FileSize,
         FileIcon,
         utils.insert(FileNameModifer, FileName), -- a new table where FileName is a child of FileNameModifier
-        unpack(FileFlags) -- A small optimisation, since their parent does nothing
+        unpack(FileFlags)                        -- A small optimisation, since their parent does nothing
     )
 
     -- Mason LSP indicator, shows when a package is being installed
@@ -542,18 +547,21 @@ statusline.configs["heirline.nvim"] = function()
         { FileEncoding },
         lib.component.file_info(),
         -- lib.component.fill(),
+        lib.component.treesitter({ str = { str = "TS On" } }),
+        -- lib.component.fill(),
+        lib.component.git_diff(), -- added:green changed:blue removed:red
         lib.component.fill(),
-        lib.component.git_diff(),
         lib.component.diagnostics(),
         -- lib.component.fill(),
-        lib.component.cmd_info(),
+        lib.component.cmd_info(), -- eg. shows which register a macro is being recorded to.
         lib.component.fill(),
         lib.component.lsp(),
         { provider = " %= " },
         { MasonStatusElement },
-        { FileTypeElement },
+        -- { FileTypeElement },
         { LSPElement },
-        lib.component.compiler_state(),
+        lib.component.compiler_state(), -- https://github.com/Zeioth/compiler.nvim
+
         lib.component.virtual_env(),
         { Ruler }, -- lib.component.nav(), -- nav is the same as ruler..
         lib.component.mode({
@@ -573,29 +581,67 @@ statusline.configs["heirline.nvim"] = function()
     -- and name of terminal buffers.
 
     local WinBars = {
+        init = function(self)
+            self.bufnr = vim.api.nvim_get_current_buf()
+        end,
         fallthrough = false,
-        { -- A special winbar for terminals
-            condition = function()
-                return conditions.buffer_matches({ buftype = { "terminal" } })
-            end,
-            utils.surround({ "", "" }, "dark_red", {
-                FileTypeElement,
-                Space,
-                TerminalName,
-            }),
+        -- -- Winbar for terminal, neotree, and aerial.
+        -- {
+        --     condition = function()
+        --         return not lib.condition.is_active()
+        --     end,
+        --     {
+        --         lib.component.neotree(),
+        --         lib.component.compiler_play(),
+        --         lib.component.fill(),
+        --         lib.component.compiler_build_type(),
+        --         lib.component.compiler_redo(),
+        --         lib.component.aerial(),
+        --     },
+        -- },
+        -- -- Regular winbar
+
+        {
+            -- FileName,
+            lib.component.file_info({ filetype = false, filename = {}, file_modified = false }), -- icon+filename+extension
+            lib.component.diagnostics(),
+            lib.component.breadcrumbs(), --
+            -- lib.component.neotree(),
+            -- lib.component.compiler_play(),
+            -- lib.component.fill(),
+            -- lib.component.fill(),
+            -- lib.component.compiler_redo(),
+            -- lib.component.aerial(),
         },
-        { -- An inactive winbar for regular files
-            condition = function()
-                return not conditions.is_active()
-            end,
-            utils.surround(
-                { "", "" },
-                colors.bright_bg,
-                { hl = { fg = "gray", force = true }, FileName }
-            ),
-        },
-        -- A winbar for regular files
-        utils.surround({ "", "" }, colors.bright_bg, FileName),
+
+        -- -- fallthrough = false,
+        -- { -- A special winbar for terminals
+        --     condition = function()
+        --         return conditions.buffer_matches({ buftype = { "terminal" } })
+        --     end,
+        --     utils.surround({ "", "" }, "dark_red", {
+        --         FileTypeElement,
+        --         Space,
+        --         TerminalName,
+        --     }),
+        -- },
+
+
+
+        -- -- An inactive winbar for regular files
+        -- {
+        --     condition = function()
+        --         return not conditions.is_active()
+        --     end,
+        --     utils.surround(
+        --         { "", "" },
+        --         colors.bright_bg,
+        --         { hl = { fg = "gray", force = true }, FileName }
+        --     ),
+        -- },
+
+        -- -- A winbar for regular files
+        -- utils.surround({ "", "" }, colors.bright_bg, FileName),
     }
 
     -- NormalNvim config
@@ -731,7 +777,7 @@ statusline.try_refresh = function(arg)
     xpcall(doom.modules.features.statusline.configs["heirline.nvim"], debug.traceback)
 end
 
-statusline.on_loaded_each = statusline.try_refresh
+statusline.on_loaded_single = statusline.try_refresh
 
 -- TODO: vim.cmd([[au FileType * if index(['wipe', 'delete'], &bufhidden) >= 0 | set nobuflisted | endif]])
 -- Convert this into lua

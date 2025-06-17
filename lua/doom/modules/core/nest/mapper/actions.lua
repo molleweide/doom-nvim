@@ -224,6 +224,9 @@ M.add_new_dummy_bind = function(prompt_bufnr)
         end
 
         -- TODO: Show final display of mapping - Confirm yes/no
+        -- 1. Use nui and nui-components to generate the windows and layouts.
+        -- 2. Use u.nvim build the contents of the buffer.
+        -- 3. Create and use a custom highlight group for this.
 
         -- TODO: move this to mappings_finder_v2.insert_new_binds_tree
 

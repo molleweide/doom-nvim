@@ -1,51 +1,54 @@
-local symbolic_math = {}
+local abc = {}
 
 -- TODO:
 --
 --    -
-
+	
 ----------------------------
 -- SETTINGS
 ----------------------------
 
--- symbolic_math.settings = {}
-
+-- abc.settings = {}
+	
 ----------------------------
 -- PACKAGES
 ----------------------------
 
-symbolic_math.packages = {
-    ["swan.lua"] = { "-- jbyuki/swan.lua" },
-}
-
+-- abc.packages = {
+-- [""] = {},
+-- -- [""] = {},
+-- -- [""] = {},
+-- -- [""] = {},
+-- }
+  
 ----------------------------
 -- CONFIGS
 ----------------------------
-
+  
 ----------------------------
 -- CMDS
 ----------------------------
 
--- symbolic_math.cmds = {}
-
+-- abc.cmds = {}
+  
 --------------------------
 -- AUTOCMDS
 --------------------------
 
--- symbolic_math.autocmds = {}
-
+-- abc.autocmds = {}
+	
 ----------------------------
 -- BINDS
 ----------------------------
 
--- symbolic_math.binds = {}
-
+-- abc.binds = {}
+  
 ----------------------------
 -- LEADER BINDS
 ----------------------------
 
 -- if require("doom.utils").is_module_enabled("whichkey") then
---   table.insert(symbolic_math.binds, {
+--   table.insert(abc.binds, {
 --     "<leader>",
 --     name = "+prefix",
 --     {
@@ -59,9 +62,11 @@ symbolic_math.packages = {
 --     },
 --   })
 -- end
-
+  
 ----------------------------
 -- RETURN
 ----------------------------
 
-return symbolic_math
+return abc
+  
+  

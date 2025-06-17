@@ -172,14 +172,14 @@ lsp.binds = function()
     {
       "[d",
       function()
-        vim.diagnostic.jump({ count = -1 })
+        vim.diagnostic.goto_prev()
       end,
       name = "Jump to prev diagnostic",
     },
     {
       "]d",
       function()
-        vim.diagnostic.jump({ count = 1 })
+        vim.diagnostic.goto_next()
       end,
       name = "Jump to next diagnostic",
     },

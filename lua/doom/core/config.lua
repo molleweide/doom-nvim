@@ -99,6 +99,9 @@ config.handle_enabled_modules = function()
                     -- print(vim.inspect(t_path))
                     local path_module = table.concat(t_path, ".")
 
+                    -- TODO: If a module is a theme or pertains to setting
+                    -- highlights, then set the loading priority to first??
+
                     -- print("path: ", path_module)
 
                     -- filter modules
