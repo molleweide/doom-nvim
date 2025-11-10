@@ -164,6 +164,17 @@ nvim_cmp.configs["nvim-cmp"] = function()
                 return item
             end,
         },
+
+        -- TODO: All of these mappigs should be put in an nest binds table, eg
+        -- `binds_completions`, so that these bindings can be found by the
+        -- bindings manager as well.
+        --      More name ideas:
+        --          M.settings.binds_...
+        --          M.binds_completions
+        --          M.binds_internal??
+        --
+        -- TODO: Remove the cmp bindings from the global doom table.
+
         mapping = {
 
             -- select items
@@ -228,7 +239,7 @@ nvim_cmp.configs["nvim-cmp"] = function()
         },
     }, {
         mapping = type(doom.features.lsp_cmp.settings.completion.mapping) == "function"
-            and doom.features.lsp_cmp.settings.completion.mapping(cmp)
+                and doom.features.lsp_cmp.settings.completion.mapping(cmp)
             or doom.features.lsp_cmp.settings.completion.mapping,
         enabled = function()
             return _doom.cmp_enable and vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"

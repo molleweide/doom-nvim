@@ -353,14 +353,14 @@ required.autocmds = function()
         -- NOTE: Once, it seemed that silent writing did not trigger Neogit
         -- refresh, but usually it should.
 
-        if false then
+        -- if false then
           vim.cmd([[
                 silent! write
                 " write!
                 ]])
-        end
+        -- end
 
-        -- vim.notify(("Autosave: %s"):format(ev.file:match("lua/(.-)$") or ev.file))
+        vim.notify(("Autosave: %s"):format(ev.file:match("lua/(.-)$") or ev.file))
 
         -- if _doom_reloader.reload_on_save then
         -- doom.modules.core.reloader.reload_doom_if_necessary(ev)
@@ -404,5 +404,23 @@ required.cmds = {
     { nargs = "*" },
   },
 }
+
+
+--
+-- required.binds = {
+--     "<leader>",
+--     name = "+prefix",
+--     {
+--         {
+--             "t",
+--             name = "+tweak",
+--             {
+--                 -- TODO: ( ) Toggle auto save
+--                 -- { "W", require("doom.core.functions").toggle_wrap, name = "Toggle wrap" },
+--
+--             },
+--         },
+--     },
+-- }
 
 return required

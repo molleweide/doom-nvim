@@ -17,6 +17,8 @@ function TSLua:query_wrap(opts, debug)
         query = opts.query
     end
 
+    PS("TS LUA BUF HANDLE: %s", self.buf_handle)
+
     local parser = vim.treesitter.get_parser(self.buf_handle, "lua", {})
     local root = parser:parse()[1]:root()
 

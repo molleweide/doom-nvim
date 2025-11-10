@@ -217,7 +217,6 @@ config.handle_post_import_modules = function()
     --
 
     local ok, err = xpcall(dofile, debug.traceback, config.source)
-    local log = require("doom.utils.logging")
     if not ok and err then
         log.error("[core/config.lua]: Error while running `config.lua`. Traceback:\n" .. err)
     end

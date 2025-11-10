@@ -6,6 +6,9 @@ local action_state = require("telescope.actions.state")
 
 local _utils = require("doom.modules.core.nest.mapper.utils")
 
+-- TODO: duplicate selected mapping to another mode. eg. take a normal mode
+-- command and also enable it for terminal mode.
+
 -- TODO: CENTER FLOAT WINDOW
 --
 -- local gheight = vim.api.nvim_list_uis()[1].height

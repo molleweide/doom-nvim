@@ -438,5 +438,4 @@ neogit.binds = {
     },
   },
 }
-
 return neogit

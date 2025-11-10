@@ -1,5 +1,13 @@
 local TSNodeWrapper = require("doom.utils.ts.__wrapper")
 
+-- TODO: flag a buffer with "was_already_loaded", if false, this means that we
+-- are creating a buf handle of a file that shouldnt be loaded otherwise, ie,
+-- other than when the ts lib is operating on the file, therefore. TS clase
+-- should implement a:
+-- TODO: tsobj:close()
+--  This should unload the buffer handle and remove any attached stuff that doesnt
+--  auto unload.
+
 --
 -- TS BUF CLASS
 --
